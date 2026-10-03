@@ -790,7 +790,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><i class="bi bi-currency-exchange me-1"></i> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><i class="bi bi-pc-display-horizontal me-1"></i> Activos</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><i class="bi bi-archive me-1"></i> Historial</button></li>
-        <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><i class="bi bi-shield-lock me-1"></i> Admin</button></li>
+        <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><i class="bi bi-gear-fill me-1"></i> Configuración</button></li>
     </ul>
 
     <!-- CONTENIDO -->
@@ -1185,6 +1185,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <hr>
                         <h6 class="fw-semibold"><i class="bi bi-person-list me-2"></i>Usuarios Registrados</h6>
                         <div id="listaUsuariosAdmin">
+                            <!-- Se llena con JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Negocios -->
+                <div class="col-12">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-1"><i class="bi bi-building me-2"></i>Negocios</h6>
+                        <p class="small text-muted">Un negocio se crea al registrar un usuario con un nombre de negocio nuevo. Para eliminar un negocio, primero elimina o reasigna sus usuarios.</p>
+                        <div id="listaNegociosAdmin">
                             <!-- Se llena con JS -->
                         </div>
                     </div>
@@ -2510,7 +2521,35 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 });
             });
             
+            renderNegociosAdmin();
             renderBloqueoMeses();
+        }
+
+        // ===== RENDER: ADMIN (LISTA DE NEGOCIOS) =====
+        function renderNegociosAdmin(){
+            const box=document.getElementById('listaNegociosAdmin');
+            if(!box) return;
+            const users=getUsuarios(), mapa={};
+            Object.keys(users).forEach(u=>{
+                const x=users[u];
+                if(!x||x.role==='admin'||!x.negocio) return;
+                if(!mapa[x.negocio]) mapa[x.negocio]={tipo:x.entityType||'tcp',usuarios:[]};
+                mapa[x.negocio].usuarios.push(u);
+            });
+            const nombres=Object.keys(mapa).sort();
+            if(!nombres.length){ box.innerHTML='<p class="text-muted text-center py-3">No hay negocios registrados.</p>'; return; }
+            box.innerHTML=nombres.map(n=>{
+                const m=mapa[n];
+                const tipo=m.tipo==='mipyme'?`MIPYME (${m.usuarios.length} usuario(s))`:'TCP';
+                return `<div class="usuario-item"><div class="usuario-info"><div class="avatar" style="background:#0f766e;">${esc(n.substring(0,2).toUpperCase())}</div><div><div class="fw-semibold">\uD83C\uDFE2 ${esc(n)}</div><small class="text-muted">${tipo} \u00B7 Usuarios: ${m.usuarios.map(esc).join(', ')}</small></div></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-danger" data-negocio="${esc(n)}" title="Eliminar negocio" onclick="eliminarNegocio(this.dataset.negocio)"><i class="bi bi-trash3"></i></button></div></div>`;
+            }).join('');
+        }
+        async function eliminarNegocio(nombre){
+            if(!confirm(`¿Eliminar el negocio "${nombre}" y TODOS sus datos? Esta acción no se puede deshacer.`)) return;
+            const r=await api('negocio_delete',{negocio:nombre});
+            if(!r.ok){ alert('\u26A0\uFE0F '+(r.error||'No se pudo eliminar el negocio.')); return; }
+            renderNegociosAdmin();
+            alert(`Negocio "${nombre}" eliminado.`);
         }
 
         // ===== ABRIR EDITOR DE USUARIO =====
@@ -3326,6 +3365,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 userRoleBadge.textContent = esAdmin ? '👑 Administrador' : (userData.role === 'editor' ? '✏️ Editor' : '👁️ Consultor');
                 userRoleBadge.className = `badge ${esAdmin ? 'badge-admin' : 'badge-soft-info'} ms-2 px-3 py-2`;
                 document.getElementById('adminTabNav').style.display = esAdmin ? '' : 'none';
+                if (esAdmin) {
+                    ['tab-resumen','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-tasas','tab-aft','tab-cierre'].forEach(id=>{
+                        const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
+                    });
+                    document.getElementById('negocioNombreBadge').style.display='none';
+                    document.getElementById('userTypeBadge').style.display='none';
+                    document.getElementById('btnCalcularONAT').style.display='none';
+                    document.getElementById('btnCerrarMes').style.display='none';
+                    bootstrap.Tab.getOrCreateInstance(document.getElementById('tab-admin')).show();
+                }
                 userTypeBadge.textContent = userData.entityType === 'mipyme' ? `📋 MIPYME (${userData.socios || 1} socios)` : '📋 TCP';
                 negocioNombreDisplay.textContent = userData.negocio || 'Mi Negocio';
                 // Evitar el badge duplicado "Administrador" (nombre de negocio == rol)
