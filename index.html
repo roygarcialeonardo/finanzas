@@ -1334,6 +1334,29 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 </div></div></div>
 
 <!-- MODAL TRABAJADOR -->
+<div class="modal fade" id="passResetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-key me-2"></i>Contraseña restablecida</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-1">Usuario</p>
+                <h5 id="prUser" class="mb-3"></h5>
+                <p class="small text-muted mb-1">Contraseña temporal nueva</p>
+                <div class="p-3 bg-light rounded text-center mb-2"><code id="prPass" style="font-size:1.5rem;letter-spacing:2px;"></code></div>
+                <p class="small text-warning mb-0">El usuario deberá cambiarla al entrar.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" id="btnCopiarPass"><i class="bi bi-clipboard me-1"></i>Copiar</button>
+                <a class="btn btn-primary text-white" id="btnShareTg" target="_blank" rel="noopener"><i class="bi bi-telegram me-1"></i>Compartir por Telegram</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="trabajadorModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content">
     <div class="modal-header"><h5 class="modal-title" id="trabajadorModalTitulo"><i class="bi bi-person-vcard me-2"></i>Trabajador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
@@ -1792,6 +1815,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         const clasificacionModal = new bootstrap.Modal(document.getElementById('clasificacionModal'));
         const saldoInicialModal = new bootstrap.Modal(document.getElementById('saldoInicialModal'));
         const editarUsuarioModal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
+        const passResetModal = new bootstrap.Modal(document.getElementById('passResetModal'));
         const trabajadorModal = new bootstrap.Modal(document.getElementById('trabajadorModal'));
         const fiscalManualModal = new bootstrap.Modal(document.getElementById('fiscalManualModal'));
         const aftModal = new bootstrap.Modal(document.getElementById('aftModal'));
@@ -2488,6 +2512,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                 <button class="btn btn-sm btn-outline-danger eliminar-usuario" data-user="${esc(username)}" title="Eliminar usuario">
                                     <i class="bi bi-trash3"></i>
                                 </button>
+                                <button class="btn btn-sm btn-outline-secondary recuperar-pass" data-user="${esc(username)}" title="Restablecer contraseña">
+                                    <i class="bi bi-key"></i>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -2503,6 +2530,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 });
             });
             
+            // Eventos de restablecer contraseña
+            document.querySelectorAll('.recuperar-pass').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    restablecerPass(this.getAttribute('data-user'));
+                });
+            });
+
             // Eventos de eliminar usuario
             document.querySelectorAll('.eliminar-usuario').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -2584,6 +2618,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             } else {
                 divSocios.style.display = 'block';
             }
+        }
+
+        // ===== RESTABLECER CONTRASEÑA =====
+        async function restablecerPass(username){
+            if(!confirm(`¿Generar una contraseña nueva para "${username}"? La actual dejará de funcionar.`)) return;
+            const r=await api('pass_reset',{username});
+            if(!r.ok){ alert('⚠️ '+(r.error||'No se pudo restablecer la contraseña.')); return; }
+            document.getElementById('prUser').textContent=username;
+            document.getElementById('prPass').textContent=r.password;
+            document.getElementById('btnShareTg').href='https://t.me/share/url?url='+encodeURIComponent(`Acceso a Finanzas FRANWE\nUsuario: ${username}\nContraseña temporal: ${r.password}\nDebes cambiarla al entrar.`);
+            passResetModal.show();
         }
 
         // ===== GUARDAR EDICIÓN DE USUARIO =====
@@ -3472,6 +3517,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         });
         logoutBtn.addEventListener('click', handleLogout);
         initPrintButtons();
+        document.getElementById('btnCopiarPass').addEventListener('click', function(){
+            const t=document.getElementById('prPass').textContent;
+            if(navigator.clipboard&&t) navigator.clipboard.writeText(t).then(()=>alert('Contraseña copiada.')).catch(()=>alert('No se pudo copiar.'));
+        });
         api('ping');
 
         document.getElementById('newEntityType').addEventListener('change', toggleSocios);
