@@ -1416,7 +1416,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="col-md-4"><label class="form-label">Fecha de alta</label><input id="trabFechaAlta" type="date" class="form-control"></div>
         <div class="col-md-4"><label class="form-label">Fecha de baja</label><input id="trabFechaBaja" type="date" class="form-control"></div>
         <div class="col-12"><label class="form-label">Notas</label><input id="trabNotas" class="form-control" maxlength="180" placeholder="Opcional"></div>
-        <div class="col-12"><hr class="my-1"><label class="form-label">Complementos aplicables a este trabajador</label><div class="row g-1" id="trabCompList"></div><small class="text-muted d-block mt-1">Marca los conceptos que se aplican a este trabajador y completa los días, horas o montos del mes en curso.</small></div>
+        <div class="col-12"><hr class="my-1"><label class="form-label">Complementos aplicables a este trabajador</label><div class="row g-1" id="trabCompList"></div><small class="text-muted d-block mt-1">Marca los conceptos que se aplican a este trabajador y completa los días, horas o montos del mes en curso. Se aplican a la nómina al momento, sin esperar al botón Guardar.</small></div>
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary-custom text-white" id="btnGuardarTrabajador">Guardar trabajador</button></div>
@@ -2296,6 +2296,28 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
             return comp;
         }
+        function trabCompLiveSave() {
+            if (!trabajadorEditId) return; // los trabajadores nuevos se guardan con el botón
+            const d = getRRHH();
+            const t = d.trabajadores.find(x => String(x.id) === String(trabajadorEditId));
+            if (!t) return;
+            const per = periodoNominaActual();
+            if (!d.nominas[per]) d.nominas[per] = {};
+            const ca = {}, comp = {};
+            COMP_DEF.forEach(c => {
+                const sw = document.getElementById('trab-comp-' + c.id), on = sw ? sw.checked : false;
+                ca[c.id] = on;
+                if (on) Object.assign(comp, leerCamposConcepto(c.id));
+            });
+            t.compAplica = ca;
+            const prev = d.nominas[per][t.id] || {};
+            const fila = (leerNominaDOM() || []).find(x => String(x.id) === String(t.id));
+            const nomField = document.getElementById('trabNombre');
+            d.nominas[per][t.id] = Object.assign({}, prev, { nombre: (nomField && nomField.value.trim()) || t.nombre || '', comp: comp });
+            if (fila) { d.nominas[per][t.id].salario = +fila.salario.toFixed(2); d.nominas[per][t.id].otras = +fila.otras.toFixed(2); }
+            saveRRHH(d);
+            renderNomina();
+        }
         function trabCompPreview() {
             const box = document.getElementById('trabCompPreview');
             if (!box) return;
@@ -2313,7 +2335,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const t = { id: trabajadorEditId || 'nuevo', compAplica: ca, fechaAlta: (document.getElementById('trabFechaAlta') || {}).value || '', fechaBaja: (document.getElementById('trabFechaBaja') || {}).value || '' };
             const r = calcLineaNominaExt(t, salario, otras, comp, per);
             const efecto = (r.extra || 0) + (r.subsidios || 0) - (r.deducciones || 0);
-            box.innerHTML = 'Efecto estimado en el mes: <b class="' + (efecto < 0 ? 'text-danger' : 'text-success') + '">' + moneda(efecto) + '</b>' + (r.provisionVac ? ' <span class="text-muted">(provisión: ' + moneda(r.provisionVac) + ')</span>' : '');
+            box.innerHTML = 'Efecto en el mes (aplicado a la nómina): <b class="' + (efecto < 0 ? 'text-danger' : 'text-success') + '">' + moneda(efecto) + '</b>' + (r.provisionVac ? ' <span class="text-muted">(provisión: ' + moneda(r.provisionVac) + ')</span>' : '');
         }
         function abrirTrabajador(id) {
             if (!puedeEditar()) return;
@@ -2345,8 +2367,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const fd=document.getElementById('trab-comp-fields-'+sw.dataset.comp);
                 if(fd) fd.style.display=sw.checked?'':'none';
                 trabCompPreview();
+                trabCompLiveSave();
             }));
-            document.querySelectorAll('#trabCompList .tc-field').forEach(f=>f.addEventListener('input',trabCompPreview));
+            document.querySelectorAll('#trabCompList .tc-field').forEach(f=>{
+                f.addEventListener('input',trabCompPreview);
+                f.addEventListener('change',()=>{ trabCompPreview(); trabCompLiveSave(); });
+            });
             const _sb=document.getElementById('trabSalarioBase');
             if(_sb&&!_sb.dataset.compWired){ _sb.dataset.compWired='1'; _sb.addEventListener('input',trabCompPreview); }
             const _fa=document.getElementById('trabFechaAlta');
