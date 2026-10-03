@@ -3501,7 +3501,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 }
                 
                 const mesData = getMesActual();
-                if (!mesData || !mesData.saldoInicial) {
+                if (!esAdmin && (!mesData || !mesData.saldoInicial)) {
                     document.getElementById('saldoInicialChequera').value = 0;
                     document.getElementById('saldoInicialCUP').value = 0;
                     document.getElementById('saldoInicialUSD').value = 0;
