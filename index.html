@@ -910,6 +910,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-6 col-lg-3"><div class="nomina-kpi"><small>Retenciones trabajadores</small><strong id="nominaTotalRetenciones">$0.00</strong></div></div>
             </div>
 
+            <div class="card p-3 p-md-4 mb-3" id="cardSelTrab">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <h6 class="fw-semibold mb-0"><i class="bi bi-check2-square me-2"></i>Trabajadores del mes <span id="selTrabPeriodo" class="text-muted fw-normal small"></span></h6>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" id="btnSelTodos">Todos</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnSelNinguno">Ninguno</button>
+                    </div>
+                </div>
+                <div id="selTrabList" class="d-flex flex-wrap gap-2"></div>
+                <small class="text-muted d-block mt-2">Elige quiénes entran en la nómina de este mes. Por defecto se incluyen los vigentes según su fecha de alta/baja.</small>
+            </div>
+
             <div class="card p-3 p-md-4 mb-3">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                     <h6 class="fw-semibold mb-0"><i class="bi bi-receipt me-2"></i>Nómina del mes</h6>
@@ -932,6 +944,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <div class="card p-3 p-md-4 mb-3" id="cardCompParams" style="display:none;"></div>
             <div class="card p-3 p-md-4 mb-3" id="cardCompAnual" style="display:none;"></div>
+
+            <div class="card p-3 p-md-4 mb-3" id="cardPuestos">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-briefcase me-2"></i>Puestos de trabajo</h6>
+                <div class="d-flex gap-2 mb-2">
+                    <input id="puestoNombre" class="form-control" maxlength="80" placeholder="Nombre del puesto (ej. Cajero)">
+                    <button class="btn btn-outline-primary" id="btnAddPuesto"><i class="bi bi-plus-lg"></i> Añadir</button>
+                </div>
+                <div id="puestosList"></div>
+                <small class="text-muted d-block mt-2">Al crear o editar un trabajador podrás elegir su cargo de esta lista.</small>
+            </div>
 
             <div class="row g-3">
                 <div class="col-lg-7">
@@ -1411,10 +1433,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
       <div class="row g-3">
         <div class="col-md-6"><label class="form-label">Nombre y apellidos *</label><input id="trabNombre" class="form-control" maxlength="100"></div>
         <div class="col-md-3"><label class="form-label">CI / Identificador</label><input id="trabCI" class="form-control" maxlength="30"></div>
-        <div class="col-md-3"><label class="form-label">Cargo</label><input id="trabCargo" class="form-control" maxlength="80"></div>
+        <div class="col-md-3"><label class="form-label">Cargo</label><input id="trabCargo" class="form-control" maxlength="80" list="trabPuestosList" placeholder="Elige o escribe"><datalist id="trabPuestosList"></datalist></div>
         <div class="col-md-4"><label class="form-label">Salario base mensual (CUP) *</label><input id="trabSalarioBase" type="number" min="0" step="0.01" class="form-control"></div>
         <div class="col-md-4"><label class="form-label">Fecha de alta</label><input id="trabFechaAlta" type="date" class="form-control"></div>
         <div class="col-md-4"><label class="form-label">Fecha de baja</label><input id="trabFechaBaja" type="date" class="form-control"></div>
+        <div class="col-12"><hr class="my-1"><label class="form-label">Datos de interés</label></div>
+        <div class="col-md-4"><label class="form-label">Sexo</label><select id="trabSexo" class="form-select"><option value="">—</option><option value="M">Hombre</option><option value="F">Mujer</option></select></div>
+        <div class="col-md-4"><label class="form-label">Tarjeta CUP (número)</label><input id="trabTarjeta" class="form-control" maxlength="30" inputmode="numeric" placeholder="Solo números"></div>
+        <div class="col-md-4"><label class="form-label">Cuenta asociada a la tarjeta</label><input id="trabCuenta" class="form-control" maxlength="40"></div>
+        <div class="col-md-6"><label class="form-label">Municipio</label><input id="trabMunicipio" class="form-control" maxlength="60"></div>
+        <div class="col-md-6"><label class="form-label">Provincia</label><input id="trabProvincia" class="form-control" maxlength="60"></div>
+        <div class="col-12"><label class="form-label">Dirección completa</label><input id="trabDireccion" class="form-control" maxlength="180"></div>
         <div class="col-12"><label class="form-label">Notas</label><input id="trabNotas" class="form-control" maxlength="180" placeholder="Opcional"></div>
         <div class="col-12"><hr class="my-1"><label class="form-label">Complementos aplicables a este trabajador</label><div class="row g-1" id="trabCompList"></div><small class="text-muted d-block mt-1">Marca los conceptos que se aplican a este trabajador y completa los días, horas o montos del mes en curso. Se aplican a la nómina al momento, sin esperar al botón Guardar.</small></div>
       </div>
@@ -1797,6 +1826,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     leerNominaDOM().forEach(x=>{const pv=d.nominas[origen][x.id]||{};d.nominas[origen][x.id]={nombre:x.nombre||pv.nombre||'',salario:+x.salario.toFixed(2),otras:+x.otras.toFixed(2),comp:pv.comp||x.comp||{}};});
                 }
                 if (!d.nominas[destino]) d.nominas[destino]=JSON.parse(JSON.stringify(d.nominas[origen]||{}));
+                if(!d.selNomina) d.selNomina={};
+                if(d.selNomina[origen]&&!d.selNomina[destino]) d.selNomina[destino]=[...d.selNomina[origen]];
                 saveRRHH(d);
             } catch(e) { console.warn('No se pudo arrastrar nómina:',e); }
         }
@@ -2148,8 +2179,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function obtenerNominaCalculada() {
             const rrhh = getRRHH(), periodo = periodoNominaActual(), n = rrhh.nominas[periodo] || {};
             const lineas = [];
+            const _inc = new Set(nominaIdsIncluidos(periodo).map(String));
             rrhh.trabajadores.forEach(t => {
-                if (!trabajadorVigenteEnPeriodo(t, periodo)) return;
+                if (!_inc.has(String(t.id))) return;
                 const rec = n[t.id] || {};
                 const salario = rec.salario !== undefined ? Number(rec.salario)||0 : Number(t.salarioBase)||0;
                 const otras = rec.otras !== undefined ? Number(rec.otras)||0 : 0;
@@ -2337,6 +2369,56 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const efecto = (r.extra || 0) + (r.subsidios || 0) - (r.deducciones || 0);
             box.innerHTML = 'Efecto en el mes (aplicado a la nómina): <b class="' + (efecto < 0 ? 'text-danger' : 'text-success') + '">' + moneda(efecto) + '</b>' + (r.provisionVac ? ' <span class="text-muted">(provisión: ' + moneda(r.provisionVac) + ')</span>' : '');
         }
+        // ===== NÓMINA: SELECCIÓN MENSUAL DE TRABAJADORES =====
+        function nominaIdsIncluidos(periodo) {
+            const d = getRRHH(), tr = d.trabajadores || [];
+            const sel = (d.selNomina || {})[periodo];
+            if (Array.isArray(sel)) {
+                const ex = new Set(tr.map(t => String(t.id)));
+                return sel.map(String).filter(id => ex.has(id));
+            }
+            return tr.filter(t => trabajadorVigenteEnPeriodo(t, periodo)).map(t => t.id);
+        }
+        function setSelTrab(ids) {
+            const d = getRRHH();
+            if (!d.selNomina) d.selNomina = {};
+            d.selNomina[periodoNominaActual()] = ids.map(String);
+            saveRRHH(d); renderSelTrab(); renderNomina();
+        }
+        function renderSelTrab() {
+            const list = document.getElementById('selTrabList');
+            if (!list) return;
+            const periodo = periodoNominaActual(), d = getRRHH(), md = getMesActual();
+            const editable = puedeEditar() && (!(md && md.cerrado) || modoEdicionActivo) && !(mesEstaBloqueado(periodo) && !isAdmin());
+            document.getElementById('selTrabPeriodo').textContent = '· ' + periodo;
+            const inc = new Set(nominaIdsIncluidos(periodo).map(String));
+            list.innerHTML = (d.trabajadores || []).map(t => {
+                const on = inc.has(String(t.id)), vig = trabajadorVigenteEnPeriodo(t, periodo);
+                return `<label class="btn btn-sm ${on ? 'btn-primary' : 'btn-outline-secondary'}" title="${esc(t.nombre)}${vig ? '' : ' (no vigente este mes)'}">`
+                    + `<input type="checkbox" class="d-none sel-trab-chk" data-id="${t.id}" ${on ? 'checked' : ''} ${editable ? '' : 'disabled'}> ${esc(t.nombre)}${t.cargo ? ` <small>(${esc(t.cargo)})</small>` : ''}${vig ? '' : ' ⚠️'}</label>`;
+            }).join('') || '<span class="text-muted small">No hay trabajadores registrados.</span>';
+            list.querySelectorAll('.sel-trab-chk').forEach(chk => chk.addEventListener('change', () => {
+                const ids = [...list.querySelectorAll('.sel-trab-chk')].filter(c => c.checked).map(c => String(c.dataset.id));
+                setSelTrab(ids);
+            }));
+            const bt = document.getElementById('btnSelTodos'), bn = document.getElementById('btnSelNinguno');
+            if (bt) { bt.style.display = editable ? '' : 'none'; bt.onclick = () => setSelTrab((d.trabajadores || []).map(t => t.id)); }
+            if (bn) { bn.style.display = editable ? '' : 'none'; bn.onclick = () => setSelTrab([]); }
+        }
+        // ===== PUESTOS DE TRABAJO =====
+        function getPuestos() { const d = getRRHH(); if (!Array.isArray(d.puestos)) d.puestos = []; return d.puestos; }
+        function renderPuestos() {
+            const box = document.getElementById('puestosList');
+            if (!box) return;
+            const editable = puedeEditar(), puestos = getPuestos();
+            box.innerHTML = puestos.map((p, i) => `<span class="badge bg-light text-dark border p-2 me-1 mb-1 fs-6 fw-normal">${esc(p)}${editable ? ` <button class="btn btn-sm btn-link text-danger p-0 puesto-del" data-i="${i}" title="Eliminar"><i class="bi bi-x-circle"></i></button>` : ''}</span>`).join('') || '<span class="text-muted small">Sin puestos creados.</span>';
+            box.querySelectorAll('.puesto-del').forEach(b => b.addEventListener('click', () => {
+                const d = getRRHH(); d.puestos.splice(+b.dataset.i, 1); saveRRHH(d); renderPuestos();
+            }));
+            const inp = document.getElementById('puestoNombre'), btn = document.getElementById('btnAddPuesto');
+            if (inp) inp.style.display = editable ? '' : 'none';
+            if (btn) btn.style.display = editable ? '' : 'none';
+        }
         function abrirTrabajador(id) {
             if (!puedeEditar()) return;
             const d=getRRHH(), t=id?d.trabajadores.find(x=>String(x.id)===String(id)):null;
@@ -2349,6 +2431,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('trabFechaAlta').value=t?(t.fechaAlta||hoy()):hoy();
             document.getElementById('trabFechaBaja').value=t?(t.fechaBaja||''):'';
             document.getElementById('trabNotas').value=t?(t.notas||''):'';
+            document.getElementById('trabSexo').value=t?(t.sexo||''):'';
+            document.getElementById('trabTarjeta').value=t?(t.tarjeta||''):'';
+            document.getElementById('trabCuenta').value=t?(t.cuenta||''):'';
+            document.getElementById('trabMunicipio').value=t?(t.municipio||''):'';
+            document.getElementById('trabProvincia').value=t?(t.provincia||''):'';
+            document.getElementById('trabDireccion').value=t?(t.direccion||''):'';
+            const _pl=document.getElementById('trabPuestosList');
+            if(_pl) _pl.innerHTML=getPuestos().map(p=>`<option value="${esc(p)}">`).join('');
             const _per=periodoNominaActual(), _dd=getRRHH();
             const _rec=t?(((_dd.nominas||{})[_per]||{})[t.id]||{}):{};
             const _comp0=_rec.comp||{}, _P0=getCompCfg().params;
@@ -2392,7 +2482,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
             const _ca={}, _comp={};
             COMP_DEF.forEach(c=>{ const _el=document.getElementById('trab-comp-'+c.id), _on=_el?_el.checked:false; _ca[c.id]=_on; if(_on) Object.assign(_comp, leerCamposConcepto(c.id)); });
-            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca};
+            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim()};
             let _wid=trabajadorEditId;
             if(_wid){ const i=d.trabajadores.findIndex(x=>String(x.id)===String(_wid)); if(i>=0)d.trabajadores[i]=Object.assign({},d.trabajadores[i],obj); }
             else { obj.id='w'+Date.now(); _wid=obj.id; d.trabajadores.push(obj); }
@@ -2540,7 +2630,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function periodoISODate(periodo){const p=periodoParts(periodo);return p?new Date(p.y,p.mi,1):null;}
         function isoVencimiento(day,mon,year){const k=normTxt(mon).slice(0,4).replace('.',''),mi=Object.entries(MES_ABR).find(([x])=>k.startsWith(x))?.[1];let y=parseInt(year);if(y<100)y+=2000;if(mi===undefined||!day||!y)return '';return `${y}-${String(mi+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;}
         function getMovimientosPeriodo(periodo){const md=getMesActual(),actual=(md&&md.mesSeleccionado)||getMesActualStr();if(periodo===actual)return movimientos;const h=getHistorial().find(x=>x.mes===periodo);return h&&Array.isArray(h.movimientos)?h.movimientos:[];}
-        function obtenerNominaParaPeriodo(periodo){const rrhh=getRRHH(),n=rrhh.nominas[periodo]||{},lineas=[];rrhh.trabajadores.forEach(t=>{if(!trabajadorVigenteEnPeriodo(t,periodo))return;const rec=n[t.id]||{};const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0,otras=rec.otras!==undefined?Number(rec.otras)||0:0,comp=rec.comp||{};lineas.push({t,salario,otras,comp,calc:calcLineaNominaExt(t,salario,otras,comp,periodo)});});const tot=lineas.reduce((a,x)=>{for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac'])a[k]=(a[k]||0)+x.calc[k];return a;},{bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});tot.ssPresupuesto=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialPresupuesto/100);tot.ssProvision=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialProvision/100);tot.retenciones=tot.segTrab+tot.iip;tot.aportesEmpleador=tot.fuerza+tot.ssEmp;tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;return {periodo,lineas,tot};}
+        function obtenerNominaParaPeriodo(periodo){const rrhh=getRRHH(),n=rrhh.nominas[periodo]||{},lineas=[],_in2=new Set(nominaIdsIncluidos(periodo).map(String));rrhh.trabajadores.forEach(t=>{if(!_in2.has(String(t.id)))return;const rec=n[t.id]||{};const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0,otras=rec.otras!==undefined?Number(rec.otras)||0:0,comp=rec.comp||{};lineas.push({t,salario,otras,comp,calc:calcLineaNominaExt(t,salario,otras,comp,periodo)});});const tot=lineas.reduce((a,x)=>{for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac'])a[k]=(a[k]||0)+x.calc[k];return a;},{bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});tot.ssPresupuesto=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialPresupuesto/100);tot.ssProvision=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialProvision/100);tot.retenciones=tot.segTrab+tot.iip;tot.aportesEmpleador=tot.fuerza+tot.ssEmp;tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;return {periodo,lineas,tot};}
         function getResumenPeriodo(periodo){const movs=getMovimientosPeriodo(periodo);const h=getHistorial().find(x=>x.mes===periodo);return calcularResumen(movs,{tasa:h&&h.tasa?h.tasa:tasaVista(),saldoInicial:h&&h.saldoInicial?h.saldoInicial:(periodo===periodoNominaActual()?getSaldoInicial():{chequera:0,tarjeta_cup:0,tarjeta_usd:0}),saldoInicialTasaUSD:h&&h.saldoInicialTasaUSD?h.saldoInicialTasaUSD:undefined});}
         function calcFiscalPeriodo(periodo){const res=getResumenPeriodo(periodo),nom=obtenerNominaParaPeriodo(periodo).tot,tipo=getEntityType()||'tcp';return {periodo,tipo,ingresos:res.ingresos,utilidad:res.utilidad,ventas:res.ingresos*(Number(CFG.onat.ventas)||0)/100,territorial:tipo==='mipyme'?res.ingresos*(Number(CFG.onat.desarrolloLocal)||0)/100:null,pagoCuentaTCP:tipo==='tcp'?Math.max(0,res.ingresos-3260)*.05:null,utilidades:tipo==='mipyme'&&res.utilidad>0?res.utilidad*(Number(CFG.onat.utilidades)||0)/100:null,nom};}
         function calcImporteObligacion(o){if(Number(o.importeManual)>=0&&o.importeManual!==''&&o.importeManual!==null&&o.importeManual!==undefined)return {importe:Number(o.importeManual)||0,origen:'Manual'};const c=calcFiscalPeriodo(o.periodo),t=normTxt(o.concepto),code=String(o.codigo||'');if(/ventas|servicios/.test(t))return {importe:c.ventas,origen:`Ingresos × ${CFG.onat.ventas}%`};if(/fuerza.*trabajo/.test(t))return {importe:c.nom.fuerza||0,origen:'Nómina · 5%'};if(/especial.*trabajador|trabajador.*seg.*social.*retenc/.test(t))return {importe:c.nom.segTrab||0,origen:'Retención nómina'};if(/seguridad social/.test(t)&&!/especial|trabajador/.test(t))return {importe:c.nom.ssPresupuesto||0,origen:'Nómina · aporte al Presupuesto'};if(/ingresos pers|ingresos personales/.test(t)){if(/liquid|declaracion|anual|adicional/.test(t))return {importe:null,origen:'Liquidación anual / DJ'};if(/retenc|trabajador/.test(t))return {importe:c.nom.iip||0,origen:'Retención nómina'};if(c.tipo==='tcp')return {importe:c.pagoCuentaTCP||0,origen:'TCP · 5% del ingreso mensual que excede 3.260 CUP'};return {importe:null,origen:'Manual / según Vector'};}if(/territorial/.test(t)&&c.territorial!==null)return {importe:c.territorial,origen:`Ingresos × ${CFG.onat.desarrolloLocal}%`};if(/utilidad/.test(t))return {importe:null,origen:'Liquidación / pago a cuenta'};return {importe:null,origen:'Manual / según Vector'};}
@@ -3708,8 +3798,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             _safe(renderAlertaTrimestral,'alerta-trimestral');
             ['chequera', 'tarjeta_cup', 'tarjeta_usd'].forEach(c => _safe(() => renderTablaCuenta(c),'cuenta-'+c));
             _safe(renderHistorial,'historial');
+            _safe(renderSelTrab,'sel-trab');
             _safe(renderNomina,'nomina');
             _safe(renderCompParams,'comp-params');
+            _safe(renderPuestos,'puestos');
             _safe(renderTrimestres,'trimestres');
             _safe(renderCierreAnual,'cierre-anual');
             _safe(renderFiscal,'fiscal');
@@ -4134,6 +4226,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         document.getElementById('btnNuevoTrabajador').addEventListener('click', () => abrirTrabajador(null));
         document.getElementById('btnGuardarNomina').addEventListener('click', guardarNominaActual);
         document.getElementById('btnGuardarTrabajador').addEventListener('click', guardarTrabajador);
+        document.getElementById('btnAddPuesto').addEventListener('click',()=>{
+            if(!puedeEditar()) return;
+            const inp=document.getElementById('puestoNombre'), v=inp.value.trim();
+            if(!v) return;
+            const d=getRRHH(); if(!Array.isArray(d.puestos)) d.puestos=[];
+            if(!d.puestos.some(p=>p.toLowerCase()===v.toLowerCase())) d.puestos.push(v);
+            saveRRHH(d); inp.value=''; renderPuestos();
+        });
+        document.getElementById('puestoNombre').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btnAddPuesto').click(); } });
         document.getElementById('vectorPdfInput').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importarVectorPDF(f);e.target.value='';});
         document.getElementById('fiscalFiltro').addEventListener('change',renderFiscal);
         document.getElementById('btnFiscalManual').addEventListener('click',()=>{document.getElementById('fisManCodigo').value='';document.getElementById('fisManPeriodo').value=periodoNominaActual();document.getElementById('fisManConcepto').value='';document.getElementById('fisManVence').value='';document.getElementById('fisManImporte').value='';fiscalManualModal.show();});
