@@ -799,6 +799,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <!-- RESUMEN -->
         <div class="tab-pane fade show active" id="pane-resumen">
             <div id="alertaFinanciera" class="alerta-financiera"></div>
+            <div id="alertaTrimestral" class="alerta-financiera mt-3"></div>
             <div class="row g-3 mb-4" id="resumenCuentas"></div>
             <div class="card p-3 p-md-4">
                 <h6 class="fw-semibold mb-3"><i class="bi bi-table me-2"></i>Todos los movimientos</h6>
@@ -1828,6 +1829,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         let edicionMovimientosOriginal = [];
         let edicionMesNombre = '';
         let edicionIndex = -1;
+        let mesRealEnCurso = null; // {mes, cerrado}: mes de trabajo real mientras se ve/edita uno cerrado
         let tempMovimiento = { concepto: null, tipo: null, cuenta: null, monto: null, fecha: null };
         let tipoUsuarioSeleccionado = 'nuevo';
 
@@ -2324,7 +2326,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function guardarActivo(){const obj={codigo:document.getElementById('aftCodigo').value.trim(),nombre:document.getElementById('aftNombre').value.trim(),categoria:document.getElementById('aftCategoria').value,modelo:document.getElementById('aftModelo').value.trim(),serie:document.getElementById('aftSerie').value.trim(),costo:Math.max(0,Number(document.getElementById('aftCosto').value)||0),fechaAdq:document.getElementById('aftFechaAdq').value,fechaServicio:document.getElementById('aftFechaServicio').value,tasa:tasaAFTCategoria(document.getElementById('aftCategoria').value),responsable:document.getElementById('aftResponsable').value.trim(),ubicacion:document.getElementById('aftUbicacion').value.trim(),estado:document.getElementById('aftEstado').value,fechaBaja:document.getElementById('aftFechaBaja').value,notas:document.getElementById('aftNotas').value.trim()};if(!obj.codigo||!obj.nombre||!(obj.costo>0)||!obj.fechaServicio||!(obj.tasa>0)){alert('Completa código, descripción, costo, fecha en servicio y tasa de depreciación.');return;}const d=getAFT();if(aftEditId){const i=d.activos.findIndex(x=>String(x.id)===String(aftEditId));if(i>=0)d.activos[i]=Object.assign({},d.activos[i],obj);}else{obj.id='aft_'+Date.now();d.activos.push(obj);}saveAFT(d);aftModal.hide();renderAFT();}
         function eliminarActivo(id){if(!confirm('¿Eliminar este activo del registro? Los asientos de depreciación ya contabilizados no se eliminan.'))return;const d=getAFT();d.activos=d.activos.filter(x=>String(x.id)!==String(id));saveAFT(d);renderAFT();}
         function guardarPoliticaAFT(){const d=getAFT(),n=Math.max(0,Number(document.getElementById('aftUmbral').value)||0);d.politica.umbral=n;saveAFT(d);alert('✅ Política de AFT guardada.');}
-        function contabilizarDepreciacion(){if(!puedeEditar()){alert('Sin permiso de edición.');return;}const md=getMesActual(),periodo=periodoNominaActual();if(md&&md.cerrado&&!modoEdicionActivo){alert('El mes está cerrado.');return;}if(mesEstaBloqueado(periodo)&&!isAdmin()){alert('Este mes está bloqueado.');return;}const aft=getAFT(),lineas=aft.activos.map(x=>{const c=calcAFT(x,periodo);return {id:x.id,codigo:x.codigo,nombre:x.nombre,tasa:Number(x.tasa)||0,costo:+c.costo.toFixed(2),mes:+c.mes.toFixed(2),acum:+c.acum.toFixed(2),libros:+c.libros.toFixed(2)};}).filter(x=>x.mes>0),total=lineas.reduce((a,x)=>a+x.mes,0);if(total<=0){alert('No hay depreciación calculable para este período.');return;}aft.depreciaciones[periodo]={periodo,fechaRegistro:new Date().toISOString(),total:+total.toFixed(2),lineas};saveAFT(aft);let m=movimientos.find(x=>x.aftDepPeriodo===periodo);const d={concepto:`Depreciación AFT · ${periodo}`,tipo:'gasto',clasificacion:'operacional',cuenta:'ajuste_contable',monto:+total.toFixed(2),fecha:fechaContablePeriodo(periodo),noBancario:true,aftDepPeriodo:periodo};if(m)Object.assign(m,d);else movimientos.push(Object.assign({id:nextId++},d));saveMovimientos(movimientos);renderAll();alert(`✅ Depreciación contabilizada y congelada para ${periodo}: ${moneda(total)}.`);}
+        function contabilizarDepreciacion(){if(!puedeEditar()){alert('Sin permiso de edición.');return;}const md=getMesActual(),periodo=periodoNominaActual();if(md&&md.cerrado&&!modoEdicionActivo){alert('El mes está cerrado.');return;}if(mesEstaBloqueado(periodo)&&!isAdmin()){alert('Este mes está bloqueado.');return;}const aft=getAFT(),lineas=aft.activos.map(x=>{const c=calcAFT(x,periodo);return {id:x.id,codigo:x.codigo,nombre:x.nombre,tasa:Number(x.tasa)||0,costo:+c.costo.toFixed(2),mes:+c.mes.toFixed(2),acum:+c.acum.toFixed(2),libros:+c.libros.toFixed(2)};}).filter(x=>x.mes>0),total=lineas.reduce((a,x)=>a+x.mes,0);if(total<=0){alert('No hay depreciación calculable para este período.');return;}aft.depreciaciones[periodo]={periodo,fechaRegistro:new Date().toISOString(),total:+total.toFixed(2),lineas};saveAFT(aft);let m=movimientos.find(x=>x.aftDepPeriodo===periodo);const d={concepto:`Depreciación AFT · ${periodo}`,tipo:'gasto',clasificacion:'operacional',cuenta:'ajuste_contable',monto:+total.toFixed(2),fecha:fechaContablePeriodo(periodo),noBancario:true,aftDepPeriodo:periodo};if(m)Object.assign(m,d);else movimientos.push(Object.assign({id:nextId++},d));if(!modoEdicionActivo)saveMovimientos(movimientos);renderAll();alert(`✅ Depreciación contabilizada y congelada para ${periodo}: ${moneda(total)}.`);}
 
         // ===== MOSTRAR/OCULTAR CAMPO DE SOCIOS =====
         function toggleSocios() {
@@ -2388,8 +2390,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const historial = getHistorial();
             const index = historial.findIndex(h => h.mes === mesStr);
             if (index === -1) return false;
-            
+
             const mes = historial[index];
+            if(!modoEdicionActivo){
+                const _cur = getMesActual() || {};
+                mesRealEnCurso = {mes: _cur.mesSeleccionado || getMesActualStr(), cerrado: !!_cur.cerrado};
+            }
             edicionMovimientosOriginal = JSON.parse(JSON.stringify(movimientos));
             edicionMesNombre = mes.mes;
             edicionIndex = index;
@@ -2416,6 +2422,23 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             actualizarBarraMes();
             renderAll();
             return true;
+        }
+
+        // Vuelve al mes de trabajo real tras ver/editar uno cerrado.
+        // Los movimientos reales nunca se tocaron en el slot: se releen intactos.
+        function restaurarMesRealTrasEdicion() {
+            movimientos = getMovimientos();
+            nextId = movimientos.length > 0 ? Math.max(...movimientos.map(m => m.id)) + 1 : 1;
+            const mesData = getMesActual() || {};
+            if (mesRealEnCurso) {
+                mesData.mesSeleccionado = mesRealEnCurso.mes;
+                mesData.cerrado = !!mesRealEnCurso.cerrado;
+                saveMesActual(mesData);
+            }
+            mesRealEnCurso = null;
+            modoEdicionActivo = false;
+            const _b = document.getElementById('modoEdicionMes');
+            if (_b) _b.style.display = 'none';
         }
 
         // ===== CAMBIAR MES DESDE SELECTOR =====
@@ -2447,21 +2470,34 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 return;
             }
             
+            // Si se estaba viendo/editando un mes cerrado, volver primero al mes real:
+            // los movimientos en memoria son del mes cerrado: no sirven para decidir ni se deben borrar.
+            if (modoEdicionActivo) {
+                if (!confirm('Estás viendo un mes cerrado. ¿Volver al mes en curso y continuar?')) {
+                    actualizarSelector();
+                    return;
+                }
+                restaurarMesRealTrasEdicion();
+            }
+            const mesData2 = getMesActual();
+            const mesActualStr2 = mesData2 && mesData2.mesSeleccionado ? mesData2.mesSeleccionado : getMesActualStr();
+            if (mesActualStr2 === nombreMes) {
+                actualizarBarraMes();
+                renderAll();
+                actualizarSelector();
+                return;
+            }
+
             if (movimientos.length > 0) {
-                if (!mesData || !mesData.cerrado) {
-                    if (!confirm(`El mes actual (${mesActualStr}) tiene ${movimientos.length} movimientos sin cerrar.\n¿Seguro que quieres cambiar a ${nombreMes}?`)) {
+                if (!mesData2 || !mesData2.cerrado) {
+                    if (!confirm(`El mes actual (${mesActualStr2}) tiene ${movimientos.length} movimientos sin cerrar.\n¿Seguro que quieres cambiar a ${nombreMes}?`)) {
                         actualizarSelector();
                         return;
                     }
                 }
             }
-            
-            if (modoEdicionActivo) {
-                modoEdicionActivo = false;
-                document.getElementById('modoEdicionMes').style.display = 'none';
-            }
-            
-            const nuevoMesData = mesData || {};
+
+            const nuevoMesData = mesData2 || {};
             const cierrePrevio = cierreMesAnteriorPara(nombreMes);
             nuevoMesData.mesSeleccionado = nombreMes;
             nuevoMesData.cerrado = false;
@@ -2938,7 +2974,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         const id = parseInt(this.getAttribute('data-id'));
                         if (confirm('¿Eliminar este movimiento?')) {
                             movimientos = movimientos.filter(m => m.id !== id);
-                            saveMovimientos(movimientos);
+                            if(!modoEdicionActivo) saveMovimientos(movimientos);
                             renderAll();
                         }
                     });
@@ -3087,17 +3123,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             };
             historial[edicionIndex] = mes;
             saveHistorial(historial);
-            saveMovimientos(movimientos);
-            
-            const mesData = getMesActual() || {};
-            mesData.cerrado = true;
-            mesData.mesSeleccionado = mes.mes;
-            mesData.saldoInicial = mes.saldoInicial || { chequera: 0, tarjeta_cup: 0, tarjeta_usd: 0 };
-            saveMesActual(mesData);
-            
-            modoEdicionActivo = false;
-            document.getElementById('modoEdicionMes').style.display = 'none';
-            
+            // El slot de movimientos guarda SIEMPRE el mes real en curso: no se toca.
+            // Se vuelve al mes de trabajo real con sus movimientos intactos.
+            restaurarMesRealTrasEdicion();
+
             actualizarBarraMes();
             renderAll();
             alert(`✅ Cambios guardados en el mes de ${mes.mes}.`);
@@ -3108,14 +3137,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!modoEdicionActivo) return;
             if (!confirm('¿Cancelar la edición? Se perderán los cambios.')) return;
             movimientos = edicionMovimientosOriginal;
+            nextId = movimientos.length > 0 ? Math.max(...movimientos.map(m => m.id)) + 1 : 1;
             saveMovimientos(movimientos);
             const mesData = getMesActual() || {};
-            const mesStr = mesData.mesSeleccionado || getMesActualStr();
-            const mesEnHistorial = buscarMesEnHistorial(mesStr);
-            if (mesEnHistorial) {
-                mesData.cerrado = true;
-                saveMesActual(mesData);
+            if (mesRealEnCurso) {
+                mesData.mesSeleccionado = mesRealEnCurso.mes;
+                mesData.cerrado = !!mesRealEnCurso.cerrado;
+            } else {
+                const mesStr = mesData.mesSeleccionado || getMesActualStr();
+                if (buscarMesEnHistorial(mesStr)) mesData.cerrado = true;
             }
+            saveMesActual(mesData);
+            mesRealEnCurso = null;
             modoEdicionActivo = false;
             document.getElementById('modoEdicionMes').style.display = 'none';
             actualizarBarraMes();
@@ -3186,6 +3219,79 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             `;
         }
 
+        // ===== RESUMEN TRIMESTRAL (acumulado del trimestre en curso) =====
+        // Suma ingresos/gastos/ONAT de los 3 meses del trimestre: cerrados desde el
+        // historial y el mes en curso desde el slot real (sin depender del mes que se esté viendo).
+        function resumenTrimestreActual(){
+            const realMes = (typeof mesRealEnCurso!=='undefined' && mesRealEnCurso && mesRealEnCurso.mes)
+                || ((typeof getMesActual==='function' && getMesActual() || {}).mesSeleccionado)
+                || getMesActualStr();
+            const p = periodoParts(realMes);
+            const anio = p?p.y:new Date().getFullYear();
+            const q = p?Math.floor(p.mi/3):Math.floor(new Date().getMonth()/3);
+            let ingresos=0, gastos=0, onat=0;
+            const meses=[];
+            for(let mi=q*3; mi<q*3+3; mi++){
+                const per=getFechaStr(mi+1, anio);
+                const h=getHistorial().find(x=>x.mes===per);
+                let movs;
+                if(h && Array.isArray(h.movimientos)) movs=h.movimientos;
+                else if(per===realMes) movs=getMovimientos();
+                else movs=[];
+                const r=calcularResumen(movs,{tasa:(h&&h.tasa)||tasaVista()});
+                ingresos+=r.ingresos; gastos+=r.gastos; onat+=r.onat;
+                meses.push({per,nombre:MESES_ES[mi],ingresos:r.ingresos,gastos:r.gastos,utilidad:r.utilidad,cerrado:!!h,actual:per===realMes});
+            }
+            return {anio,q,label:['Primer trimestre','Segundo trimestre','Tercer trimestre','Cuarto trimestre'][q],meses,ingresos,gastos,onat,utilidad:ingresos-gastos-onat};
+        }
+
+        function renderAlertaTrimestral(){
+            const box=document.getElementById('alertaTrimestral');
+            if(!box) return;
+            const t=resumenTrimestreActual();
+            const ingresos=t.ingresos, gastos=t.gastos, onat=t.onat, utilidad=t.utilidad;
+            let porcentaje=0, estado='correcto', mensaje='', sugerencia='', icono='', detalle='';
+            if(ingresos>0){
+                porcentaje=(utilidad/ingresos)*100;
+                const utilidadDeseada=ingresos*(META_UTILIDAD/100);
+                const diferenciaPorcentaje=porcentaje-META_UTILIDAD;
+                if(Math.abs(diferenciaPorcentaje)<=TOLERANCIA){
+                    estado='correcto'; icono='✅'; mensaje='Trimestre en el margen ideal.';
+                    sugerencia=`Utilidad del ${porcentaje.toFixed(1)}% = $${utilidad.toFixed(2)}`;
+                }else if(porcentaje>META_UTILIDAD+TOLERANCIA){
+                    estado='gastar'; icono='💡'; mensaje='El trimestre tiene margen para gastar más.';
+                    sugerencia=`Puedes gastar hasta $${(utilidad-utilidadDeseada).toFixed(2)} adicionales antes de que acabe el trimestre.`;
+                }else{
+                    estado='ingresar'; icono='⚠️'; mensaje='Al trimestre le falta para el objetivo.';
+                    const deficit=utilidadDeseada-utilidad;
+                    sugerencia=`Para alcanzar el ${META_UTILIDAD}% en el trimestre:\n• 🔼 Aumenta ingresos en $${(deficit/(1-META_UTILIDAD/100)).toFixed(2)}\n• 🔽 Reduce gastos en $${deficit.toFixed(2)}`;
+                }
+                detalle=`Objetivo: ${META_UTILIDAD}% | Actual: ${porcentaje.toFixed(1)}%`;
+            }else{
+                estado='aviso'; icono='📊'; mensaje='Sin ingresos en el trimestre.';
+                sugerencia='💡 Registra ingresos para ver el análisis trimestral.';
+                porcentaje=0;
+            }
+            const mesesHtml=t.meses.map(m=>`<span class="me-3">${m.cerrado?'🔒':'📝'} <b>${m.nombre}</b>: $${m.utilidad.toFixed(2)}${m.actual?' <em>(en curso)</em>':''}</span>`).join('');
+            box.className=`alerta-financiera ${estado}`;
+            box.innerHTML=`
+                <div class="icono">${icono}</div>
+                <div class="contenido">
+                    <div class="titulo">📅 ${mensaje} <small class="text-secondary">(${t.label} ${t.anio})</small></div>
+                    <div class="resumen-cifras">
+                        <span>💰 Ingresos: $${ingresos.toFixed(2)}</span>
+                        <span>📉 Gastos: $${gastos.toFixed(2)}</span>
+                        <span>📄 ONAT: $${onat.toFixed(2)}</span>
+                        <span>📈 Utilidad: $${utilidad.toFixed(2)}</span>
+                    </div>
+                    <div class="small text-secondary mt-1">${mesesHtml}</div>
+                    ${sugerencia?`<div class="sugerencia">${sugerencia}</div>`:''}
+                    ${detalle?`<div class="detalle">📊 ${detalle}</div>`:''}
+                </div>
+                <div class="porcentaje ${estado}">${porcentaje.toFixed(1)}%</div>
+            `;
+        }
+
         // ===== RENDER TODO =====
         function renderAll() {
             _tvKey = null;
@@ -3193,6 +3299,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             _safe(renderTablaGeneral,'tabla');
             _safe(renderResumenCuentas,'resumen');
             _safe(renderAlertaFinanciera,'alerta');
+            _safe(renderAlertaTrimestral,'alerta-trimestral');
             ['chequera', 'tarjeta_cup', 'tarjeta_usd'].forEach(c => _safe(() => renderTablaCuenta(c),'cuenta-'+c));
             _safe(renderHistorial,'historial');
             _safe(renderNomina,'nomina');
@@ -3250,7 +3357,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 monto: parseFloat(monto), 
                 fecha 
             });
-            saveMovimientos(movimientos);
+            if(!modoEdicionActivo) saveMovimientos(movimientos);
             renderAll();
             tempMovimiento = {};
             clasificacionModal.hide();
@@ -3806,7 +3913,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if(pendingSpecialMovement){Object.assign(d,pendingSpecialMovement);d.clasificacion='extraccion';}
             if (movEditId) Object.assign(movimientos.find(x => x.id === movEditId), d);
             else movimientos.push(Object.assign({id: nextId++, tipo: movTipo}, d));
-            pendingFiscalLink=null; pendingSpecialMovement=null; saveMovimientos(movimientos); renderAll(); movModal.hide(); alert('Movimiento guardado.');
+            pendingFiscalLink=null; pendingSpecialMovement=null;
+            // En modo edición de un mes cerrado los cambios van al historial con "Guardar",
+            // no al slot del mes en curso: no se persiste aquí para no borrar sus movimientos.
+            if(!modoEdicionActivo) saveMovimientos(movimientos);
+            renderAll(); movModal.hide(); alert('Movimiento guardado.');
         });
 
         $('movAporteNumero').addEventListener('input', actualizarIdentificacionAporte);
