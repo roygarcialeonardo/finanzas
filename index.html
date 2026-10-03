@@ -434,6 +434,8 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
 .conn-dot{width:.65rem;height:.65rem;border-radius:50%;display:inline-block;flex:none}
 .conn-dot.conn-green{background:#22c55e;box-shadow:0 0 8px #22c55e}
 .conn-dot.conn-red{background:#ef4444;box-shadow:0 0 8px #ef4444}
+.conn-badge-login{position:absolute;top:3.1rem;right:.85rem;z-index:3;background:rgba(15,23,42,.07);color:#0f172a}
+html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color:#fff}
 .app-hero .badge{background:rgba(255,255,255,.12)!important;color:#e6fffb!important;font-weight:600}
 .app-hero .btn{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.25)!important;color:#fff!important;border-radius:999px;font-weight:600}
 .app-hero .btn:hover{background:rgba(255,255,255,.2)!important}
@@ -680,6 +682,7 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
     <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
     <div class="login-card card p-4 p-md-5">
         <button type="button" class="btn btn-sm btn-light theme-toggle theme-toggle-login" aria-label="Cambiar tema" title="Cambiar tema"><i class="bi bi-moon-stars theme-icon"></i><span class="theme-label">Oscuro</span></button>
+        <span id="connBadgeLogin" class="conn-badge conn-badge-login" title="Estado de la conexión con Google Sheets"><span id="connDotLogin" class="conn-dot conn-red"></span><span id="connTextLogin">Sin conexión</span></span>
         <div class="text-center mb-4">
             <div class="house-wrap"><span class="house-ring"></span><span class="house-ring r2"></span><i class="bi bi-shop fs-1"></i></div>
             <h4 class="mt-2 fw-bold" style="color: #0b1e3a;">Finanzas</h4>
@@ -1394,11 +1397,13 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
         let ME = null, USERS = {}, BLOQ = {}, CACHE = {}, Q = Promise.resolve();
         let TOKEN = sessionStorage.getItem('finanzas_token') || '';
         function setConn(ok){
-            const d=document.getElementById('connDot'),t=document.getElementById('connText'),b=document.getElementById('connBadge');
-            if(!d||!t||!b) return;
-            d.className='conn-dot '+(ok?'conn-green':'conn-red');
-            t.textContent=ok?'Conectado':'Sin conexión';
-            b.title=ok?'Conexión con Google Sheets establecida':'Sin conexión con Google Sheets';
+            [['connDot','connText','connBadge'],['connDotLogin','connTextLogin','connBadgeLogin']].forEach(function(ids){
+                const d=document.getElementById(ids[0]),t=document.getElementById(ids[1]),b=document.getElementById(ids[2]);
+                if(!d||!t||!b) return;
+                d.className='conn-dot '+(ok?'conn-green':'conn-red');
+                t.textContent=ok?'Conectado':'Sin conexión';
+                b.title=ok?'Conexión con Google Sheets establecida':'Sin conexión con Google Sheets';
+            });
         }
         async function api(a, body) {
             try {
@@ -3359,6 +3364,7 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
             await cargar(r); handleLogin(e);
         });
         logoutBtn.addEventListener('click', handleLogout);
+        api('ping');
 
         document.getElementById('newEntityType').addEventListener('change', toggleSocios);
         toggleSocios();
