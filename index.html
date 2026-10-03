@@ -430,6 +430,10 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
 .app-hero{background:linear-gradient(120deg,#071a17,#0f3d37 65%,#0f766e);color:#fff;border-radius:1.4rem;padding:1.4rem 1.6rem;box-shadow:0 24px 50px -28px rgba(7,26,23,.9)}
 .app-hero h4{color:#fff!important;font-weight:800;letter-spacing:-.02em}
 .app-hero .bi-graph-up-arrow{color:#5eead4!important}
+.conn-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;padding:.28rem .65rem;border-radius:999px;background:rgba(255,255,255,.12);vertical-align:middle;margin-left:.4rem;color:#fff}
+.conn-dot{width:.65rem;height:.65rem;border-radius:50%;display:inline-block;flex:none}
+.conn-dot.conn-green{background:#22c55e;box-shadow:0 0 8px #22c55e}
+.conn-dot.conn-red{background:#ef4444;box-shadow:0 0 8px #ef4444}
 .app-hero .badge{background:rgba(255,255,255,.12)!important;color:#e6fffb!important;font-weight:600}
 .app-hero .btn{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.25)!important;color:#fff!important;border-radius:999px;font-weight:600}
 .app-hero .btn:hover{background:rgba(255,255,255,.2)!important}
@@ -705,6 +709,7 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
         <div>
             <h4 class="fw-bold d-flex align-items-center gap-2" style="color: #0b1e3a;">
                 <i class="bi bi-graph-up-arrow" style="color: #1f3a6b;"></i> Panel Financiero
+                <span id="connBadge" class="conn-badge" title="Estado de la conexión con Google Sheets"><span id="connDot" class="conn-dot conn-red"></span><span id="connText">Sin conexión</span></span>
             </h4>
             <span id="negocioNombreBadge" class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill">
                 <i class="bi bi-building me-1"></i> <span id="negocioNombreDisplay">Mi Negocio</span>
@@ -1388,15 +1393,23 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
         const API_URL = 'https://script.google.com/macros/s/AKfycbxnsS1IaVCWfv-qio1Hd9FStbvT_HMcJaI466ozn7MVq4ZiavQZonprPh31LEtgmwZcEQ/exec';
         let ME = null, USERS = {}, BLOQ = {}, CACHE = {}, Q = Promise.resolve();
         let TOKEN = sessionStorage.getItem('finanzas_token') || '';
+        function setConn(ok){
+            const d=document.getElementById('connDot'),t=document.getElementById('connText'),b=document.getElementById('connBadge');
+            if(!d||!t||!b) return;
+            d.className='conn-dot '+(ok?'conn-green':'conn-red');
+            t.textContent=ok?'Conectado':'Sin conexión';
+            b.title=ok?'Conexión con Google Sheets establecida':'Sin conexión con Google Sheets';
+        }
         async function api(a, body) {
             try {
                 const payload = Object.assign({}, body || {}, {a: a});
                 if (TOKEN) payload.token = TOKEN;
                 const r = await fetch(API_URL, {method: 'POST', body: JSON.stringify(payload), redirect: 'follow'});
                 const j = await r.json();
+                setConn(true);
                 if (j && j.error === 'Sesión expirada') { TOKEN=''; sessionStorage.removeItem('finanzas_token'); }
                 return j;
-            } catch (e) { return {ok: false, error: 'No hay conexión con el servidor'}; }
+            } catch (e) { setConn(false); return {ok: false, error: 'No hay conexión con el servidor'}; }
         }
         let tasaAutoTimer = null;
         async function refrescarTasaRespaldoAuto() {
