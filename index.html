@@ -1126,7 +1126,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <div id="formNuevoUsuario">
                             <div class="row g-2">
                                 <div class="col-12">
-                                    <input type="text" class="form-control form-control-sm" id="newNegocioNombre" placeholder="Nombre del Negocio" value="Mi Negocio">
+                                    <select class="form-select form-select-sm" id="newNegocioSel"></select>
                                 </div>
                             </div>
                             <div class="row g-2 mt-2">
@@ -1193,7 +1193,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <!-- Negocios -->
                 <div class="col-12">
                     <div class="card p-3 p-md-4">
-                        <h6 class="fw-semibold mb-1"><i class="bi bi-building me-2"></i>Negocios</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-semibold mb-0"><i class="bi bi-building me-2"></i>Negocios</h6>
+                            <button class="btn btn-sm btn-success" id="btnNuevoNegocio"><i class="bi bi-plus-lg me-1"></i>Negocio</button>
+                        </div>
                         <p class="small text-muted">Un negocio se crea al registrar un usuario con un nombre de negocio nuevo. Para eliminar un negocio, primero elimina o reasigna sus usuarios.</p>
                         <div id="listaNegociosAdmin">
                             <!-- Se llena con JS -->
@@ -1301,7 +1304,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Nombre del Negocio</label>
-                    <input type="text" class="form-control" id="editNegocio">
+                    <select class="form-select" id="editNegocioSel"></select>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1352,6 +1355,35 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <button type="button" class="btn btn-outline-primary" id="btnCopiarPass"><i class="bi bi-clipboard me-1"></i>Copiar</button>
                 <a class="btn btn-primary text-white" id="btnShareTg" target="_blank" rel="noopener"><i class="bi bi-telegram me-1"></i>Compartir por Telegram</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="negocioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-building me-2"></i><span id="negocioModalTitle">Nuevo negocio</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="negocioAnterior">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nombre del negocio</label>
+                    <input type="text" class="form-control" id="negocioNombre" maxlength="80">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tipo</label>
+                    <select class="form-select" id="negocioTipo">
+                        <option value="tcp">TCP</option>
+                        <option value="mipyme">MIPYME</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary-custom" id="btnGuardarNegocio"><i class="bi bi-check me-1"></i>Guardar</button>
             </div>
         </div>
     </div>
@@ -1415,11 +1447,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         sincronizarBotonesTema();
 
         // ===== CONFIGURACIÓN =====
-        const CFG0 = {tasa:120,tasaBase:120,modoCerrados:'historicas',tasasMes:{},onat:{ventas:10,desarrolloLocal:1,utilidades:35},meta:15,tolerancia:0.5,tasaAutoActualizada:0,tasaAutoIntento:0,tasaAutoFuente:''};
+        const CFG0 = {tasa:120,tasaBase:120,modoCerrados:'historicas',tasasMes:{},onat:{ventas:10,desarrolloLocal:1,utilidades:35},meta:15,tolerancia:0.5,tasaAutoActualizada:0,tasaAutoIntento:0,tasaAutoFuente:'',negocios:{}};
         let CFG = JSON.parse(JSON.stringify(CFG0)), _tvKey = null, _tv = 120;
         function applyCfg(c) {
             c = c || {}; const o = Object.assign({}, CFG0.onat, c.onat || {});
-            CFG = Object.assign({}, CFG0, c, {onat: o, tasasMes: (c.tasasMes && !Array.isArray(c.tasasMes)) ? c.tasasMes : {}});
+            CFG = Object.assign({}, CFG0, c, {onat: o, tasasMes: (c.tasasMes && !Array.isArray(c.tasasMes)) ? c.tasasMes : {}, negocios: (c.negocios && !Array.isArray(c.negocios)) ? c.negocios : {}});
             META_UTILIDAD = +CFG.meta; TOLERANCIA = +CFG.tolerancia; _tvKey = null;
         }
         function tasaEntrada(h) { return CFG.modoCerrados === 'actuales' ? +CFG.tasa : (CFG.tasasMes[h.mes] > 0 ? +CFG.tasasMes[h.mes] : (h.tasa > 0 ? +h.tasa : +CFG.tasaBase)); }
@@ -1816,6 +1848,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         const saldoInicialModal = new bootstrap.Modal(document.getElementById('saldoInicialModal'));
         const editarUsuarioModal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
         const passResetModal = new bootstrap.Modal(document.getElementById('passResetModal'));
+        const negocioModal = new bootstrap.Modal(document.getElementById('negocioModal'));
         const trabajadorModal = new bootstrap.Modal(document.getElementById('trabajadorModal'));
         const fiscalManualModal = new bootstrap.Modal(document.getElementById('fiscalManualModal'));
         const aftModal = new bootstrap.Modal(document.getElementById('aftModal'));
@@ -2302,6 +2335,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             } else {
                 divSocios.classList.remove('hidden');
             }
+            cargarSelectNegocios('newNegocioSel', entityType);
         }
 
         // ===== TIPO DE USUARIO =====
@@ -2313,6 +2347,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('btnTipoNuevo').className = `btn ${tipo === 'nuevo' ? 'btn-primary active-nuevo' : 'btn-outline-primary'}`;
             document.getElementById('btnTipoAsociado').className = `btn ${tipo === 'asociado' ? 'btn-warning active-asociado' : 'btn-outline-warning'}`;
             
+            if (tipo === 'nuevo') {
+                cargarSelectNegocios('newNegocioSel', document.getElementById('newEntityType').value);
+            }
             if (tipo === 'asociado') {
                 cargarNegociosExistentes();
             }
@@ -2559,34 +2596,75 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderBloqueoMeses();
         }
 
+        // ===== NEGOCIOS: helpers =====
+        function getNegociosMeta(){ return (typeof CFG!=='undefined' && CFG.negocios) || {}; }
+        function negociosPorTipo(tipo){
+            const meta=getNegociosMeta(), out=[];
+            Object.keys(meta).forEach(function(n){ if(!tipo || (meta[n]||{}).tipo===tipo) out.push(n); });
+            return out.sort();
+        }
+        function cargarSelectNegocios(selId, tipo, seleccionado){
+            const sel=document.getElementById(selId); if(!sel) return;
+            const lista=negociosPorTipo(tipo);
+            let html = lista.length ? '<option value="">-- Seleccionar negocio --</option>' : '<option value="">(No hay negocios'+(tipo?' '+tipo.toUpperCase():'')+')</option>';
+            lista.forEach(function(n){ html += '<option value="'+esc(n)+'"'+(n===seleccionado?' selected':'')+'>'+esc(n)+'</option>'; });
+            sel.innerHTML = html;
+        }
+        function recargarSelectsNegocios(){
+            const ne=document.getElementById('newEntityType');
+            if(ne) cargarSelectNegocios('newNegocioSel', ne.value);
+            cargarSelectNegocios('selectNegocioExistente', null);
+        }
+
         // ===== RENDER: ADMIN (LISTA DE NEGOCIOS) =====
         function renderNegociosAdmin(){
             const box=document.getElementById('listaNegociosAdmin');
             if(!box) return;
-            const users=getUsuarios(), mapa={};
-            Object.keys(users).forEach(u=>{
-                const x=users[u];
-                if(!x||x.role==='admin'||!x.negocio) return;
-                if(!mapa[x.negocio]) mapa[x.negocio]={tipo:x.entityType||'tcp',usuarios:[]};
-                mapa[x.negocio].usuarios.push(u);
-            });
-            const nombres=Object.keys(mapa).sort();
+            const meta=getNegociosMeta(), users=getUsuarios();
+            const nombres=Object.keys(meta).sort();
             if(!nombres.length){ box.innerHTML='<p class="text-muted text-center py-3">No hay negocios registrados.</p>'; return; }
-            box.innerHTML=nombres.map(n=>{
-                const m=mapa[n];
-                const tipo=m.tipo==='mipyme'?`MIPYME (${m.usuarios.length} usuario(s))`:'TCP';
-                return `<div class="usuario-item"><div class="usuario-info"><div class="avatar" style="background:#0f766e;">${esc(n.substring(0,2).toUpperCase())}</div><div><div class="fw-semibold">\uD83C\uDFE2 ${esc(n)}</div><small class="text-muted">${tipo} \u00B7 Usuarios: ${m.usuarios.map(esc).join(', ')}</small></div></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-danger" data-negocio="${esc(n)}" title="Eliminar negocio" onclick="eliminarNegocio(this.dataset.negocio)"><i class="bi bi-trash3"></i></button></div></div>`;
-            }).join('');
+            let html='';
+            nombres.forEach(function(n){
+                const t=(meta[n]||{}).tipo==='mipyme'?'MIPYME':'TCP';
+                const cuantos=Object.keys(users).filter(function(u){ return users[u]&&users[u].role!=='admin'&&users[u].negocio===n; });
+                html+='<div class="usuario-item"><div class="usuario-info"><div class="avatar" style="background:#0f766e;">'+esc(n.substring(0,2).toUpperCase())+'</div><div><div class="fw-semibold">🏢 '+esc(n)+'</div><small class="text-muted">'+t+' · Usuarios: '+(cuantos.length?cuantos.map(esc).join(', '):'ninguno')+'</small></div></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-negocio="'+esc(n)+'" title="Editar negocio" onclick="abrirEditorNegocio(this.dataset.negocio)"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" data-negocio="'+esc(n)+'" title="Eliminar negocio" onclick="eliminarNegocio(this.dataset.negocio)"><i class="bi bi-trash3"></i></button></div></div>';
+            });
+            box.innerHTML=html;
         }
         async function eliminarNegocio(nombre){
             if(!confirm(`¿Eliminar el negocio "${nombre}" y TODOS sus datos? Esta acción no se puede deshacer.`)) return;
             const r=await api('negocio_delete',{negocio:nombre});
             if(!r.ok){ alert('\u26A0\uFE0F '+(r.error||'No se pudo eliminar el negocio.')); return; }
+            if(r.negocios) CFG.negocios=r.negocios;
             renderNegociosAdmin();
+            recargarSelectsNegocios();
             alert(`Negocio "${nombre}" eliminado.`);
         }
 
-        // ===== ABRIR EDITOR DE USUARIO =====
+        // ===== NEGOCIO: crear / editar =====
+        function abrirEditorNegocio(nombre){
+            const meta=getNegociosMeta();
+            document.getElementById('negocioModalTitle').textContent = nombre ? 'Editar negocio' : 'Nuevo negocio';
+            document.getElementById('negocioAnterior').value = nombre || '';
+            document.getElementById('negocioNombre').value = nombre || '';
+            document.getElementById('negocioTipo').value = (nombre && meta[nombre] && meta[nombre].tipo) || 'tcp';
+            negocioModal.show();
+        }
+        async function guardarNegocio(){
+            const nombre=document.getElementById('negocioNombre').value.trim();
+            const tipo=document.getElementById('negocioTipo').value;
+            const anterior=document.getElementById('negocioAnterior').value;
+            if(!nombre){ alert('\u26A0\uFE0F Escribe el nombre del negocio.'); return; }
+            const r=await api('negocio_save',{nombre: nombre, tipo: tipo, anterior: anterior});
+            if(!r.ok){ alert('\u26A0\uFE0F '+(r.error||'No se pudo guardar el negocio.')); return; }
+            if(r.negocios) CFG.negocios=r.negocios;
+            negocioModal.hide();
+            renderNegociosAdmin();
+            recargarSelectsNegocios();
+            alert('\u2705 Negocio "'+nombre+'" guardado.');
+        }
+
+        // ===== ABRIR EDITOR DE USUARIO ===
         function abrirEditorUsuario(username) {
             const users = getUsuarios();
             const user = users[username];
@@ -2602,7 +2680,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('editRole').value = user.role || 'consultor';
             document.getElementById('editEntityType').value = user.entityType || 'tcp';
             document.getElementById('editSocios').value = user.socios || 1;
-            document.getElementById('editNegocio').value = user.negocio || '';
+            cargarSelectNegocios('editNegocioSel', user.entityType || 'tcp', user.negocio || '');
             
             // Mostrar/ocultar socios según tipo
             toggleEditSocios();
@@ -2618,6 +2696,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             } else {
                 divSocios.style.display = 'block';
             }
+            const eu=document.getElementById('editUsername').value;
+            cargarSelectNegocios('editNegocioSel', entityType, eu ? (getUsuarios()[eu]||{}).negocio : '');
         }
 
         // ===== RESTABLECER CONTRASEÑA =====
@@ -2638,7 +2718,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const role = document.getElementById('editRole').value;
             const entityType = document.getElementById('editEntityType').value;
             const socios = parseInt(document.getElementById('editSocios').value) || 1;
-            const negocio = document.getElementById('editNegocio').value.trim() || 'Mi Negocio';
+            const negocio = document.getElementById('editNegocioSel').value;
+            if (!negocio) { alert('\u26A0\uFE0F Selecciona el negocio del usuario.'); return; }
             
             const users = getUsuarios();
             if (!users[username]) {
@@ -3302,7 +3383,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 return;
             }
             
-            const negocio = document.getElementById('newNegocioNombre').value.trim() || 'Mi Negocio';
+            const negocio = document.getElementById('newNegocioSel').value;
+            if (!negocio) { alert('\u26A0\uFE0F Selecciona el negocio del usuario.'); return; }
             const username = document.getElementById('newUser').value.trim();
             const password = document.getElementById('newPass').value.trim();
             const role = document.getElementById('newRole').value;
@@ -3317,17 +3399,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const users = getUsuarios();
             if (users[username]) { alert(`⚠️ El usuario "${username}" ya existe.`); return; }
             
-            // Guardar en la lista de negocios
-            const negocios = getNegocios();
-            if (!negocios[negocio]) {
-                negocios[negocio] = {
-                    creador: username,
-                    socios: socios,
-                    tipo: entityType
-                };
-                saveNegocios(negocios);
-            }
-            
             users[username] = { 
                 password: password, 
                 role: role, 
@@ -3339,7 +3410,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             saveUsuarios(users);
             
             // Limpiar campos
-            document.getElementById('newNegocioNombre').value = '';
             document.getElementById('newUser').value = '';
             document.getElementById('newPass').value = '';
             document.getElementById('newSocios').value = 1;
@@ -3517,6 +3587,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         });
         logoutBtn.addEventListener('click', handleLogout);
         initPrintButtons();
+        document.getElementById('btnNuevoNegocio').addEventListener('click', function(){ abrirEditorNegocio(''); });
+        document.getElementById('btnGuardarNegocio').addEventListener('click', guardarNegocio);
         document.getElementById('btnCopiarPass').addEventListener('click', function(){
             const t=document.getElementById('prPass').textContent;
             if(navigator.clipboard&&t) navigator.clipboard.writeText(t).then(()=>alert('Contraseña copiada.')).catch(()=>alert('No se pudo copiar.'));
