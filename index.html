@@ -3348,6 +3348,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
         function finalizarAgregarMovimiento(clasificacion) {
             const { concepto, tipo, cuenta, monto, fecha } = tempMovimiento;
+            if(tipo==='gasto'||tipo==='onat'){
+                const vs=validarSaldoSuficiente(cuenta, parseFloat(monto));
+                if(!vs.ok){ alert(vs.msg); return; }
+            }
             movimientos.push({ 
                 id: nextId++, 
                 concepto, 
@@ -3889,6 +3893,23 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             $('movTasaFuente').textContent = movTasaSource || 'Consulta BCC o escribe la tasa manualmente.';
             toggleFxMov(!m); actualizarEquivMov(); movModal.show();
         }
+        // No permitir egresos (gasto u ONAT) si el saldo de la cuenta no alcanza.
+        // Al editar un movimiento se devuelve primero su efecto para no contarlo dos veces.
+        function validarSaldoSuficiente(cuenta, monto){
+            if(cuenta!=='chequera'&&cuenta!=='tarjeta_cup'&&cuenta!=='tarjeta_usd') return {ok:true};
+            const moneda = cuenta==='tarjeta_usd' ? 'USD' : 'CUP';
+            let disp = Number(getSaldoCuenta(cuenta))||0;
+            if(movEditId){
+                const orig = movimientos.find(x=>x.id===movEditId);
+                if(orig && orig.cuenta===cuenta && (orig.tipo==='gasto'||orig.tipo==='onat')) disp += Number(orig.monto)||0;
+            }
+            if(Number(monto) > disp + 0.01){
+                const nombres={chequera:'Chequera',tarjeta_cup:'Tarjeta CUP',tarjeta_usd:'Tarjeta USD'};
+                return {ok:false, msg:`⚠️ Saldo insuficiente en ${nombres[cuenta]}.\nDisponible: $${disp.toFixed(2)} ${moneda}\nIntentas registrar: $${Number(monto).toFixed(2)} ${moneda}`};
+            }
+            return {ok:true};
+        }
+
         $('btnGuardarMov').addEventListener('click', () => {
             const concepto = $('movConcepto').value.trim(), monto = parseFloat($('movMonto').value), fecha = $('movFecha').value, cuenta=$('movCuenta').value;
             if (!concepto) { alert('Escribe un concepto.'); return; }
@@ -3909,6 +3930,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
             if(cuenta==='tarjeta_usd') { let t=Number($('movTasaUSD').value); if(!(t>0)){ t=Number(CFG.tasa)||0; if(!(t>0)){alert('Indica la tasa CUP/USD de la operación.');return;} movTasaSource='Tasa de respaldo'; toast('Se usó la tasa de respaldo ('+t+') para la operación USD.'); } d.tasaCambio=t;d.equivalenteCUP=+(monto*t).toFixed(2);d.tasaFecha=fecha;d.tasaSegmento='III';d.tasaFuente=movTasaSource||'Tasa de respaldo'; }
             else { delete d.tasaCambio; delete d.equivalenteCUP; }
+            if(movTipo==='gasto'||movTipo==='onat'){
+                const vs=validarSaldoSuficiente(cuenta, monto);
+                if(!vs.ok){ alert(vs.msg); return; }
+            }
             if(pendingFiscalLink){d.fiscalId=pendingFiscalLink.id;d.tributoCodigo=pendingFiscalLink.codigo||d.tributoCodigo;d.fiscalPeriodo=pendingFiscalLink.periodo;}
             if(pendingSpecialMovement){Object.assign(d,pendingSpecialMovement);d.clasificacion='extraccion';}
             if (movEditId) Object.assign(movimientos.find(x => x.id === movEditId), d);
