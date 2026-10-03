@@ -436,6 +436,17 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
 .conn-dot.conn-red{background:#ef4444;box-shadow:0 0 8px #ef4444}
 .conn-badge-login{position:absolute;top:3.1rem;right:.85rem;z-index:3;background:rgba(15,23,42,.07);color:#0f172a}
 html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color:#fff}
+        .print-only-header{display:none}
+        @media print{
+          body.printing #loginContainer,body.printing .app-hero,body.printing .nav-tabs,body.printing .tab-pane{display:none!important}
+          body.printing .tab-pane.print-target{display:block!important}
+          body.printing .btn-print-pane,body.printing .no-print{display:none!important}
+          body.printing .print-only-header{display:block!important;margin-bottom:1rem}
+          body.printing .modal.print-target{display:block!important;position:static!important;opacity:1!important}
+          body.printing .modal.print-target .modal-dialog{max-width:100%!important;margin:0!important;transform:none!important}
+          body.printing .modal.print-target .modal-footer,body.printing .modal-backdrop{display:none!important}
+          body.printing .card{box-shadow:none!important}
+        }
 .app-hero .badge{background:rgba(255,255,255,.12)!important;color:#e6fffb!important;font-weight:600}
 .app-hero .btn{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.25)!important;color:#fff!important;border-radius:999px;font-weight:600}
 .app-hero .btn:hover{background:rgba(255,255,255,.2)!important}
@@ -3357,6 +3368,53 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         // ===== EVENT LISTENERS =====
+        function printBtnHTML(target){
+            return `<button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="${target}" title="Exportar a PDF / imprimir"><i class="bi bi-printer me-1"></i>PDF</button>`;
+        }
+        function printPane(targetId){
+            document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
+            const el=document.getElementById(targetId);
+            if(!el) return;
+            const titles={'pane-resumen':'Resumen','pane-chequera':'Chequera','pane-tarjeta_cup':'Tarjeta CUP','pane-tarjeta_usd':'Tarjeta USD','pane-nomina':'Nómina','pane-utilidades':'Trimestres y utilidades','pane-fiscal':'Vector Fiscal','pane-aft':'Activos Fijos Tangibles','onatModal':'Cálculo ONAT'};
+            let ph=document.getElementById('printHeader');
+            if(!ph){ ph=document.createElement('div'); ph.id='printHeader'; ph.className='print-only-header'; document.body.prepend(ph); }
+            const neg=(document.getElementById('negocioNombreDisplay')||{}).textContent||'';
+            const hoy=new Date();
+            ph.innerHTML=`<h4 class="fw-bold mb-1">${neg} — ${titles[targetId]||''}</h4><div class="text-secondary small">Generado el ${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}</div>`;
+            el.classList.add('print-target');
+            document.body.classList.add('printing');
+            setTimeout(()=>window.print(),80);
+        }
+        window.addEventListener('afterprint',()=>{
+            document.body.classList.remove('printing');
+            document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
+        });
+        document.addEventListener('click',e=>{
+            const b=e.target.closest('.btn-print-pane');
+            if(b) printPane(b.dataset.printTarget);
+        });
+        function initPrintButtons(){
+            const put=(sel,target,how)=>{
+                const el=document.querySelector(sel);
+                if(!el||el.querySelector('.btn-print-pane')) return;
+                if(how==='append') el.insertAdjacentHTML('beforeend',printBtnHTML(target));
+                else if(how==='after') el.insertAdjacentHTML('afterend',printBtnHTML(target));
+                else if(how==='prepend') el.insertAdjacentHTML('afterbegin',printBtnHTML(target));
+            };
+            put('#botonesChequera','pane-chequera','append');
+            put('#botonesCUP','pane-tarjeta_cup','append');
+            put('#botonesUSD','pane-tarjeta_usd','append');
+            put('#btnGuardarNomina','pane-nomina','after');
+            put('#triAnio','pane-utilidades','after');
+            put('#vectorEstadoBadge','pane-fiscal','after');
+            put('#btnContabilizarDep','pane-aft','after');
+            put('#onatModal .modal-footer','onatModal','prepend');
+            const tbl=document.getElementById('movimientosTable');
+            if(tbl&&!tbl.closest('.card').querySelector('.btn-print-pane')){
+                tbl.closest('.table-responsive').insertAdjacentHTML('beforebegin',
+                    `<div class="d-flex justify-content-end mb-2 no-print">${printBtnHTML('pane-resumen')}</div>`);
+            }
+        }
         loginForm.addEventListener('submit', async function(e){
             e.preventDefault();
             const r = await api('login', {username: document.getElementById('userInput').value.trim(), password: document.getElementById('passInput').value});
@@ -3364,6 +3422,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             await cargar(r); handleLogin(e);
         });
         logoutBtn.addEventListener('click', handleLogout);
+        initPrintButtons();
         api('ping');
 
         document.getElementById('newEntityType').addEventListener('change', toggleSocios);
