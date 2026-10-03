@@ -1416,22 +1416,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="col-md-4"><label class="form-label">Fecha de alta</label><input id="trabFechaAlta" type="date" class="form-control"></div>
         <div class="col-md-4"><label class="form-label">Fecha de baja</label><input id="trabFechaBaja" type="date" class="form-control"></div>
         <div class="col-12"><label class="form-label">Notas</label><input id="trabNotas" class="form-control" maxlength="180" placeholder="Opcional"></div>
-        <div class="col-12"><hr class="my-1"><label class="form-label">Complementos aplicables a este trabajador</label><div class="row g-1" id="trabCompList"></div><small class="text-muted d-block mt-1">Marca los conceptos que se aplican a este trabajador. Los datos del mes (días, horas, montos) se capturan con el botón 🧩 en la tabla de nómina.</small></div>
+        <div class="col-12"><hr class="my-1"><label class="form-label">Complementos aplicables a este trabajador</label><div class="row g-1" id="trabCompList"></div><small class="text-muted d-block mt-1">Marca los conceptos que se aplican a este trabajador y completa los días, horas o montos del mes en curso.</small></div>
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary-custom text-white" id="btnGuardarTrabajador">Guardar trabajador</button></div>
   </div></div>
 </div>
 
-
-<!-- MODAL COMPLEMENTOS POR TRABAJADOR -->
-<div class="modal fade" id="compModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content">
-    <div class="modal-header"><h5 class="modal-title" id="compModalTitulo"><i class="bi bi-puzzle me-2"></i>Complementos</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body" id="compModalBody"></div>
-    <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarComp">Guardar complementos</button></div>
-  </div></div>
-</div>
 
 <!-- MODAL OBLIGACIÓN FISCAL MANUAL -->
 <div class="modal fade" id="fiscalManualModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-file-plus me-2"></i>Obligación fiscal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-5"><label class="form-label">Código tributo</label><input id="fisManCodigo" class="form-control" maxlength="20"></div><div class="col-7"><label class="form-label">Período</label><input id="fisManPeriodo" class="form-control" placeholder="Ej. Septiembre 2026"></div><div class="col-12"><label class="form-label">Concepto</label><input id="fisManConcepto" class="form-control" maxlength="160"></div><div class="col-6"><label class="form-label">Fecha límite</label><input id="fisManVence" type="date" class="form-control"></div><div class="col-6"><label class="form-label">Importe manual (CUP)</label><input id="fisManImporte" type="number" min="0" step="0.01" class="form-control"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarFiscalManual">Guardar</button></div></div></div></div>
@@ -1876,8 +1867,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         const passResetModal = new bootstrap.Modal(document.getElementById('passResetModal'));
         const negocioModal = new bootstrap.Modal(document.getElementById('negocioModal'));
         const trabajadorModal = new bootstrap.Modal(document.getElementById('trabajadorModal'));
-        const compModal = new bootstrap.Modal(document.getElementById('compModal'));
-        let compEditId = null, compEditPeriodo = null;
         const fiscalManualModal = new bootstrap.Modal(document.getElementById('fiscalManualModal'));
         const aftModal = new bootstrap.Modal(document.getElementById('aftModal'));
         let aftEditId = null, pendingFiscalLink = null, lastFXResult = null, movTasaSource = '';
@@ -2063,7 +2052,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function saveCompCfg(cfg){ const d=getRRHH(); d.compCfg=cfg; saveRRHH(d); }
         function compAlgunoTiene(cid){ const d=getRRHH(); return (d.trabajadores||[]).some(t=>t.compAplica&&!!t.compAplica[cid]); }
         function trabTieneComps(t){ return !!(t&&t.compAplica&&Object.keys(t.compAplica).some(k=>t.compAplica[k])); }
-        function compAlgunoActivo(){ return COMP_DEF.some(c=>compAlgunoTiene(c.id)); }
         function diasDelMes(periodo){ const p=periodoParts(periodo); return p?new Date(p.y,p.mi+1,0).getDate():30; }
         // Promedio diario = Σ salario+otras de los últimos `meses` períodos ÷ (meses×30.44)
         function promDiarioTrabajador(workerId,periodo,meses){
@@ -2216,13 +2204,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <td class="text-end pay-ssemp">${moneda(calc.ssEmp)}</td>
                     <td class="text-end pay-comp" title="${esc(compTitle)}">${moneda(compTotal)}</td>
                     <td class="text-end fw-semibold pay-costo">${moneda(calc.costo)}</td>
-                    <td class="text-end"><div class="btn-group btn-group-sm">${editable?`<button class="btn btn-outline-primary editar-trab" data-id="${t.id}" title="Editar"><i class="bi bi-pencil"></i></button><button class="btn btn-outline-danger borrar-trab" data-id="${t.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}${editable&&trabTieneComps(t)?`<button class="btn btn-outline-success comp-trab" data-id="${t.id}" title="Complementos"><i class="bi bi-puzzle"></i></button>`:''}</div></td>
+                    <td class="text-end"><div class="btn-group btn-group-sm">${editable?`<button class="btn btn-outline-primary editar-trab" data-id="${t.id}" title="Editar"><i class="bi bi-pencil"></i></button><button class="btn btn-outline-danger borrar-trab" data-id="${t.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}</div></td>
                 </tr>`;}).join('');
             actualizarResumenNominaDesdeDOM();
             document.querySelectorAll('#nominaBody .pay-salario,#nominaBody .pay-otras').forEach(i => i.addEventListener('input', actualizarResumenNominaDesdeDOM));
             document.querySelectorAll('.editar-trab').forEach(b => b.addEventListener('click',()=>abrirTrabajador(b.dataset.id)));
             document.querySelectorAll('.borrar-trab').forEach(b => b.addEventListener('click',()=>eliminarTrabajador(b.dataset.id)));
-            document.querySelectorAll('.comp-trab').forEach(b => b.addEventListener('click',()=>abrirCompTrabajador(b.dataset.id)));
         }
         function leerNominaDOM() {
             const filas = [];
@@ -2267,6 +2254,67 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             leerNominaDOM().forEach(x=>{const prev=d.nominas[periodo][x.id]||{};d.nominas[periodo][x.id]={nombre:x.nombre||prev.nombre||'',salario:+x.salario.toFixed(2),otras:+x.otras.toFixed(2),comp:prev.comp||x.comp||{}};});
             saveRRHH(d); renderNomina(); alert('✅ Nómina guardada.');
         }
+        // ===== COMPLEMENTOS: CAMPOS POR CONCEPTO EN LA FICHA DEL TRABAJADOR =====
+        function camposConcepto(cid, c, P) {
+            const v = (k, def) => (c[k] !== undefined && c[k] !== null && c[k] !== '') ? c[k] : def;
+            const num = (fid, label, val) => `<div class="col-6 col-md-4"><label class="form-label small mb-1">${label}</label><input id="${fid}" type="number" min="0" step="0.01" class="form-control form-control-sm tc-field" value="${val}"></div>`;
+            const chk = (fid, label, on) => `<div class="col-6 col-md-4 d-flex align-items-end"><div class="form-check mb-2"><input id="${fid}" type="checkbox" class="form-check-input tc-field" ${on ? 'checked' : ''}><label class="form-check-label small" for="${fid}">${label}</label></div></div>`;
+            switch (cid) {
+                case 'antiguedad': return num('tc-antigPct', 'Plus antigüedad (%)', v('antigPct', 0));
+                case 'horasExtras': return num('tc-heHoras', 'Horas extras', v('heHoras', 0));
+                case 'feriados': return num('tc-ferDias', 'Días feriados trabajados', v('ferDias', 0));
+                case 'resultados': return num('tc-resMonto', 'Monto (CUP)', v('resMonto', 0));
+                case 'vacaciones': return num('tc-vacDias', 'Días de vacaciones', v('vacDias', 0));
+                case 'interrupcion': return num('tc-intDias', 'Días de interrupción', v('intDias', 0));
+                case 'enfermedad': return num('tc-enfDias', 'Días de enfermedad', v('enfDias', 0)) + `<div class="col-6 col-md-4"><label class="form-label small mb-1">Causa</label><select id="tc-enfCausa" class="form-select form-select-sm tc-field"><option value="comun"${v('enfCausa', 'comun') === 'comun' ? ' selected' : ''}>Común (${P.enfComun}%)</option><option value="accidente"${v('enfCausa', 'comun') === 'accidente' ? ' selected' : ''}>Accidente (${P.enfAccidente}%)</option><option value="profesional"${v('enfCausa', 'comun') === 'profesional' ? ' selected' : ''}>Profesional (${P.enfProfesional}%)</option></select></div>`;
+                case 'maternidad': return chk('tc-matActiva', 'Activa este mes', !!v('matActiva', false)) + num('tc-matDias', 'Días', v('matDias', 0));
+                case 'paternidad': return chk('tc-patActiva', 'Activa este mes', !!v('patActiva', false)) + num('tc-patDias', 'Días', v('patDias', 0));
+                case 'licenciaNoRetrib': return num('tc-lnrDias', 'Días no retribuidos', v('lnrDias', 0));
+                case 'finiquito': return chk('tc-finiquito', 'Aplica finiquito este mes', !!v('finiquito', false));
+                case 'retenciones': return num('tc-retAlim', 'Pensión alimenticia (CUP)', v('retAlim', 0)) + num('tc-retCred', 'Crédito bancario (CUP)', v('retCred', 0)) + num('tc-retResp', 'Resp. material (CUP)', v('retResp', 0));
+                default: return '';
+            }
+        }
+        function leerCamposConcepto(cid) {
+            const comp = {};
+            const gn = id => { const e = document.getElementById(id); return e ? Math.max(0, parseFloat(e.value) || 0) : 0; };
+            const gc = id => { const e = document.getElementById(id); return e ? e.checked : false; };
+            const gs = id => { const e = document.getElementById(id); return e ? e.value : 'comun'; };
+            switch (cid) {
+                case 'antiguedad': comp.antigPct = gn('tc-antigPct'); break;
+                case 'horasExtras': comp.heHoras = gn('tc-heHoras'); break;
+                case 'feriados': comp.ferDias = gn('tc-ferDias'); break;
+                case 'resultados': comp.resMonto = gn('tc-resMonto'); break;
+                case 'vacaciones': comp.vacDias = gn('tc-vacDias'); break;
+                case 'interrupcion': comp.intDias = gn('tc-intDias'); break;
+                case 'enfermedad': comp.enfDias = gn('tc-enfDias'); comp.enfCausa = gs('tc-enfCausa'); break;
+                case 'maternidad': comp.matActiva = gc('tc-matActiva'); comp.matDias = gn('tc-matDias'); break;
+                case 'paternidad': comp.patActiva = gc('tc-patActiva'); comp.patDias = gn('tc-patDias'); break;
+                case 'licenciaNoRetrib': comp.lnrDias = gn('tc-lnrDias'); break;
+                case 'finiquito': comp.finiquito = gc('tc-finiquito'); break;
+                case 'retenciones': comp.retAlim = gn('tc-retAlim'); comp.retCred = gn('tc-retCred'); comp.retResp = gn('tc-retResp'); break;
+            }
+            return comp;
+        }
+        function trabCompPreview() {
+            const box = document.getElementById('trabCompPreview');
+            if (!box) return;
+            const per = periodoNominaActual(), d = getRRHH();
+            const rec = trabajadorEditId ? (((d.nominas || {})[per] || {})[trabajadorEditId] || {}) : {};
+            const salBase = Math.max(0, parseFloat((document.getElementById('trabSalarioBase') || {}).value) || 0);
+            const salario = rec.salario !== undefined ? Number(rec.salario) || 0 : salBase;
+            const otras = rec.otras !== undefined ? Number(rec.otras) || 0 : 0;
+            const ca = {}, comp = {};
+            COMP_DEF.forEach(c => {
+                const sw = document.getElementById('trab-comp-' + c.id), on = sw ? sw.checked : false;
+                ca[c.id] = on;
+                if (on) Object.assign(comp, leerCamposConcepto(c.id));
+            });
+            const t = { id: trabajadorEditId || 'nuevo', compAplica: ca, fechaAlta: (document.getElementById('trabFechaAlta') || {}).value || '', fechaBaja: (document.getElementById('trabFechaBaja') || {}).value || '' };
+            const r = calcLineaNominaExt(t, salario, otras, comp, per);
+            const efecto = (r.extra || 0) + (r.subsidios || 0) - (r.deducciones || 0);
+            box.innerHTML = 'Efecto estimado en el mes: <b class="' + (efecto < 0 ? 'text-danger' : 'text-success') + '">' + moneda(efecto) + '</b>' + (r.provisionVac ? ' <span class="text-muted">(provisión: ' + moneda(r.provisionVac) + ')</span>' : '');
+        }
         function abrirTrabajador(id) {
             if (!puedeEditar()) return;
             const d=getRRHH(), t=id?d.trabajadores.find(x=>String(x.id)===String(id)):null;
@@ -2279,10 +2327,31 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('trabFechaAlta').value=t?(t.fechaAlta||hoy()):hoy();
             document.getElementById('trabFechaBaja').value=t?(t.fechaBaja||''):'';
             document.getElementById('trabNotas').value=t?(t.notas||''):'';
+            const _per=periodoNominaActual(), _dd=getRRHH();
+            const _rec=t?(((_dd.nominas||{})[_per]||{})[t.id]||{}):{};
+            const _comp0=_rec.comp||{}, _P0=getCompCfg().params;
             const _on2=(cid)=>!!(t&&t.compAplica&&t.compAplica[cid]);
             document.getElementById('trabCompList').innerHTML=COMP_DEF.map(c=>{
-                return `<div class="col-md-6"><div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="trab-comp-${c.id}" ${_on2(c.id)?'checked':''}><label class="form-check-label small" for="trab-comp-${c.id}"><b>${c.nombre}</b><br><small class="text-muted">${c.desc}</small></label></div></div>`;
-            }).join('');
+                const _f=camposConcepto(c.id,_comp0,_P0);
+                return `<div class="col-12"><div class="border rounded p-2 mb-1">
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input trab-comp-sw" type="checkbox" id="trab-comp-${c.id}" data-comp="${c.id}" ${_on2(c.id)?'checked':''}>
+                        <label class="form-check-label" for="trab-comp-${c.id}"><b>${c.nombre}</b> <small class="text-muted">${c.desc}</small></label>
+                    </div>
+                    ${_f?`<div class="row g-2 mt-1 trab-comp-fields" id="trab-comp-fields-${c.id}" style="${_on2(c.id)?'':'display:none;'}">${_f}</div>`:''}
+                </div></div>`;
+            }).join('')+'<div class="col-12"><div id="trabCompPreview" class="small text-muted mt-1"></div></div>';
+            document.querySelectorAll('#trabCompList .trab-comp-sw').forEach(sw=>sw.addEventListener('change',()=>{
+                const fd=document.getElementById('trab-comp-fields-'+sw.dataset.comp);
+                if(fd) fd.style.display=sw.checked?'':'none';
+                trabCompPreview();
+            }));
+            document.querySelectorAll('#trabCompList .tc-field').forEach(f=>f.addEventListener('input',trabCompPreview));
+            const _sb=document.getElementById('trabSalarioBase');
+            if(_sb&&!_sb.dataset.compWired){ _sb.dataset.compWired='1'; _sb.addEventListener('input',trabCompPreview); }
+            const _fa=document.getElementById('trabFechaAlta');
+            if(_fa&&!_fa.dataset.compWired){ _fa.dataset.compWired='1'; _fa.addEventListener('change',trabCompPreview); }
+            trabCompPreview();
             trabajadorModal.show();
         }
         function guardarTrabajador() {
@@ -2295,11 +2364,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const activos=d.trabajadores.filter(t=>!t.fechaBaja || new Date(t.fechaBaja+'T23:59:59')>=new Date()).length;
                 if(activos>=3){alert('⚠️ Un TCP puede contratar hasta 3 trabajadores. La ayuda familiar ocasional no se registra como trabajador contratado.');return;}
             }
-            const _ca={};
-            COMP_DEF.forEach(c=>{ const _el=document.getElementById('trab-comp-'+c.id); _ca[c.id]=_el?_el.checked:false; });
+            const _ca={}, _comp={};
+            COMP_DEF.forEach(c=>{ const _el=document.getElementById('trab-comp-'+c.id), _on=_el?_el.checked:false; _ca[c.id]=_on; if(_on) Object.assign(_comp, leerCamposConcepto(c.id)); });
             const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca};
-            if(trabajadorEditId){ const i=d.trabajadores.findIndex(x=>String(x.id)===String(trabajadorEditId)); if(i>=0)d.trabajadores[i]=Object.assign({},d.trabajadores[i],obj); }
-            else { obj.id='w'+Date.now(); d.trabajadores.push(obj); }
+            let _wid=trabajadorEditId;
+            if(_wid){ const i=d.trabajadores.findIndex(x=>String(x.id)===String(_wid)); if(i>=0)d.trabajadores[i]=Object.assign({},d.trabajadores[i],obj); }
+            else { obj.id='w'+Date.now(); _wid=obj.id; d.trabajadores.push(obj); }
+            const _per=periodoNominaActual();
+            if(!d.nominas[_per]) d.nominas[_per]={};
+            (leerNominaDOM()||[]).forEach(x=>{ const p=d.nominas[_per][x.id]||{}; d.nominas[_per][x.id]={nombre:x.nombre||p.nombre||'',salario:+x.salario.toFixed(2),otras:+x.otras.toFixed(2),comp:p.comp||x.comp||{}}; });
+            const _prev=d.nominas[_per][_wid]||{};
+            if(Object.keys(_comp).length||_prev.salario!==undefined||_prev.otras!==undefined){
+                d.nominas[_per][_wid]=Object.assign({},_prev,{nombre:nombre,comp:_comp});
+            }
             saveRRHH(d); trabajadorModal.hide(); renderNomina(); alert('✅ Trabajador guardado.');
         }
         function eliminarTrabajador(id) {
@@ -2332,7 +2409,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             card.style.display = '';
             card.innerHTML = `
                 <h6 class="fw-semibold mb-1"><i class="bi bi-sliders me-2"></i>Parámetros de complementos</h6>
-                <p class="small text-muted mb-3">Porcentajes y valores usados por los conceptos de nómina. Los conceptos se marcan en la ficha de cada trabajador. Valores provisionales: verifícalos con la normativa vigente del MTSS/INASS.</p>
+                <p class="small text-muted mb-3">Porcentajes y valores usados por los conceptos de nómina. Los conceptos se marcan en la ficha de cada trabajador, y ahí mismo se capturan los días, horas o montos del mes. Valores provisionales: verifícalos con la normativa vigente del MTSS/INASS.</p>
                 <div class="row g-2">
                     ${pnum('enfComun', 'Enfermedad común %', P.enfComun, 1)}
                     ${pnum('enfAccidente', 'Accidente de trabajo %', P.enfAccidente, 1)}
@@ -2402,88 +2479,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         // ===== COMPLEMENTOS: MODAL POR TRABAJADOR =====
-        function abrirCompTrabajador(id) {
-            if (!puedeEditar()) return;
-            const P = getCompCfg().params, periodo = periodoNominaActual(), d = getRRHH();
-            const t = (d.trabajadores || []).find(x => String(x.id) === String(id));
-            if (!t) return;
-            const rec = ((d.nominas || {})[periodo] || {})[id] || {}, c = rec.comp || {};
-            compEditId = id; compEditPeriodo = periodo;
-            const APL=(cid)=>!!(t&&t.compAplica&&t.compAplica[cid]);
-            document.getElementById('compModalTitulo').innerHTML = '<i class="bi bi-puzzle me-2"></i>Complementos · ' + esc(t.nombre || '');
-            const v = (k, def) => (c[k] !== undefined && c[k] !== null && c[k] !== '') ? c[k] : def;
-            const num = (fid, label, val) => `<div class="col-md-4 col-6"><label class="form-label small mb-1">${label}</label><input id="${fid}" type="number" min="0" step="0.01" class="form-control form-control-sm cmp-field" value="${val}"></div>`;
-            const chk = (fid, label, on) => `<div class="col-md-4 col-6 d-flex align-items-end"><div class="form-check mb-2"><input id="${fid}" type="checkbox" class="form-check-input cmp-field" ${on ? 'checked' : ''}><label class="form-check-label small" for="${fid}">${label}</label></div></div>`;
-            let h = '';
-            if (APL('antiguedad')) h += num('cmp-antigPct', 'Plus antigüedad (%)', v('antigPct', 0));
-            if (APL('horasExtras')) h += num('cmp-heHoras', 'Horas extras', v('heHoras', 0));
-            if (APL('feriados')) h += num('cmp-ferDias', 'Días feriados trabajados', v('ferDias', 0));
-            if (APL('resultados')) h += num('cmp-resMonto', 'Pago por resultados (CUP)', v('resMonto', 0));
-            if (APL('vacaciones')) h += num('cmp-vacDias', 'Días de vacaciones', v('vacDias', 0));
-            if (APL('interrupcion')) h += num('cmp-intDias', 'Días de interrupción', v('intDias', 0));
-            if (APL('enfermedad')) {
-                h += num('cmp-enfDias', 'Días de enfermedad', v('enfDias', 0));
-                h += `<div class="col-md-4 col-6"><label class="form-label small mb-1">Causa</label><select id="cmp-enfCausa" class="form-select form-select-sm cmp-field">
-                    <option value="comun" ${v('enfCausa', 'comun') === 'comun' ? 'selected' : ''}>Común (${P.enfComun}%)</option>
-                    <option value="accidente" ${v('enfCausa', 'comun') === 'accidente' ? 'selected' : ''}>Accidente de trabajo (${P.enfAccidente}%)</option>
-                    <option value="profesional" ${v('enfCausa', 'comun') === 'profesional' ? 'selected' : ''}>Enfermedad profesional (${P.enfProfesional}%)</option></select></div>`;
-            }
-            if (APL('maternidad')) { h += chk('cmp-matActiva', 'Maternidad activa', !!v('matActiva', false)); h += num('cmp-matDias', 'Días de maternidad', v('matDias', 0)); }
-            if (APL('paternidad')) { h += chk('cmp-patActiva', 'Paternidad activa', !!v('patActiva', false)); h += num('cmp-patDias', 'Días de paternidad', v('patDias', 0)); }
-            if (APL('licenciaNoRetrib')) h += num('cmp-lnrDias', 'Días licencia no retribuida', v('lnrDias', 0));
-            if (APL('finiquito')) h += chk('cmp-finiquito', 'Aplica finiquito este mes', !!v('finiquito', false));
-            if (APL('retenciones')) { h += num('cmp-retAlim', 'Pensión alimenticia (CUP)', v('retAlim', 0)); h += num('cmp-retCred', 'Crédito bancario (CUP)', v('retCred', 0)); h += num('cmp-retResp', 'Responsabilidad material (CUP)', v('retResp', 0)); }
-            if (!h) h = '<div class="col-12"><div class="alert alert-secondary small mb-0">Los conceptos activos ahora mismo se calculan solos, son informativos o no aplican a este trabajador (revísalo en su ficha). No hay datos que capturar.</div></div>';
-            document.getElementById('compModalBody').innerHTML = `
-                <div class="row g-2">${h}</div>
-                <hr class="my-3"><h6 class="fw-semibold small">Vista previa del cálculo</h6>
-                <div id="compPreview" class="small"></div>`;
-            document.querySelectorAll('#compModalBody .cmp-field').forEach(f => f.addEventListener('input', compPreview));
-            compPreview();
-            compModal.show();
-        }
-        function compLeerCampos() {
-            const comp = {};
-            const d = getRRHH(), t = (d.trabajadores || []).find(x => String(x.id) === String(compEditId)) || {};
-            const APL = (cid) => !!(t && t.compAplica && t.compAplica[cid]);
-            const gn = id => { const e = document.getElementById(id); return e ? Math.max(0, parseFloat(e.value) || 0) : 0; };
-            const gc = id => { const e = document.getElementById(id); return e ? e.checked : false; };
-            const gs = id => { const e = document.getElementById(id); return e ? e.value : 'comun'; };
-            if (APL('antiguedad')) comp.antigPct = gn('cmp-antigPct');
-            if (APL('horasExtras')) comp.heHoras = gn('cmp-heHoras');
-            if (APL('feriados')) comp.ferDias = gn('cmp-ferDias');
-            if (APL('resultados')) comp.resMonto = gn('cmp-resMonto');
-            if (APL('vacaciones')) comp.vacDias = gn('cmp-vacDias');
-            if (APL('interrupcion')) comp.intDias = gn('cmp-intDias');
-            if (APL('enfermedad')) { comp.enfDias = gn('cmp-enfDias'); comp.enfCausa = gs('cmp-enfCausa'); }
-            if (APL('maternidad')) { comp.matActiva = gc('cmp-matActiva'); comp.matDias = gn('cmp-matDias'); }
-            if (APL('paternidad')) { comp.patActiva = gc('cmp-patActiva'); comp.patDias = gn('cmp-patDias'); }
-            if (APL('licenciaNoRetrib')) comp.lnrDias = gn('cmp-lnrDias');
-            if (APL('finiquito')) comp.finiquito = gc('cmp-finiquito');
-            if (APL('retenciones')) { comp.retAlim = gn('cmp-retAlim'); comp.retCred = gn('cmp-retCred'); comp.retResp = gn('cmp-retResp'); }
-            return comp;
-        }
-        function compPreview() {
-            const box = document.getElementById('compPreview');
-            if (!box || !compEditId) return;
-            const d = getRRHH(), t = (d.trabajadores || []).find(x => String(x.id) === String(compEditId)) || { id: compEditId };
-            const fila = (leerNominaDOM() || []).find(x => String(x.id) === String(compEditId));
-            const salario = fila ? fila.salario : 0, otras = fila ? fila.otras : 0;
-            const c = calcLineaNominaExt(t, salario, otras, compLeerCampos(), compEditPeriodo);
-            const det = (c.detalle || []).map(dd => `<div class="d-flex justify-content-between"><span>${esc(dd[0])}</span><b class="${dd[1] < 0 ? 'text-danger' : 'text-success'}">${moneda(dd[1])}</b></div>`).join('');
-            box.innerHTML = (det || '<span class="text-muted">Sin complementos para este trabajador.</span>')
-                + `<div class="d-flex justify-content-between border-top pt-1 mt-1"><span><b>Efecto neto en el mes</b></span><b>${moneda((c.extra || 0) + (c.subsidios || 0) - (c.deducciones || 0))}</b></div>`;
-        }
-        function guardarCompTrabajador() {
-            if (!compEditId) return;
-            const d = getRRHH(), per = compEditPeriodo || periodoNominaActual();
-            if (!d.nominas[per]) d.nominas[per] = {};
-            const filas = leerNominaDOM() || [];
-            filas.forEach(x => { const p = d.nominas[per][x.id] || {}; d.nominas[per][x.id] = { nombre: x.nombre || p.nombre || '', salario: +x.salario.toFixed(2), otras: +x.otras.toFixed(2), comp: p.comp || x.comp || {} }; });
-            d.nominas[per][compEditId].comp = compLeerCampos();
-            saveRRHH(d); compModal.hide(); renderNomina();
-        }
-
         function irAPestana(cuenta) {
             const tabId = `tab-${cuenta}`;
             const tabElement = document.getElementById(tabId);
@@ -4113,7 +4108,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         document.getElementById('btnNuevoTrabajador').addEventListener('click', () => abrirTrabajador(null));
         document.getElementById('btnGuardarNomina').addEventListener('click', guardarNominaActual);
         document.getElementById('btnGuardarTrabajador').addEventListener('click', guardarTrabajador);
-        document.getElementById('btnGuardarComp').addEventListener('click', guardarCompTrabajador);
         document.getElementById('vectorPdfInput').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importarVectorPDF(f);e.target.value='';});
         document.getElementById('fiscalFiltro').addEventListener('change',renderFiscal);
         document.getElementById('btnFiscalManual').addEventListener('click',()=>{document.getElementById('fisManCodigo').value='';document.getElementById('fisManPeriodo').value=periodoNominaActual();document.getElementById('fisManConcepto').value='';document.getElementById('fisManVence').value='';document.getElementById('fisManImporte').value='';fiscalManualModal.show();});
