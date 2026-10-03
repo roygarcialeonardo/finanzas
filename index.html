@@ -3489,6 +3489,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     document.getElementById('btnCalcularONAT').style.display='none';
                     document.getElementById('btnCerrarMes').style.display='none';
                     document.getElementById('cardAjustesGenerales').style.display='none';
+                    document.getElementById('mesContableBar').style.display='none';
                     bootstrap.Tab.getOrCreateInstance(document.getElementById('tab-admin')).show();
                 }
                 userTypeBadge.textContent = userData.entityType === 'mipyme' ? `📋 MIPYME (${userData.socios || 1} socios)` : '📋 TCP';
