@@ -1017,6 +1017,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
         </div>
 
+            <div class="card p-3 p-md-4 mt-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <div><h6 class="fw-semibold mb-1"><i class="bi bi-flag-checkered me-2"></i>Cierre anual</h6><div class="small text-secondary">Resumen del año para el cierre contable.</div></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small text-secondary" for="cierreAnio">Año</label>
+                        <select class="form-select form-select-sm" id="cierreAnio" style="width:auto"></select>
+                    </div>
+                </div>
+                <div id="cierreAnualBody"></div>
+            </div>
+
 
         <!-- FISCAL / VECTOR ONAT -->
         <div class="tab-pane fade" id="pane-fiscal">
@@ -2229,6 +2240,71 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function triAniosDisponibles(){const s=new Set([new Date().getFullYear()]);for(const h of getHistorial()){const p=periodoParts(h.mes);if(p)s.add(p.y);}const md=getMesActual(),p=periodoParts((md&&md.mesSeleccionado)||getMesActualStr());if(p)s.add(p.y);return [...s].sort((a,b)=>b-a);}
         function triNombreCodigo(code){const objetivo=triCodeNorm(code);try{const f=getFiscal();for(const [c,n] of Object.entries(f.tributos||{}))if(triCodeNorm(c)===objetivo)return n;}catch(e){}const map={'114822':'Impuesto sobre Ventas y Servicios','400722':'Impuesto sobre Utilidades - Pago a cuenta','520322':'IIP trabajadores','610122':'Utilización de la Fuerza de Trabajo','740122':'Aporte registrado ONAT','810132':'Contribución a la Seguridad Social','820232':'Contribución Especial a la Seguridad Social'};return map[objetivo]||'Aporte ONAT';}
         function triOnatMatrix(anio,data){const codes=[...TRI_CODIGOS_ONAT_BASE],seen=new Set(codes.map(triCodeNorm));for(const m of data.meses)for(const c of Object.keys(m.pagos))if(c&&!seen.has(triCodeNorm(c))){codes.push(c);seen.add(triCodeNorm(c));}const totals={};for(const c of codes)totals[triCodeNorm(c)]=0;let grand=0;const rows=data.meses.map(m=>{let total=0;const tds=codes.map(c=>{const n=triCodeNorm(c),v=Number(m.pagos[n])||0;totals[n]=(totals[n]||0)+v;total+=v;return `<td class="text-end tri-money">${v?moneda(v):'$0.00'}</td>`;}).join('');grand+=total;return `<tr><td class="fw-semibold">${MESES_ES[m.mi]}</td>${tds}<td class="text-end fw-bold tri-money">${moneda(total)}</td></tr>`;}).join('');const foot=codes.map(c=>`<td class="text-end fw-bold tri-money">${moneda(totals[triCodeNorm(c)]||0)}</td>`).join('');return `<table class="table table-sm table-hover align-middle tri-onat-grid mb-0"><thead><tr><th>Mes</th>${codes.map(c=>`<th class="text-end" title="${esc(triNombreCodigo(c))}"><code>${esc(String(c).padStart(7,'0'))}</code></th>`).join('')}<th class="text-end">Total mes</th></tr></thead><tbody>${rows}</tbody><tfoot><tr class="tri-total-row"><td>Total</td>${foot}<td class="text-end tri-money">${moneda(grand)}</td></tr></tfoot></table>`;}
+        let cierreAnioSel = new Date().getFullYear();
+
+        function datosCierreAnual(anio){
+            anio=Number(anio)||new Date().getFullYear();
+            const d=triDatosAnio(anio);
+            const meses=d.meses.map(m=>{
+                const onat=Number(m.totalOnat)||0;
+                return {mi:m.mi,nombre:MESES_ES[m.mi],ingresos:m.ingresos,gastos:m.gastos,onat,utilidad:m.ingresos-m.gastos-onat};
+            });
+            const totIng=meses.reduce((a,m)=>a+m.ingresos,0),totGas=meses.reduce((a,m)=>a+m.gastos,0),totOnat=meses.reduce((a,m)=>a+m.onat,0);
+            const hDic=getHistorial().find(h=>h.mes===('Diciembre '+anio));
+            let saldos=null;
+            if(hDic){
+                const sfm=hDic.saldoFinalMoneda||{},sf=hDic.saldoFinal||{};
+                saldos={chequera:Number(sfm.chequera)||0,cup:Number(sfm.tarjeta_cup)||0,usd:Number(sfm.tarjeta_usd)||0,usdCUP:Number(sf.tarjeta_usd)||0};
+            }
+            const aft=getAFT(),perFin='Diciembre '+anio,perIni='Diciembre '+(anio-1);
+            const aftRows=(aft.activos||[]).map(a=>{
+                const c1=calcAFT(a,perFin),c0=calcAFT(a,perIni);
+                return {codigo:a.codigo||'',nombre:a.nombre||'',tasa:Number(a.tasa)||0,costo:c1.costo,
+                        depAnio:Math.max(0,(c1.acum||0)-(c0.acum||0)),acum:c1.acum,libros:c1.libros,
+                        baja:a.estado==='baja'};
+            });
+            const aftTot=aftRows.reduce((t,r)=>({costo:t.costo+r.costo,depAnio:t.depAnio+r.depAnio,acum:t.acum+r.acum,libros:t.libros+r.libros}),{costo:0,depAnio:0,acum:0,libros:0});
+            const sociosTrim=d.trimestres.map(q=>({label:q.label,retirado:q.retiradoSocios||0,disponible:q.disponibleSocios||0}));
+            return {anio,meses,totIng,totGas,totOnat,totUtil:totIng-totGas-totOnat,trim:d,saldos,dicCerrado:!!hDic,aftRows,aftTot,sociosTrim};
+        }
+
+        function renderCierreAnual(){
+            const sel=document.getElementById('cierreAnio'),box=document.getElementById('cierreAnualBody');
+            if(!sel||!box) return;
+            const anios=triAniosDisponibles();
+            if(!anios.includes(Number(cierreAnioSel))){
+                const conDic=anios.filter(y=>getHistorial().some(h=>h.mes==='Diciembre '+y));
+                cierreAnioSel=conDic.length?Math.max(...conDic):(anios[0]||new Date().getFullYear());
+            }
+            sel.innerHTML=anios.map(y=>`<option value="${y}" ${Number(y)===Number(cierreAnioSel)?'selected':''}>${y}</option>`).join('');
+            const c=datosCierreAnual(cierreAnioSel),t=c.trim;
+            const filasMes=c.meses.map(m=>`<tr><td>${m.nombre}</td><td class="text-end tri-money">${moneda(m.ingresos)}</td><td class="text-end tri-money">${moneda(m.gastos)}</td><td class="text-end tri-money">${moneda(m.onat)}</td><td class="text-end tri-money ${m.utilidad<0?'tri-negative':'tri-positive'}">${moneda(m.utilidad)}</td></tr>`).join('');
+            const chips=[
+                ['35% calculado',t.impuesto35],['35% pagado',t.pagado35],['35% pendiente',t.pendiente35],
+                ['Contingencia generada',t.contingencia],['Contingencia extraída',t.retiroContingencia],['Contingencia disponible',t.contingenciaDisponible],
+                ['Socios: pagado en el año',t.retiroSocios],['Socios: disponible',t.sociosDisponible]
+            ].map(([l,v])=>`<div class="col-6 col-lg-3"><span class="tri-chip">${l} <b>${moneda(v)}</b></span></div>`).join('');
+            const sociosTrimHtml=c.sociosTrim.map(q=>`<div class="col-6 col-lg-3"><span class="tri-chip">${q.label}: retirado <b>${moneda(q.retirado)}</b></span></div>`).join('');
+            const saldosHtml=c.saldos
+                ?`<div class="row g-2"><div class="col-md-4"><div class="tri-kpi"><small>Chequera al 31 dic</small><strong>${moneda(c.saldos.chequera)}</strong></div></div><div class="col-md-4"><div class="tri-kpi"><small>Tarjeta CUP al 31 dic</small><strong>${moneda(c.saldos.cup)}</strong></div></div><div class="col-md-4"><div class="tri-kpi"><small>Tarjeta USD al 31 dic</small><strong>${c.saldos.usd.toFixed(2)} USD</strong><small>≈ ${moneda(c.saldos.usdCUP)}</small></div></div></div>`
+                :`<div class="tri-note">Diciembre ${c.anio} aún no está cerrado: los saldos finales aparecerán aquí al cerrarlo.</div>`;
+            const aftFilas=c.aftRows.map(r=>`<tr><td><span class="fiscal-code">${esc(r.codigo)}</span></td><td>${esc(r.nombre)}${r.baja?' <span class="badge bg-secondary">Baja</span>':''}</td><td class="text-end">${r.tasa.toFixed(2)}%</td><td class="text-end tri-money">${moneda(r.costo)}</td><td class="text-end tri-money">${moneda(r.depAnio)}</td><td class="text-end tri-money">${moneda(r.acum)}</td><td class="text-end tri-money fw-semibold">${moneda(r.libros)}</td></tr>`).join('');
+            const aftHtml=c.aftRows.length
+                ?`<div class="table-responsive"><table class="table table-sm align-middle tri-month-grid"><thead><tr><th>Código</th><th>Activo</th><th class="text-end">Tasa anual</th><th class="text-end">Costo</th><th class="text-end">Dep. ${c.anio}</th><th class="text-end">Acumulada</th><th class="text-end">Valor en libros</th></tr></thead><tbody>${aftFilas}<tr class="tri-total-row"><td colspan="3">Total</td><td class="text-end">${moneda(c.aftTot.costo)}</td><td class="text-end">${moneda(c.aftTot.depAnio)}</td><td class="text-end">${moneda(c.aftTot.acum)}</td><td class="text-end">${moneda(c.aftTot.libros)}</td></tr></tbody></table></div>`
+                :'<div class="tri-note">No hay activos fijos registrados.</div>';
+            box.innerHTML=`
+                <h6 class="fw-semibold mt-1 mb-2">Meses del año</h6>
+                <div class="table-responsive mb-3"><table class="table table-sm align-middle tri-month-grid"><thead><tr><th>Mes</th><th class="text-end">Ingresos</th><th class="text-end">Gastos</th><th class="text-end">ONAT</th><th class="text-end">Utilidad</th></tr></thead><tbody>${filasMes}<tr class="tri-total-row"><td>Total</td><td class="text-end">${moneda(c.totIng)}</td><td class="text-end">${moneda(c.totGas)}</td><td class="text-end">${moneda(c.totOnat)}</td><td class="text-end">${moneda(c.totUtil)}</td></tr></tbody></table></div>
+                <h6 class="fw-semibold mb-2">Tributos y distribución</h6>
+                <div class="row g-2 mb-3">${chips}</div>
+                <div class="row g-2 mb-3">${sociosTrimHtml}</div>
+                <h6 class="fw-semibold mb-2">Saldos al 31 de diciembre</h6>
+                <div class="mb-3">${saldosHtml}</div>
+                <h6 class="fw-semibold mb-2">Activos fijos: depreciación del año</h6>
+                ${aftHtml}`;
+            sel.onchange=()=>{cierreAnioSel=Number(sel.value);renderCierreAnual();};
+        }
+
         function renderTrimestres(){const sel=document.getElementById('triAnio');if(!sel)return;const anios=triAniosDisponibles();if(!anios.includes(Number(trimestreAnioSel)))trimestreAnioSel=anios[0]||new Date().getFullYear();sel.innerHTML=anios.map(y=>`<option value="${y}" ${Number(y)===Number(trimestreAnioSel)?'selected':''}>${y}</option>`).join('');const d=triDatosAnio(trimestreAnioSel),mipyme=getEntityType()==='mipyme';const aviso=document.getElementById('triTipoAviso');aviso.innerHTML=mipyme?`<div class="tri-note"><b>MIPYME:</b> la utilidad trimestral se toma como ingresos menos gastos operacionales. El 10% de contingencia y el 35% de impuesto se calculan por separado. Los pagos a socios no reciben descuentos de nómina. El saldo no retirado pasa al siguiente trimestre como arrastre; el 35% se calcula solo sobre la utilidad propia de cada trimestre.</div>`:`<div class="tri-tcp-note"><b>TCP:</b> este apartado de distribución trimestral de utilidades a socios está diseñado para MIPYME. El resumen ONAT permanece disponible como referencia de pagos registrados.</div>`;document.getElementById('triKpiUtilidad').textContent=moneda(d.utilidad);document.getElementById('triKpiContingencia').textContent=moneda(d.contingencia);document.getElementById('triKpiSocios').textContent=moneda(d.sociosDisponible);document.getElementById('triKpi35Pagado').textContent=moneda(d.pagado35);document.getElementById('triTrimestres').innerHTML=d.trimestres.map(q=>{const rows=q.meses.map(m=>`<tr><td>${MESES_ES[m.mi]}</td><td class="text-end tri-money">${moneda(m.gastos)}</td><td class="text-end tri-money ${m.utilidad<0?'tri-negative':'tri-positive'}">${moneda(m.utilidad)}</td><td class="text-end tri-money">${moneda(m.ingresos)}</td><td class="text-end tri-money">${moneda(m.meta)}</td></tr>`).join('');const btn35=mipyme&&puedeEditar()?`<button class="btn btn-sm btn-outline-primary tri-pay35" data-key="${q.key}"><i class="bi bi-file-check me-1"></i> Registrar 35% ONAT</button>`:'';const btnSoc=mipyme&&puedeEditar()?`<button class="btn btn-sm btn-success tri-pay-socios" data-key="${q.key}"><i class="bi bi-people me-1"></i> Pagar socios</button>`:'';return `<div class="tri-card">${(btn35||btnSoc)?`<div class="tri-top-actions">${btn35}${btnSoc}</div>`:``}<div class="tri-card-head"><div><b>${q.label}</b><div class="small text-secondary">${fechaAporteDMY(q.rango.desde)} al ${fechaAporteDMY(q.rango.hasta)}</div></div></div><div class="tri-card-body"><div class="table-responsive"><table class="table table-sm align-middle tri-month-grid mb-3"><thead><tr><th>Mes</th><th class="text-end">Gastos</th><th class="text-end">Utilidades</th><th class="text-end">Ingresos</th><th class="text-end">${Number(CFG.meta||15).toFixed(0)}%</th></tr></thead><tbody>${rows}<tr class="tri-total-row"><td>Total</td><td class="text-end">${moneda(q.meses.reduce((a,m)=>a+m.gastos,0))}</td><td class="text-end">${moneda(q.utilidad)}</td><td class="text-end">${moneda(q.meses.reduce((a,m)=>a+m.ingresos,0))}</td><td class="text-end">${moneda(q.meses.reduce((a,m)=>a+m.meta,0))}</td></tr></tbody></table></div><div class="row g-2"><div class="col-6 col-lg-3"><span class="tri-chip">Contingencia 10% <b>${moneda(q.contingencia)}</b></span></div><div class="col-6 col-lg-3"><span class="tri-chip">35% calculado <b>${moneda(q.impuesto)}</b></span></div><div class="col-6 col-lg-3"><span class="tri-chip">35% pagado <b>${moneda(q.pagado35)}</b></span></div><div class="col-6 col-lg-3"><span class="tri-chip">Para socios <b>${moneda(q.disponibleSocios)}</b></span></div></div>${q.retiradoSocios>0?`<div class="small text-secondary mt-2">Ya retirado por socios: <b>${moneda(q.retiradoSocios)}</b> · Saldo disponible: <b>${moneda(q.disponibleSocios)}</b></div>`:''}${q.arrastreIn>0.004?`<div class="small text-secondary mt-2">Incluye arrastre del trimestre anterior: <b>${moneda(q.arrastreIn)}</b> · Disponible acumulado hasta este trimestre: <b>${moneda(q.disponibleAcumulado)}</b></div>`:''}</div></div>`;}).join('');document.querySelectorAll('.tri-pay35').forEach(b=>b.onclick=()=>triRegistrarPago35(b.dataset.key));document.querySelectorAll('.tri-pay-socios').forEach(b=>b.onclick=()=>triRegistrarPagoSocios(b.dataset.key));document.getElementById('triContingenciaDetalle').innerHTML=`<div class="row g-2"><div class="col-6"><div class="tri-kpi"><small>Generado en ${d.anio}</small><strong>${moneda(d.contingencia)}</strong></div></div><div class="col-6"><div class="tri-kpi"><small>Extraído</small><strong>${moneda(d.retiroContingencia)}</strong></div></div><div class="col-12"><div class="tri-note d-flex justify-content-between align-items-center flex-wrap gap-2"><span>Saldo de contingencia disponible</span><b class="fs-5">${moneda(d.contingenciaDisponible)}</b></div></div></div>`;document.getElementById('btnExtraerContingencia').disabled=!mipyme||!puedeEditar()||d.contingenciaDisponible<=0.004;document.getElementById('triControl35').innerHTML=`<div class="d-grid gap-2"><div class="d-flex justify-content-between"><span>Calculado</span><b>${moneda(d.impuesto35)}</b></div><div class="d-flex justify-content-between"><span>Pagado</span><b>${moneda(d.pagado35)}</b></div><hr class="my-1"><div class="d-flex justify-content-between"><span>Pendiente</span><b class="${d.pendiente35>0.004?'text-danger':'text-success'}">${moneda(d.pendiente35)}</b></div></div>`;const acc=(title,field)=>`<div class="col-md-6 col-xl-3"><div class="tri-card h-100"><div class="tri-card-head"><b>${title}</b></div><div class="tri-card-body p-2"><table class="table table-sm tri-small-table mb-0"><thead><tr><th>Mes</th><th class="text-end">Cantidad</th></tr></thead><tbody>${d.trimestres.map(q=>`<tr><td>${MESES_ES[q.q*3+2]}</td><td class="text-end tri-money">${moneda(q[field])}</td></tr>`).join('')}<tr class="tri-total-row"><td>Total</td><td class="text-end">${moneda(d.trimestres.reduce((a,q)=>a+(Number(q[field])||0),0))}</td></tr></tbody></table></div></div></div>`;document.getElementById('triAcumulados').innerHTML=acc('35% pagado','pagado35')+acc('Contingencia 10%','contingencia')+acc('Utilidad menos contingencia','utilidadSocios')+acc('Utilidades por trimestre','utilidad');document.getElementById('triOnatResumen').innerHTML=triOnatMatrix(d.anio,d);renderNominaSocios();}
         function triBuscarQuarter(key){const m=String(key||'').match(/^(\d{4})-Q([1-4])$/);if(!m)return null;const d=triDatosAnio(Number(m[1]));return d.trimestres[Number(m[2])-1]||null;}
         function triRegistrarPago35(key){const q=triBuscarQuarter(key);if(!q||q.pendiente35<=0.004)return;abrirMovModal('onat','chequera',null);document.getElementById('movAporteNumero').value='0400722';document.getElementById('movMonto').value=q.pendiente35.toFixed(2);actualizarIdentificacionAporte();document.getElementById('movAporteDesde').value=q.rango.desde;document.getElementById('movAporteHasta').value=q.rango.hasta;document.getElementById('movClas').value='operacional';}
@@ -2413,7 +2489,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             mesData.cerrado = true;
             mesData.saldoInicial = mes.saldoInicial || { chequera: 0, tarjeta_cup: 0, tarjeta_usd: 0 };
             mesData.saldoInicialTasaUSD = Number(mes.saldoInicialTasaUSD) || tasaEntrada(mes);
-            saveMesActual(mesData);
+            // El mes que se está viendo NO se persiste: en la hoja siempre queda el mes
+            // real en curso. Así, al recargar, la app vuelve al mes de trabajo correcto
+            // y ningún movimiento real queda huérfano ni se borra por accidente.
             
             modoEdicionActivo = true;
             document.getElementById('modoEdicionMes').style.display = 'flex';
@@ -3304,6 +3382,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             _safe(renderHistorial,'historial');
             _safe(renderNomina,'nomina');
             _safe(renderTrimestres,'trimestres');
+            _safe(renderCierreAnual,'cierre-anual');
             _safe(renderFiscal,'fiscal');
             _safe(renderFX,'fx');
             _safe(renderAFT,'aft');
