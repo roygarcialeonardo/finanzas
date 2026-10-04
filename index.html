@@ -826,6 +826,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-chequera">$0.00</span></span>
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">💰 Saldo Actual: <span id="saldo-chequera">$0.00</span></span>
+                                        <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-chequera">0</span></span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -850,6 +851,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_cup">$0.00</span></span>
                     <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_cup">$0.00</span></span>
+                                        <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-tarjeta_cup">0</span></span>
+                    
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -875,6 +878,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_usd">$0.00 USD</span></span>
                     <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_usd">$0.00 USD</span></span>
                     <span class="badge bg-soft-secondary px-3 py-2">🔄 Equiv CUP: <span id="saldo-tarjeta_usd_cup">$0.00</span></span>
+                                        <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-tarjeta_usd">0</span></span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -3425,6 +3429,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             let si = getSaldoInicial(); if (modoEdicionActivo) { const hv = getHistorial()[edicionIndex]; if (hv && hv.saldoInicial) si = hv.saldoInicial; }
             const saldoInicialVal = esUSD ? (si[cuenta] || 0) : (si[cuenta] || 0);
             document.getElementById(`saldoInicial-${cuenta}`).textContent = `$${saldoInicialVal.toFixed(2)} ${esUSD ? 'USD' : 'CUP'}`;
+                        const elCantMov = document.getElementById(`cantMov-${cuenta}`);
+                        if (elCantMov) elCantMov.textContent = movs.length;
             
             const puedeEditarUsuario = puedeEditar();
             
