@@ -3418,7 +3418,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!tbodyCuenta) return;
             
             const movs = getMovimientosPorCuenta(cuenta);
-            const sorted = [...movs].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            const sorted = [...movs].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
             const esUSD = cuenta === 'tarjeta_usd';
             const unidadMoneda = esUSD ? 'USD' : 'CUP';
             
