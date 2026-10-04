@@ -1934,7 +1934,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function calcularResumen(movs, opts) {
             opts = opts || {}; const T = opts.tasa || tasaVista();
             const data = movs || movimientos;
-            const mesData = opts.saldoInicial ? {saldoInicial: opts.saldoInicial, saldoInicialTasaUSD: opts.saldoInicialTasaUSD} : getMesActual();
+            let mesData = opts.saldoInicial ? {saldoInicial: opts.saldoInicial, saldoInicialTasaUSD: opts.saldoInicialTasaUSD} : getMesActual(); if (!opts.saldoInicial && modoEdicionActivo) { const hv = getHistorial()[edicionIndex]; if (hv) mesData = {saldoInicial: hv.saldoInicial, saldoInicialTasaUSD: hv.saldoInicialTasaUSD}; }
             let ingresos = 0, gastos = 0, onat = 0;
             const mk = () => ({ ingresos:0,gastos:0,onat:0,monto:0,ingresosDivisa:0,gastosDivisa:0,onatDivisa:0,montoDivisa:0 });
             let saldos = {chequera:mk(), tarjeta_cup:mk(), tarjeta_usd:mk()};
@@ -1962,7 +1962,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     if (esOperacional) onat += montoCUP;
                 }
             });
-            if ((opts.saldoInicial || !modoEdicionActivo) && mesData && mesData.saldoInicial) {
+            if (mesData && mesData.saldoInicial) {
                 const si = mesData.saldoInicial;
                 for (const c of ['chequera','tarjeta_cup']) { const v=Number(si[c])||0; saldos[c].monto += v; saldos[c].montoDivisa += v; }
                 const usd=Number(si.tarjeta_usd)||0, tasaIni=Number(mesData.saldoInicialTasaUSD)||T;
@@ -3422,7 +3422,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const esUSD = cuenta === 'tarjeta_usd';
             const unidadMoneda = esUSD ? 'USD' : 'CUP';
             
-            const si = getSaldoInicial();
+            let si = getSaldoInicial(); if (modoEdicionActivo) { const hv = getHistorial()[edicionIndex]; if (hv && hv.saldoInicial) si = hv.saldoInicial; }
             const saldoInicialVal = esUSD ? (si[cuenta] || 0) : (si[cuenta] || 0);
             document.getElementById(`saldoInicial-${cuenta}`).textContent = `$${saldoInicialVal.toFixed(2)} ${esUSD ? 'USD' : 'CUP'}`;
             
