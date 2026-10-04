@@ -4528,7 +4528,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         window.toggleBloqueoMes = toggleBloqueoMes;
         window.setTipoUsuario = setTipoUsuario;
         window.verMesDetalle = verMesDetalle;
-        window.editarSaldoInicial = editarSaldoInicial;
+        window.editarSaldoInicial = editarSaldoInicial;         /* API para el importador de estados de cuenta (pdf-import.js) */         window.FinanzasPDF = {             movs: function(){ return movimientos; },             nextId: function(){ return nextId++; },             getHistorial: getHistorial,             saveHistorial: saveHistorial,             saveMovimientos: saveMovimientos,             renderAll: renderAll,             puedeEditar: puedeEditar,             isAdmin: isAdmin,             mesEstaBloqueado: mesEstaBloqueado,             getFechaStr: getFechaStr,             periodoNominaActual: periodoNominaActual,             hoy: hoy,             tasaVista: tasaVista,             enEdicion: function(){ return modoEdicionActivo; },             mesEdicion: function(){ return edicionMesNombre; }         };
         api('me').then(async r => { if (r.ok) { await cargar(r); handleLogin({preventDefault(){}}); } });
         
     })();
