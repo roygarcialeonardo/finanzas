@@ -1814,8 +1814,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const r=calcularResumen(h.movimientos||[],{tasa:Number(h.tasa)||tasaVista(),saldoInicial:h.saldoInicial||z,saldoInicialTasaUSD:h.saldoInicialTasaUSD});
                 saldos={chequera:r.saldos.chequera.montoDivisa,tarjeta_cup:r.saldos.tarjeta_cup.montoDivisa,tarjeta_usd:r.saldos.tarjeta_usd.montoDivisa};
             }
-            return {mes:ant,saldos:{chequera:Number(saldos.chequera)||0,tarjeta_cup:Number(saldos.tarjeta_cup)||0,tarjeta_usd:Number(saldos.tarjeta_usd)||0},tasaUSD:Number(h.tasa)||tasaVista()};
-        }
+            return {mes:ant,saldos:{chequera:Number(saldos.chequera)||0,tarjeta_cup:Number(saldos.tarjeta_cup)||0,tarjeta_usd:Number(saldos.tarjeta_usd)||0},tasaUSD:Number(h.tasa)||tasaVista()}; } /* Siguiente mes que existe (en el historial o el mes en curso), saltando los meses que nunca se abrieron. Incluye cambio de año. */ function siguienteMesExistente(actual) { const enHist = {}; getHistorial().forEach(function(x){ enHist[x.mes] = true; }); const mesData = getMesActual() || {}; const mesEnCurso = mesData.mesSeleccionado || getMesActualStr(); let sig = obtenerSiguienteMes(actual), guard = 0; while (sig && guard++ < 36) { if (enHist[sig] || sig === mesEnCurso) return sig; sig = obtenerSiguienteMes(sig); } return null; } /* Encadena los saldos: el saldo final de cada cuenta en mesNombre pasa a ser el saldo inicial del mes siguiente, en cascada hasta el mes en curso (incluye el cambio de año). */ function propagarSaldos(mesNombre) { if (!mesNombre) return; function finDe(nombre) { const hist = getHistorial(); const h = hist.find(function(x){ return x.mes === nombre; }); if (!h) return {fin:{chequera:0, tarjeta_cup:0, tarjeta_usd:0}, tasa:tasaVista(), existe:false}; const z = {chequera:0, tarjeta_cup:0, tarjeta_usd:0}; const r = calcularResumen(h.movimientos || [], {tasa:Number(h.tasa)||tasaVista(), saldoInicial:h.saldoInicial||z, saldoInicialTasaUSD:h.saldoInicialTasaUSD}); const fin = {chequera:r.saldos.chequera.montoDivisa, tarjeta_cup:r.saldos.tarjeta_cup.montoDivisa, tarjeta_usd:r.saldos.tarjeta_usd.montoDivisa}; h.saldoFinal = {chequera:r.saldos.chequera.monto, tarjeta_cup:r.saldos.tarjeta_cup.monto, tarjeta_usd:r.saldos.tarjeta_usd.monto}; h.saldoFinalMoneda = fin; h.saldoFinalTasaUSD = Number(h.tasa) || tasaVista(); h.totalUtilidad = r.utilidad; h.totalMovimientos = (h.movimientos || []).length; saveHistorial(hist); return {fin:fin, tasa:Number(h.tasa)||tasaVista(), existe:true}; } let actual = mesNombre, guard = 0; while (actual && guard++ < 36) { const fr = finDe(actual); const sig = siguienteMesExistente(actual); if (!sig) break; const hist2 = getHistorial(); const hSig = hist2.find(function(x){ return x.mes === sig; }); const mesData = getMesActual() || {}; const mesEnCurso = mesData.mesSeleccionado || getMesActualStr(); if (hSig) { hSig.saldoInicial = {chequera:fr.fin.chequera, tarjeta_cup:fr.fin.tarjeta_cup, tarjeta_usd:fr.fin.tarjeta_usd}; hSig.saldoInicialTasaUSD = fr.tasa; saveHistorial(hist2); actual = sig; } else if (sig === mesEnCurso) { mesData.saldoInicial = {chequera:fr.fin.chequera, tarjeta_cup:fr.fin.tarjeta_cup, tarjeta_usd:fr.fin.tarjeta_usd}; mesData.saldoInicialTasaUSD = fr.tasa; saveMesActual(mesData); break; } else { break; } } }
         function copiarNominaAlSiguientePeriodo(origen,destino) {
             try {
                 const d=getRRHH();
@@ -3589,8 +3588,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const mes = historial[index];
             if (!mes) return;
             if (!confirm(`⚠️ ¿Eliminar el mes de ${mes.mes}?\n¡Esta acción no se puede deshacer!`)) return;
-            historial.splice(index, 1);
-            saveHistorial(historial);
+            historial.splice(index, 1); saveHistorial(historial); propagarSaldos(obtenerMesAnterior(mes.mes));
             renderAll();
         }
 
@@ -3619,9 +3617,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             saveHistorial(historial);
             // El slot de movimientos guarda SIEMPRE el mes real en curso: no se toca.
             // Se vuelve al mes de trabajo real con sus movimientos intactos.
-            restaurarMesRealTrasEdicion();
-
-            actualizarBarraMes();
+            restaurarMesRealTrasEdicion(); propagarSaldos(mes.mes); actualizarBarraMes();
             renderAll();
             alert(`✅ Cambios guardados en el mes de ${mes.mes}.`);
         }
@@ -3966,7 +3962,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 hist[idx].totalUtilidad=r.utilidad;
                 hist[idx].saldoFinal={chequera:r.saldos.chequera.monto,tarjeta_cup:r.saldos.tarjeta_cup.monto,tarjeta_usd:r.saldos.tarjeta_usd.monto};
                 hist[idx].saldoFinalMoneda={chequera:r.saldos.chequera.montoDivisa,tarjeta_cup:r.saldos.tarjeta_cup.montoDivisa,tarjeta_usd:r.saldos.tarjeta_usd.montoDivisa};
-                saveHistorial(hist);
+                saveHistorial(hist); propagarSaldos(periodo);
             }
 
             saldoInicialModal.hide();
@@ -4526,7 +4522,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         window.toggleBloqueoMes = toggleBloqueoMes;
         window.setTipoUsuario = setTipoUsuario;
         window.verMesDetalle = verMesDetalle;
-        window.editarSaldoInicial = editarSaldoInicial;         /* API para el importador de estados de cuenta (pdf-import.js) */         window.FinanzasPDF = {             movs: function(){ return movimientos; },             nextId: function(){ return nextId++; },             getHistorial: getHistorial,             saveHistorial: saveHistorial,             saveMovimientos: saveMovimientos,             renderAll: renderAll,             puedeEditar: puedeEditar,             isAdmin: isAdmin,             mesEstaBloqueado: mesEstaBloqueado,             getFechaStr: getFechaStr,             periodoNominaActual: periodoNominaActual,             hoy: hoy,             tasaVista: tasaVista,             enEdicion: function(){ return modoEdicionActivo; },             mesEdicion: function(){ return edicionMesNombre; }         };
+        window.editarSaldoInicial = editarSaldoInicial;         /* API para el importador de estados de cuenta (pdf-import.js) */         window.FinanzasPDF = {             movs: function(){ return movimientos; },             nextId: function(){ return nextId++; },             getHistorial: getHistorial,             saveHistorial: saveHistorial,             saveMovimientos: saveMovimientos,             renderAll: renderAll,             puedeEditar: puedeEditar,             isAdmin: isAdmin,             mesEstaBloqueado: mesEstaBloqueado,             getFechaStr: getFechaStr,             periodoNominaActual: periodoNominaActual,             hoy: hoy,             tasaVista: tasaVista,             enEdicion: function(){ return modoEdicionActivo; },             mesEdicion: function(){ return edicionMesNombre; }, propagarSaldos: propagarSaldos         };
         api('me').then(async r => { if (r.ok) { await cargar(r); handleLogin({preventDefault(){}}); } });
         
     })();
