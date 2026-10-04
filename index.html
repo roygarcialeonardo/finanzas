@@ -3943,13 +3943,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const chequera = parseFloat(document.getElementById('saldoInicialChequera').value) || 0;
             const tarjeta_cup = parseFloat(document.getElementById('saldoInicialCUP').value) || 0;
             const tarjeta_usd = parseFloat(document.getElementById('saldoInicialUSD').value) || 0;
-
             const mesData = getMesActual() || {};
             const estabaCerrado = !!mesData.cerrado;
             const periodo = mesData.mesSeleccionado || getMesActualStr();
-            mesData.saldoInicial = { chequera, tarjeta_cup, tarjeta_usd };
+            const enMesCerrado = modoEdicionActivo && mesRealEnCurso;
+            if (enMesCerrado) {
+                mesData.mesSeleccionado = mesRealEnCurso.mes;
+                mesData.cerrado = !!mesRealEnCurso.cerrado;
+            } else {
+                mesData.saldoInicial = { chequera, tarjeta_cup, tarjeta_usd };
+                mesData.cerrado = estabaCerrado;
+            }
             mesData.saldoInicialTasaUSD = tasaVista();
-            mesData.cerrado = estabaCerrado;
             mesData.inicioMes = mesData.inicioMes || hoy();
             saveMesActual(mesData);
 
