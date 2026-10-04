@@ -829,7 +829,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead><tr><th>Concepto</th><th>Tipo</th><th>Clasificación</th><th class="text-end">Monto</th><th class="text-center">Fecha</th><th class="text-center">Acción</th></tr></thead>
+                        <thead><tr><th>Concepto</th><th>Tipo</th><th>Clasificación</th><th class="text-end">Monto</th><th class="text-end">Saldo</th><th class="text-center">Fecha</th><th class="text-center">Acción</th></tr></thead>
                         <tbody id="body-chequera"></tbody>
                     </table>
                 </div>
@@ -853,7 +853,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead><tr><th>Concepto</th><th>Tipo</th><th>Clasificación</th><th class="text-end">Monto</th><th class="text-center">Fecha</th><th class="text-center">Acción</th></tr></thead>
+                        <thead><tr><th>Concepto</th><th>Tipo</th><th>Clasificación</th><th class="text-end">Monto</th><th class="text-end">Saldo</th><th class="text-center">Fecha</th><th class="text-center">Acción</th></tr></thead>
                         <tbody id="body-tarjeta_cup"></tbody>
                     </table>
                 </div>
@@ -878,7 +878,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead><tr><th>Concepto</th><th>Tipo</th><th>Clasificación</th><th class="text-end">Monto (USD)</th><th class="text-center">Fecha</th><th class="text-center">Acción</th></tr></thead>
+                        <thead><tr><th>Concepto</th><th>Tipo</th><th>Clasificación</th><th class="text-end">Monto (USD)</th><th class="text-end">Saldo</th><th class="text-center">Fecha</th><th class="text-center">Acción</th></tr></thead>
                         <tbody id="body-tarjeta_usd"></tbody>
                     </table>
                 </div>
@@ -3429,8 +3429,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             
             const puedeEditarUsuario = puedeEditar();
             
-            tbodyCuenta.innerHTML = sorted.map(m => {
-                const valor = esUSD ? m.monto : getMontoMovimientoCUP(m);
+            const saldoPorId = {}; { const _asc = [...movs].sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); let _acc = Number(saldoInicialVal) || 0; _asc.forEach(function(_mm){ const _v = esUSD ? (Number(_mm.monto) || 0) : getMontoMovimientoCUP(_mm); _acc += (_mm.tipo === 'ingreso' ? _v : -_v); saldoPorId[_mm.id] = _acc; }); } tbodyCuenta.innerHTML = sorted.map(m => {
+                const valor = esUSD ? m.monto : getMontoMovimientoCUP(m); const _sAc = Number(saldoPorId[m.id] || 0); const saldoStr = '<span class="' + (_sAc < 0 ? 'text-danger fw-semibold' : '') + '">$' + Math.abs(_sAc).toFixed(2) + '</span>';
                 let badgeTipo = '';
                 if (m.tipo === 'ingreso') badgeTipo = '<span class="badge badge-soft-success rounded-pill"><i class="bi bi-arrow-up-short"></i> Ingreso</span>';
                 else if (m.tipo === 'gasto') badgeTipo = '<span class="badge badge-soft-danger rounded-pill"><i class="bi bi-arrow-down-short"></i> Gasto</span>';
@@ -3456,9 +3456,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <td><span class="fw-medium">${esc(m.concepto)}</span>${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
                         <td>${badgeTipo}</td>
                         <td>${getClasificacionBadge(m.clasificacion || 'operacional')}</td>
-                        <td class="text-end">${montoStr}</td>
-                        <td class="text-center small">${m.fecha}</td>
-                        <td class="text-center">${botones}</td>
+                        <td class="text-end">${montoStr}</td><td class="text-end">${saldoStr}</td><td class="text-center small">${m.fecha}</td><td class="text-center">${botones}</td>
                     </tr>
                 `;
             }).join('');
