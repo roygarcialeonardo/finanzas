@@ -975,6 +975,32 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
             </div>
             <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold mb-1"><i class="bi bi-calendar-check me-2"></i>Pre-nómina · Tarjeta de tiempo <span class="text-muted fw-normal small">(<span id="prenominaPeriodo"></span>)</span></h6>
+                <small class="text-muted d-block mb-2">Documento previo del período: se <b>genera solo</b> desde los trabajadores del mes y el control de días de cada ficha (días trabajados, ausencias, licencias y horas extras). Revísala, ajústala si hace falta y <b>apruébala</b>: al aprobar, esos días alimentan la nómina del mes sin redigitar nada. Si no la usas, la nómina se calcula como siempre.</small>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nomPrenominaGenerarUI()"><i class="bi bi-magic me-1"></i>Generar desde el control de días</button>
+                    <button type="button" class="btn btn-sm btn-success" onclick="nomPrenominaAprobarUI()"><i class="bi bi-check2-circle me-1"></i>Aprobar y alimentar la nómina</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocPrenomina()"><i class="bi bi-printer me-1"></i>Imprimir pre-nómina</button>
+                </div>
+                <div id="prenominaBox"></div>
+            </div>
+            <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold mb-1"><i class="bi bi-cash-coin me-2"></i>Submayor de salarios por cobrar · Adelantos a trabajadores <span class="text-muted fw-normal small">(cuenta 139-000)</span></h6>
+                <small class="text-muted d-block mb-2">Cada adelanto o préstamo a un trabajador nace con su <b>asiento automático</b> (Debe 139-000 con el trabajador / Haber banco o caja) y se <b>descuenta solo en las nóminas siguientes</b>, hasta donde alcance el neto de cada mes: el saldo pendiente baja sin que tengas que acordarte de cobrarlo.</small>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-3"><label class="form-label mb-1 small">Trabajador</label><select id="adTrabSel" class="form-select form-select-sm"></select></div>
+                    <div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input type="date" id="adFecha" class="form-control form-control-sm"></div>
+                    <div class="col-md-2"><label class="form-label mb-1 small">Importe (CUP)</label><input type="number" id="adImporte" class="form-control form-control-sm" min="0" step="0.01" placeholder="0.00"></div>
+                    <div class="col-md-2"><label class="form-label mb-1 small">Sale de</label><select id="adCuentaSalida" class="form-select form-select-sm"><option value="chequera">Banco CUP (110-010)</option><option value="tarjeta_usd">Banco USD (110-020)</option><option value="caja">Caja (101-010)</option></select></div>
+                    <div class="col-md-3"><label class="form-label mb-1 small">Concepto</label><input type="text" id="adConcepto" class="form-control form-control-sm" maxlength="80" placeholder="Adelanto de salario"></div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nomAdelantoRegistrarUI()"><i class="bi bi-plus-circle me-1"></i>Registrar adelanto</button>
+                    <small class="text-muted">Se empieza a descontar en la nómina del mes de su fecha.</small>
+                </div>
+                <div id="adelantosBox"></div>
+            </div>
+            <div class="card card-custom p-3 mb-3">
                 <h6 class="fw-bold mb-2"><i class="bi bi-calendar-heart me-2"></i>Submayor de vacaciones</h6>
                 <div id="vacSubmayorBox"></div>
             </div>
@@ -1083,7 +1109,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div class="table-responsive"><div id="triOnatResumen"></div></div>
             </div>
-        </div>
 
             <div class="card p-3 p-md-4 mt-3">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -1095,7 +1120,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div id="cierreAnualBody"></div>
             </div>
-
+        </div>
 
         <!-- FISCAL / VECTOR ONAT -->
         <div class="tab-pane fade" id="pane-fiscal">
@@ -2323,6 +2348,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const d = JSON.parse(stored) || {};
                 if (!Array.isArray(d.trabajadores)) d.trabajadores = [];
                 if (!d.nominas || Array.isArray(d.nominas)) d.nominas = {};
+                if (!d.prenominas || typeof d.prenominas !== 'object' || Array.isArray(d.prenominas)) d.prenominas = {};
+                if (!Array.isArray(d.adelantos)) d.adelantos = [];
                 return d;
             } catch(e) { return {trabajadores:[], nominas:{}}; }
         }
@@ -2505,12 +2532,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const salario = rec.salario !== undefined ? Number(rec.salario)||0 : Number(t.salarioBase)||0;
                 const otras = rec.otras !== undefined ? Number(rec.otras)||0 : 0;
                 const comp = rec.comp || {};
-                lineas.push({t, salario, otras, comp, calc:calcLineaNominaExt(t, salario, otras, comp, periodo)});
+                const calc = calcLineaNominaExt(t, salario, otras, comp, periodo);
+                nomAplicarDescuentoAdelanto(rrhh, t, periodo, calc, calc.neto);
+                lineas.push({t, salario, otras, comp, calc});
             });
             const tot = lineas.reduce((a,x) => {
-                for (const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac']) a[k] += (x.calc[k]||0);
+                for (const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac','descAdelanto']) a[k] += (x.calc[k]||0);
                 return a;
-            }, {bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});
+            }, {bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0,descAdelanto:0});
             tot.ssPresupuesto = tot.bruto * (FISCAL_NOMINA_2026.seguridadSocialPresupuesto/100);
             tot.ssProvision = tot.bruto * (FISCAL_NOMINA_2026.seguridadSocialProvision/100);
             tot.retenciones = tot.segTrab + tot.iip;
@@ -2540,7 +2569,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const _cc=getCompCfg();
             body.innerHTML = d.lineas.map(({t,salario,otras,comp,calc}) => {
                 const warnMin=!!(t.compAplica&&t.compAplica.salarioMinimo) && (salario+otras)>0 && (salario+otras)<_cc.params.salarioMinimo;
-                const compTotal=calc.extra+calc.subsidios-calc.deducciones;
+                const compTotal=calc.extra+calc.subsidios-calc.deducciones-(calc.descAdelanto||0);
                 const compTitle=calc.detalle.map(dd=>dd[0]+': '+moneda(dd[1])).join('\n');
                 return `
                 <tr data-worker-row="${t.id}" class="${warnMin?'table-warning':''}">
@@ -2571,7 +2600,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const otras = Math.max(0, parseFloat(tr.querySelector('.pay-otras').value)||0);
                 const t = rrhh.trabajadores.find(x=>String(x.id)===String(id))||{id};
                 const comp = ((n[id]||{}).comp)||{};
-                filas.push({id,nombre:(t&&t.nombre)||'',salario,otras,comp,calc:calcLineaNominaExt(t,salario,otras,comp,periodo),tr});
+                const calcD = calcLineaNominaExt(t,salario,otras,comp,periodo);
+                nomAplicarDescuentoAdelanto(rrhh, t, periodo, calcD, calcD.neto);
+                filas.push({id,nombre:(t&&t.nombre)||'',salario,otras,comp,calc:calcD,tr});
             });
             return filas;
         }
@@ -2579,7 +2610,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const filas = leerNominaDOM();
             const tot = filas.reduce((a,x)=>{ for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac']) a[k]+=(x.calc[k]||0); return a; },{bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});
             const _fnd=fiscalNominaPara(periodoNominaActual()); tot.ssPresupuesto=tot.bruto*(_fnd.seguridadSocialPresupuesto/100); tot.ssProvision=tot.bruto*(_fnd.seguridadSocialProvision/100); tot.retenciones=tot.segTrab+tot.iip; tot.aportesEmpleador=tot.fuerza+tot.ssEmp; tot.totalObligacionesNomina=tot.aportesEmpleador+tot.retenciones; tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;
-            filas.forEach(x=>{ const c=x.calc,tr=x.tr; tr.querySelector('.pay-bruto').textContent=moneda(c.bruto);tr.querySelector('.pay-seg').textContent=moneda(c.segTrab);tr.querySelector('.pay-iip').textContent=moneda(c.iip);tr.querySelector('.pay-neto').textContent=moneda(c.neto);tr.querySelector('.pay-fuerza').textContent=moneda(c.fuerza);tr.querySelector('.pay-ssemp').textContent=moneda(c.ssEmp);tr.querySelector('.pay-costo').textContent=moneda(c.costo); const pc=tr.querySelector('.pay-comp'); if(pc){ pc.textContent=moneda((c.extra||0)+(c.subsidios||0)-(c.deducciones||0)); pc.title=((c.detalle||[]).map(dd=>dd[0]+': '+moneda(dd[1]))).join('\n'); } });
+            filas.forEach(x=>{ const c=x.calc,tr=x.tr; tr.querySelector('.pay-bruto').textContent=moneda(c.bruto);tr.querySelector('.pay-seg').textContent=moneda(c.segTrab);tr.querySelector('.pay-iip').textContent=moneda(c.iip);tr.querySelector('.pay-neto').textContent=moneda(c.neto);tr.querySelector('.pay-fuerza').textContent=moneda(c.fuerza);tr.querySelector('.pay-ssemp').textContent=moneda(c.ssEmp);tr.querySelector('.pay-costo').textContent=moneda(c.costo); const pc=tr.querySelector('.pay-comp'); if(pc){ pc.textContent=moneda((c.extra||0)+(c.subsidios||0)-(c.deducciones||0)-(c.descAdelanto||0)); pc.title=((c.detalle||[]).map(dd=>dd[0]+': '+moneda(dd[1]))).join('\n'); } });
             document.getElementById('nominaTotalBruto').textContent=moneda(tot.bruto);
             document.getElementById('nominaTotalNeto').textContent=moneda(tot.neto);
             document.getElementById('nominaTotalPatronal').textContent=moneda(tot.aportesEmpleador);
@@ -2968,7 +2999,168 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function periodoISODate(periodo){const p=periodoParts(periodo);return p?new Date(p.y,p.mi,1):null;}
         function isoVencimiento(day,mon,year){const k=normTxt(mon).slice(0,4).replace('.',''),mi=Object.entries(MES_ABR).find(([x])=>k.startsWith(x))?.[1];let y=parseInt(year);if(y<100)y+=2000;if(mi===undefined||!day||!y)return '';return `${y}-${String(mi+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;}
         function getMovimientosPeriodo(periodo){const md=getMesActual(),actual=(md&&md.mesSeleccionado)||getMesActualStr();if(periodo===actual)return movimientos;const h=getHistorial().find(x=>x.mes===periodo);return h&&Array.isArray(h.movimientos)?h.movimientos:[];}
-        function obtenerNominaParaPeriodo(periodo){const rrhh=getRRHH(),n=rrhh.nominas[periodo]||{},lineas=[],_in2=new Set(nominaIdsIncluidos(periodo).map(String));rrhh.trabajadores.forEach(t=>{if(!_in2.has(String(t.id)))return;const rec=n[t.id]||{};const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0,otras=rec.otras!==undefined?Number(rec.otras)||0:0,comp=rec.comp||{};lineas.push({t,salario,otras,comp,calc:calcLineaNominaExt(t,salario,otras,comp,periodo)});});const tot=lineas.reduce((a,x)=>{for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac'])a[k]=(a[k]||0)+x.calc[k];return a;},{bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});const _fn=fiscalNominaPara(periodo);tot.ssPresupuesto=tot.bruto*(_fn.seguridadSocialPresupuesto/100);tot.ssProvision=tot.bruto*(_fn.seguridadSocialProvision/100);tot.retenciones=tot.segTrab+tot.iip;tot.aportesEmpleador=tot.fuerza+tot.ssEmp;tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;return {periodo,lineas,tot};}
+        /* ===== ADELANTOS A TRABAJADORES (ronda 9): submayor de salarios por
+           cobrar (cuenta 139-000 del clasificador) =====
+           El registro vive en rrhh.adelantos: {id, trabajadorId, nombre,
+           fecha, concepto, importe, cuentaSalida}. El DESCUENTO no se guarda
+           en ningún sitio: se DERIVA por FIFO, igual que los demás submayores
+           de la app se derivan de sus documentos. Reglas exactas:
+           · Un adelanto empieza a descontarse en la nómina del MES DE SU
+             FECHA y en las siguientes, hasta agotarse.
+           · En cada nómina, el descuento del trabajador = lo pendiente,
+             topado por su NETO de ese mes (descuenta hasta el neto
+             disponible; el neto NUNCA queda negativo) y se aplica a los
+             adelantos más antiguos primero (FIFO).
+           · «Hay nómina en un mes» = el mismo criterio del núcleo contable:
+             nominas[periodo] guarda al menos un registro.
+           La línea de nómina refleja el descuento en calc.descAdelanto, lo
+           resta del neto y lo anota en el detalle; el devengo lo descarga de
+           la 139-000 (ver el motor contable) y el submayor concilia contra
+           el mayor de esa cuenta. */
+        function nomPeriodoDeFecha(fecha){ const m=String(fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return ''; return MESES_ES[Number(m[2])-1]+' '+m[1]; }
+        function nomCmpPeriodoAd(a,b){ const pa=periodoParts(a), pb=periodoParts(b); if(!pa&&!pb) return 0; if(!pa) return 1; if(!pb) return -1; return (pa.y*12+pa.mi)-(pb.y*12+pb.mi); }
+        function nomAdelantosFIFO(adelantos, periodosNomina, netoEn){
+            const R2=x=>Math.round((Number(x)||0)*100)/100;
+            const ads=(adelantos||[]).map(a=>({id:a.id, periodo:a.periodo||nomPeriodoDeFecha(a.fecha), fecha:String(a.fecha||''), importe:Math.max(0,R2(a.importe))})).filter(a=>a.periodo&&a.importe>0)
+                .sort((x,y)=>nomCmpPeriodoAd(x.periodo,y.periodo)||x.fecha.localeCompare(y.fecha)||String(x.id).localeCompare(String(y.id)));
+            const pers=new Set((periodosNomina||[]).filter(Boolean)); ads.forEach(a=>pers.add(a.periodo));
+            const orden=[...pers].sort(nomCmpPeriodoAd);
+            const cola=[]; const descPorPeriodo={}, descPorAdelanto={}, saldoTras={};
+            for(const per of orden){
+                for(const ad of ads) if(ad.periodo===per) cola.push({id:ad.id, restante:ad.importe});
+                const neto=netoEn(per);
+                if(neto!=null){
+                    let disp=Math.max(0,R2(neto)), desc=0;
+                    while(disp>0.004&&cola.length){ const c=cola[0]; const take=Math.min(c.restante,disp); c.restante=R2(c.restante-take); disp=R2(disp-take); desc=R2(desc+take); descPorAdelanto[c.id]=R2((descPorAdelanto[c.id]||0)+take); if(c.restante<=0.004) cola.shift(); }
+                    if(desc>0) descPorPeriodo[per]=desc;
+                }
+                saldoTras[per]=R2(cola.reduce((s,c)=>s+c.restante,0));
+            }
+            return {descPorPeriodo, descPorAdelanto, saldoTras, saldoFinal:R2(cola.reduce((s,c)=>s+c.restante,0))};
+        }
+        function nomNetoEnPeriodo(rrhh, workerId, periodo){
+            const n=(rrhh.nominas||{})[periodo];
+            if(!n||!Object.keys(n).length) return null;
+            const inc=new Set(nominaIdsIncluidos(periodo).map(String));
+            if(!inc.has(String(workerId))) return null;
+            const t=(rrhh.trabajadores||[]).find(x=>String(x.id)===String(workerId)); if(!t) return null;
+            const rec=n[workerId]||{};
+            const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0;
+            const otras=rec.otras!==undefined?Number(rec.otras)||0:0;
+            return calcLineaNominaExt(t, salario, otras, rec.comp||{}, periodo).neto;
+        }
+        function nomAplicarDescuentoAdelanto(rrhh, t, periodo, calc, netoOverride){
+            calc.descAdelanto=0; calc.saldoAdelantoTras=null;
+            const ads=(rrhh.adelantos||[]).filter(a=>String(a.trabajadorId)===String(t.id));
+            if(!ads.length) return calc;
+            /* netoOverride: el neto recién calculado de ESTE período (en la
+               tabla en pantalla puede venir de valores aún sin guardar); el
+               FIFO lo usa como tope del mes en curso, así el descuento nunca
+               supera lo que el trabajador tiene para cobrar ahora. */
+            const tl=nomAdelantosFIFO(ads, Object.keys(rrhh.nominas||{}), per=>(per===periodo&&netoOverride!=null)?netoOverride:nomNetoEnPeriodo(rrhh, t.id, per));
+            calc.saldoAdelantoTras=(tl.saldoTras[periodo]!=null)?tl.saldoTras[periodo]:tl.saldoFinal;
+            const desc=tl.descPorPeriodo[periodo]||0;
+            if(desc>0){
+                calc.descAdelanto=desc;
+                calc.neto=Math.max(0, Math.round((calc.neto-desc)*100)/100);
+                calc.detalle=calc.detalle||[];
+                calc.detalle.push(['Descuento de adelanto', -desc, 'deduccion']);
+            }
+            return calc;
+        }
+        function nomSubmayorAdelantos(rrhh){
+            const R2=x=>Math.round((Number(x)||0)*100)/100;
+            const ads=Array.isArray(rrhh.adelantos)?rrhh.adelantos:[];
+            const grupos={}; const orden=[];
+            for(const a of ads){
+                const k=String(a.trabajadorId||'');
+                if(!grupos[k]){ const t=(rrhh.trabajadores||[]).find(x=>String(x.id)===k); grupos[k]={trabajadorId:k, nombre:(t&&t.nombre)||a.nombre||'', t:t||null, crudos:[], filas:[], saldoTotal:0}; orden.push(grupos[k]); }
+                grupos[k].crudos.push(a);
+            }
+            let totalPendiente=0, totalDescontado=0;
+            for(const g of orden){
+                const tl=nomAdelantosFIFO(g.crudos, Object.keys(rrhh.nominas||{}), per=>nomNetoEnPeriodo(rrhh, g.trabajadorId, per));
+                g.filas=g.crudos.map(a=>{ const d=tl.descPorAdelanto[a.id]||0; totalDescontado=R2(totalDescontado+d); return {adelanto:a, descontado:d, saldo:R2((Number(a.importe)||0)-d)}; })
+                    .sort((x,y)=>String(x.adelanto.fecha).localeCompare(String(y.adelanto.fecha))||String(x.adelanto.id).localeCompare(String(y.adelanto.id)));
+                g.saldoTotal=tl.saldoFinal; totalPendiente=R2(totalPendiente+tl.saldoFinal);
+                delete g.crudos;
+            }
+            return {grupos:orden, totalPendiente, totalDescontado};
+        }
+        /* ===== PRE-NÓMINA (ronda 9): tarjeta de tiempo formal por período =====
+           Documento previo guardado en rrhh.prenominas[periodo] con estado
+           borrador/aprobada. Se GENERA automáticamente desde los trabajadores
+           incluidos en el mes y el control de días que ya vive en la ficha
+           del período (comp.diasTrab/diasAus/diasLic/heHoras): nadie redigita
+           nada para generarla. Al APROBARLA, sus filas se vuelcan a ese
+           mismo control de días (nominas[periodo][id].comp) y la nómina del
+           período se calcula con ellos. Si un mes no tiene pre-nómina, el
+           flujo de siempre funciona igual: es el camino formal, no un candado. */
+        function nomPrenominaFilasDesdeControl(rrhh, periodo){
+            const n=(rrhh.nominas||{})[periodo]||{};
+            const inc=new Set(nominaIdsIncluidos(periodo).map(String));
+            const diasMes=diasDelMes(periodo);
+            const filas={};
+            (rrhh.trabajadores||[]).forEach(t=>{ if(!inc.has(String(t.id))) return;
+                const comp=(n[t.id]||{}).comp||{};
+                const diasAus=Number(comp.diasAus)||0, diasLic=Number(comp.diasLic)||0;
+                const explicito=(comp.diasTrab!==undefined&&comp.diasTrab!==null&&comp.diasTrab!=='')?Number(comp.diasTrab):null;
+                const diasTrab=explicito!=null?explicito:Math.max(0, diasMes-diasAus-diasLic);
+                filas[t.id]={nombre:t.nombre||'', cargo:t.cargo||'', diasTrab:diasTrab, diasAus:diasAus, diasLic:diasLic, heHoras:Number(comp.heHoras)||0};
+            });
+            return filas;
+        }
+        function nomPrenominaGenerar(periodo){
+            const rrhh=getRRHH();
+            if(!rrhh.prenominas||typeof rrhh.prenominas!=='object'||Array.isArray(rrhh.prenominas)) rrhh.prenominas={};
+            const ex=rrhh.prenominas[periodo];
+            if(ex&&ex.estado==='aprobada') return {ok:false, motivo:'La pre-nómina de '+periodo+' ya está aprobada: sus datos ya alimentan la nómina de ese mes.'};
+            const filas=nomPrenominaFilasDesdeControl(rrhh, periodo);
+            if(!Object.keys(filas).length) return {ok:false, motivo:'No hay trabajadores incluidos en la nómina de '+periodo+': revisa la selección de trabajadores del mes.'};
+            rrhh.prenominas[periodo]={estado:'borrador', generado:new Date().toISOString().slice(0,10), aprobadoEn:'', filas:filas};
+            saveRRHH(rrhh);
+            return {ok:true, doc:rrhh.prenominas[periodo]};
+        }
+        function nomPrenominaAprobar(periodo){
+            const rrhh=getRRHH();
+            const doc=(rrhh.prenominas||{})[periodo];
+            if(!doc) return {ok:false, motivo:'Primero genera la pre-nómina de '+periodo+'.'};
+            if(doc.estado==='aprobada') return {ok:true, ya:true};
+            if(!rrhh.nominas[periodo]) rrhh.nominas[periodo]={};
+            const diasMes=diasDelMes(periodo);
+            for(const wid of Object.keys(doc.filas||{})){
+                const f=doc.filas[wid]||{};
+                const rec=rrhh.nominas[periodo][wid]||{};
+                const comp=Object.assign({}, rec.comp||{});
+                comp.diasTrab=Math.max(0, Math.min(diasMes, Number(f.diasTrab)||0));
+                comp.diasAus=Math.max(0, Number(f.diasAus)||0);
+                comp.diasLic=Math.max(0, Number(f.diasLic)||0);
+                if(Number(f.heHoras)>0) comp.heHoras=Number(f.heHoras); else delete comp.heHoras;
+                rec.comp=comp;
+                if(rec.nombre===undefined&&f.nombre) rec.nombre=f.nombre;
+                rrhh.nominas[periodo][wid]=rec;
+            }
+            doc.estado='aprobada'; doc.aprobadoEn=new Date().toISOString().slice(0,10);
+            saveRRHH(rrhh);
+            return {ok:true};
+        }
+        function obtenerNominaParaPeriodo(periodo){
+            const rrhh=getRRHH(), n=rrhh.nominas[periodo]||{}, lineas=[], _in2=new Set(nominaIdsIncluidos(periodo).map(String));
+            rrhh.trabajadores.forEach(t=>{ if(!_in2.has(String(t.id))) return;
+                const rec=n[t.id]||{};
+                const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0, otras=rec.otras!==undefined?Number(rec.otras)||0:0, comp=rec.comp||{};
+                const calc=calcLineaNominaExt(t, salario, otras, comp, periodo);
+                nomAplicarDescuentoAdelanto(rrhh, t, periodo, calc, calc.neto);
+                lineas.push({t, salario, otras, comp, calc});
+            });
+            const tot=lineas.reduce((a,x)=>{ for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac','descAdelanto']) a[k]=(a[k]||0)+(x.calc[k]||0); return a; },
+                {bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0,descAdelanto:0});
+            const _fn=fiscalNominaPara(periodo);
+            tot.ssPresupuesto=tot.bruto*(_fn.seguridadSocialPresupuesto/100); tot.ssProvision=tot.bruto*(_fn.seguridadSocialProvision/100);
+            tot.retenciones=tot.segTrab+tot.iip; tot.aportesEmpleador=tot.fuerza+tot.ssEmp; tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;
+            tot.descAdelantos=lineas.filter(x=>(x.calc.descAdelanto||0)>0).map(x=>({id:x.t.id, nombre:x.t.nombre||'', monto:x.calc.descAdelanto}));
+            return {periodo, lineas, tot};
+        }
         function getResumenPeriodo(periodo){const movs=getMovimientosPeriodo(periodo);const h=getHistorial().find(x=>x.mes===periodo);return calcularResumen(movs,{tasa:h&&h.tasa?h.tasa:tasaVista(),saldoInicial:h&&h.saldoInicial?h.saldoInicial:(periodo===periodoNominaActual()?getSaldoInicial():{chequera:0,tarjeta_cup:0,tarjeta_usd:0}),saldoInicialTasaUSD:h&&h.saldoInicialTasaUSD?h.saldoInicialTasaUSD:undefined});}
         function calcFiscalPeriodo(periodo){const res=getResumenPeriodo(periodo),nom=obtenerNominaParaPeriodo(periodo).tot,tipo=getEntityType()||'tcp';return {periodo,tipo,ingresos:res.ingresos,utilidad:res.utilidad,ventas:res.ingresos*(Number(CFG.onat.ventas)||0)/100,territorial:tipo==='mipyme'?res.ingresos*(Number(CFG.onat.desarrolloLocal)||0)/100:null,pagoCuentaTCP:tipo==='tcp'?Math.max(0,res.ingresos-3260)*.05:null,utilidades:tipo==='mipyme'&&res.utilidad>0?res.utilidad*(Number(CFG.onat.utilidades)||0)/100:null,nom};}
         function calcImporteObligacion(o){if(Number(o.importeManual)>=0&&o.importeManual!==''&&o.importeManual!==null&&o.importeManual!==undefined)return {importe:Number(o.importeManual)||0,origen:'Manual'};const c=calcFiscalPeriodo(o.periodo),t=normTxt(o.concepto),code=String(o.codigo||'');if(/ventas|servicios/.test(t))return {importe:c.ventas,origen:`Ingresos × ${CFG.onat.ventas}%`};if(/fuerza.*trabajo/.test(t))return {importe:c.nom.fuerza||0,origen:'Nómina · 5%'};if(/especial.*trabajador|trabajador.*seg.*social.*retenc/.test(t))return {importe:c.nom.segTrab||0,origen:'Retención nómina'};if(/seguridad social/.test(t)&&!/especial|trabajador/.test(t))return {importe:c.nom.ssPresupuesto||0,origen:'Nómina · aporte al Presupuesto'};if(/ingresos pers|ingresos personales/.test(t)){if(/liquid|declaracion|anual|adicional/.test(t))return {importe:null,origen:'Liquidación anual / DJ'};if(/retenc|trabajador/.test(t))return {importe:c.nom.iip||0,origen:'Retención nómina'};if(c.tipo==='tcp')return {importe:c.pagoCuentaTCP||0,origen:'TCP · 5% del ingreso mensual que excede 3.260 CUP'};return {importe:null,origen:'Manual / según Vector'};}if(/territorial/.test(t)&&c.territorial!==null)return {importe:c.territorial,origen:`Ingresos × ${CFG.onat.desarrolloLocal}%`};if(/utilidad/.test(t))return {importe:null,origen:'Liquidación / pago a cuenta'};return {importe:null,origen:'Manual / según Vector'};}
@@ -4304,7 +4496,7 @@ function ctaPlanSemilla(){return [
      resultado neto a 520-000 y de ahí a utilidades retenidas 510-000.
    - Redondeo: según el signo — pérdida a 710-000, ganancia a 810-000
      (la antigua cuenta 549 desaparece). */
-function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'316-000',difPos:'805-000',difNeg:'710-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
+function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'316-000',adelantosTrab:'139-000',difPos:'805-000',difNeg:'710-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
 function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],bandeja:[],estadosBanco:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqNota:0,seqArqueo:0};}
 function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
 /* Naturaleza como DATO del plan: si una cuenta no la trae (planes viejos o
@@ -4626,7 +4818,10 @@ function ctaReconstruir(conta,eventos){
        if(fuerza)L.push({cuenta:P.fuerzaGasto,debe:fuerza,haber:0});
        if(pv)L.push({cuenta:P.gastoProvVac,debe:pv,haber:0,analisis:'Provisión de vacaciones'});
        if(sub)L.push({cuenta:P.cssPagar,debe:sub,haber:0,analisis:'Subsidios a cargo de la Seguridad Social'});
-       L.push({cuenta:P.nominasPorPagar,debe:0,haber:ctaR2(t.neto)});
+       /* La línea del neto SOLO va si es > 0: con el neto en 0 (p. ej. un
+          adelanto que lo consume entero, ronda 9) una línea en cero haría
+          rechazar el devengo completo por «línea sin importe». */
+       if(ctaR2(t.neto)>0)L.push({cuenta:P.nominasPorPagar,debe:0,haber:ctaR2(t.neto)});
        if(fuerza)L.push({cuenta:P.iuftPagar,debe:0,haber:fuerza,analisis:'Imp. utilización de la fuerza de trabajo'});
        if(ssPpto)L.push({cuenta:P.cssPagar,debe:0,haber:ssPpto,analisis:'Contrib. a la seguridad social (12,5 % al Presupuesto)'});
        if(retSS)L.push({cuenta:P.cssPagar,debe:0,haber:retSS,analisis:'Contrib. especial a la seguridad social (retenida)'});
@@ -4634,8 +4829,14 @@ function ctaReconstruir(conta,eventos){
        if(ssProv)L.push({cuenta:P.cssPagar,debe:0,haber:ssProv,analisis:'Provisión de prestaciones a corto plazo (1,5 %)'});
        if(pv)L.push({cuenta:P.provVacaciones,debe:0,haber:pv,analisis:'Provisión de vacaciones'});
        if(ded)L.push({cuenta:P.retencionesPorPagar,debe:0,haber:ded});
+       /* Ronda 9: los descuentos por adelantos a trabajadores descargan la
+          cuenta 139-000 (con el trabajador en el análisis, que la cuenta
+          exige): el neto a pagar (331-000) ya viene reducido en t.neto y
+          estas líneas del Haber devuelven el cuadre exacto del devengo. */
+       const dAds=Array.isArray(t.descAdelantos)?t.descAdelantos:[];
+       for(const da of dAds){const mAd=ctaR2(da&&da.monto);if(mAd>0)L.push({cuenta:P.adelantosTrab,debe:0,haber:mAd,analisis:da.nombre||'Trabajador'});}
        registrar({clave:claveD,asientos:[{fecha:ev.fecha,concepto:'Nómina devengada · '+ev.periodo,origen:'auto',fuenteKey:claveD,lineas:L}]},'Nómina '+ev.periodo);
-       if(!periodosSalarioMov.has(ev.periodo))registrar({clave:claveP,asientos:[{fecha:ev.fecha,concepto:'Pago de nómina · '+ev.periodo,origen:'auto',fuenteKey:claveP,lineas:[{cuenta:P.nominasPorPagar,debe:ctaR2(t.neto),haber:0},{cuenta:P.bancoNomina,debe:0,haber:ctaR2(t.neto)}]}]},'Pago nómina '+ev.periodo);}}}
+       if(!periodosSalarioMov.has(ev.periodo)&&ctaR2(t.neto)>0)registrar({clave:claveP,asientos:[{fecha:ev.fecha,concepto:'Pago de nómina · '+ev.periodo,origen:'auto',fuenteKey:claveP,lineas:[{cuenta:P.nominasPorPagar,debe:ctaR2(t.neto),haber:0},{cuenta:P.bancoNomina,debe:0,haber:ctaR2(t.neto)}]}]},'Pago nómina '+ev.periodo);}}}
  const vistas=new Set();conta.bandeja=bandeja.filter(p=>{const k=p.clave||p.ref;if(vistas.has(k))return false;vistas.add(k);return true;});
  return res;}
 function ctaAplicadoDoc(conta,docId){return ctaR2((conta.aplicaciones||[]).filter(a=>a.documentoId===docId).reduce((s,a)=>s+(Number(a.monto)||0),0));}
@@ -4798,6 +4999,29 @@ function ctaArqueo(conta,datos){datos=datos||{};conta.arqueos=conta.arqueos||[];
  conta.seqArqueo=seq;
  const arq={id:id,fecha:fecha,cuenta:cod,cuentaNombre:c.nombre,saldoLibros:saldoLibros,conteo:ctaR2(datos.conteo),diferencia:diferencia,conto:datos.conto||'',reviso:datos.reviso||'',asientoId:asientoId};
  conta.arqueos.push(arq);return {ok:true,arqueo:arq};}
+/* ===== ADELANTOS A TRABAJADORES (ronda 9): alta con asiento automático =====
+   El registro del adelanto vive en el documento RRHH (rrhh.adelantos); aquí
+   solo nace su asiento: Debe a Adelantos y Préstamos a Trabajadores
+   (plantilla adelantosTrab = 139-000, con el trabajador en el análisis,
+   que esa cuenta exige como auxiliar) contra la cuenta de salida elegida
+   (banco CUP / banco USD / caja, según las plantillas del negocio). El
+   descuento posterior NO crea otro asiento a mano: lo hace el devengo de
+   la nómina (líneas del Haber a la 139-000), de modo que el mayor de la
+   139-000 concilia con el submayor de salarios por cobrar. Idempotente
+   por fuenteKey «adelanto:<id>»: registrar dos veces el mismo adelanto
+   devuelve el asiento existente, nunca lo duplica. */
+function ctaRegistrarAdelanto(conta,datos){datos=datos||{};
+ const ya=(conta.asientos||[]).find(a=>a.fuenteKey&&a.fuenteKey==='adelanto:'+datos.id);
+ if(ya)return {ok:true,ya:true,asiento:ya};
+ const imp=ctaR2(datos.importe);if(!(imp>0))return {ok:false,motivo:'El importe del adelanto debe ser mayor que cero'};
+ const nombre=String(datos.nombre||'').trim();if(!nombre)return {ok:false,motivo:'Falta el trabajador del adelanto'};
+ if(!datos.fecha)return {ok:false,motivo:'Falta la fecha del adelanto'};
+ const P=Object.assign({},ctaPlantillasDef(),conta.plantillas||{});P.banco=Object.assign({},ctaPlantillasDef().banco,(conta.plantillas||{}).banco||{});
+ const salida=datos.cuentaSalida||'chequera';
+ const ctaSalida=salida==='caja'?P.caja:(salida==='tarjeta_usd'?P.banco.tarjeta_usd:P.banco.chequera);
+ const r=ctaAgregarAsiento(conta,{fecha:datos.fecha,concepto:'Adelanto a trabajador · '+nombre+(datos.concepto?' · '+datos.concepto:''),origen:'manual',fuenteKey:'adelanto:'+datos.id,lineas:[{cuenta:P.adelantosTrab,debe:imp,haber:0,analisis:nombre},{cuenta:ctaSalida,debe:0,haber:imp}]});
+ if(!r.ok)return {ok:false,motivo:r.motivo};
+ return {ok:true,asiento:r.asiento};}
 /* ===== PROGRAMADOR DE PAGOS (ronda 7) =====
    Vista de CxP por vencimiento alimentada del submayor existente (sin
    duplicar datos): documentos con saldo pendiente, semáforo
@@ -5147,7 +5371,7 @@ function ctaMigrarClasificador(conta){
             const pb=document.getElementById('contaPlanBody'); if(pb) pb.innerHTML=c.plan.map(x=>{ const mov=ctaEsMovimiento(c,x.codigo); const aux=ctaAuxiliarDe(x); return `<tr><td class="fiscal-code">${esc(x.codigo)}</td><td>${esc(x.nombre)}</td><td>${esc(ctaNaturalezaDe(x))}</td><td>${x.nivel}</td><td>${mov?'Sí':(ctaTieneHijas(c,x.codigo)?'<span class="text-secondary">No · tiene subcuentas</span>':'No')}</td><td>${aux==='ninguno'?'—':esc(aux)+(x.requiereAuxiliar?' <span class="badge bg-danger">obligatorio</span>':'')}</td><td>${esc(x.grupo)}</td><td>${x.porVerificar?'<span class="badge bg-warning text-dark">por verificar</span>':''}</td></tr>`; }).join('');
             const pl=document.getElementById('contaPlantillasBox'); if(pl){ const opts=sel=>c.plan.filter(x=>ctaEsMovimiento(c,x.codigo)).map(x=>`<option value="${esc(x.codigo)}" ${x.codigo===sel?'selected':''}>${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('');
                 const fila=(label,key,val)=>`<div class="col-md-4"><label class="form-label mb-1 small">${label}</label><select class="form-select form-select-sm" data-conta-plant="${key}">${opts(val)}</select></div>`;
-                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('CSS por pagar','cssPagar',c.plantillas.cssPagar)+fila('IUFT por pagar','iuftPagar',c.plantillas.iuftPagar)+fila('IIP retenido por pagar','iipRetenido',c.plantillas.iipRetenido)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Pago ONAT genérico (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Fondo de contingencia','fondoContingencia',c.plantillas.fondoContingencia)+fila('Dividendos por pagar a socios','dividendosPorPagar',c.plantillas.dividendosPorPagar)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio (901)','resultado',c.plantillas.resultado)+fila('Liquidación del resultado (905)','liquidacion',c.plantillas.liquidacion)+fila('Resultado neto del ejercicio (520)','resultadoEjercicio',c.plantillas.resultadoEjercicio)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+fila('Redondeo · pérdida (gasto)','redondeoGasto',c.plantillas.redondeoGasto)+fila('Redondeo · ganancia (ingreso)','redondeoIngreso',c.plantillas.redondeoIngreso)+fila('Caja (arqueo)','caja',c.plantillas.caja)+fila('Arqueo · faltante (gasto/pérdida)','arqueoFaltante',c.plantillas.arqueoFaltante)+fila('Arqueo · sobrante (ingreso)','arqueoSobrante',c.plantillas.arqueoSobrante)+'</div>'; }
+                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('CSS por pagar','cssPagar',c.plantillas.cssPagar)+fila('IUFT por pagar','iuftPagar',c.plantillas.iuftPagar)+fila('IIP retenido por pagar','iipRetenido',c.plantillas.iipRetenido)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Pago ONAT genérico (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Fondo de contingencia','fondoContingencia',c.plantillas.fondoContingencia)+fila('Dividendos por pagar a socios','dividendosPorPagar',c.plantillas.dividendosPorPagar)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio (901)','resultado',c.plantillas.resultado)+fila('Liquidación del resultado (905)','liquidacion',c.plantillas.liquidacion)+fila('Resultado neto del ejercicio (520)','resultadoEjercicio',c.plantillas.resultadoEjercicio)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+fila('Redondeo · pérdida (gasto)','redondeoGasto',c.plantillas.redondeoGasto)+fila('Redondeo · ganancia (ingreso)','redondeoIngreso',c.plantillas.redondeoIngreso)+fila('Caja (arqueo)','caja',c.plantillas.caja)+fila('Arqueo · faltante (gasto/pérdida)','arqueoFaltante',c.plantillas.arqueoFaltante)+fila('Arqueo · sobrante (ingreso)','arqueoSobrante',c.plantillas.arqueoSobrante)+fila('Adelantos a trabajadores','adelantosTrab',c.plantillas.adelantosTrab)+'</div>'; }
             const ab=document.getElementById('contaAsientosBody'); if(ab){ const anulados=new Set(c.asientos.filter(a=>a.anulaA).map(a=>a.anulaA)); const estBadge=a=>{ const e=a.estado||'asentado'; if(e==='anulado'||anulados.has(a.id)) return ' <span class="badge bg-danger">anulado</span>'; if(e==='borrador') return ' <span class="badge bg-secondary">borrador</span>'; if(e==='confirmado') return ' <span class="badge bg-info text-dark">confirmado</span>'; return ' <span class="badge bg-success">asentado</span>'; };
                 ab.innerHTML=c.asientos.slice(-80).reverse().map(a=>{ const tot=a.lineas.reduce((s,l)=>s+(Number(l.debe)||0),0); const num=a.numeroComp!=null?a.numeroComp:a.numero; const tipo=a.tipo||''; const esAnulado=(a.estado==='anulado')||anulados.has(a.id);
                 return `<tr><td class="text-nowrap"><span class="badge bg-soft-secondary">${esc(tipo)}</span> Nº ${num}<div class="small text-secondary">${esc(a.periodo||'')}</div></td><td class="text-nowrap">${esc(a.fecha)}</td><td>${esc(a.concepto)}${a.anulaA?' <span class="badge bg-secondary">contraasiento</span>':''}${estBadge(a)}</td><td>${esc(a.origen)}</td><td class="text-end">${moneda(tot)}</td><td class="text-end">${moneda(tot)}</td><td class="text-nowrap">${(a.estado==='borrador'||a.estado==='confirmado')?`<button type="button" class="btn btn-sm btn-success me-1" onclick="contaAsentar('${a.id}')">Asentar</button>`:''}${!a.anulaA&&!esAnulado&&a.estado!=='borrador'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="contaAnular('${a.id}')">Anular</button>`:''}</td></tr>`; }).join('')||'<tr><td colspan="7" class="text-center text-muted">Sin asientos todavía.</td></tr>'; }
@@ -6110,16 +6334,36 @@ function ctaMigrarClasificador(conta){
             if(Array.isArray(sel)){ const ex=new Set(tr.map(t=>String(t.id))); return sel.map(String).filter(id=>ex.has(id)); }
             return tr.filter(t=>gVigente(t,periodo)).map(t=>t.id);
         }
+        /* Ronda 9: descuento de adelantos en el clon del Gestor — mismo FIFO
+           derivado que en la app (nomAdelantosFIFO), con los netos del clon
+           g*. Sin adelantos registrados en el documento, devuelve 0 y los
+           totales quedan idénticos a los de siempre. */
+        function gDescAdelantoEn(rrhh,t,periodo){
+            const ads=((rrhh&&rrhh.adelantos)||[]).filter(a=>String(a.trabajadorId)===String(t.id));
+            if(!ads.length) return 0;
+            const netoEn=(per)=>{
+                const n=(rrhh.nominas||{})[per]; if(!n||!Object.keys(n).length) return null;
+                const inc=new Set(gNominaIds(rrhh,per).map(String)); if(!inc.has(String(t.id))) return null;
+                const rec=n[t.id]||{};
+                const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0;
+                const otras=rec.otras!==undefined?Number(rec.otras)||0:0;
+                return gCalcLinea(rrhh,t,salario,otras,rec.comp||{},per).neto;
+            };
+            const tl=nomAdelantosFIFO(ads, Object.keys(rrhh.nominas||{}), netoEn);
+            return tl.descPorPeriodo[periodo]||0;
+        }
         function gNominaTot(doc,periodo){
             const rrhh=(doc&&doc.rrhh)||{trabajadores:[],nominas:{}};
             const n=(rrhh.nominas||{})[periodo]||{};
             const inc=new Set(gNominaIds(rrhh,periodo).map(String));
-            const tot={bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0};
+            const tot={bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0,descAdelanto:0};
             (rrhh.trabajadores||[]).forEach(t=>{ if(!inc.has(String(t.id))) return;
                 const rec=n[t.id]||{};
                 const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0;
                 const otras=rec.otras!==undefined?Number(rec.otras)||0:0;
                 const calc=gCalcLinea(rrhh,t,salario,otras,rec.comp||{},periodo);
+                calc.descAdelanto=gDescAdelantoEn(rrhh,t,periodo);
+                if(calc.descAdelanto>0) calc.neto=Math.max(0,Math.round((calc.neto-calc.descAdelanto)*100)/100);
                 for(const k of Object.keys(tot)) tot[k]+=(calc[k]||0);
             });
             tot.ssPresupuesto=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialPresupuesto/100);
@@ -6767,6 +7011,7 @@ function ctaMigrarClasificador(conta){
                 <tr><td class="ps-4 small text-muted">De ella, al Presupuesto (12,5 %)</td><td class="text-end small text-muted">${moneda(tot.ssPresupuesto)}</td></tr>
                 <tr><td class="ps-4 small text-muted">De ella, provisión de prestaciones a corto plazo (1,5 %)</td><td class="text-end small text-muted">${moneda(tot.ssProvision)}</td></tr>
                 <tr><td>Provisión de vacaciones del período</td><td class="text-end">${moneda(tot.provisionVac)}</td></tr>
+                ${(tot.descAdelanto || 0) > 0 ? `<tr><td>Descuentos por adelantos a trabajadores (ya restados del neto a pagar)</td><td class="text-end">${moneda(tot.descAdelanto)}</td></tr>` : ''}
               </tbody></table></div>
               <div class="col-md-6"><div class="alert alert-secondary py-2"><b>Costo laboral total del mes: ${moneda(tot.costo)}</b><br><small>Salario devengado + Impuesto por la Utilización de la Fuerza de Trabajo + Contribución a la Seguridad Social del empleador. Total a ingresar a la ONAT por esta nómina: ${moneda(tot.totalAFisco)} (incluye las retenciones a los trabajadores).</small></div></div>
             </div>` + nominaProFirmas();
@@ -6794,6 +7039,7 @@ function ctaMigrarClasificador(conta){
               <tr><td>Contribución Especial a la Seguridad Social (deducción)</td><td class="text-end">−${moneda(L.calc.segTrab)}</td></tr>
               <tr><td>Impuesto sobre Ingresos Personales (retención)</td><td class="text-end">−${moneda(L.calc.iip)}</td></tr>
               <tr><td>Otras deducciones</td><td class="text-end">−${moneda(L.calc.deducciones)}</td></tr>
+              ${(L.calc.descAdelanto || 0) > 0 ? `<tr><td>Descuento de adelanto (saldo pendiente tras este mes: ${moneda(L.calc.saldoAdelantoTras || 0)})</td><td class="text-end">−${moneda(L.calc.descAdelanto)}</td></tr>` : ''}
               <tr class="table-light"><td><b>NETO A COBRAR</b></td><td class="text-end"><b>${moneda(L.calc.neto)}</b></td></tr>
             </tbody></table>
             <p class="small text-muted">El trabajador puede conservar este talón: resume lo devengado y lo retenido en el período.</p>` + nominaProFirmas('Recibí (firma del trabajador)');
@@ -6852,6 +7098,7 @@ function ctaMigrarClasificador(conta){
             add(P.cssPagar, 0, ssProv, 'Provisión de prestaciones a corto plazo (1,5 %)');
             add(P.provVacaciones, 0, tot.provisionVac, 'Provisión de vacaciones');
             add(P.retencionesPorPagar, 0, tot.deducciones, 'Retenciones por pagar a terceros');
+            (tot.descAdelantos || []).forEach(da => add(P.adelantosTrab, 0, da.monto, 'Descuento de adelanto · ' + (da.nombre || '')));
             const sd = lin.reduce((a, l) => a + l.debe, 0), sh = lin.reduce((a, l) => a + l.haber, 0);
             const html = `<h5 class="mb-1">Resumen de nómina para contabilidad</h5>
             <div class="small mb-3">Período: <b>${esc(periodo)}</b> · Asiento de devengo sugerido (partida doble). En la pestaña <b>Contabilidad</b>, «Generar contabilidad» crea este asiento automáticamente.</div>
@@ -6898,6 +7145,8 @@ function ctaMigrarClasificador(conta){
             });
         }
         function renderNominaPro() {
+            try { renderPrenomina(); } catch(e) {}
+            try { renderAdelantos(); } catch(e) {}
             const per = periodoNominaActual();
             const dl = document.getElementById('nominaDocsPeriodo'); if (dl) dl.textContent = per;
             const datos = nominaProDatos(per);
@@ -6963,6 +7212,111 @@ function ctaMigrarClasificador(conta){
                   <small class="text-muted">Fuentes: ${esc(prm.fuentes || 'Ley 113 «Del Sistema Tributario» · Gaceta Oficial')}</small>
                 </div>`;
             }
+        }
+        /* ===== PRE-NÓMINA Y ADELANTOS (ronda 9): pantallas ===== */
+        function renderPrenomina() {
+            const per = periodoNominaActual();
+            const tit = document.getElementById('prenominaPeriodo'); if (tit) tit.textContent = per;
+            const box = document.getElementById('prenominaBox'); if (!box) return;
+            const d = getRRHH();
+            const doc = (d.prenominas || {})[per];
+            if (!doc) { box.innerHTML = '<p class="text-muted mb-0">Este mes todavía no tiene pre-nómina: pulsa «Generar desde el control de días» y se arma sola con los días que ya están en la ficha de cada trabajador.</p>'; return; }
+            const aprobada = doc.estado === 'aprobada';
+            const filas = Object.entries(doc.filas || {});
+            const inp = (wid, campo, val) => `<input type="number" class="form-control form-control-sm text-end pn-in" data-wid="${esc(String(wid))}" data-campo="${campo}" min="0" step="${campo === 'heHoras' ? '0.5' : '1'}" value="${val}" ${aprobada ? 'disabled' : ''}>`;
+            box.innerHTML = `<div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                ${aprobada ? '<span class="badge bg-success">Aprobada' + (doc.aprobadoEn ? ' · ' + esc(doc.aprobadoEn) : '') + '</span><small class="text-muted">Sus días ya alimentan la nómina de ' + esc(per) + '.</small>' : '<span class="badge bg-warning text-dark">Borrador</span><small class="text-muted">Generada el ' + esc(doc.generado || '') + ' desde el control de días. Ajusta lo que haga falta en la tabla y apruébala.</small>'}
+              </div>
+              <div class="table-responsive"><table class="table table-sm align-middle mb-1">
+              <thead><tr><th>Trabajador</th><th class="text-end">Días trabajados</th><th class="text-end">Ausencias</th><th class="text-end">Licencias</th><th class="text-end">Horas extras</th></tr></thead>
+              <tbody>${filas.map(([wid, f]) => `<tr><td><b>${esc(f.nombre || '')}</b><div class="small text-muted">${esc(f.cargo || '')}</div></td><td>${inp(wid, 'diasTrab', f.diasTrab)}</td><td>${inp(wid, 'diasAus', f.diasAus)}</td><td>${inp(wid, 'diasLic', f.diasLic)}</td><td>${inp(wid, 'heHoras', f.heHoras)}</td></tr>`).join('')}</tbody>
+              </table></div>
+              <small class="text-muted">Las ausencias son el total registrado en el control de días de la ficha (que no separa justificadas e injustificadas). Las horas extras solo se pagan si el trabajador tiene activo el complemento «Horas extras» en su ficha.</small>`;
+        }
+        function nomPrenominaGenerarUI() {
+            const per = periodoNominaActual();
+            const d = getRRHH(); const ex = (d.prenominas || {})[per];
+            if (ex && ex.estado !== 'aprobada' && !confirm('La pre-nómina de ' + per + ' ya existe como borrador: si la regeneras desde el control de días se pierden los ajustes hechos en la tabla. ¿Seguir?')) return;
+            const r = nomPrenominaGenerar(per);
+            if (!r.ok) { alert('⚠ ' + r.motivo); return; }
+            renderAll();
+        }
+        function nomPrenominaAprobarUI() {
+            const per = periodoNominaActual();
+            const d = getRRHH(); const doc = (d.prenominas || {})[per];
+            if (!doc) { alert('Primero genera la pre-nómina de ' + per + '.'); return; }
+            if (doc.estado === 'aprobada') { alert('La pre-nómina de ' + per + ' ya está aprobada.'); return; }
+            document.querySelectorAll('#prenominaBox .pn-in').forEach(inp => {
+                const wid = inp.dataset.wid, campo = inp.dataset.campo;
+                if (doc.filas[wid]) doc.filas[wid][campo] = Math.max(0, Number(inp.value) || 0);
+            });
+            saveRRHH(d);
+            const r = nomPrenominaAprobar(per);
+            if (!r.ok) { alert('⚠ ' + r.motivo); return; }
+            renderAll();
+            alert('✅ Pre-nómina de ' + per + ' aprobada: los días ya alimentan la nómina del mes.');
+        }
+        function nominaDocPrenomina() {
+            const per = periodoNominaActual();
+            const d = getRRHH(); const doc = (d.prenominas || {})[per];
+            if (!doc) { alert('Este mes todavía no tiene pre-nómina: genérala primero desde el control de días.'); return; }
+            const filas = Object.values(doc.filas || {});
+            const html = `<h5 class="mb-1">Pre-nómina · Tarjeta de tiempo</h5>
+            <div class="small mb-3">Período: <b>${esc(per)}</b> · Estado: <b>${doc.estado === 'aprobada' ? 'Aprobada' : 'Borrador'}</b>${doc.generado ? ' · Generada: ' + esc(doc.generado) : ''}${doc.aprobadoEn ? ' · Aprobada: ' + esc(doc.aprobadoEn) : ''}</div>
+            <div class="table-responsive"><table class="table table-sm table-bordered align-middle">
+            <thead><tr><th>#</th><th>Trabajador</th><th class="text-end">Días trabajados</th><th class="text-end">Ausencias</th><th class="text-end">Licencias</th><th class="text-end">Horas extras</th><th style="min-width:110px">Firma</th></tr></thead>
+            <tbody>${filas.map((f, i) => `<tr><td>${i + 1}</td><td><b>${esc(f.nombre || '')}</b><div class="small text-muted">${esc(f.cargo || '')}</div></td><td class="text-end">${Number(f.diasTrab) || 0}</td><td class="text-end">${Number(f.diasAus) || 0}</td><td class="text-end">${Number(f.diasLic) || 0}</td><td class="text-end">${Number(f.heHoras) || 0}</td><td></td></tr>`).join('')}</tbody>
+            </table></div>
+            <p class="small text-muted">Documento previo a la nómina: al aprobarlo, los días aquí relacionados son los que calculan la nómina de ${esc(per)}.</p>` + nominaProFirmas();
+            nominaProImprimir('Pre-nómina · ' + per, html);
+        }
+        function renderAdelantos() {
+            const sel = document.getElementById('adTrabSel');
+            const d = getRRHH();
+            if (sel) { const prev = sel.value; sel.innerHTML = (d.trabajadores || []).map(t => `<option value="${esc(String(t.id))}">${esc(t.nombre || '')}</option>`).join(''); if (prev && (d.trabajadores || []).some(t => String(t.id) === prev)) sel.value = prev; }
+            const fch = document.getElementById('adFecha'); if (fch && !fch.value) fch.value = new Date().toISOString().slice(0, 10);
+            const box = document.getElementById('adelantosBox'); if (!box) return;
+            const sm = nomSubmayorAdelantos(d);
+            if (!sm.grupos.length) { box.innerHTML = '<p class="text-muted mb-0">Todavía no hay adelantos: registra el primero arriba y se descuenta solo en las nóminas siguientes.</p>'; return; }
+            let saldoMayor = null, codMayor = '139-000';
+            try { const c = getConta(); const P = Object.assign({}, ctaPlantillasDef(), c.plantillas || {}); codMayor = P.adelantosTrab || '139-000'; const m = ctaMayor(c); saldoMayor = m[codMayor] ? m[codMayor].saldoFirmado : 0; } catch(e) { saldoMayor = null; }
+            const filasHtml = [];
+            sm.grupos.forEach(g => { g.filas.forEach((f, ix) => { const a = f.adelanto; filasHtml.push(`<tr>${ix === 0 ? `<td rowspan="${g.filas.length}"><b>${esc(g.nombre || '')}</b>${g.t ? '' : '<div class="small text-muted">(ya no está en el registro de trabajadores)</div>'}</td>` : ''}<td class="text-nowrap">${esc(a.fecha || '')}</td><td>${esc(a.concepto || 'Adelanto')}</td><td class="text-end">${moneda(a.importe)}</td><td class="text-end">${moneda(f.descontado)}</td><td class="text-end"><b>${moneda(f.saldo)}</b></td></tr>`); }); });
+            const totalImporte = sm.grupos.reduce((s, g) => s + g.filas.reduce((x, f) => x + (Number(f.adelanto.importe) || 0), 0), 0);
+            const dif = saldoMayor == null ? null : Math.round((saldoMayor - sm.totalPendiente) * 100) / 100;
+            box.innerHTML = `<div class="table-responsive"><table class="table table-sm align-middle mb-1">
+            <thead><tr><th>Trabajador</th><th>Fecha</th><th>Concepto</th><th class="text-end">Importe</th><th class="text-end">Descontado</th><th class="text-end">Saldo pendiente</th></tr></thead>
+            <tbody>${filasHtml.join('')}</tbody>
+            <tfoot><tr class="fw-bold"><td colspan="3">Totales</td><td class="text-end">${moneda(totalImporte)}</td><td class="text-end">${moneda(sm.totalDescontado)}</td><td class="text-end">${moneda(sm.totalPendiente)}</td></tr></tfoot>
+            </table></div>
+            ${saldoMayor == null ? '' : (Math.abs(dif) < 0.005
+                ? `<small class="text-success">✔ Conciliado: el saldo pendiente del submayor coincide con el mayor de la cuenta ${esc(codMayor)} (${moneda(saldoMayor)}).</small>`
+                : `<small class="text-warning-emphasis">⚠ Saldo según mayor ${esc(codMayor)}: ${moneda(saldoMayor)} · diferencia de ${moneda(dif)}. Suele deberse a descuentos ya calculados en una nómina cuyo devengo aún no se genera en Contabilidad: genera la contabilidad y vuelve a mirar.</small>`)}`;
+        }
+        function nomAdelantoRegistrarUI() {
+            const sel = document.getElementById('adTrabSel');
+            const wid = sel ? sel.value : '';
+            const d = getRRHH();
+            const t = (d.trabajadores || []).find(x => String(x.id) === String(wid));
+            if (!t) { alert('Elige el trabajador del adelanto.'); return; }
+            const fecha = (document.getElementById('adFecha') || {}).value || '';
+            const importe = Number((document.getElementById('adImporte') || {}).value) || 0;
+            const concepto = ((document.getElementById('adConcepto') || {}).value || '').trim() || 'Adelanto de salario';
+            const cuentaSalida = (document.getElementById('adCuentaSalida') || {}).value || 'chequera';
+            if (!fecha) { alert('Escribe la fecha del adelanto.'); return; }
+            if (!(importe > 0)) { alert('El importe del adelanto debe ser mayor que cero.'); return; }
+            const id = 'AD' + ((Number(d.seqAdelanto) || 0) + 1);
+            const c = getConta();
+            const r = ctaRegistrarAdelanto(c, { id: id, fecha: fecha, nombre: t.nombre || '', concepto: concepto, importe: importe, cuentaSalida: cuentaSalida });
+            if (!r.ok) { alert('⚠ No se pudo registrar el adelanto: ' + r.motivo); return; }
+            saveConta(c);
+            d.seqAdelanto = (Number(d.seqAdelanto) || 0) + 1;
+            if (!Array.isArray(d.adelantos)) d.adelantos = [];
+            d.adelantos.push({ id: id, trabajadorId: t.id, nombre: t.nombre || '', fecha: fecha, concepto: concepto, importe: Math.round(importe * 100) / 100, cuentaSalida: cuentaSalida });
+            saveRRHH(d);
+            const impIn = document.getElementById('adImporte'); if (impIn) impIn.value = '';
+            renderAll();
+            alert('✅ Adelanto de ' + moneda(importe) + ' registrado a ' + (t.nombre || '') + ' con su asiento (Debe ' + (c.plantillas.adelantosTrab || '139-000') + ' / Haber ' + (cuentaSalida === 'caja' ? 'caja' : 'banco') + '). Se descuenta solo desde la nómina de ' + nomPeriodoDeFecha(fecha) + '.');
         }
         function guardarParamsFiscalesNomina() {
             const per = periodoNominaActual();
