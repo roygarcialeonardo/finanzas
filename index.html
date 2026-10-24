@@ -694,6 +694,27 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         html[data-theme="dark"] .text-muted, html[data-theme="dark"] .text-secondary { color:#9eb0ac!important; }
         html[data-theme="dark"] .btn-close { filter:invert(1) grayscale(100%) brightness(200%); }
 
+        /* ===== MENÚ LATERAL IZQUIERDO (pedido de Leonardo, 2026-10-24) =====
+           En pantallas anchas las pestañas van a la izquierda, una debajo de
+           otra, y el contenido ocupa el resto. En móvil/tablet (<992px) se
+           mantiene la barra horizontal superior de siempre. */
+        @media (min-width: 992px){
+          .app-layout{display:flex;align-items:flex-start;gap:1.25rem}
+          .app-layout #cuentasTabs{
+            flex-direction:column;flex-wrap:nowrap;flex:0 0 218px;width:218px;
+            overflow-x:visible;overflow-y:auto;max-height:calc(100vh - 2rem);
+            position:sticky;top:1rem;margin-bottom:0;padding:.5rem;gap:.15rem;
+          }
+          .app-layout #cuentasTabs .nav-item{width:100%}
+          .app-layout #cuentasTabs .nav-link{
+            width:100%;text-align:left;border-radius:.7rem!important;
+            padding:.6rem .85rem;display:flex;align-items:center;
+          }
+          .app-layout #cuentasTabs .nav-link:hover{transform:none}
+          .app-layout #cuentasTabsContent{flex:1 1 auto;min-width:0}
+        }
+        @media print{ .app-layout{display:block} }
+
 </style>
 </head>
 <body>
@@ -788,7 +809,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         </div>
     </div>
 
-    <!-- NAVEGACIÓN -->
+    <!-- NAVEGACIÓN LATERAL + CONTENIDO -->
+    <div class="app-layout">
     <ul class="nav nav-tabs-custom" id="cuentasTabs" role="tablist">
         <li class="nav-item"><button class="nav-link resumen active" id="tab-resumen" data-bs-toggle="tab" data-bs-target="#pane-resumen"><i class="bi bi-speedometer2 me-1"></i> Resumen</button></li>
         <li class="nav-item"><button class="nav-link chequera" id="tab-chequera" data-bs-toggle="tab" data-bs-target="#pane-chequera"><i class="bi bi-bank me-1"></i> Chequera</button></li>
@@ -1564,6 +1586,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </div>
 
