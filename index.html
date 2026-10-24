@@ -444,6 +444,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         @media print{
           body.printing #loginContainer,body.printing .app-hero,body.printing .nav-tabs,body.printing .tab-pane{display:none!important}
           body.printing .tab-pane.print-target{display:block!important}
+          body.printing .tab-pane:has(.print-target){display:block!important}
+          body.printing .print-target{display:block!important}
           body.printing .btn-print-pane,body.printing .no-print{display:none!important}
           body.printing .print-only-header{display:block!important;margin-bottom:1rem}
           body.printing .modal.print-target{display:block!important;position:static!important;opacity:1!important}
@@ -794,6 +796,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><i class="bi bi-file-earmark-text me-1"></i> DJ</button></li>
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><i class="bi bi-currency-exchange me-1"></i> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><i class="bi bi-pc-display-horizontal me-1"></i> Activos</button></li>
+        <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><i class="bi bi-journal-bookmark me-1"></i> Contabilidad</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><i class="bi bi-archive me-1"></i> Historial</button></li>
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><i class="bi bi-briefcase me-1"></i> Gestor</button></li>
         <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><i class="bi bi-gear-fill me-1"></i> Configuración</button></li>
@@ -941,8 +944,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <thead>
                             <tr>
                                 <th>Trabajador</th><th>Salario</th><th>Otras rem.</th><th class="text-end">Bruto</th>
-                                <th class="text-end">Seg. Social trab.</th><th class="text-end">IIP</th><th class="text-end">Neto</th>
-                                <th class="text-end">Fuerza trab. 5%</th><th class="text-end">Seg. Social emp. 14%</th><th class="text-end">Complem.</th><th class="text-end">Costo empresa</th><th></th>
+                                <th class="text-end">Contrib. especial S.S.</th><th class="text-end">IIP</th><th class="text-end">Neto</th>
+                                <th class="text-end">IUFT 5%</th><th class="text-end">Contrib. S.S. emp. 14%</th><th class="text-end">Complem.</th><th class="text-end">Costo empresa</th><th></th>
                             </tr>
                         </thead>
                         <tbody id="nominaBody"></tbody>
@@ -953,6 +956,32 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <div class="card p-3 p-md-4 mb-3" id="cardCompParams" style="display:none;"></div>
             <div class="card p-3 p-md-4 mb-3" id="cardCompAnual" style="display:none;"></div>
+            <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2"></i>Documentos de nómina</h6>
+                <small class="text-muted d-block mb-2">Documentos profesionales con el membrete del negocio, listos para imprimir o guardar como PDF. Se generan con la <b>nómina guardada</b> del período mostrado (<span id="nominaDocsPeriodo"></span>).</small>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nominaDocCompleta()"><i class="bi bi-printer me-1"></i>Nómina de pagos completa</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocResumenContable()"><i class="bi bi-journal-text me-1"></i>Resumen para contabilidad</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocListadoPago()"><i class="bi bi-credit-card me-1"></i>Listado para pago por tarjeta</button>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6"><label class="form-label mb-1 small">Talón de pago individual</label><div class="input-group input-group-sm"><select id="talonTrabSel" class="form-select"></select><button type="button" class="btn btn-outline-primary" onclick="nominaDocTalon()"><i class="bi bi-printer me-1"></i>Imprimir talón</button></div></div>
+                    <div class="col-md-6"><label class="form-label mb-1 small">Certificado anual de ingresos y retenciones</label><div class="input-group input-group-sm"><select id="certAnioSel" class="form-select"></select><button type="button" class="btn btn-outline-primary" onclick="nominaDocCertificado()"><i class="bi bi-award me-1"></i>Imprimir certificados</button></div></div>
+                </div>
+            </div>
+            <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold mb-2"><i class="bi bi-calendar-heart me-2"></i>Submayor de vacaciones</h6>
+                <div id="vacSubmayorBox"></div>
+            </div>
+            <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold mb-2"><i class="bi bi-diagram-3 me-2"></i>Costo laboral por centro de costo</h6>
+                <div id="costoCentrosBox"></div>
+            </div>
+            <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold mb-2"><i class="bi bi-percent me-2"></i>Parámetros fiscales de la nómina</h6>
+                <div id="nominaParamsBox"></div>
+            </div>
+            <div id="nominaDocBox" class="d-none"></div>
 
             <div class="card p-3 p-md-4 mb-3" id="cardPuestos">
                 <h6 class="fw-semibold mb-3"><i class="bi bi-briefcase me-2"></i>Puestos de trabajo</h6>
@@ -1162,6 +1191,33 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div id="djSociosBox"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- CONTABILIDAD · PARTIDA DOBLE -->
+        <div class="tab-pane fade" id="pane-conta">
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><i class="bi bi-journal-bookmark me-2" style="color:#0f766e"></i>Contabilidad · Partida doble</h5><div class="small text-secondary">Se genera sola desde tus movimientos: el importador de estados de cuenta contabiliza automáticamente lo claro; lo dudoso queda en rojo en la bandeja hasta que lo clasifiques (y la decisión se aprende como regla del negocio). Los estados salen solo de los asientos.</div></div>
+            <div class="d-flex gap-2 flex-wrap align-items-center"><label class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" id="contaActiva"> Contabilidad activa</label><button type="button" class="btn btn-sm btn-success" onclick="contaGenerar()"><i class="bi bi-gear-wide-connected me-1"></i> Generar contabilidad</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaRevalBtn()"><i class="bi bi-currency-exchange me-1"></i> Revalorizar USD del mes</button></div></div>
+            <div class="mb-3 d-flex flex-wrap gap-2 align-items-center"><span id="contaAvisoPend"></span><span class="small text-secondary" id="contaPreviewTxt"></span></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
+            <div class="row g-3 mb-3"><div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Situación Financiera</h6><div id="contaSituacionBox"></div></div></div>
+            <div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Resultados</h6><div class="mb-2"><select id="contaResCentro" class="form-select form-select-sm" style="width:auto"><option value="">Todos los centros</option></select></div><div id="contaResultadosBox"></div></div></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Balance de Comprobación</h6><div id="contaBalanceBox"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Libro Mayor</h6><div class="mb-2"><select id="contaMayorSel" class="form-select form-select-sm" style="width:auto"></select></div><div id="contaMayorBox"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Submayores · Cuentas por Cobrar y por Pagar (con antigüedad)</h6><div id="contaSubBox"></div>
+            <div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Nueva contraparte</label><input id="contaCpNombre" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo</label><select id="contaCpTipo" class="form-select form-select-sm"><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="ambos">Ambos</option></select></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddContraparte()">Crear contraparte</button></div></div>
+            <div class="row g-2 align-items-end mt-2"><div class="col-md-2"><label class="form-label mb-1 small">Documento</label><select id="contaDocTipo" class="form-select form-select-sm"><option value="cxc">CxC (venta a crédito)</option><option value="cxp">CxP (compra/obligación)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Contraparte</label><select id="contaDocCp" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Nº / concepto</label><input id="contaDocNumero" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaDocFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vencimiento</label><input id="contaDocVenc" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaDocImporte" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Producto (inventario)</label><select id="contaDocProducto" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cant.</label><input id="contaDocCantidad" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-check small"><input type="checkbox" id="contaDocInv" class="form-check-input"> Es compra de inventario</label><br><label class="form-check small"><input type="checkbox" id="contaDocSaldoIni" class="form-check-input"> Saldo inicial (ya está en la apertura, sin asiento nuevo)</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddDocumento()">Guardar documento</button></div></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Inventario integrado (costo promedio ponderado)</h6><div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr><th>Código</th><th>Producto</th><th class="text-end">Existencia</th><th class="text-end">Costo promedio</th><th class="text-end">Valoración</th></tr></thead><tbody id="contaInvBody"></tbody></table></div>
+            <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaProdCodigo" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label mb-1 small">Nuevo producto</label><input id="contaProdNombre" class="form-control form-control-sm"></div><div class="col-md-1"><label class="form-label mb-1 small">Unidad</label><input id="contaProdUnidad" class="form-control form-control-sm" value="u"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddProducto()">Crear producto</button></div></div>
+            <div class="row g-2 align-items-end mt-2"><div class="col-md-3"><label class="form-label mb-1 small">Producto</label><select id="contaInvProd" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cantidad</label><input id="contaInvCant" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Costo unitario (entradas)</label><input id="contaInvCosto" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Contrapartida entrada</label><select id="contaInvContra" class="form-select form-select-sm"><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option><option value="cxp">A crédito (CxP)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Proveedor (si es a crédito)</label><select id="contaInvCp" class="form-select form-select-sm"></select></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-success" onclick="contaInvEntrada()">Entrada</button></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-warning" onclick="contaInvSalida()">Salida</button></div></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Asientos (comprobantes)</h6><div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr><th>Nº</th><th>Fecha</th><th>Concepto</th><th>Origen</th><th class="text-end">Debe</th><th class="text-end">Haber</th><th></th></tr></thead><tbody id="contaAsientosBody"></tbody></table></div>
+            <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaAsFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label mb-1 small">Concepto</label><input id="contaAsConcepto" class="form-control form-control-sm"></div><div class="col-md-5"><label class="form-label mb-1 small">Líneas: cuenta|debe|haber|análisis|centro (una por línea)</label><textarea id="contaAsLineas" class="form-control form-control-sm" rows="2" placeholder="110.01|1000|0&#10;410|0|1000"></textarea></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-primary" onclick="contaAddAsientoManual()">Guardar asiento</button></div></div>
+            <p class="small text-secondary mt-2 mb-0">Ningún asiento desbalanceado se guarda. Los asientos nunca se borran: se anulan con contraasiento.</p></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plan de cuentas <span class="small text-secondary">(semilla con el clasificador cubano habitual; los códigos marcados «por verificar» deben contrastarse con el clasificador oficial vigente)</span></h6><div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr><th>Código</th><th>Nombre</th><th>Naturaleza</th><th>Nivel</th><th>Admite mov.</th><th>Grupo</th><th></th></tr></thead><tbody id="contaPlanBody"></tbody></table></div>
+            <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaCtaCodigo" class="form-control form-control-sm" placeholder="110.05"></div><div class="col-md-3"><label class="form-label mb-1 small">Nombre</label><input id="contaCtaNombre" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Naturaleza</label><select id="contaCtaNat" class="form-select form-select-sm"><option value="deudora">Deudora</option><option value="acreedora">Acreedora</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Grupo</label><select id="contaCtaGrupo" class="form-select form-select-sm"><option value="activo">Activo</option><option value="pasivo">Pasivo</option><option value="patrimonio">Patrimonio</option><option value="ingreso">Ingreso</option><option value="costo">Costo</option><option value="gasto">Gasto</option></select></div><div class="col-md-1"><label class="form-label mb-1 small">Admite</label><select id="contaCtaAdmite" class="form-select form-select-sm"><option value="1">Sí</option><option value="0">No</option></select></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCuenta()">Agregar cuenta</button></div></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div></div></div>
         </div>
 
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
@@ -1477,6 +1533,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="col-6"><label class="form-label" for="movFecha">Fecha</label><input id="movFecha" type="date" class="form-control"></div>
 <div class="col-6"><label class="form-label" for="movCuenta">Cuenta</label><select id="movCuenta" class="form-select"><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option></select></div>
 <div class="col-6"><label class="form-label" for="movClas">Clasificación</label><select id="movClas" class="form-select"><option value="operacional">Operacional</option><option value="transferencia">Transferencia</option><option value="extraccion">Extracción</option></select></div>
+<div class="col-6"><label class="form-label" for="movCentro">Centro de costo (contabilidad)</label><select id="movCentro" class="form-select"><option value="">— Sin centro —</option></select></div>
+<div class="col-6"><label class="form-label" for="movCuentaDestino">Otra cuenta (solo transferencias)</label><select id="movCuentaDestino" class="form-select"><option value="">— Sin indicar —</option><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option></select></div>
+<div class="col-6"><label class="form-label" for="movDocumento">Documento CxC/CxP (contabilidad)</label><select id="movDocumento" class="form-select"><option value="">— Ninguno —</option></select></div>
+<div class="col-6"><label class="form-label" for="movCuentaContable">Cuenta contable (contabilidad)</label><select id="movCuentaContable" class="form-select"><option value="">— Automática según clasificación —</option></select></div>
 <div class="col-12" id="fxMovWrap" style="display:none"><div id="fxMovBox"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label mb-1">Tasa contable (CUP / USD)</label><input id="movTasaUSD" type="number" min="0.0001" step="0.0001" class="form-control"></div><div class="col-4"><label class="form-label mb-1">Equivalente CUP</label><input id="movEquivCUP" class="form-control" readonly></div><div class="col-3 d-grid"><button type="button" class="btn btn-outline-primary" id="btnMovConsultarBCC"><i class="bi bi-cloud-download"></i> BCC</button></div><div class="col-12"><div class="small text-muted" id="movTasaFuente">Consulta BCC o escribe la tasa manualmente.</div></div></div></div></div>
 </div></div>
 <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarMov">Guardar</button></div>
@@ -1549,7 +1609,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="col-12"><hr class="my-1"><label class="form-label">Datos de interés</label></div>
         <div class="col-md-4"><label class="form-label">Sexo</label><select id="trabSexo" class="form-select"><option value="">—</option><option value="M">Hombre</option><option value="F">Mujer</option></select></div>
         <div class="col-md-4"><label class="form-label">Tarjeta CUP (número)</label><input id="trabTarjeta" class="form-control" maxlength="30" inputmode="numeric" placeholder="Solo números"></div>
-        <div class="col-md-4"><label class="form-label">Cuenta asociada a la tarjeta</label><input id="trabCuenta" class="form-control" maxlength="40"></div>
+        <div class="col-md-4"><label class="form-label">Cuenta asociada a la tarjeta</label><input id="trabCuenta" class="form-control" maxlength="40"></div><div class="col-md-6"><label class="form-label">Nº de Seguridad Social</label><input id="trabNumSS" class="form-control" maxlength="30" placeholder="Si el negocio lo usa"></div><div class="col-md-6"><label class="form-label">Centro de costo</label><input id="trabCentroCosto" class="form-control" maxlength="60" list="trabCentrosList" placeholder="Elige o escribe (opcional)"><datalist id="trabCentrosList"></datalist></div>
         <div class="col-md-6"><label class="form-label">Municipio</label><input id="trabMunicipio" class="form-control" maxlength="60"></div>
         <div class="col-md-6"><label class="form-label">Provincia</label><input id="trabProvincia" class="form-control" maxlength="60"></div>
         <div class="col-12"><label class="form-label">Dirección completa</label><input id="trabDireccion" class="form-control" maxlength="180"></div>
@@ -1682,7 +1742,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             tasaAutoTimer = setInterval(refrescarTasaRespaldoAuto, 30 * 60 * 1000);
         }
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-        function slot(k) { return k.startsWith('finanzas_movimientos_') ? 'mov' : k.startsWith('finanzas_mes_') ? 'mes' : k.startsWith('finanzas_historial_') ? 'hist' : k.startsWith('finanzas_rrhh_') ? 'rrhh' : k.startsWith('finanzas_fiscal_') ? 'fiscal' : k.startsWith('finanzas_aft_') ? 'aft' : k.startsWith('finanzas_fx_') ? 'fx' : k.startsWith('finanzas_dj_') ? 'dj' : k.startsWith('finanzas_gestor_') ? 'gestor' : null; }
+        function slot(k) { return k.startsWith('finanzas_movimientos_') ? 'mov' : k.startsWith('finanzas_mes_') ? 'mes' : k.startsWith('finanzas_historial_') ? 'hist' : k.startsWith('finanzas_rrhh_') ? 'rrhh' : k.startsWith('finanzas_fiscal_') ? 'fiscal' : k.startsWith('finanzas_aft_') ? 'aft' : k.startsWith('finanzas_fx_') ? 'fx' : k.startsWith('finanzas_dj_') ? 'dj' : k.startsWith('finanzas_gestor_') ? 'gestor' : k.startsWith('finanzas_conta_') ? 'conta' : null; }
         const Store = {
             getItem(k) { if (k === 'finanzas_bloqueo_meses') return JSON.stringify(BLOQ); const c = slot(k); return c && CACHE[c] !== undefined ? JSON.stringify(CACHE[c]) : null; },
             setItem(k, v) {
@@ -2193,14 +2253,38 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         // ===== RRHH / NÓMINA =====
+        /* ===== PARÁMETROS FISCALES DE LA NÓMINA — versionados por año (mismo patrón que la DJ) =====
+           VERIFICADO contra fuentes oficiales: escala de retención del Impuesto sobre Ingresos Personales
+           y escala progresiva de la Contribución Especial a la Seguridad Social de los trabajadores
+           contratados (hasta 15 000 → 5 %; el exceso → 10 %), en la Gaceta Oficial GOC-2024-O5
+           (16-01-2024), resoluciones del MFP que reproducen la Ley 113 «Del Sistema Tributario» con las
+           adecuaciones del Decreto-Ley 93/2024; mínimo exento mensual 3 260 (= 39 120 anual).
+           Cargas del empleador: Contribución a la Seguridad Social 14 % (12,5 % al Presupuesto por el
+           párrafo 081013 + 1,5 % aprovisionado para prestaciones a corto plazo) e Impuesto por la
+           Utilización de la Fuerza de Trabajo 5 %. Ajustes por año: doc. RRHH «fiscalNomina». */
         const FISCAL_NOMINA_2026 = {
             fuerzaTrabajo: 5,
             seguridadSocialEmpleador: 14,
             seguridadSocialPresupuesto: 12.5,
             seguridadSocialProvision: 1.5,
-            seguridadTrabajadorHasta15000: 5,
-            seguridadTrabajadorExceso15000: 10
+            segTrabLimite: 15000,
+            segTrabTasaBaja: 5,
+            segTrabTasaAlta: 10,
+            tramosIIP: [[3260,0],[9510,0.03],[15000,0.05],[20000,0.075],[25000,0.10],[30000,0.15],[Infinity,0.20]],
+            fuentes: 'Ley 113 «Del Sistema Tributario» · Gaceta Oficial GOC-2024-O5 (16-01-2024) · consultas del MFP'
         };
+        const FISCAL_NOMINA_HISTORICO = { '2026': FISCAL_NOMINA_2026 };
+        function fiscalNominaPara(periodo) {
+            let base = FISCAL_NOMINA_2026;
+            try {
+                const pp = periodoParts(periodo);
+                if (pp && FISCAL_NOMINA_HISTORICO[String(pp.y)]) base = FISCAL_NOMINA_HISTORICO[String(pp.y)];
+                const d = (typeof getRRHH === 'function') ? getRRHH() : null;
+                const ov = (d && d.fiscalNomina && pp) ? d.fiscalNomina[String(pp.y)] : null;
+                if (ov && typeof ov === 'object') return Object.assign({}, base, ov);
+            } catch(e) {}
+            return base;
+        }
         let trabajadorEditId = null;
 
         function getRRHHKey() { return `finanzas_rrhh_${getCurrentUser()}`; }
@@ -2220,9 +2304,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             return (md && md.mesSeleccionado) || getMesActualStr();
         }
         function moneda(n) { return '$' + (Number(n)||0).toFixed(2); }
-        function calcIIPTrabajador(base) {
+        function calcIIPTrabajador(base, prm) {
             base = Math.max(0, Number(base)||0);
-            const tramos = [
+            const tramos = (prm && Array.isArray(prm.tramosIIP)) ? prm.tramosIIP : [
                 [3260, 0], [9510, .03], [15000, .05], [20000, .075],
                 [25000, .10], [30000, .15], [Infinity, .20]
             ];
@@ -2235,9 +2319,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
             return total;
         }
-        function calcSeguridadTrabajador(base) {
+        function calcSeguridadTrabajador(base, prm) {
             base = Math.max(0, Number(base)||0);
-            return Math.min(base,15000) * (FISCAL_NOMINA_2026.seguridadTrabajadorHasta15000/100) + Math.max(0, base-15000) * (FISCAL_NOMINA_2026.seguridadTrabajadorExceso15000/100);
+            const p = prm || FISCAL_NOMINA_2026;
+            const lim = Number(p.segTrabLimite != null ? p.segTrabLimite : 15000);
+            const tb = Number(p.segTrabTasaBaja != null ? p.segTrabTasaBaja : 5) / 100;
+            const ta = Number(p.segTrabTasaAlta != null ? p.segTrabTasaAlta : 10) / 100;
+            return Math.min(base, lim) * tb + Math.max(0, base - lim) * ta;
         }
         function calcLineaNomina(bruto) {
             bruto = Math.max(0, Number(bruto)||0);
@@ -2290,8 +2378,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function calcLineaNominaExt(t, salario, otras, comp, periodo){
           comp=comp||{};
           const cfg=getCompCfg(), P=cfg.params;
+          const PRM=fiscalNominaPara(periodo);
           let baseSalarial=(Number(salario)||0)+(Number(otras)||0);
           const diasMes=diasDelMes(periodo), detalle=[];
+          let propAplicado=false;
           const APL=(cid)=>!!(t&&t.compAplica&&t.compAplica[cid]); // el concepto aplica solo si está marcado en la ficha del trabajador
           if(APL('proporcional') && (t.fechaAlta||t.fechaBaja)){
             const p=periodoParts(periodo);
@@ -2302,10 +2392,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
               if(t.fechaBaja){const fb=new Date(t.fechaBaja+'T00:00:00'); if(fb<=fin){dFin=fb.getDate();aplica=true;}}
               if(aplica){
                 const diasTrab=Math.max(0,dFin-dIni+1), factor=diasTrab/diasMes;
-                if(factor<1){const antes=baseSalarial; baseSalarial=baseSalarial*factor;
+                if(factor<1){const antes=baseSalarial; baseSalarial=baseSalarial*factor; propAplicado=true;
                   detalle.push(['Salario proporcional ('+diasTrab+'/'+diasMes+' días)', baseSalarial-antes]);}
               }
             }
+          }
+          /* Control de días del mes (días trabajados / ausencias / licencias del registro del período):
+             alimenta el salario proporcional si el alta/baja no lo escaló ya. */
+          const diasTrabCtrl = (comp.diasTrab!==undefined && comp.diasTrab!==null && comp.diasTrab!=='')
+              ? Math.max(0, Math.min(diasMes, Number(comp.diasTrab)||0))
+              : ((Number(comp.diasAus)>0 || Number(comp.diasLic)>0) ? Math.max(0, diasMes-(Number(comp.diasAus)||0)-(Number(comp.diasLic)||0)) : null);
+          if(diasTrabCtrl!==null && diasTrabCtrl<diasMes && !propAplicado){
+            const antesD=baseSalarial; baseSalarial=baseSalarial*diasTrabCtrl/diasMes;
+            if(baseSalarial!==antesD) detalle.push(['Salario por días trabajados ('+diasTrabCtrl+'/'+diasMes+')', baseSalarial-antesD]);
           }
           let extra=0, subsidios=0, deducciones=0;
           const tarifa=()=>(P.divisorHoras>0? baseSalarial/P.divisorHoras : 0);
@@ -2340,8 +2439,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
           }
           const provisionVac=(APL('provisionVac'))?(baseSalarial+extra)*P.provVac/100:0;
           const bruto=Math.max(0,baseSalarial+extra);
-          const segTrab=calcSeguridadTrabajador(bruto), iip=calcIIPTrabajador(bruto);
-          const fuerza=bruto*(FISCAL_NOMINA_2026.fuerzaTrabajo/100), ssEmp=bruto*(FISCAL_NOMINA_2026.seguridadSocialEmpleador/100);
+          const segTrab=calcSeguridadTrabajador(bruto, PRM), iip=calcIIPTrabajador(bruto, PRM);
+          const fuerza=bruto*(PRM.fuerzaTrabajo/100), ssEmp=bruto*(PRM.seguridadSocialEmpleador/100);
           return {bruto,segTrab,iip,neto:bruto-segTrab-iip+subsidios-deducciones,fuerza,ssEmp,costo:bruto+fuerza+ssEmp,
                   baseSalarial,extra,subsidios,deducciones,provisionVac,detalle};
         }
@@ -2451,7 +2550,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function actualizarResumenNominaDesdeDOM() {
             const filas = leerNominaDOM();
             const tot = filas.reduce((a,x)=>{ for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac']) a[k]+=(x.calc[k]||0); return a; },{bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});
-            tot.ssPresupuesto=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialPresupuesto/100); tot.ssProvision=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialProvision/100); tot.retenciones=tot.segTrab+tot.iip; tot.aportesEmpleador=tot.fuerza+tot.ssEmp; tot.totalObligacionesNomina=tot.aportesEmpleador+tot.retenciones; tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;
+            const _fnd=fiscalNominaPara(periodoNominaActual()); tot.ssPresupuesto=tot.bruto*(_fnd.seguridadSocialPresupuesto/100); tot.ssProvision=tot.bruto*(_fnd.seguridadSocialProvision/100); tot.retenciones=tot.segTrab+tot.iip; tot.aportesEmpleador=tot.fuerza+tot.ssEmp; tot.totalObligacionesNomina=tot.aportesEmpleador+tot.retenciones; tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;
             filas.forEach(x=>{ const c=x.calc,tr=x.tr; tr.querySelector('.pay-bruto').textContent=moneda(c.bruto);tr.querySelector('.pay-seg').textContent=moneda(c.segTrab);tr.querySelector('.pay-iip').textContent=moneda(c.iip);tr.querySelector('.pay-neto').textContent=moneda(c.neto);tr.querySelector('.pay-fuerza').textContent=moneda(c.fuerza);tr.querySelector('.pay-ssemp').textContent=moneda(c.ssEmp);tr.querySelector('.pay-costo').textContent=moneda(c.costo); const pc=tr.querySelector('.pay-comp'); if(pc){ pc.textContent=moneda((c.extra||0)+(c.subsidios||0)-(c.deducciones||0)); pc.title=((c.detalle||[]).map(dd=>dd[0]+': '+moneda(dd[1]))).join('\n'); } });
             document.getElementById('nominaTotalBruto').textContent=moneda(tot.bruto);
             document.getElementById('nominaTotalNeto').textContent=moneda(tot.neto);
@@ -2459,14 +2558,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('nominaTotalRetenciones').textContent=moneda(tot.retenciones);
             const meta=nominaMetaTipo();
             document.getElementById('nominaAportesDetalle').innerHTML=`
-                <div class="aporte-line"><span>Fuerza de trabajo 5% · <code>${meta.fuerzaParrafo}</code> · ${meta.fuerzaFrecuencia}</span><b>${moneda(tot.fuerza)}</b></div>
-                <div class="aporte-line"><span>Seguridad Social empleador 14% · costo total</span><b>${moneda(tot.ssEmp)}</b></div>
+                <div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo 5% · <code>${meta.fuerzaParrafo}</code> · ${meta.fuerzaFrecuencia}</span><b>${moneda(tot.fuerza)}</b></div>
+                <div class="aporte-line"><span>Contribución a la Seguridad Social (empleador) 14% · costo total</span><b>${moneda(tot.ssEmp)}</b></div>
                 <div class="aporte-line"><span class="ps-3 text-muted">↳ 12.5% destinado al Presupuesto · <code>${meta.ssEmpParrafo}</code></span><b>${moneda(tot.ssPresupuesto)}</b></div>
-                <div class="aporte-line"><span class="ps-3 text-muted">↳ 1.5% provisión prestaciones corto plazo</span><b>${moneda(tot.ssProvision)}</b></div>
-                <div class="aporte-line"><span>Seguridad Social retenida al trabajador · <code>${meta.segTrabParrafo}</code> · ${meta.segTrabFrecuencia}</span><b>${moneda(tot.segTrab)}</b></div>
-                <div class="aporte-line"><span>IIP retenido al trabajador · <code>${meta.iipParrafo}</code> · ${meta.iipFrecuencia}</span><b>${moneda(tot.iip)}</b></div>
+                <div class="aporte-line"><span class="ps-3 text-muted">↳ 1.5% provisión de prestaciones a corto plazo</span><b>${moneda(tot.ssProvision)}</b></div>
+                <div class="aporte-line"><span>Contribución Especial a la Seguridad Social (retenida al trabajador) · <code>${meta.segTrabParrafo}</code> · ${meta.segTrabFrecuencia}</span><b>${moneda(tot.segTrab)}</b></div>
+                <div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido al trabajador · <code>${meta.iipParrafo}</code> · ${meta.iipFrecuencia}</span><b>${moneda(tot.iip)}</b></div>
                 ${((tot.extra||0)+(tot.subsidios||0))?`<div class="aporte-line"><span>Complementos: extras y subsidios del mes</span><b>${moneda((tot.extra||0)+(tot.subsidios||0))}</b></div>`:``}${(tot.deducciones||0)?`<div class="aporte-line"><span class="ps-3 text-muted">↳ Retenciones judiciales y descuentos</span><b>−${moneda(tot.deducciones)}</b></div>`:``}${(tot.provisionVac||0)?`<div class="aporte-line"><span>Provisión de vacaciones (informativa)</span><b>${moneda(tot.provisionVac)}</b></div>`:``}<div class="aporte-line pt-2"><span><b>Total obligaciones generadas por la nómina</b></span><b>${moneda(tot.totalObligacionesNomina)}</b></div>
-                <div class="aporte-line"><span>Total a transferir al fisco/SS excluyendo provisión 1.5%</span><b>${moneda(tot.totalAFisco)}</b></div>`;
+                <div class="aporte-line"><span>Total a ingresar a la ONAT (sin la provisión del 1,5 %)</span><b>${moneda(tot.totalAFisco)}</b></div>`;
             return tot;
         }
         function guardarNominaActual() {
@@ -2520,6 +2619,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
             return comp;
         }
+        function leerControlDias() {
+            const g=id=>{ const e=document.getElementById(id); if(!e||e.value==='') return null; const v=Number(e.value); return isNaN(v)?null:Math.max(0,v); };
+            const o={}; const dt=g('tc-diasTrab'); if(dt!==null) o.diasTrab=dt;
+            const da=g('tc-diasAus'); if(da!==null&&da>0) o.diasAus=da;
+            const dl=g('tc-diasLic'); if(dl!==null&&dl>0) o.diasLic=dl;
+            return o;
+        }
         function trabCompLiveSave() {
             if (!trabajadorEditId) return; // los trabajadores nuevos se guardan con el botón
             const d = getRRHH();
@@ -2533,6 +2639,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 ca[c.id] = on;
                 if (on) Object.assign(comp, leerCamposConcepto(c.id));
             });
+            Object.assign(comp, leerControlDias());
             t.compAplica = ca;
             const prev = d.nominas[per][t.id] || {};
             const fila = (leerNominaDOM() || []).find(x => String(x.id) === String(t.id));
@@ -2556,6 +2663,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 ca[c.id] = on;
                 if (on) Object.assign(comp, leerCamposConcepto(c.id));
             });
+            Object.assign(comp, leerControlDias());
             const t = { id: trabajadorEditId || 'nuevo', compAplica: ca, fechaAlta: (document.getElementById('trabFechaAlta') || {}).value || '', fechaBaja: (document.getElementById('trabFechaBaja') || {}).value || '' };
             const r = calcLineaNominaExt(t, salario, otras, comp, per);
             const efecto = (r.extra || 0) + (r.subsidios || 0) - (r.deducciones || 0);
@@ -2623,6 +2731,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('trabFechaAlta').value=t?(t.fechaAlta||hoy()):hoy();
             document.getElementById('trabFechaBaja').value=t?(t.fechaBaja||''):'';
             document.getElementById('trabNotas').value=t?(t.notas||''):'';
+            document.getElementById('trabNumSS').value=t?(t.numSegSocial||''):'';
+            document.getElementById('trabCentroCosto').value=t?(t.centroCosto||''):'';
+            try{ const _dl=document.getElementById('trabCentrosList'); if(_dl&&typeof getConta==='function') _dl.innerHTML=(getConta().centros||[]).map(c=>'<option value="'+esc(c.nombre||'')+'"></option>').join(''); }catch(e){}
             document.getElementById('trabSexo').value=t?(t.sexo||''):'';
             document.getElementById('trabTarjeta').value=t?(t.tarjeta||''):'';
             document.getElementById('trabCuenta').value=t?(t.cuenta||''):'';
@@ -2644,7 +2755,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     </div>
                     ${_f?`<div class="row g-2 mt-1 trab-comp-fields" id="trab-comp-fields-${c.id}" style="${_on2(c.id)?'':'display:none;'}">${_f}</div>`:''}
                 </div></div>`;
-            }).join('')+'<div class="col-12"><div id="trabCompPreview" class="small text-muted mt-1"></div></div>';
+            }).join('')
+            +'<div class="col-12"><div class="border rounded p-2 mb-1"><b>Control de días del mes</b> <small class="text-muted">Del mes en curso ('+periodoNominaActual()+'): alimenta el salario proporcional. Vacío = mes completo.</small><div class="row g-2 mt-1">'
+            +'<div class="col-md-4"><label class="form-label mb-0 small">Días trabajados</label><input type="number" class="form-control form-control-sm tc-field" id="tc-diasTrab" min="0" max="31" step="1" value="'+(_comp0.diasTrab??'')+'"></div>'
+            +'<div class="col-md-4"><label class="form-label mb-0 small">Días de ausencia</label><input type="number" class="form-control form-control-sm tc-field" id="tc-diasAus" min="0" max="31" step="1" value="'+(_comp0.diasAus??'')+'"></div>'
+            +'<div class="col-md-4"><label class="form-label mb-0 small">Días de licencia no retribuida</label><input type="number" class="form-control form-control-sm tc-field" id="tc-diasLic" min="0" max="31" step="1" value="'+(_comp0.diasLic??'')+'"></div>'
+            +'</div></div></div>'
+            +'<div class="col-12"><div id="trabCompPreview" class="small text-muted mt-1"></div></div>';
             document.querySelectorAll('#trabCompList .trab-comp-sw').forEach(sw=>sw.addEventListener('change',()=>{
                 const fd=document.getElementById('trab-comp-fields-'+sw.dataset.comp);
                 if(fd) fd.style.display=sw.checked?'':'none';
@@ -2674,7 +2791,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
             const _ca={}, _comp={};
             COMP_DEF.forEach(c=>{ const _el=document.getElementById('trab-comp-'+c.id), _on=_el?_el.checked:false; _ca[c.id]=_on; if(_on) Object.assign(_comp, leerCamposConcepto(c.id)); });
-            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim()};
+            Object.assign(_comp, leerControlDias());
+            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim(),numSegSocial:document.getElementById('trabNumSS').value.trim(),centroCosto:document.getElementById('trabCentroCosto').value.trim()};
             let _wid=trabajadorEditId;
             if(_wid){ const i=d.trabajadores.findIndex(x=>String(x.id)===String(_wid)); if(i>=0)d.trabajadores[i]=Object.assign({},d.trabajadores[i],obj); }
             else { obj.id='w'+Date.now(); _wid=obj.id; d.trabajadores.push(obj); }
@@ -2822,7 +2940,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function periodoISODate(periodo){const p=periodoParts(periodo);return p?new Date(p.y,p.mi,1):null;}
         function isoVencimiento(day,mon,year){const k=normTxt(mon).slice(0,4).replace('.',''),mi=Object.entries(MES_ABR).find(([x])=>k.startsWith(x))?.[1];let y=parseInt(year);if(y<100)y+=2000;if(mi===undefined||!day||!y)return '';return `${y}-${String(mi+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;}
         function getMovimientosPeriodo(periodo){const md=getMesActual(),actual=(md&&md.mesSeleccionado)||getMesActualStr();if(periodo===actual)return movimientos;const h=getHistorial().find(x=>x.mes===periodo);return h&&Array.isArray(h.movimientos)?h.movimientos:[];}
-        function obtenerNominaParaPeriodo(periodo){const rrhh=getRRHH(),n=rrhh.nominas[periodo]||{},lineas=[],_in2=new Set(nominaIdsIncluidos(periodo).map(String));rrhh.trabajadores.forEach(t=>{if(!_in2.has(String(t.id)))return;const rec=n[t.id]||{};const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0,otras=rec.otras!==undefined?Number(rec.otras)||0:0,comp=rec.comp||{};lineas.push({t,salario,otras,comp,calc:calcLineaNominaExt(t,salario,otras,comp,periodo)});});const tot=lineas.reduce((a,x)=>{for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac'])a[k]=(a[k]||0)+x.calc[k];return a;},{bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});tot.ssPresupuesto=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialPresupuesto/100);tot.ssProvision=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialProvision/100);tot.retenciones=tot.segTrab+tot.iip;tot.aportesEmpleador=tot.fuerza+tot.ssEmp;tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;return {periodo,lineas,tot};}
+        function obtenerNominaParaPeriodo(periodo){const rrhh=getRRHH(),n=rrhh.nominas[periodo]||{},lineas=[],_in2=new Set(nominaIdsIncluidos(periodo).map(String));rrhh.trabajadores.forEach(t=>{if(!_in2.has(String(t.id)))return;const rec=n[t.id]||{};const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0,otras=rec.otras!==undefined?Number(rec.otras)||0:0,comp=rec.comp||{};lineas.push({t,salario,otras,comp,calc:calcLineaNominaExt(t,salario,otras,comp,periodo)});});const tot=lineas.reduce((a,x)=>{for(const k of ['bruto','segTrab','iip','neto','fuerza','ssEmp','costo','extra','subsidios','deducciones','provisionVac'])a[k]=(a[k]||0)+x.calc[k];return a;},{bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0});const _fn=fiscalNominaPara(periodo);tot.ssPresupuesto=tot.bruto*(_fn.seguridadSocialPresupuesto/100);tot.ssProvision=tot.bruto*(_fn.seguridadSocialProvision/100);tot.retenciones=tot.segTrab+tot.iip;tot.aportesEmpleador=tot.fuerza+tot.ssEmp;tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;return {periodo,lineas,tot};}
         function getResumenPeriodo(periodo){const movs=getMovimientosPeriodo(periodo);const h=getHistorial().find(x=>x.mes===periodo);return calcularResumen(movs,{tasa:h&&h.tasa?h.tasa:tasaVista(),saldoInicial:h&&h.saldoInicial?h.saldoInicial:(periodo===periodoNominaActual()?getSaldoInicial():{chequera:0,tarjeta_cup:0,tarjeta_usd:0}),saldoInicialTasaUSD:h&&h.saldoInicialTasaUSD?h.saldoInicialTasaUSD:undefined});}
         function calcFiscalPeriodo(periodo){const res=getResumenPeriodo(periodo),nom=obtenerNominaParaPeriodo(periodo).tot,tipo=getEntityType()||'tcp';return {periodo,tipo,ingresos:res.ingresos,utilidad:res.utilidad,ventas:res.ingresos*(Number(CFG.onat.ventas)||0)/100,territorial:tipo==='mipyme'?res.ingresos*(Number(CFG.onat.desarrolloLocal)||0)/100:null,pagoCuentaTCP:tipo==='tcp'?Math.max(0,res.ingresos-3260)*.05:null,utilidades:tipo==='mipyme'&&res.utilidad>0?res.utilidad*(Number(CFG.onat.utilidades)||0)/100:null,nom};}
         function calcImporteObligacion(o){if(Number(o.importeManual)>=0&&o.importeManual!==''&&o.importeManual!==null&&o.importeManual!==undefined)return {importe:Number(o.importeManual)||0,origen:'Manual'};const c=calcFiscalPeriodo(o.periodo),t=normTxt(o.concepto),code=String(o.codigo||'');if(/ventas|servicios/.test(t))return {importe:c.ventas,origen:`Ingresos × ${CFG.onat.ventas}%`};if(/fuerza.*trabajo/.test(t))return {importe:c.nom.fuerza||0,origen:'Nómina · 5%'};if(/especial.*trabajador|trabajador.*seg.*social.*retenc/.test(t))return {importe:c.nom.segTrab||0,origen:'Retención nómina'};if(/seguridad social/.test(t)&&!/especial|trabajador/.test(t))return {importe:c.nom.ssPresupuesto||0,origen:'Nómina · aporte al Presupuesto'};if(/ingresos pers|ingresos personales/.test(t)){if(/liquid|declaracion|anual|adicional/.test(t))return {importe:null,origen:'Liquidación anual / DJ'};if(/retenc|trabajador/.test(t))return {importe:c.nom.iip||0,origen:'Retención nómina'};if(c.tipo==='tcp')return {importe:c.pagoCuentaTCP||0,origen:'TCP · 5% del ingreso mensual que excede 3.260 CUP'};return {importe:null,origen:'Manual / según Vector'};}if(/territorial/.test(t)&&c.territorial!==null)return {importe:c.territorial,origen:`Ingresos × ${CFG.onat.desarrolloLocal}%`};if(/utilidad/.test(t))return {importe:null,origen:'Liquidación / pago a cuenta'};return {importe:null,origen:'Manual / según Vector'};}
@@ -2962,7 +3080,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             alert(`✅ Vector Fiscal importado correctamente.\n\nObligaciones: ${obligaciones.length}\nTributos: ${Object.keys(tributos).length}\nActividades: ${d.actividades.length}\nAño: ${meta.anio||'—'}`);
         }
         async function importarVectorPDF(file){if(!file)return;if(!window.pdfjsLib){alert('No se pudo cargar el lector PDF. Revisa la conexión a Internet o añade la obligación manualmente.');return;}try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise,lines=[];for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p),tc=await page.getTextContent(),map={};for(const it of tc.items){const y=Math.round(it.transform[5]);(map[y]||(map[y]=[])).push({x:it.transform[4],s:it.str});}for(const y of Object.keys(map).map(Number).sort((a,b)=>b-a)){const line=map[y].sort((a,b)=>a.x-b.x).map(x=>x.s).join(' ').replace(/\s+/g,' ').trim();if(line)lines.push(line);}}parseVectorLines(lines,file.name);}catch(e){console.error(e);alert('No se pudo leer ese PDF. Puedes añadir las obligaciones manualmente.');}}
-        function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}<div class="aporte-line"><span>Fuerza de trabajo desde nómina</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Seguridad Social al Presupuesto desde nómina</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>IIP retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));}
+        function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}<div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo (desde nómina)</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Contribución a la Seguridad Social al Presupuesto (desde nómina)</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Contribución Especial a la Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));}
         function editarImporteFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const actual=o.importeManual===null||o.importeManual===undefined?'':o.importeManual;const v=prompt('Importe CUP para esta obligación. Deja vacío para volver al cálculo automático:',actual);if(v===null)return;if(String(v).trim()==='')o.importeManual=null;else{const n=Number(v);if(!(n>=0)){alert('Importe inválido.');return;}o.importeManual=n;}saveFiscal(d);renderFiscal();}
         function borrarFiscalManual(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o||o.vector)return;if(!confirm('¿Eliminar esta obligación manual?'))return;d.obligaciones=d.obligaciones.filter(x=>x.id!==id);saveFiscal(d);renderFiscal();}
         function registrarPagoFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);if(c.importe===null){alert('Primero fija el importe de esta obligación.');return;}const rest=Math.max(0,c.importe-est.pagado);if(rest<=.005){alert('Esta obligación ya aparece pagada.');return;}abrirMovModal('onat','chequera',null);pendingFiscalLink={id:o.id,codigo:o.codigo,periodo:o.periodo,concepto:o.concepto};cargarAporteFiscalEnModal(pendingFiscalLink);document.getElementById('movMonto').value=rest.toFixed(2);}
@@ -4008,6 +4126,373 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             `;
         }
 
+/* ===== CONTA-CORE (puro, sin DOM) ===== */
+function ctaR2(n){return Math.round((Number(n)||0)*100)/100;}
+function ctaPlanSemilla(){return [
+ {codigo:'1',nombre:'Activo',naturaleza:'deudora',nivel:1,admite:false,grupo:'activo',porVerificar:true},
+ {codigo:'110',nombre:'Efectivo en caja y banco',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo',porVerificar:true},
+ {codigo:'110.01',nombre:'Banco CUP · Chequera',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
+ {codigo:'110.02',nombre:'Banco CUP · Tarjeta CUP',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
+ {codigo:'110.03',nombre:'Banco USD · Tarjeta USD (equivalente CUP)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
+ {codigo:'110.04',nombre:'Caja CUP',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
+ {codigo:'120',nombre:'Cuentas por cobrar',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo',porVerificar:true},
+ {codigo:'120.01',nombre:'Cuentas por cobrar · Clientes',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',analisis:'contraparte',porVerificar:true},
+ {codigo:'130',nombre:'Inventarios',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo',porVerificar:true},
+ {codigo:'130.01',nombre:'Inventarios · Mercancías y productos',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
+ {codigo:'140',nombre:'Activos fijos tangibles',naturaleza:'deudora',nivel:2,admite:true,grupo:'activo',porVerificar:true},
+ {codigo:'141',nombre:'Depreciación acumulada de activos fijos',naturaleza:'acreedora',nivel:2,admite:true,grupo:'activo',esContra:true,porVerificar:true},
+ {codigo:'150',nombre:'Otros activos',naturaleza:'deudora',nivel:2,admite:true,grupo:'activo',porVerificar:true},
+ {codigo:'2',nombre:'Pasivo',naturaleza:'acreedora',nivel:1,admite:false,grupo:'pasivo',porVerificar:true},
+ {codigo:'210',nombre:'Cuentas por pagar',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo',porVerificar:true},
+ {codigo:'210.01',nombre:'Cuentas por pagar · Proveedores',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',analisis:'contraparte',porVerificar:true},
+ {codigo:'220',nombre:'Nóminas por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'221',nombre:'Provisión de vacaciones por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'222',nombre:'Provisión de prestaciones a corto plazo (1,5 %)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'223',nombre:'Retenciones por pagar a terceros',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'230',nombre:'Obligaciones con el Presupuesto (ONAT)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'240',nombre:'Préstamos por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'250',nombre:'Otras cuentas por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'3',nombre:'Patrimonio',naturaleza:'acreedora',nivel:1,admite:false,grupo:'patrimonio',porVerificar:true},
+ {codigo:'310',nombre:'Capital',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
+ {codigo:'320',nombre:'Reservas',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
+ {codigo:'330',nombre:'Utilidades retenidas',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
+ {codigo:'335',nombre:'Extracciones de socios',naturaleza:'deudora',nivel:2,admite:true,grupo:'patrimonio',esContra:true,porVerificar:true},
+ {codigo:'340',nombre:'Resultado del ejercicio',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
+ {codigo:'4',nombre:'Ingresos',naturaleza:'acreedora',nivel:1,admite:false,grupo:'ingreso',porVerificar:true},
+ {codigo:'410',nombre:'Ventas e ingresos por servicios',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',porVerificar:true},
+ {codigo:'420',nombre:'Otros ingresos',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',porVerificar:true},
+ {codigo:'421',nombre:'Ingreso por diferencial cambiario',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',porVerificar:true},
+ {codigo:'5',nombre:'Costos y gastos',naturaleza:'deudora',nivel:1,admite:false,grupo:'gasto',porVerificar:true},
+ {codigo:'510',nombre:'Costo de ventas',naturaleza:'deudora',nivel:2,admite:true,grupo:'costo',porVerificar:true},
+ {codigo:'520',nombre:'Gastos de operación',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'521',nombre:'Gastos de salarios',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'522',nombre:'Contribución a la seguridad social (gasto del empleador)',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'523',nombre:'Impuesto por la utilización de la fuerza de trabajo (gasto)',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'524',nombre:'Gasto por depreciación',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'525',nombre:'Gasto por provisión de vacaciones',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'530',nombre:'Gastos financieros',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'531',nombre:'Gasto por diferencial cambiario',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
+ {codigo:'540',nombre:'Otros gastos',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true}
+];}
+function ctaPlantillasDef(){return {banco:{chequera:'110.01',tarjeta_cup:'110.02',tarjeta_usd:'110.03'},ventas:'410',otrosIngresos:'420',cxc:'120.01',cxp:'210.01',inventarios:'130.01',costoVentas:'510',gastoOperacion:'520',salarios:'521',segSocial:'522',fuerzaGasto:'523',gastoProvVac:'525',provVacaciones:'221',provPrestaciones:'222',retencionesPorPagar:'223',nominasPorPagar:'220',onatCargo:'230',depreciacionGasto:'524',depreciacionAcum:'141',extracciones:'335',difPos:'421',difNeg:'531',bancoNomina:'110.01',resultado:'340',utilRetenidas:'330'};}
+function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],bandeja:[],seqAsiento:0,seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0};}
+function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
+function ctaValidarAsiento(conta,a){
+ if(!a||!Array.isArray(a.lineas)||a.lineas.length<2)return {ok:false,motivo:'El asiento necesita al menos 2 líneas'};
+ let d=0,h=0;
+ for(const l of a.lineas){const c=ctaCuenta(conta,l.cuenta);if(!c)return {ok:false,motivo:'Cuenta '+l.cuenta+' no existe en el plan'};if(!c.admite)return {ok:false,motivo:'La cuenta '+l.cuenta+' no admite movimientos'};const dd=Number(l.debe)||0,hh=Number(l.haber)||0;if(dd<0||hh<0)return {ok:false,motivo:'Importes negativos en línea de '+l.cuenta};if(dd>0&&hh>0)return {ok:false,motivo:'Una línea no puede tener Debe y Haber a la vez'};if(dd===0&&hh===0)return {ok:false,motivo:'Línea sin importe en '+l.cuenta};d+=dd;h+=hh;}
+ if(Math.abs(ctaR2(d)-ctaR2(h))>0.005||d<=0)return {ok:false,motivo:'Asiento desbalanceado: Debe '+ctaR2(d)+' ≠ Haber '+ctaR2(h)};
+ const anio=String(a.fecha||'').slice(0,4);
+ if((conta.cierres||[]).some(c=>String(c.anio)===anio)&&a.origen!=='cierre'&&a.origen!=='apertura')return {ok:false,motivo:'El año '+anio+' está cerrado contablemente'};
+ return {ok:true,debe:ctaR2(d),haber:ctaR2(h)};}
+function ctaAgregarAsiento(conta,a){
+ const v=ctaValidarAsiento(conta,a);if(!v.ok)return {ok:false,motivo:v.motivo};
+ conta.seqAsiento=(conta.seqAsiento||0)+1;
+ const na={id:'A'+conta.seqAsiento,numero:conta.seqAsiento,fecha:a.fecha||'',concepto:a.concepto||'',origen:a.origen||'manual',fuenteKey:a.fuenteKey||null,anulaA:a.anulaA||null,lineas:a.lineas.map(l=>({cuenta:l.cuenta,debe:ctaR2(l.debe),haber:ctaR2(l.haber),analisis:l.analisis||'',centro:l.centro||'',divisa:l.divisa!=null?ctaR2(l.divisa):null,tasa:l.tasa!=null?Number(l.tasa):null}))};
+ conta.asientos.push(na);return {ok:true,asiento:na};}
+function ctaContraasiento(conta,asientoId,fecha){
+ const o=(conta.asientos||[]).find(x=>x.id===asientoId);if(!o)return {ok:false,motivo:'Asiento no encontrado'};
+ if((conta.asientos||[]).some(x=>x.anulaA===asientoId))return {ok:false,motivo:'Ese asiento ya fue anulado con un contraasiento'};
+ return ctaAgregarAsiento(conta,{fecha:fecha||o.fecha,concepto:'Anulación del asiento '+o.numero+' · '+o.concepto,origen:'contra',anulaA:o.id,lineas:o.lineas.map(l=>({cuenta:l.cuenta,debe:l.haber,haber:l.debe,analisis:l.analisis,centro:l.centro,divisa:l.divisa!=null?-l.divisa:null,tasa:l.tasa}))});}
+function ctaLineasFiltradas(conta,f){f=f||{};const out=[];
+ for(const a of (conta.asientos||[])){if(f.desde&&a.fecha<f.desde)continue;if(f.hasta&&a.fecha>f.hasta)continue;if(f.soloAnio&&String(a.fecha).slice(0,4)!==String(f.soloAnio))continue;
+  for(const l of a.lineas){if(f.cuenta&&l.cuenta!==f.cuenta)continue;if(f.centro&&l.centro!==f.centro)continue;if(f.excluirCierre&&a.origen==='cierre')continue;out.push({asiento:a,linea:l});}}
+ return out;}
+function ctaMayor(conta,f){const m={};
+ for(const c of (conta.plan||[]))m[c.codigo]={codigo:c.codigo,nombre:c.nombre,grupo:c.grupo,naturaleza:c.naturaleza,esContra:!!c.esContra,debe:0,haber:0,divisa:0,movs:0};
+ for(const x of ctaLineasFiltradas(conta,f)){const e=m[x.linea.cuenta];if(!e)continue;e.debe=ctaR2(e.debe+(Number(x.linea.debe)||0));e.haber=ctaR2(e.haber+(Number(x.linea.haber)||0));if(x.linea.divisa!=null)e.divisa=ctaR2(e.divisa+((Number(x.linea.debe)||0)>0?Number(x.linea.divisa):-Number(x.linea.divisa)));e.movs++;}
+ for(const k in m){const e=m[k];const neto=ctaR2(e.debe-e.haber);e.saldoDeudor=neto>0?neto:0;e.saldoAcreedor=neto<0?-neto:0;e.saldoFirmado=neto;}
+ return m;}
+function ctaBalanceComprobacion(conta,f){const m=ctaMayor(conta,f);let sd=0,sh=0,ssd=0,ssa=0;const filas=[];
+ for(const c of (conta.plan||[])){const e=m[c.codigo];if(!e||(e.debe===0&&e.haber===0))continue;filas.push(e);sd=ctaR2(sd+e.debe);sh=ctaR2(sh+e.haber);ssd=ctaR2(ssd+e.saldoDeudor);ssa=ctaR2(ssa+e.saldoAcreedor);}
+ return {filas,sumasDebe:sd,sumasHaber:sh,cuadradoSumas:Math.abs(sd-sh)<0.005,saldosDeudores:ssd,saldosAcreedores:ssa,cuadradoSaldos:Math.abs(ssd-ssa)<0.005};}
+function ctaResultados(conta,f){f=Object.assign({},f||{},{excluirCierre:true});const m=ctaMayor(conta,f);let ing=0,gas=0;const detI=[],detG=[];
+ for(const c of (conta.plan||[])){const e=m[c.codigo];if(!e)continue;if(e.grupo==='ingreso'){const v=ctaR2(e.haber-e.debe);if(v!==0){detI.push({codigo:e.codigo,nombre:e.nombre,importe:v});ing=ctaR2(ing+v);}}else if(e.grupo==='gasto'||e.grupo==='costo'){const v=ctaR2(e.debe-e.haber);if(v!==0){detG.push({codigo:e.codigo,nombre:e.nombre,importe:v});gas=ctaR2(gas+v);}}}
+ return {ingresos:ing,gastos:gas,resultado:ctaR2(ing-gas),detIngresos:detI,detGastos:detG};}
+function ctaSituacion(conta,f){const m=ctaMayor(conta,f);let act=0,pas=0,pat=0,resPend=0;
+ /* Activo: suma del saldo firmado (deudor positivo); la contra-cuenta 141 tiene saldo firmado negativo y resta sola.
+    Reclasificación (ronda 4): un saldo deudor en una cuenta de Pasivo (ej. saldo a favor en la 230 por pagos
+    anticipados a la ONAT) se presenta en el Activo, y un saldo acreedor en una cuenta de Activo (salvo la
+    contra-cuenta 141) se presenta en el Pasivo — así ningún total sale con signo imposible. */
+ for(const c of (conta.plan||[])){const e=m[c.codigo];if(!e)continue;
+  if(e.grupo==='activo'){if(e.saldoFirmado<0&&c.codigo!=='141')pas=ctaR2(pas-e.saldoFirmado);else act=ctaR2(act+e.saldoFirmado);}
+  else if(e.grupo==='pasivo'){if(e.saldoFirmado>0)act=ctaR2(act+e.saldoFirmado);else pas=ctaR2(pas-e.saldoFirmado);}
+  else if(e.grupo==='patrimonio')pat=ctaR2(pat-e.saldoFirmado);
+  else if(e.grupo==='ingreso'||e.grupo==='gasto'||e.grupo==='costo')resPend=ctaR2(resPend-e.saldoFirmado);}
+ /* resPend = resultado aún no trasladado: tras el cierre anual las cuentas de ingreso/gasto quedan en 0 y el resultado ya vive en patrimonio (330/340), así que no se duplica. */
+ const patrimonio=ctaR2(pat+resPend);
+ return {activo:act,pasivo:pas,patrimonioCuentas:pat,resultadoPendiente:resPend,patrimonio:patrimonio,cuadrado:Math.abs(act-ctaR2(pas+patrimonio))<0.005};}
+function ctaMontoCUP(mov,tasaFallback){const m=Number(mov&&mov.monto)||0;if(mov&&mov.cuenta==='tarjeta_usd'){const t=Number(mov.tasaCambio)>0?Number(mov.tasaCambio):(Number(tasaFallback)>0?Number(tasaFallback):1);return ctaR2(m*t);}return ctaR2(m);}
+function ctaClaveMov(periodo,mov){return 'mov:'+periodo+'|'+mov.id+'|'+(mov.fecha||'')+'|'+(mov.monto||'')+'|'+(mov.tipo||'');}
+function ctaBancoDe(conta,cuentaKey){const p=conta.plantillas||ctaPlantillasDef();return (p.banco||{})[cuentaKey]||null;}
+function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
+ const P=conta.plantillas||ctaPlantillasDef();const cup=ctaMontoCUP(mov,tasaFallback);const centro=mov.centroCosto||'';const clave=ctaClaveMov(periodo,mov);
+ const banco=ctaBancoDe(conta,mov.cuenta);
+ const linUSD=(cod)=>{const l={cuenta:cod,centro};if(mov.cuenta==='tarjeta_usd'){l.divisa=Number(mov.monto)||0;l.tasa=Number(mov.tasaCambio)>0?Number(mov.tasaCambio):Number(tasaFallback)||null;}return l;};
+ const falta=(cod)=>!cod||!ctaCuenta(conta,cod);
+ const pend=(motivo)=>({pendiente:motivo,clave});
+ if(mov.aftDepPeriodo||(mov.cuenta==='ajuste_contable'&&/deprecia/i.test(mov.concepto||''))){
+   if(falta(P.depreciacionGasto)||falta(P.depreciacionAcum))return pend('Falta la cuenta de gasto de depreciación o de depreciación acumulada en el plan/plantillas');
+   return {clave,asientos:[{fecha:mov.fecha,concepto:'Depreciación · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.depreciacionGasto,debe:cup,haber:0,centro},{cuenta:P.depreciacionAcum,debe:0,haber:cup,centro}]}]};}
+ if(mov.cuenta==='ajuste_contable'){
+   if(!mov.cuentaContable)return pend('Ajuste contable sin cuenta contable asignada');
+   if(falta(mov.cuentaContable))return pend('La cuenta contable '+mov.cuentaContable+' no existe en el plan');
+   const contra=mov.contraCuenta||P.gastoOperacion;if(falta(contra))return pend('Falta la cuenta de contrapartida del ajuste');
+   const ls=mov.tipo==='gasto'?[{cuenta:mov.cuentaContable,debe:cup,haber:0,centro},{cuenta:contra,debe:0,haber:cup,centro}]:[{cuenta:contra,debe:cup,haber:0,centro},{cuenta:mov.cuentaContable,debe:0,haber:cup,centro}];
+   return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:ls}]};}
+ if(!banco||falta(banco))return pend('La cuenta financiera «'+mov.cuenta+'» no tiene cuenta contable en las plantillas o no existe en el plan');
+ const clas=mov.clasificacion||'operacional';
+ if(clas==='transferencia'){
+   if(!mov.cuentaDestino)return pend('Transferencia sin cuenta destino/origen registrada');
+   const dest=ctaBancoDe(conta,mov.cuentaDestino);if(!dest||falta(dest))return pend('La cuenta destino de la transferencia no tiene cuenta contable en las plantillas');
+   if(dest===banco)return pend('Transferencia entre la misma cuenta contable');
+   const entra=mov.tipo==='ingreso';
+   const l1=linUSD(entra?banco:dest),l2=linUSD(entra?dest:banco);l1.debe=cup;l1.haber=0;l2.debe=0;l2.haber=cup;
+   return {clave,asientos:[{fecha:mov.fecha,concepto:'Transferencia entre cuentas · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l1,l2]}]};}
+ if(clas==='extraccion'){
+   if(falta(P.extracciones))return pend('Falta la cuenta de extracciones en el plan/plantillas');
+   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.extracciones,debe:cup,haber:0,centro},l]}]};}
+ if(mov.tipo==='ingreso'){
+   if(mov.documentoId){const doc=(conta.documentos||[]).find(d=>d.id===mov.documentoId);if(!doc)return pend('El documento vinculado ('+mov.documentoId+') no existe en los submayores');if(falta(P.cxc))return pend('Falta la cuenta de cuentas por cobrar');const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:'Cobro · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:P.cxc,debe:0,haber:cup,analisis:doc.contraparteId,centro}]}],aplicacion:{documentoId:doc.id,monto:cup,fecha:mov.fecha}};}
+   if(mov.aCredito||mov.ventaCredito){if(falta(P.cxc)||falta(P.ventas))return pend('Falta la cuenta de cuentas por cobrar o de ventas');return {clave,asientos:[{fecha:mov.fecha,concepto:'Venta a crédito · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.cxc,debe:cup,haber:0,analisis:mov.contraparteId||'',centro},{cuenta:P.ventas,debe:0,haber:cup,centro}]}]};}
+   const ctaIng=mov.cuentaContable||P.ventas;if(falta(ctaIng))return pend('Falta la cuenta de ingresos en el plan/plantillas');
+   const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:ctaIng,debe:0,haber:cup,centro}]}]};}
+ if(mov.tipo==='gasto'){
+   if(mov.documentoId){const doc=(conta.documentos||[]).find(d=>d.id===mov.documentoId);if(!doc)return pend('El documento vinculado ('+mov.documentoId+') no existe en los submayores');if(falta(P.cxp))return pend('Falta la cuenta de cuentas por pagar');const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.cxp,debe:cup,haber:0,analisis:doc.contraparteId,centro},l]}],aplicacion:{documentoId:doc.id,monto:cup,fecha:mov.fecha}};}
+   if(mov.compraInventario){if(falta(P.inventarios))return pend('Falta la cuenta de inventarios');const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Compra de inventario · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.inventarios,debe:cup,haber:0,centro},l]}]};}
+   const ctaG=mov.cuentaContable||P.gastoOperacion;if(falta(ctaG))return pend('Falta la cuenta de gasto en el plan/plantillas');
+   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:ctaG,debe:cup,haber:0,centro},l]}]};}
+ if(mov.tipo==='onat'){
+   if(falta(P.onatCargo))return pend('Falta la cuenta de obligaciones con el Presupuesto en el plan/plantillas');
+   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago ONAT · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.onatCargo,debe:cup,haber:0,centro},l]}]};}
+ return pend('Tipo de movimiento no reconocido: '+mov.tipo);}
+function ctaAsientoDocumento(conta,doc){
+ const P=conta.plantillas||ctaPlantillasDef();const clave='doc:'+doc.id;
+ if(doc.tipo==='cxp'){const cargo=doc.esInventario?P.inventarios:(doc.cuentaCargo||P.gastoOperacion);if(!ctaCuenta(conta,cargo)||!ctaCuenta(conta,P.cxp))return {pendiente:'Falta la cuenta de cargo o de cuentas por pagar para el documento '+doc.numero,clave};
+  return {clave,asientos:[{fecha:doc.fecha,concepto:(doc.esInventario?'Compra a crédito · ':'Obligación · ')+(doc.concepto||doc.numero),origen:'auto',fuenteKey:clave,lineas:[{cuenta:cargo,debe:ctaR2(doc.importe),haber:0,analisis:doc.contraparteId,centro:doc.centro||''},{cuenta:P.cxp,debe:0,haber:ctaR2(doc.importe),analisis:doc.contraparteId,centro:doc.centro||''}]}]};}
+ if(doc.tipo==='cxc'){if(!ctaCuenta(conta,P.cxc)||!ctaCuenta(conta,P.ventas))return {pendiente:'Falta la cuenta de cuentas por cobrar o de ventas para el documento '+doc.numero,clave};
+  return {clave,asientos:[{fecha:doc.fecha,concepto:'Venta a crédito · '+(doc.concepto||doc.numero),origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.cxc,debe:ctaR2(doc.importe),haber:0,analisis:doc.contraparteId,centro:doc.centro||''},{cuenta:P.ventas,debe:0,haber:ctaR2(doc.importe),centro:doc.centro||''}]}]};}
+ return {pendiente:'Tipo de documento no reconocido',clave};}
+function ctaInventarioEntrada(conta,prodId,cantidad,costoUnit,fecha,origenKey,contrapartida){
+ const p=(conta.productos||[]).find(x=>x.id===prodId);if(!p)return {ok:false,motivo:'Producto no encontrado'};
+ if((conta.movInventario||[]).some(m=>m.origenKey===origenKey))return {ok:true,duplicado:true};
+ const cant=Number(cantidad)||0,cu=Number(costoUnit)||0;if(cant<=0||cu<0)return {ok:false,motivo:'Cantidad o costo inválidos'};
+ const valorAnt=ctaR2((Number(p.stock)||0)*(Number(p.costoProm)||0));const nuevoStock=ctaR2((Number(p.stock)||0)+cant);const nuevoProm=nuevoStock>0?ctaR2((valorAnt+cant*cu)/nuevoStock*100)/100:0;
+ p.stock=nuevoStock;p.costoProm=nuevoProm;
+ conta.seqInv=(conta.seqInv||0)+1;conta.movInventario.push({id:'I'+conta.seqInv,productoId:prodId,tipo:'entrada',cantidad:cant,costoUnit:cu,fecha:fecha,origenKey:origenKey});
+ return {ok:true,prom:nuevoProm,stock:nuevoStock};}
+function ctaInventarioSalida(conta,prodId,cantidad,fecha,origenKey){
+ const p=(conta.productos||[]).find(x=>x.id===prodId);if(!p)return {ok:false,motivo:'Producto no encontrado'};
+ if((conta.movInventario||[]).some(m=>m.origenKey===origenKey))return {ok:true,duplicado:true,costo:0};
+ const cant=Number(cantidad)||0;if(cant<=0)return {ok:false,motivo:'Cantidad inválida'};
+ if(cant>(Number(p.stock)||0)+0.0001)return {ok:false,motivo:'Existencia insuficiente de '+p.nombre+' (hay '+(p.stock||0)+')'};
+ const costo=ctaR2(cant*(Number(p.costoProm)||0));p.stock=ctaR2((Number(p.stock)||0)-cant);
+ conta.seqInv=(conta.seqInv||0)+1;conta.movInventario.push({id:'I'+conta.seqInv,productoId:prodId,tipo:'salida',cantidad:cant,costoUnit:Number(p.costoProm)||0,fecha:fecha,origenKey:origenKey});
+ return {ok:true,costo:costo,prom:Number(p.costoProm)||0,stock:p.stock};}
+function ctaNormConcepto(t){let s=String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');s=s.replace(/[0-9]+/g,' ').replace(/[^a-zñ ]/g,' ').replace(/\s+/g,' ').trim();const stop=['de','del','la','el','los','las','por','en','a','al','con','y','ref','no','num','numero'];return s.split(' ').filter(w=>w&&!stop.includes(w)).join(' ');}
+function ctaReglaPara(conta,mov){const n=ctaNormConcepto(mov&&mov.concepto);if(!n)return null;for(const r of (conta.reglas||[])){if(!r.patron)continue;if(r.patron===n||(r.patron.length>=6&&(n.includes(r.patron)||r.patron.includes(n))))return r;}return null;}
+function ctaGuardarRegla(conta,concepto,cuentaContable){const p=ctaNormConcepto(concepto);if(!p||!cuentaContable)return null;conta.reglas=conta.reglas||[];let r=conta.reglas.find(x=>x.patron===p);if(r){r.cuentaContable=cuentaContable;r.veces=(r.veces||0)+1;}else{r={id:'R'+((conta.reglas.length||0)+1)+'-'+Date.now(),patron:p,conceptoOriginal:concepto,cuentaContable:cuentaContable,veces:1};conta.reglas.push(r);}return r;}
+function ctaClasificarMov(conta,mov){
+ if(mov.aftDepPeriodo||(mov.cuenta==='ajuste_contable'&&/deprecia/i.test(mov.concepto||'')))return {estado:'claro',via:'depreciación de activos fijos'};
+ if(mov.cuenta==='ajuste_contable')return mov.cuentaContable?{estado:'claro',via:'ajuste clasificado'}:{estado:'pendiente',motivo:'Ajuste contable sin cuenta asignada: indica la cuenta del ajuste'};
+ const clas=mov.clasificacion||'operacional';
+ if(clas==='transferencia')return mov.cuentaDestino?{estado:'claro',via:'transferencia entre cuentas'}:{estado:'pendiente',motivo:'Transferencia entre cuentas propias: falta indicar la otra cuenta (origen/destino)'};
+ if(clas==='extraccion')return {estado:'claro',via:'extracción clasificada en la app'};
+ if(mov.sospechaOnat)return {estado:'pendiente',motivo:'Posible pago de impuestos sin código ONAT reconocido: confirma si es un pago de ONAT u otro gasto'};
+ if(mov.tipo==='onat')return {estado:'claro',via:'pago ONAT identificado por código'};
+ if(mov.documentoId)return {estado:'claro',via:'cobro/pago de documento de submayor'};
+ if(mov.aCredito||mov.ventaCredito)return {estado:'claro',via:'venta a crédito'};
+ if(mov.compraInventario)return {estado:'claro',via:'compra de inventario'};
+ if(mov.productoId&&mov.cantidad)return {estado:'claro',via:'venta con salida de inventario'};
+ if(mov.cuentaContable)return {estado:'claro',via:'clasificado por el usuario'};
+ const rg=ctaReglaPara(conta,mov);if(rg)return {estado:'claro',via:'regla aprendida del negocio',regla:rg};
+ return {estado:'pendiente',motivo:'Naturaleza no clara: indica si es venta, costo, gasto u otra cuenta (puedes guardar la decisión como regla)'};}
+function ctaReconstruir(conta,eventos){
+ const res={creados:0,yaExistian:0,pendientes:[],asientosIds:[]};const bandeja=[];
+ const claves=new Set((conta.asientos||[]).map(a=>a.fuenteKey).filter(Boolean));
+ const ordenados=(eventos||[]).slice().sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
+ const registrar=(r,ref,datos)=>{if(!r)return;
+   if(r.pendiente){const p={clave:r.clave||'',motivo:r.pendiente,ref:ref||'',estado:'por-contabilizar'};if(datos)Object.assign(p,datos);res.pendientes.push(p);bandeja.push(p);return;}
+   for(const borrador of (r.asientos||[])){if(borrador.fuenteKey&&claves.has(borrador.fuenteKey)){res.yaExistian++;continue;}
+     const v=ctaAgregarAsiento(conta,borrador);if(v.ok){res.creados++;res.asientosIds.push(v.asiento.id);if(borrador.fuenteKey)claves.add(borrador.fuenteKey);}else res.pendientes.push({clave:borrador.fuenteKey||'',motivo:v.motivo,ref:ref||''});}
+   if(r.aplicacion){const ya=(conta.aplicaciones||[]).some(x=>x.documentoId===r.aplicacion.documentoId&&x.fuenteKey===r.clave);if(!ya)conta.aplicaciones.push({id:'AP'+((conta.aplicaciones.length||0)+1),documentoId:r.aplicacion.documentoId,monto:r.aplicacion.monto,fecha:r.aplicacion.fecha,fuenteKey:r.clave});}};
+ for(const ev of ordenados){
+   if(ev.tipo==='mov'){const mov=ev.mov;
+     const clMov=ctaClasificarMov(conta,mov);
+     if(clMov.estado==='pendiente'){const p={clave:ctaClaveMov(ev.periodo,mov),motivo:clMov.motivo,ref:mov.concepto||'',estado:'por-clasificar',periodo:ev.periodo,movId:mov.id,fecha:mov.fecha||'',concepto:mov.concepto||'',monto:ctaMontoCUP(mov,ev.tasa),tipo:mov.tipo,cuenta:mov.cuenta,clasificacion:mov.clasificacion||'operacional'};res.pendientes.push(p);bandeja.push(p);continue;}
+     if(clMov.regla&&!mov.cuentaContable){mov.cuentaContable=clMov.regla.cuentaContable;mov._viaRegla=clMov.regla.patron;}
+     if(mov.productoId&&mov.cantidad){
+       if(mov.compraInventario){ctaInventarioEntrada(conta,mov.productoId,mov.cantidad,(Number(mov.monto)||0)/(Number(mov.cantidad)||1),mov.fecha,ctaClaveMov(ev.periodo,mov)+':inv');}
+       else if(mov.tipo==='ingreso'){const s=ctaInventarioSalida(conta,mov.productoId,mov.cantidad,mov.fecha,ctaClaveMov(ev.periodo,mov)+':inv');
+         if(s.ok&&!s.duplicado&&s.costo>0){const P=conta.plantillas||ctaPlantillasDef();registrar({clave:ctaClaveMov(ev.periodo,mov)+':costo',asientos:[{fecha:mov.fecha,concepto:'Costo de ventas · '+mov.concepto,origen:'auto',fuenteKey:ctaClaveMov(ev.periodo,mov)+':costo',lineas:[{cuenta:P.costoVentas,debe:s.costo,haber:0,centro:mov.centroCosto||''},{cuenta:P.inventarios,debe:0,haber:s.costo,centro:mov.centroCosto||''}]}]},mov.concepto);}
+         else if(!s.ok)res.pendientes.push({clave:ctaClaveMov(ev.periodo,mov)+':inv',motivo:s.motivo,ref:mov.concepto});}}
+     registrar(ctaAsientoDesdeMov(conta,mov,ev.periodo,ev.tasa),mov.concepto);}
+   else if(ev.tipo==='doc'){const doc=ev.doc;
+     if(doc.sinAsiento)continue;
+     if(doc.esInventario&&doc.productoId&&doc.cantidad)ctaInventarioEntrada(conta,doc.productoId,doc.cantidad,(Number(doc.importe)||0)/(Number(doc.cantidad)||1),doc.fecha,'doc:'+doc.id+':inv');
+     registrar(ctaAsientoDocumento(conta,doc),doc.numero);}
+   else if(ev.tipo==='nomina'){const t=ev.tot||{};const claveD='nomina-devengo:'+ev.periodo,claveP='nomina-pago:'+ev.periodo;const P=Object.assign({},ctaPlantillasDef(),conta.plantillas||{});
+     if((Number(t.bruto)||0)>0){
+       /* Composición VERIFICADA (Ley 113 y Gaceta Oficial GOC-2024-O5, 16-01-2024): el devengo carga el salario bruto,
+          la Contribución a la Seguridad Social del empleador (14 %: 12,5 % al Presupuesto + 1,5 % aprovisionado para
+          prestaciones a corto plazo) y el IUFT (5 %); abona el neto a Nóminas por pagar, a la ONAT por tributo
+          (IUFT + CSS 12,5 % + Contrib. especial retenida + IIP retenido), al fondo del 1,5 %, a la provisión de
+          vacaciones y a las retenciones a terceros. Los subsidios se cargan al fondo de prestaciones a corto plazo. */
+       const ssEmp=ctaR2(t.ssEmp);const ssPpto=(t.ssPresupuesto!=null&&t.ssPresupuesto!=='')?ctaR2(t.ssPresupuesto):ctaR2(ssEmp*12.5/14);const ssProv=(t.ssProvision!=null&&t.ssProvision!=='')?ctaR2(t.ssProvision):ctaR2(ssEmp-ssPpto);
+       const fuerza=ctaR2(t.fuerza),retSS=ctaR2(t.segTrab),retIIP=ctaR2(t.iip),pv=ctaR2(t.provisionVac),sub=ctaR2(t.subsidios),ded=ctaR2(t.deducciones);
+       const L=[{cuenta:P.salarios,debe:ctaR2(t.bruto),haber:0}];
+       if(ssEmp)L.push({cuenta:P.segSocial,debe:ssEmp,haber:0});
+       if(fuerza)L.push({cuenta:P.fuerzaGasto,debe:fuerza,haber:0});
+       if(pv)L.push({cuenta:P.gastoProvVac,debe:pv,haber:0});
+       if(sub)L.push({cuenta:P.provPrestaciones,debe:sub,haber:0});
+       L.push({cuenta:P.nominasPorPagar,debe:0,haber:ctaR2(t.neto)});
+       if(fuerza)L.push({cuenta:P.onatCargo,debe:0,haber:fuerza,analisis:'Imp. utilización de la fuerza de trabajo'});
+       if(ssPpto)L.push({cuenta:P.onatCargo,debe:0,haber:ssPpto,analisis:'Contrib. a la seguridad social (12,5 % al Presupuesto)'});
+       if(retSS)L.push({cuenta:P.onatCargo,debe:0,haber:retSS,analisis:'Contrib. especial a la seguridad social (retenida)'});
+       if(retIIP)L.push({cuenta:P.onatCargo,debe:0,haber:retIIP,analisis:'Impuesto s/ ingresos personales (retenido)'});
+       if(ssProv)L.push({cuenta:P.provPrestaciones,debe:0,haber:ssProv});
+       if(pv)L.push({cuenta:P.provVacaciones,debe:0,haber:pv});
+       if(ded)L.push({cuenta:P.retencionesPorPagar,debe:0,haber:ded});
+       registrar({clave:claveD,asientos:[{fecha:ev.fecha,concepto:'Nómina devengada · '+ev.periodo,origen:'auto',fuenteKey:claveD,lineas:L}]},'Nómina '+ev.periodo);
+       registrar({clave:claveP,asientos:[{fecha:ev.fecha,concepto:'Pago de nómina · '+ev.periodo,origen:'auto',fuenteKey:claveP,lineas:[{cuenta:P.nominasPorPagar,debe:ctaR2(t.neto),haber:0},{cuenta:P.bancoNomina,debe:0,haber:ctaR2(t.neto)}]}]},'Pago nómina '+ev.periodo);}}}
+ const vistas=new Set();conta.bandeja=bandeja.filter(p=>{const k=p.clave||p.ref;if(vistas.has(k))return false;vistas.add(k);return true;});
+ return res;}
+function ctaAplicadoDoc(conta,docId){return ctaR2((conta.aplicaciones||[]).filter(a=>a.documentoId===docId).reduce((s,a)=>s+(Number(a.monto)||0),0));}
+function ctaSubmayor(conta,tipo,fechaCorte){
+ const P=conta.plantillas||ctaPlantillasDef();const codControl=tipo==='cxc'?P.cxc:P.cxp;const m=ctaMayor(conta,{});const ctrl=m[codControl];const saldoControl=ctrl?(tipo==='cxc'?ctrl.saldoFirmado:-ctrl.saldoFirmado):0;
+ const corte=fechaCorte||'9999-12-31';const porCp={};let totalPend=0;
+ for(const d of (conta.documentos||[])){if(d.tipo!==tipo)continue;const ap=ctaAplicadoDoc(conta,d.id);const pend=ctaR2((Number(d.importe)||0)-ap);if(Math.abs(pend)<0.005)continue;
+   const venc=d.vencimiento||d.fecha||'';let bucket='Al día',dias=0;
+   if(venc&&venc<corte){dias=Math.round((new Date(corte+'T12:00:00')-new Date(venc+'T12:00:00'))/86400000);bucket=dias<=30?'1-30':dias<=60?'31-60':dias<=90?'61-90':'+90';}
+   const cp=(conta.contrapartes||[]).find(x=>x.id===d.contraparteId);const nombre=cp?cp.nombre:(d.contraparteId||'Sin contraparte');
+   if(!porCp[nombre])porCp[nombre]={contraparte:nombre,saldo:0,docs:[]};
+   porCp[nombre].saldo=ctaR2(porCp[nombre].saldo+pend);porCp[nombre].docs.push({numero:d.numero,fecha:d.fecha,vencimiento:venc,importe:Number(d.importe)||0,aplicado:ap,pendiente:pend,bucket:bucket,diasVencido:dias});totalPend=ctaR2(totalPend+pend);}
+ const buckets={'Al día':0,'1-30':0,'31-60':0,'61-90':0,'+90':0};
+ for(const k in porCp)for(const d of porCp[k].docs)buckets[d.bucket]=ctaR2(buckets[d.bucket]+d.pendiente);
+ return {tipo:tipo,cuentaControl:codControl,saldoControl:ctaR2(saldoControl),totalDocumentos:totalPend,diferencia:ctaR2(totalPend-saldoControl),conciliado:Math.abs(totalPend-saldoControl)<0.005,porContraparte:Object.values(porCp),buckets:buckets};}
+function ctaRevalorizacion(conta,periodo,fecha,tasaNueva){
+ const clave='reval:'+periodo;if((conta.asientos||[]).some(a=>a.fuenteKey===clave))return {ok:true,duplicado:true,diferencial:0};
+ const P=conta.plantillas||ctaPlantillasDef();const codBanco=(P.banco||{}).tarjeta_usd;if(!codBanco)return {ok:false,motivo:'Sin cuenta contable para la tarjeta USD'};
+ const m=ctaMayor(conta,{});const e=m[codBanco];if(!e)return {ok:false,motivo:'Cuenta USD no encontrada en el mayor'};
+ const saldoUSD=e.divisa,saldoCUP=e.saldoFirmado;const equiv=ctaR2(saldoUSD*(Number(tasaNueva)||0));const dif=ctaR2(equiv-saldoCUP);
+ if(Math.abs(dif)<0.005)return {ok:true,diferencial:0,sinEfecto:true,saldoUSD:saldoUSD,saldoCUP:saldoCUP};
+ const lineas=dif>0?[{cuenta:codBanco,debe:dif,haber:0},{cuenta:P.difPos,debe:0,haber:dif}]:[{cuenta:P.difNeg,debe:-dif,haber:0},{cuenta:codBanco,debe:0,haber:-dif}];
+ const r=ctaAgregarAsiento(conta,{fecha:fecha,concepto:'Revalorización de cuentas en USD · '+periodo+' (tasa '+tasaNueva+')',origen:'revalorizacion',fuenteKey:clave,lineas:lineas});
+ if(!r.ok)return {ok:false,motivo:r.motivo};return {ok:true,diferencial:dif,saldoUSD:saldoUSD,saldoCUP:saldoCUP,equiv:equiv,asientoId:r.asiento.id};}
+function ctaCierreAnual(conta,anio){
+ if((conta.cierres||[]).some(c=>String(c.anio)===String(anio)))return {ok:false,motivo:'El año '+anio+' ya está cerrado'};
+ const res=ctaResultados(conta,{desde:anio+'-01-01',hasta:anio+'-12-31'});const P=conta.plantillas||ctaPlantillasDef();const fecha=anio+'-12-31';const ids=[];
+ const lineasReg=[];for(const d of res.detIngresos)lineasReg.push({cuenta:d.codigo,debe:d.importe,haber:0});for(const d of res.detGastos)lineasReg.push({cuenta:d.codigo,debe:0,haber:d.importe});
+ if(lineasReg.length){const totI=res.ingresos,totG=res.gastos;
+   const a1={fecha:fecha,concepto:'Regularización de ingresos y gastos · '+anio,origen:'cierre',fuenteKey:'cierre:'+anio+':reg',lineas:[]};
+   for(const d of res.detIngresos)a1.lineas.push({cuenta:d.codigo,debe:d.importe,haber:0});
+   a1.lineas.push({cuenta:P.resultado,debe:0,haber:totI});
+   const r1=ctaAgregarAsiento(conta,a1);if(!r1.ok)return {ok:false,motivo:r1.motivo};ids.push(r1.asiento.id);
+   const a2={fecha:fecha,concepto:'Regularización de costos y gastos · '+anio,origen:'cierre',fuenteKey:'cierre:'+anio+':regg',lineas:[{cuenta:P.resultado,debe:totG,haber:0}]};
+   for(const d of res.detGastos)a2.lineas.push({cuenta:d.codigo,debe:0,haber:d.importe});
+   const r2=ctaAgregarAsiento(conta,a2);if(!r2.ok)return {ok:false,motivo:r2.motivo};ids.push(r2.asiento.id);}
+ const neto=res.resultado;
+ if(Math.abs(neto)>0.005){const a3=neto>0?{fecha:fecha,concepto:'Traslado del resultado del ejercicio · '+anio,origen:'cierre',fuenteKey:'cierre:'+anio+':traslado',lineas:[{cuenta:P.resultado,debe:neto,haber:0},{cuenta:P.utilRetenidas,debe:0,haber:neto}]}:{fecha:fecha,concepto:'Traslado del resultado del ejercicio · '+anio,origen:'cierre',fuenteKey:'cierre:'+anio+':traslado',lineas:[{cuenta:P.utilRetenidas,debe:-neto,haber:0},{cuenta:P.resultado,debe:0,haber:-neto}]};
+   const r3=ctaAgregarAsiento(conta,a3);if(!r3.ok)return {ok:false,motivo:r3.motivo};ids.push(r3.asiento.id);}
+ const sit=ctaSituacion(conta,{hasta:fecha});const m=ctaMayor(conta,{hasta:fecha});
+ const saldos=[];for(const c of (conta.plan||[])){if(c.grupo==='ingreso'||c.grupo==='gasto'||c.grupo==='costo')continue;const e=m[c.codigo];if(e&&e.saldoFirmado!==0)saldos.push({cuenta:c.codigo,nombre:c.nombre,saldoFirmado:e.saldoFirmado});}
+ const apertura={anio:Number(anio)+1,fecha:(Number(anio)+1)+'-01-01',situacion:{activo:sit.activo,pasivo:sit.pasivo,patrimonio:sit.patrimonio},saldos:saldos};
+ conta.aperturas.push(apertura);conta.cierres.push({anio:String(anio),fecha:fecha,resultado:neto,asientosIds:ids});
+ return {ok:true,resultado:neto,asientosIds:ids,apertura:apertura,situacion:sit};}
+/* ===== FIN CONTA-CORE ===== */
+
+        /* ===== CONTABILIDAD · CAPA DE APLICACIÓN ===== */
+        function getContaKey(){ return `finanzas_conta_${getCurrentUser()}`; }
+        function getConta(){ const base=ctaDocVacio(); try{ const x=Store.getItem(getContaKey()); if(!x) return base; const d=JSON.parse(x)||{}; const c=Object.assign(base,d); if(!Array.isArray(c.plan)||!c.plan.length)c.plan=base.plan;
+            const _cods=new Set(c.plan.map(x=>x.codigo)); base.plan.forEach(x=>{ if(!_cods.has(x.codigo)) c.plan.push(x); }); c.plantillas=Object.assign(base.plantillas,d.plantillas||{}); c.plantillas.banco=Object.assign(base.plantillas.banco,(d.plantillas||{}).banco||{}); ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','bandeja'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); return c; }catch(e){ return base; } }
+        function saveConta(d){ Store.setItem(getContaKey(), JSON.stringify(d)); }
+        function contaEventos(clonar){ const ev=[]; const cp=m=>clonar?JSON.parse(JSON.stringify(m)):m;
+            for(const h of getHistorial()){ if(Array.isArray(h.movimientos)) for(const m of h.movimientos) ev.push({tipo:'mov',periodo:h.mes,mov:cp(m),fecha:m.fecha,tasa:Number(h.tasa)||tasaVista()}); }
+            const per=periodoNominaActual(); for(const m of movimientos) ev.push({tipo:'mov',periodo:per,mov:cp(m),fecha:m.fecha,tasa:tasaVista()});
+            const conta=getConta(); for(const d of conta.documentos) ev.push({tipo:'doc',doc:cp(d),fecha:d.fecha});
+            const rrhh=getRRHH(); const periodos=new Set([...getHistorial().map(h=>h.mes), per]);
+            for(const p of periodos){ const n=(rrhh.nominas||{})[p]; if(!n||!Object.keys(n).length) continue; const tot=obtenerNominaParaPeriodo(p).tot; if((Number(tot.bruto)||0)>0) ev.push({tipo:'nomina',periodo:p,fecha:fechaContablePeriodo(p),tot:tot}); }
+            return ev; }
+        function contaPreview(){ const c=getConta(); const clon=JSON.parse(JSON.stringify(c)); const r=ctaReconstruir(clon, contaEventos(true)); return {creados:r.creados, pendientes:r.pendientes, bandeja:clon.bandeja||[]}; }
+        function contaGenerarSilencioso(){ const c=getConta(); if(!c.activa) return {omitido:true,razon:'inactiva'}; if(modoEdicionActivo) return {omitido:true,razon:'edicion'}; const r=ctaReconstruir(c, contaEventos(false)); saveConta(c); try{ saveMovimientos(movimientos); }catch(e){} return {creados:r.creados, pendientes:r.pendientes.length, ya:r.yaExistian}; }
+        window.__contaTrasImportar=function(){ try{ return contaGenerarSilencioso(); }catch(e){ return {omitido:true,razon:'error'}; } };
+        window.__contaEvalImport=function(items){ try{ const c=getConta(); if(!c.activa||!Array.isArray(items)) return null; return items.map(it=>{ if(!it) return null; const mov={concepto:it.concepto,tipo:it.clase==='onat'?'onat':it.tipo,cuenta:it.cuenta,fecha:it.fecha,monto:it.monto,clasificacion:it.clasificacion||'operacional',sospechaOnat:!!it.sospechaOnat}; const r=ctaClasificarMov(c,mov); return {claro:r.estado==='claro',via:r.via||'',motivo:r.motivo||''}; }); }catch(e){ return null; } };
+        window.__contaAlCerrarMes=function(periodo){ try{ const c=getConta(); if(!c.activa) return; const tasa=(CFG.tasasMes&&Number(CFG.tasasMes[periodo])>0)?Number(CFG.tasasMes[periodo]):tasaVista(); const r=ctaRevalorizacion(c, periodo, fechaContablePeriodo(periodo), tasa); if(r.ok&&!r.duplicado) saveConta(c); }catch(e){} };
+        function contaFillMovFields(m){ const c=getConta(); const selC=document.getElementById('movCentro'); if(selC){ selC.innerHTML='<option value="">— Sin centro —</option>'+c.centros.map(x=>`<option value="${esc(x.nombre)}">${esc(x.nombre)}</option>`).join(''); if(m&&m.centroCosto) selC.value=m.centroCosto; }
+            const selD=document.getElementById('movDocumento'); if(selD){ selD.innerHTML='<option value="">— Ninguno (o se crea en Contabilidad) —</option>'+c.documentos.map(d=>{ const cp=c.contrapartes.find(x=>x.id===d.contraparteId); const pend=ctaR2((Number(d.importe)||0)-ctaAplicadoDoc(c,d.id)); return pend>0?`<option value="${esc(d.id)}">${d.tipo==='cxc'?'CxC':'CxP'} · ${esc(d.numero)} · ${esc(cp?cp.nombre:d.contraparteId)} · pendiente ${moneda(pend)}</option>`:''; }).join(''); if(m&&m.documentoId) selD.value=m.documentoId; }
+            const selCt=document.getElementById('movCuentaContable'); if(selCt){ selCt.innerHTML='<option value="">— Automática según clasificación —</option>'+c.plan.filter(x=>x.admite).map(x=>`<option value="${esc(x.codigo)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join(''); if(m&&m.cuentaContable) selCt.value=m.cuentaContable; }
+            const selDest=document.getElementById('movCuentaDestino'); if(selDest&&m&&m.cuentaDestino) selDest.value=m.cuentaDestino; }
+        function contaGenerar(){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; } const c=getConta(); if(!c.activa){ alert('Primero activa la contabilidad en esta pestaña.'); return; } const prev=contaPreview(); if(!confirm(`Se crearán ${prev.creados} asiento(s) nuevo(s) desde los movimientos, documentos y nóminas registrados.\nQuedarán ${prev.pendientes.length} pendiente(s) en la bandeja (en rojo) con su motivo.\nLos ya generados no se duplican. ¿Continuar?`)) return; const r=contaGenerarSilencioso(); renderAll(); alert(`✅ Contabilidad generada: ${r.creados||0} asiento(s) nuevo(s), ${r.ya||0} ya existían.\nPendientes en la bandeja: ${r.pendientes||0} (revisa la sección «Por clasificar / Pendientes» en rojo).`); }
+        function contaClasificar(clave,idx){ const c=getConta(); const b=(c.bandeja||[]).find(x=>x.clave===clave); if(!b){ alert('Ese pendiente ya no está en la bandeja.'); return; }
+            const sel=document.getElementById('contaClfSel'+idx); const chk=document.getElementById('contaClfRegla'+idx);
+            const valor=sel?sel.value:''; if(!valor){ alert('Elige primero la clasificación/cuenta en el desplegable de la bandeja.'); return; }
+            let mov=null, enHist=null; const buscar=arr=>arr.find(m=>ctaClaveMov(b.periodo||periodoNominaActual(),m)===clave);
+            mov=buscar(movimientos); if(!mov){ for(const h of getHistorial()){ const f=(h.movimientos||[]).find(m=>ctaClaveMov(h.mes,m)===clave); if(f){ mov=f; enHist=h; break; } } }
+            if(!mov){ alert('No se encontró el movimiento original (puede haber sido editado). Vuelve a pulsar «Generar contabilidad».'); return; }
+            if((mov.clasificacion||'')==='transferencia') mov.cuentaDestino=valor; else mov.cuentaContable=valor;
+            if(chk&&chk.checked&&(mov.clasificacion||'')!=='transferencia') ctaGuardarRegla(c, mov.concepto, valor);
+            saveConta(c); if(enHist) saveHistorial(getHistorial()); else saveMovimientos(movimientos);
+            const r=contaGenerarSilencioso(); renderAll(); alert(`✅ Clasificado. Asiento(s) generado(s) ahora: ${r.creados||0}. La decisión ${chk&&chk.checked?'quedó guardada como regla del negocio.':'se aplicó solo a este movimiento.'}`); }
+        function contaBorrarRegla(id){ const c=getConta(); c.reglas=(c.reglas||[]).filter(r=>r.id!==id); saveConta(c); renderConta(); }
+        function contaAnular(id){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; } if(!confirm('La anulación crea un contraasiento (el original nunca se borra). ¿Continuar?')) return; const c=getConta(); const r=ctaContraasiento(c, id, hoy()); if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll(); alert('✅ Contraasiento creado: el asiento quedó anulado.'); }
+        function contaAddAsientoManual(){ const c=getConta(); const fecha=document.getElementById('contaAsFecha').value, concepto=document.getElementById('contaAsConcepto').value.trim(), txt=document.getElementById('contaAsLineas').value.trim();
+            if(!fecha||!concepto||!txt){ alert('Completa fecha, concepto y líneas.'); return; }
+            const lineas=txt.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split('|').map(x=>x.trim()); return {cuenta:p[0]||'',debe:Number(p[1])||0,haber:Number(p[2])||0,analisis:p[3]||'',centro:p[4]||''}; });
+            const r=ctaAgregarAsiento(c,{fecha,concepto,origen:'manual',lineas}); if(!r.ok){ alert('⚠ No se guardó: '+r.motivo); return; } saveConta(c); renderAll(); alert('✅ Asiento manual Nº '+r.asiento.numero+' guardado (balanceado).'); }
+        function contaAddCuenta(){ const c=getConta(); const cod=document.getElementById('contaCtaCodigo').value.trim(), nom=document.getElementById('contaCtaNombre').value.trim();
+            if(!cod||!nom){ alert('Escribe código y nombre.'); return; } if(ctaCuenta(c,cod)){ alert('Ya existe una cuenta con ese código.'); return; }
+            c.plan.push({codigo:cod,nombre:nom,naturaleza:document.getElementById('contaCtaNat').value,nivel:2,admite:document.getElementById('contaCtaAdmite').value==='1',grupo:document.getElementById('contaCtaGrupo').value,porVerificar:false});
+            c.plan.sort((a,b)=>a.codigo.localeCompare(b.codigo,undefined,{numeric:true})); saveConta(c); renderAll(); alert('✅ Cuenta agregada al plan.'); }
+        function contaSavePlantillas(){ const c=getConta(); document.querySelectorAll('[data-conta-plant]').forEach(sel=>{ const k=sel.dataset.contaPlant; if(k.startsWith('banco.')) c.plantillas.banco[k.slice(6)]=sel.value; else c.plantillas[k]=sel.value; }); saveConta(c); renderAll(); alert('✅ Plantillas de contrapartida guardadas.'); }
+        function contaAddContraparte(){ const c=getConta(); const nom=document.getElementById('contaCpNombre').value.trim(); if(!nom){ alert('Escribe el nombre de la contraparte.'); return; } c.seqCp=(c.seqCp||0)+1; const id='CP'+c.seqCp; c.contrapartes.push({id,nombre:nom,tipo:document.getElementById('contaCpTipo').value}); saveConta(c); renderAll(); alert('✅ Contraparte creada: '+nom); }
+        function contaAddDocumento(){ const c=getConta(); const cp=document.getElementById('contaDocCp').value; if(!cp){ alert('Primero crea una contraparte.'); return; }
+            const imp=Number(document.getElementById('contaDocImporte').value)||0; if(imp<=0){ alert('Importe inválido.'); return; }
+            c.seqDoc=(c.seqDoc||0)+1; const prod=document.getElementById('contaDocProducto').value, cant=Number(document.getElementById('contaDocCantidad').value)||0;
+            c.documentos.push({id:'D'+c.seqDoc,tipo:document.getElementById('contaDocTipo').value,contraparteId:cp,numero:document.getElementById('contaDocNumero').value.trim()||('DOC-'+c.seqDoc),concepto:document.getElementById('contaDocNumero').value.trim(),fecha:document.getElementById('contaDocFecha').value||hoy(),vencimiento:document.getElementById('contaDocVenc').value||hoy(),importe:imp,esInventario:document.getElementById('contaDocInv').checked,productoId:prod||'',cantidad:cant,sinAsiento:document.getElementById('contaDocSaldoIni').checked});
+            saveConta(c); renderAll(); alert('✅ Documento guardado. Su asiento se crea con «Generar contabilidad» (o al registrar su cobro/pago vinculado).'); }
+        function contaAddProducto(){ const c=getConta(); const nom=document.getElementById('contaProdNombre').value.trim(); if(!nom){ alert('Escribe el nombre del producto.'); return; } c.seqProd=(c.seqProd||0)+1; c.productos.push({id:'PR'+c.seqProd,codigo:document.getElementById('contaProdCodigo').value.trim()||('P'+c.seqProd),nombre:nom,unidad:document.getElementById('contaProdUnidad').value.trim()||'u',stock:0,costoProm:0}); saveConta(c); renderAll(); alert('✅ Producto creado.'); }
+        function contaInvEntrada(){ const c=getConta(); const pid=document.getElementById('contaInvProd').value; if(!pid){ alert('Primero crea un producto.'); return; } const cant=Number(document.getElementById('contaInvCant').value)||0, costo=Number(document.getElementById('contaInvCosto').value)||0; if(cant<=0){ alert('Cantidad inválida.'); return; }
+            const P=c.plantillas; const contra=document.getElementById('contaInvContra').value; const clave='inv-manual-e-'+Date.now();
+            const r=ctaInventarioEntrada(c,pid,cant,costo,hoy(),clave,'manual'); if(!r.ok){ alert('⚠ '+r.motivo); return; }
+            const total=ctaR2(cant*costo); const linCr=contra==='cxp'?{cuenta:P.cxp,debe:0,haber:total,analisis:document.getElementById('contaInvCp').value}:{cuenta:P.banco[contra],debe:0,haber:total};
+            const a=ctaAgregarAsiento(c,{fecha:hoy(),concepto:'Entrada de inventario (manual)',origen:'manual',fuenteKey:clave+':asiento',lineas:[{cuenta:P.inventarios,debe:total,haber:0},linCr]}); if(!a.ok){ alert('⚠ '+a.motivo); return; } saveConta(c); renderAll(); alert('✅ Entrada registrada. Costo promedio actualizado: '+moneda(r.prom)); }
+        function contaInvSalida(){ const c=getConta(); const pid=document.getElementById('contaInvProd').value; if(!pid){ alert('Primero crea un producto.'); return; } const cant=Number(document.getElementById('contaInvCant').value)||0; if(cant<=0){ alert('Cantidad inválida.'); return; }
+            const clave='inv-manual-s-'+Date.now(); const r=ctaInventarioSalida(c,pid,cant,hoy(),clave); if(!r.ok){ alert('⚠ '+r.motivo); return; }
+            const P=c.plantillas; const a=ctaAgregarAsiento(c,{fecha:hoy(),concepto:'Salida de inventario · costo de ventas (manual)',origen:'manual',fuenteKey:clave+':asiento',lineas:[{cuenta:P.costoVentas,debe:r.costo,haber:0},{cuenta:P.inventarios,debe:0,haber:r.costo}]}); if(!a.ok){ alert('⚠ '+a.motivo); return; } saveConta(c); renderAll(); alert('✅ Salida registrada por el costo promedio: '+moneda(r.costo)); }
+        function contaAddCentro(){ const c=getConta(); const nom=document.getElementById('contaCentroNombre').value.trim(); if(!nom){ alert('Escribe el nombre del centro de costo.'); return; } c.seqCentro=(c.seqCentro||0)+1; c.centros.push({id:'CC'+c.seqCentro,nombre:nom}); saveConta(c); renderAll(); alert('✅ Centro de costo creado.'); }
+        function contaRevalBtn(){ const c=getConta(); const per=periodoNominaActual(); const tasa=(CFG.tasasMes&&Number(CFG.tasasMes[per])>0)?Number(CFG.tasasMes[per]):tasaVista(); const r=ctaRevalorizacion(c,per,fechaContablePeriodo(per),tasa); if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll(); alert(r.duplicado?'La revalorización de '+per+' ya estaba generada.':(r.sinEfecto?'Sin diferencial cambiario en '+per+' (saldo USD en 0 o tasa sin cambio).':'✅ Revalorización de '+per+' generada: diferencial '+moneda(r.diferencial)+' (saldo '+r.saldoUSD+' USD).')); }
+        function contaCierreBtn(){ const c=getConta(); const anio=document.getElementById('contaCierreAnio').value; if(!anio){ alert('Escribe el año a cerrar.'); return; } if(!confirm('El cierre anual regulariza ingresos y gastos contra Utilidades retenidas, bloquea el año y crea el Balance de Apertura del siguiente. ¿Continuar?')) return; const r=ctaCierreAnual(c,anio); if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll(); alert('✅ Año '+anio+' cerrado. Resultado del ejercicio: '+moneda(r.resultado)+'. Balance de Apertura '+(Number(anio)+1)+' creado (ver abajo).'); }
+        function renderConta(){ const root=document.getElementById('pane-conta'); if(!root) return; const c=getConta();
+            const chk=document.getElementById('contaActiva'); if(chk) chk.checked=!!c.activa;
+            const aviso=document.getElementById('contaAvisoPend'); if(aviso){ const n=(c.bandeja||[]).length; aviso.innerHTML=n?`<span class="badge bg-danger">● ${n} pendiente(s) en rojo — NO incluidos en los estados hasta clasificarlos</span>`:'<span class="badge bg-success">Sin pendientes en rojo</span>'; }
+            const prev=c.activa?contaPreview():null; const pv=document.getElementById('contaPreviewTxt'); if(pv) pv.textContent=c.activa?(`Conteo previo: «Generar contabilidad» crearía ${prev.creados} asiento(s) nuevo(s); quedarían ${prev.pendientes.length} pendiente(s) en la bandeja.`):'Activa la contabilidad para que los estados de cuenta importados se contabilicen solos.';
+            const pb=document.getElementById('contaPlanBody'); if(pb) pb.innerHTML=c.plan.map(x=>`<tr><td class="fiscal-code">${esc(x.codigo)}</td><td>${esc(x.nombre)}</td><td>${x.naturaleza}</td><td>${x.nivel}</td><td>${x.admite?'Sí':'—'}</td><td>${esc(x.grupo)}</td><td>${x.porVerificar?'<span class="badge bg-warning text-dark">por verificar</span>':''}</td></tr>`).join('');
+            const pl=document.getElementById('contaPlantillasBox'); if(pl){ const opts=sel=>c.plan.filter(x=>x.admite).map(x=>`<option value="${esc(x.codigo)}" ${x.codigo===sel?'selected':''}>${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('');
+                const fila=(label,key,val)=>`<div class="col-md-4"><label class="form-label mb-1 small">${label}</label><select class="form-select form-select-sm" data-conta-plant="${key}">${opts(val)}</select></div>`;
+                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('Provisión prestaciones corto plazo','provPrestaciones',c.plantillas.provPrestaciones)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Obligaciones ONAT (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio','resultado',c.plantillas.resultado)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+'</div>'; }
+            const ab=document.getElementById('contaAsientosBody'); if(ab){ const anulados=new Set(c.asientos.filter(a=>a.anulaA).map(a=>a.anulaA)); ab.innerHTML=c.asientos.slice(-80).reverse().map(a=>{ const tot=a.lineas.reduce((s,l)=>s+(Number(l.debe)||0),0); return `<tr><td>${a.numero}</td><td class="text-nowrap">${esc(a.fecha)}</td><td>${esc(a.concepto)}${a.anulaA?' <span class="badge bg-secondary">contraasiento</span>':''}${anulados.has(a.id)?' <span class="badge bg-danger">anulado</span>':''}</td><td>${esc(a.origen)}</td><td class="text-end">${moneda(tot)}</td><td class="text-end">${moneda(tot)}</td><td>${!a.anulaA&&!anulados.has(a.id)?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="contaAnular('${a.id}')">Anular</button>`:''}</td></tr>`; }).join('')||'<tr><td colspan="7" class="text-center text-muted">Sin asientos todavía.</td></tr>'; }
+            const bj=document.getElementById('contaBandejaBody'); if(bj){ const cuentasOpts=c.plan.filter(x=>x.admite).map(x=>`<option value="${esc(x.codigo)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join(''); const bancOpts=Object.keys(c.plantillas.banco).map(k=>`<option value="${k}">${k==='chequera'?'Chequera':k==='tarjeta_cup'?'Tarjeta CUP':'Tarjeta USD'}</option>`).join('');
+                bj.innerHTML=(c.bandeja||[]).map((b,i)=>{ const esTransf=b.clasificacion==='transferencia'; return `<tr class="table-danger"><td class="text-nowrap">${esc(b.fecha||'')}</td><td><b>${esc(b.concepto||b.ref||'')}</b><div class="small text-danger">${esc(b.motivo||'')}</div></td><td class="text-end">${b.monto!=null?moneda(b.monto):''}</td><td><select id="contaClfSel${i}" class="form-select form-select-sm">${esTransf?bancOpts:cuentasOpts}</select><label class="form-check small mt-1"><input type="checkbox" class="form-check-input" id="contaClfRegla${i}" ${esTransf?'disabled':''}> Recordar como regla</label></td><td><button type="button" class="btn btn-sm btn-danger" onclick="contaClasificar('${esc(b.clave)}',${i})">Clasificar y contabilizar</button></td></tr>`; }).join('')||'<tr><td colspan="5" class="text-center text-muted">Bandeja vacía: todo está contabilizado.</td></tr>'; }
+            const rg=document.getElementById('contaReglasBody'); if(rg) rg.innerHTML=(c.reglas||[]).map(r=>`<tr><td>${esc(r.conceptoOriginal||r.patron)}</td><td class="fiscal-code">${esc(r.patron)}</td><td>${esc(r.cuentaContable)}</td><td>${r.veces||1}</td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="contaBorrarRegla('${esc(r.id)}')">Borrar regla</button></td></tr>`).join('')||'<tr><td colspan="5" class="text-center text-muted">Sin reglas aprendidas todavía.</td></tr>';
+            const bc=ctaBalanceComprobacion(c,{}); const bcb=document.getElementById('contaBalanceBox'); if(bcb) bcb.innerHTML=`<div class="table-responsive"><table class="table table-sm align-middle mb-2"><thead><tr><th>Cuenta</th><th class="text-end">Debe</th><th class="text-end">Haber</th><th class="text-end">Saldo deudor</th><th class="text-end">Saldo acreedor</th></tr></thead><tbody>${bc.filas.map(e=>`<tr><td>${esc(e.codigo)} · ${esc(e.nombre)}</td><td class="text-end">${moneda(e.debe)}</td><td class="text-end">${moneda(e.haber)}</td><td class="text-end">${moneda(e.saldoDeudor)}</td><td class="text-end">${moneda(e.saldoAcreedor)}</td></tr>`).join('')}</tbody><tfoot><tr class="fw-bold"><td>Totales</td><td class="text-end">${moneda(bc.sumasDebe)}</td><td class="text-end">${moneda(bc.sumasHaber)}</td><td class="text-end">${moneda(bc.saldosDeudores)}</td><td class="text-end">${moneda(bc.saldosAcreedores)}</td></tr></tfoot></table></div>${bc.cuadradoSumas&&bc.cuadradoSaldos?'<span class="badge bg-success">Balance de comprobación cuadrado</span>':'<span class="badge bg-danger">Balance descuadrado</span>'}`;
+            const sit=ctaSituacion(c,{}); const sb=document.getElementById('contaSituacionBox'); if(sb) sb.innerHTML=`<div class="row g-2"><div class="col-md-4"><div class="module-kpi"><small>Activo</small><strong>${moneda(sit.activo)}</strong></div></div><div class="col-md-4"><div class="module-kpi"><small>Pasivo</small><strong>${moneda(sit.pasivo)}</strong></div></div><div class="col-md-4"><div class="module-kpi"><small>Patrimonio (incl. resultado ${moneda(sit.resultadoPendiente)})</small><strong>${moneda(sit.patrimonio)}</strong></div></div></div><div class="mt-2">${sit.cuadrado?'<span class="badge bg-success">Activo = Pasivo + Patrimonio</span>':'<span class="badge bg-danger">Estado de Situación descuadrado</span>'}</div>`;
+            const centroSel=document.getElementById('contaResCentro'); const centroVal=centroSel?centroSel.value:''; if(centroSel&&centroSel.options.length!==c.centros.length+1) centroSel.innerHTML='<option value="">Todos los centros</option>'+c.centros.map(x=>`<option value="${esc(x.nombre)}">${esc(x.nombre)}</option>`).join('');
+            const er=ctaResultados(c,{centro:centroVal||undefined}); const eb=document.getElementById('contaResultadosBox'); if(eb) eb.innerHTML=`<table class="table table-sm align-middle mb-0"><tbody>${er.detIngresos.map(d=>`<tr><td>${esc(d.codigo)} · ${esc(d.nombre)}</td><td class="text-end">${moneda(d.importe)}</td></tr>`).join('')}<tr class="fw-bold"><td>Total ingresos</td><td class="text-end">${moneda(er.ingresos)}</td></tr>${er.detGastos.map(d=>`<tr><td>${esc(d.codigo)} · ${esc(d.nombre)}</td><td class="text-end">${moneda(d.importe)}</td></tr>`).join('')}<tr class="fw-bold"><td>Total costos y gastos</td><td class="text-end">${moneda(er.gastos)}</td></tr><tr class="fw-bold table-light"><td>Resultado del período</td><td class="text-end">${moneda(er.resultado)}</td></tr></tbody></table>`;
+            const ms=document.getElementById('contaMayorSel'); if(ms&&ms.options.length!==c.plan.filter(x=>x.admite).length) ms.innerHTML=c.plan.filter(x=>x.admite).map(x=>`<option value="${esc(x.codigo)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('');
+            const mb=document.getElementById('contaMayorBox'); if(mb&&ms){ const cod=ms.value; let saldo=0; const filas=ctaLineasFiltradas(c,{cuenta:cod}).map(x=>{ saldo=ctaR2(saldo+(Number(x.linea.debe)||0)-(Number(x.linea.haber)||0)); return `<tr><td class="text-nowrap">${esc(x.asiento.fecha)}</td><td>${esc(x.asiento.concepto)}</td><td class="text-end">${moneda(x.linea.debe)}</td><td class="text-end">${moneda(x.linea.haber)}</td><td class="text-end">${moneda(saldo)}</td></tr>`; }).join(''); mb.innerHTML=`<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Debe</th><th class="text-end">Haber</th><th class="text-end">Saldo</th></tr></thead><tbody>${filas||'<tr><td colspan="5" class="text-center text-muted">Sin movimientos en esta cuenta.</td></tr>'}</tbody></table></div>`; }
+            const smb=document.getElementById('contaSubBox'); if(smb){ const bloque=tipo=>{ const s=ctaSubmayor(c,tipo,hoy()); const bk=Object.keys(s.buckets).map(k=>`<span class="badge bg-soft-secondary me-1">${k}: ${moneda(s.buckets[k])}</span>`).join(''); const filas=s.porContraparte.map(p=>`<tr><td>${esc(p.contraparte)}</td><td class="text-end">${moneda(p.saldo)}</td><td>${p.docs.map(d=>`${esc(d.numero)} (vence ${esc(d.vencimiento||'—')}, ${esc(d.bucket)})`).join('<br>')}</td></tr>`).join(''); return `<h6 class="fw-semibold">${tipo==='cxc'?'Cuentas por Cobrar':'Cuentas por Pagar'} · cuenta control ${esc(s.cuentaControl)}</h6><div class="mb-1">${bk}</div><div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Contraparte</th><th class="text-end">Saldo pendiente</th><th>Documentos</th></tr></thead><tbody>${filas||'<tr><td colspan="3" class="text-center text-muted">Sin saldos pendientes.</td></tr>'}</tbody></table></div><div class="mb-3">${s.conciliado?'<span class="badge bg-success">Submayor conciliado con la cuenta control ('+moneda(s.saldoControl)+')</span>':'<span class="badge bg-warning text-dark">Diferencia con la cuenta control: '+moneda(s.diferencia)+' (puede ser saldo de apertura sin documento)</span>'}</div>`; }; smb.innerHTML=bloque('cxc')+bloque('cxp'); }
+            const cpSel=document.getElementById('contaDocCp'); if(cpSel) cpSel.innerHTML=c.contrapartes.map(x=>`<option value="${esc(x.id)}">${esc(x.nombre)} (${esc(x.tipo)})</option>`).join('')||'<option value="">— Crea primero una contraparte —</option>';
+            const invSel=document.getElementById('contaInvProd'); if(invSel) invSel.innerHTML=c.productos.map(x=>`<option value="${esc(x.id)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('')||'<option value="">— Crea primero un producto —</option>';
+            const docProd=document.getElementById('contaDocProducto'); if(docProd) docProd.innerHTML='<option value="">— Sin producto —</option>'+c.productos.map(x=>`<option value="${esc(x.id)}">${esc(x.nombre)}</option>`).join('');
+            const invCp=document.getElementById('contaInvCp'); if(invCp) invCp.innerHTML=c.contrapartes.map(x=>`<option value="${esc(x.id)}">${esc(x.nombre)}</option>`).join('');
+            const ib=document.getElementById('contaInvBody'); if(ib) ib.innerHTML=c.productos.map(p=>`<tr><td>${esc(p.codigo)}</td><td>${esc(p.nombre)}</td><td class="text-end">${p.stock}</td><td class="text-end">${moneda(p.costoProm)}</td><td class="text-end">${moneda(ctaR2((Number(p.stock)||0)*(Number(p.costoProm)||0)))}</td></tr>`).join('')||'<tr><td colspan="5" class="text-center text-muted">Sin productos.</td></tr>';
+            const cen=document.getElementById('contaCentrosBox'); if(cen) cen.innerHTML=c.centros.map(x=>`<span class="badge bg-soft-secondary me-1">${esc(x.nombre)}</span>`).join('')||'<span class="text-muted small">Sin centros de costo.</span>';
+            const ci=document.getElementById('contaCierresBox'); if(ci) ci.innerHTML=((c.cierres||[]).map(x=>`<div>🔒 Año ${esc(x.anio)} cerrado el ${esc(x.fecha)} · Resultado: ${moneda(x.resultado)}</div>`).join('')+(c.aperturas||[]).map(a=>`<div>📘 Balance de Apertura ${a.anio} (${esc(a.fecha)}): Activo ${moneda(a.situacion.activo)} = Pasivo ${moneda(a.situacion.pasivo)} + Patrimonio ${moneda(a.situacion.patrimonio)} · ${a.saldos.length} cuenta(s) con saldo</div>`).join(''))||'<span class="text-muted small">Sin cierres anuales todavía.</span>';
+            const tog=document.getElementById('contaActiva'); if(tog) tog.onchange=function(){ const cc=getConta(); cc.activa=this.checked; if(cc.activa&&(!cc.plan||!cc.plan.length)) cc.plan=ctaPlanSemilla(); saveConta(cc); renderAll(); };
+            const mySel=document.getElementById('contaMayorSel'); if(mySel) mySel.onchange=function(){ renderConta(); };
+            const rcSel=document.getElementById('contaResCentro'); if(rcSel) rcSel.onchange=function(){ renderConta(); };
+        }
+
         // ===== RENDER TODO =====
         function renderAll() {
             _tvKey = null;
@@ -4031,6 +4516,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             _safe(renderRegistroQR,'qr');
             _safe(renderFX,'fx');
             _safe(renderAFT,'aft');
+            _safe(renderConta,'conta'); _safe(renderNominaPro,'nomina-pro');
             
             const res = calcularResumen();
             document.getElementById('totalIngresos').textContent = `$${res.ingresos.toFixed(2)}`;
@@ -4639,6 +5125,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             nextId = 1;
             saveMovimientos(movimientos);
 
+            try{ if(window.__contaAlCerrarMes) window.__contaAlCerrarMes(mesStr); }catch(e){}
             renderAll();
             actualizarSelector();
             alert(`✅ ${mesStr} cerrado. Nuevo mes: ${siguienteMes}. Los saldos iniciales se tomaron automáticamente del cierre anterior.`);
@@ -5323,7 +5810,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 {codigo:'0114022', nombre:'Impuesto sobre las Ventas', frec:'mensual'},
                 {codigo:'0510122', nombre:'Anticipo a cuenta del IIP (5 %)', frec:'mensual'},
                 {codigo:'0610322', nombre:'Impuesto por la Utilización de la Fuerza de Trabajo', frec:'mensual'},
-                {codigo:'0810132', nombre:'Aporte a la Seguridad Social (empleador)', frec:'mensual'},
+                {codigo:'0810132', nombre:'Contribución a la Seguridad Social (empleador)', frec:'mensual'},
                 {codigo:'0820132', nombre:'Contribución a la Seguridad Social (propia del TCP)', frec:'trimestral'},
                 {codigo:'0530222', nombre:'Liquidación del IIP (DJ-08 anual)', frec:'anual'}
             ],
@@ -5420,7 +5907,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         async function descargarRespaldoNegocio(n){
             const doc=GDOCS&&GDOCS[n]; if(!doc){ alert('Primero actualiza los datos del gestor.'); return; }
-            const datosJson=JSON.stringify({negocio:n, exportado:new Date().toISOString(), tipo:doc.tipo||'', doc:{mov:doc.mov, mes:doc.mes, hist:doc.hist, fiscal:doc.fiscal, rrhh:doc.rrhh, dj:doc.dj}}, null, 2);
+            const datosJson=JSON.stringify({negocio:n, exportado:new Date().toISOString(), tipo:doc.tipo||'', doc:{mov:doc.mov, mes:doc.mes, hist:doc.hist, fiscal:doc.fiscal, rrhh:doc.rrhh, dj:doc.dj, conta:doc.conta}}, null, 2);
             const filas=[['Fecha','Concepto','Tipo','Clasificación','Cuenta','Monto','Tasa USD','Código ONAT','Período fiscal','QR'].join(',')];
             gAllMovs(doc).slice().sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||''))).forEach(m=>{ filas.push([m.fecha||'', m.concepto||'', m.tipo||'', m.clasificacion||'', m.cuenta||'', Number(m.monto)||0, m.tasaCambio||'', m.aporteNumero||'', m.fiscalPeriodo||'', m.qr?'QR':''].map(csvEscape).join(',')); });
             const csvMov=filas.join('\n');
@@ -5428,13 +5915,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             gestorPeriodosDisponibles(doc).slice().reverse().forEach(p=>{ const r=gResumenPeriodo(doc,p); filasRes.push([p, r.ingresos, r.gastos, r.onat, r.utilidad, r.saldoTotal].map(csvEscape).join(',')); });
             const csvRes=filasRes.join('\n');
             const vectorJson=JSON.stringify(doc.fiscal||{}, null, 2);
+            const contaJson=JSON.stringify(doc.conta||{}, null, 2);
             const djHtml=gestorDjHTML(n, doc);
-            const leeme='Respaldo del negocio «'+n+'» generado desde Finanzas el '+new Date().toISOString()+'.\n\nContenido:\n- datos.json: copia completa de los datos del negocio (movimientos, mes abierto, historial, Vector Fiscal, nómina y DJ).\n- movimientos.csv: todos los movimientos registrados.\n- resumen_mensual.csv: totales por mes.\n- vector_fiscal.json: Vector Fiscal (RC-04A) y obligaciones.\n- dj_ultima.html: última Declaración Jurada calculada (borrador imprimible).\n\nEste paquete sirve también como entrega al cliente si deja el servicio.';
+            const leeme='Respaldo del negocio «'+n+'» generado desde Finanzas el '+new Date().toISOString()+'.\n\nContenido:\n- datos.json: copia completa de los datos del negocio (movimientos, mes abierto, historial, Vector Fiscal, nómina y DJ).\n- movimientos.csv: todos los movimientos registrados.\n- resumen_mensual.csv: totales por mes.\n- vector_fiscal.json: Vector Fiscal (RC-04A) y obligaciones.\n- dj_ultima.html: última Declaración Jurada calculada (borrador imprimible).\n- conta.json: contabilidad completa (plan de cuentas, asientos, submayores, inventario, reglas y bandeja).\n\nEste paquete sirve también como entrega al cliente si deja el servicio.';
             const base='respaldo_'+n.replace(/[^a-zA-Z0-9_-]+/g,'_');
             try{
                 const JSZip=await cargarJSZip();
                 const zip=new JSZip();
-                zip.file('datos.json', datosJson); zip.file('movimientos.csv', csvMov); zip.file('resumen_mensual.csv', csvRes); zip.file('vector_fiscal.json', vectorJson); zip.file('dj_ultima.html', djHtml); zip.file('LEEME.txt', leeme);
+                zip.file('datos.json', datosJson); zip.file('movimientos.csv', csvMov); zip.file('resumen_mensual.csv', csvRes); zip.file('vector_fiscal.json', vectorJson); zip.file('dj_ultima.html', djHtml); zip.file('conta.json', contaJson); zip.file('LEEME.txt', leeme);
                 const blob=await zip.generateAsync({type:'blob'});
                 descargarBlob(blob, base+'.zip');
             }catch(e){
@@ -5443,6 +5931,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 descargarBlob(new Blob([csvRes],{type:'text/csv'}), base+'_resumen_mensual.csv');
                 descargarBlob(new Blob([vectorJson],{type:'application/json'}), base+'_vector_fiscal.json');
                 descargarBlob(new Blob([djHtml],{type:'text/html'}), base+'_dj.html');
+                descargarBlob(new Blob([contaJson],{type:'application/json'}), base+'_conta.json');
                 alert('Sin conexión con el CDN de compresión: se descargaron los archivos por separado.');
             }
         }
@@ -5513,34 +6002,310 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         // ===== LOGOUT =====
         function handleLogout() {
             if (modoEdicionActivo && !confirm('Hay cambios sin guardar. ¿Salir?')) return;
-            api('logout').finally(()=>{ TOKEN=''; sessionStorage.removeItem('finanzas_token'); location.reload(); }); return;
-            dashboardContainer.classList.remove('visible');
-            loginContainer.classList.remove('hidden');
-            document.getElementById('userInput').value = 'admin';
-            document.getElementById('passInput').value = 'admin123';
-            movimientos = getDefaultMovimientos();
-            nextId = movimientos.length > 0 ? Math.max(...movimientos.map(m => m.id)) + 1 : 1;
-            saveMovimientos(movimientos);
-            if (modoEdicionActivo) {
-                modoEdicionActivo = false;
-                document.getElementById('modoEdicionMes').style.display = 'none';
-            }
+            api('logout').finally(()=>{ TOKEN=''; sessionStorage.removeItem('finanzas_token'); location.reload(); });
         }
 
+        /* ===== NOMINA-PRO (ronda 4): documentos profesionales, submayor de vacaciones,
+           costo por centro de costo y parámetros fiscales editables por año ===== */
+        function nominaProMetaLinea() {
+            try {
+                const d = (typeof getDatos === 'function') ? getDatos() : {};
+                const meta = ((d.fiscal || {}).importMeta) || {};
+                const dj = ((d.dj || {}).ficha) || {};
+                const partes = [];
+                const nit = meta.nit || dj.nit || '';
+                if (nit) partes.push('NIT: ' + nit);
+                const act = meta.actividad || dj.actividad || '';
+                if (act) partes.push('Actividad: ' + act);
+                const mun = meta.municipio || dj.municipio || '';
+                if (mun) partes.push('Municipio: ' + mun);
+                return partes.join(' · ');
+            } catch(e) { return ''; }
+        }
+        function nominaProDatos(periodo) {
+            const per = periodo || periodoNominaActual();
+            const r = obtenerNominaParaPeriodo(per);
+            return { periodo: per, lineas: r.lineas || [], tot: r.tot || {}, prm: fiscalNominaPara(per) };
+        }
+        function nominaProFirmas(extra) {
+            return `<table class="table table-borderless mt-4"><tbody><tr>
+                <td class="text-center" style="width:33%">_________________________<br><b>Elaboró</b></td>
+                <td class="text-center" style="width:33%">_________________________<br><b>Revisó</b></td>
+                <td class="text-center" style="width:33%">_________________________<br><b>${extra || 'Aprobó'}</b></td>
+            </tr></tbody></table>`;
+        }
+        function nominaProImprimir(titulo, cuerpoHtml) {
+            const box = document.getElementById('nominaDocBox');
+            if (!box) { alert('No se encontró el contenedor de documentos.'); return; }
+            const meta = nominaProMetaLinea();
+            box.innerHTML = (meta ? `<div class="small text-muted mb-2">${esc(meta)}</div>` : '') + cuerpoHtml;
+            printPane('nominaDocBox', titulo);
+        }
+        function nominaDocCompleta() {
+            const { periodo, lineas, tot } = nominaProDatos();
+            if (!lineas.length) { alert('Todavía no hay trabajadores incluidos en la nómina de ' + periodo + '. Agrega trabajadores y guarda la nómina primero.'); return; }
+            const filas = lineas.map((L, i) => `<tr>
+                <td>${i + 1}</td><td><b>${esc(L.t.nombre || '')}</b><div class="small text-muted">${esc(L.t.cargo || '')}${L.t.ci ? ' · CI ' + esc(L.t.ci) : ''}</div></td>
+                <td class="text-end">${moneda(L.calc.bruto)}</td>
+                <td class="text-end">${moneda(L.calc.subsidios)}</td>
+                <td class="text-end">${moneda(L.calc.segTrab)}</td>
+                <td class="text-end">${moneda(L.calc.iip)}</td>
+                <td class="text-end">${moneda(L.calc.deducciones)}</td>
+                <td class="text-end"><b>${moneda(L.calc.neto)}</b></td>
+                <td style="min-width:110px"></td></tr>`).join('');
+            const html = `<h5 class="mb-1">Nómina de pagos</h5>
+            <div class="small mb-3">Período: <b>${esc(periodo)}</b> · Moneda: CUP · Generada con la nómina guardada del período.</div>
+            <div class="table-responsive"><table class="table table-sm table-bordered align-middle">
+            <thead><tr><th>#</th><th>Trabajador</th><th class="text-end">Devengado</th><th class="text-end">Subsidios</th><th class="text-end">Contrib. especial S.S.</th><th class="text-end">Impuesto s/ ingresos personales</th><th class="text-end">Otras deducciones</th><th class="text-end">Neto a pagar</th><th>Firma del trabajador</th></tr></thead>
+            <tbody>${filas}</tbody>
+            <tfoot><tr class="fw-bold"><td></td><td>Totales (${lineas.length} trabajador(es))</td><td class="text-end">${moneda(tot.bruto)}</td><td class="text-end">${moneda(tot.subsidios)}</td><td class="text-end">${moneda(tot.segTrab)}</td><td class="text-end">${moneda(tot.iip)}</td><td class="text-end">${moneda(tot.deducciones)}</td><td class="text-end">${moneda(tot.neto)}</td><td></td></tr></tfoot>
+            </table></div>
+            <div class="row g-2 mt-2">
+              <div class="col-md-6"><table class="table table-sm"><tbody>
+                <tr><td>Impuesto por la Utilización de la Fuerza de Trabajo (5 %)</td><td class="text-end">${moneda(tot.fuerza)}</td></tr>
+                <tr><td>Contribución a la Seguridad Social del empleador (14 %)</td><td class="text-end">${moneda(tot.ssEmp)}</td></tr>
+                <tr><td class="ps-4 small text-muted">De ella, al Presupuesto (12,5 %)</td><td class="text-end small text-muted">${moneda(tot.ssPresupuesto)}</td></tr>
+                <tr><td class="ps-4 small text-muted">De ella, provisión de prestaciones a corto plazo (1,5 %)</td><td class="text-end small text-muted">${moneda(tot.ssProvision)}</td></tr>
+                <tr><td>Provisión de vacaciones del período</td><td class="text-end">${moneda(tot.provisionVac)}</td></tr>
+              </tbody></table></div>
+              <div class="col-md-6"><div class="alert alert-secondary py-2"><b>Costo laboral total del mes: ${moneda(tot.costo)}</b><br><small>Salario devengado + Impuesto por la Utilización de la Fuerza de Trabajo + Contribución a la Seguridad Social del empleador. Total a ingresar a la ONAT por esta nómina: ${moneda(tot.totalAFisco)} (incluye las retenciones a los trabajadores).</small></div></div>
+            </div>` + nominaProFirmas();
+            nominaProImprimir('Nómina de pagos · ' + periodo, html);
+        }
+        function nominaDocTalon() {
+            const sel = document.getElementById('talonTrabSel');
+            const { periodo, lineas } = nominaProDatos();
+            if (!lineas.length) { alert('Todavía no hay trabajadores incluidos en la nómina de ' + periodo + '.'); return; }
+            const L = lineas.find(x => String(x.t.id) === String(sel ? sel.value : '')) || lineas[0];
+            const det = (L.calc.detalle || []).map(dt => `<tr><td>${esc(dt[0])}</td><td class="text-end">${moneda(dt[1])}</td></tr>`).join('');
+            const html = `<h5 class="mb-1">Talón de pago</h5>
+            <div class="small mb-3">Período: <b>${esc(periodo)}</b></div>
+            <table class="table table-sm table-borderless"><tbody>
+              <tr><td style="width:35%"><b>Trabajador</b></td><td>${esc(L.t.nombre || '')}</td></tr>
+              <tr><td><b>Cargo</b></td><td>${esc(L.t.cargo || '—')}</td></tr>
+              <tr><td><b>Carné de identidad</b></td><td>${esc(L.t.ci || '—')}</td></tr>
+              ${L.t.numSegSocial ? `<tr><td><b>Nº de Seguridad Social</b></td><td>${esc(L.t.numSegSocial)}</td></tr>` : ''}
+              <tr><td><b>Salario base</b></td><td>${moneda(L.salario)}</td></tr>
+            </tbody></table>
+            <table class="table table-sm"><thead><tr><th>Concepto</th><th class="text-end">Importe</th></tr></thead>
+            <tbody>${det}
+              <tr><td><b>Total devengado</b></td><td class="text-end"><b>${moneda(L.calc.bruto)}</b></td></tr>
+              <tr><td>Subsidios (enfermedad / maternidad)</td><td class="text-end">${moneda(L.calc.subsidios)}</td></tr>
+              <tr><td>Contribución Especial a la Seguridad Social (deducción)</td><td class="text-end">−${moneda(L.calc.segTrab)}</td></tr>
+              <tr><td>Impuesto sobre Ingresos Personales (retención)</td><td class="text-end">−${moneda(L.calc.iip)}</td></tr>
+              <tr><td>Otras deducciones</td><td class="text-end">−${moneda(L.calc.deducciones)}</td></tr>
+              <tr class="table-light"><td><b>NETO A COBRAR</b></td><td class="text-end"><b>${moneda(L.calc.neto)}</b></td></tr>
+            </tbody></table>
+            <p class="small text-muted">El trabajador puede conservar este talón: resume lo devengado y lo retenido en el período.</p>` + nominaProFirmas('Recibí (firma del trabajador)');
+            nominaProImprimir('Talón de pago · ' + (L.t.nombre || '') + ' · ' + periodo, html);
+        }
+        function nominaDocCertificado() {
+            const anioSel = document.getElementById('certAnioSel');
+            const anio = anioSel ? anioSel.value : String(new Date().getFullYear());
+            const d = getRRHH();
+            const periodos = Object.keys(d.nominas || {}).filter(per => { const pp = periodoParts(per); return pp && String(pp.y) === String(anio); })
+                .sort((a, b) => { const pa = periodoParts(a), pb = periodoParts(b); return (pa.y - pb.y) || (pa.m - pb.m); });
+            if (!periodos.length) { alert('No hay nóminas guardadas en ' + anio + '.'); return; }
+            const porTrab = {};
+            periodos.forEach(per => {
+                const r = obtenerNominaParaPeriodo(per);
+                (r.lineas || []).forEach(L => {
+                    const k = String(L.t.id);
+                    if (!porTrab[k]) porTrab[k] = { t: L.t, meses: [], tb: 0, ts: 0, ti: 0, tn: 0 };
+                    porTrab[k].meses.push({ per, bruto: L.calc.bruto, seg: L.calc.segTrab, iip: L.calc.iip, neto: L.calc.neto });
+                    porTrab[k].tb += L.calc.bruto; porTrab[k].ts += L.calc.segTrab; porTrab[k].ti += L.calc.iip; porTrab[k].tn += L.calc.neto;
+                });
+            });
+            const lista = Object.values(porTrab);
+            if (!lista.length) { alert('No hay trabajadores con nómina en ' + anio + '.'); return; }
+            const secciones = lista.map((e, idx) => `<div${idx > 0 ? ' style="page-break-before:always"' : ''}>
+            <h5 class="mb-1">Certificado de ingresos y retenciones</h5>
+            <div class="small mb-3">Año: <b>${esc(anio)}</b></div>
+            <p>Se certifica que <b>${esc(e.t.nombre || '')}</b>${e.t.ci ? ', con carné de identidad <b>' + esc(e.t.ci) + '</b>' : ''}${e.t.cargo ? ', en el cargo de ' + esc(e.t.cargo) : ''}, percibió en este negocio los ingresos y se le practicaron las retenciones que se relacionan. Este certificado le sirve de respaldo para su Declaración Jurada del Impuesto sobre Ingresos Personales.</p>
+            <div class="table-responsive"><table class="table table-sm table-bordered">
+            <thead><tr><th>Período</th><th class="text-end">Ingresos devengados</th><th class="text-end">Contrib. especial S.S. retenida</th><th class="text-end">Impuesto s/ ingresos personales retenido</th><th class="text-end">Neto cobrado</th></tr></thead>
+            <tbody>${e.meses.map(m => `<tr><td>${esc(m.per)}</td><td class="text-end">${moneda(m.bruto)}</td><td class="text-end">${moneda(m.seg)}</td><td class="text-end">${moneda(m.iip)}</td><td class="text-end">${moneda(m.neto)}</td></tr>`).join('')}</tbody>
+            <tfoot><tr class="fw-bold"><td>Total del año</td><td class="text-end">${moneda(e.tb)}</td><td class="text-end">${moneda(e.ts)}</td><td class="text-end">${moneda(e.ti)}</td><td class="text-end">${moneda(e.tn)}</td></tr></tfoot>
+            </table></div></div>`).join('');
+            nominaProImprimir('Certificado anual de ingresos y retenciones · ' + anio, secciones + nominaProFirmas('Firma y cuño del empleador'));
+        }
+        function nominaDocResumenContable() {
+            const { periodo, tot, prm } = nominaProDatos();
+            if (!((Number(tot.bruto) || 0) > 0)) { alert('La nómina de ' + periodo + ' no tiene importe devengado.'); return; }
+            let P = {}; try { P = Object.assign({}, ctaPlantillasDef(), (getConta().plantillas || {})); } catch(e) { P = ctaPlantillasDef(); }
+            const nombreCta = cod => { try { const c = (getConta().plan || []).find(x => x.codigo === cod); return c ? cod + ' · ' + c.nombre : cod; } catch(e) { return cod; } };
+            const R = n => Math.round((Number(n) || 0) * 100) / 100;
+            const ssPpto = tot.ssPresupuesto != null ? R(tot.ssPresupuesto) : R(tot.ssEmp * (prm.seguridadSocialPresupuesto / prm.seguridadSocialEmpleador));
+            const ssProv = tot.ssProvision != null ? R(tot.ssProvision) : R(tot.ssEmp - ssPpto);
+            const lin = [];
+            const add = (cta, debe, haber, nota) => { const v = R(debe || haber); if (v > 0) lin.push({ cta, debe: R(debe), haber: R(haber), nota: nota || '' }); };
+            add(P.salarios, tot.bruto, 0, 'Salarios devengados');
+            add(P.segSocial, tot.ssEmp, 0, 'Contribución a la Seguridad Social (empleador)');
+            add(P.fuerzaGasto, tot.fuerza, 0, 'Impuesto por la Utilización de la Fuerza de Trabajo');
+            add(P.gastoProvVac, tot.provisionVac, 0, 'Provisión de vacaciones');
+            add(P.provPrestaciones, tot.subsidios, 0, 'Subsidios a cargo del fondo de prestaciones');
+            add(P.nominasPorPagar, 0, tot.neto, 'Nóminas por pagar');
+            add(P.onatCargo, 0, tot.fuerza, 'Imp. utilización de la fuerza de trabajo');
+            add(P.onatCargo, 0, ssPpto, 'Contrib. a la seguridad social (12,5 % al Presupuesto)');
+            add(P.onatCargo, 0, tot.segTrab, 'Contrib. especial a la seguridad social (retenida)');
+            add(P.onatCargo, 0, tot.iip, 'Impuesto s/ ingresos personales (retenido)');
+            add(P.provPrestaciones, 0, ssProv, 'Provisión de prestaciones a corto plazo (1,5 %)');
+            add(P.provVacaciones, 0, tot.provisionVac, 'Provisión de vacaciones');
+            add(P.retencionesPorPagar, 0, tot.deducciones, 'Retenciones por pagar a terceros');
+            const sd = lin.reduce((a, l) => a + l.debe, 0), sh = lin.reduce((a, l) => a + l.haber, 0);
+            const html = `<h5 class="mb-1">Resumen de nómina para contabilidad</h5>
+            <div class="small mb-3">Período: <b>${esc(periodo)}</b> · Asiento de devengo sugerido (partida doble). En la pestaña <b>Contabilidad</b>, «Generar contabilidad» crea este asiento automáticamente.</div>
+            <div class="table-responsive"><table class="table table-sm table-bordered">
+            <thead><tr><th>Cuenta</th><th>Concepto</th><th class="text-end">Debe</th><th class="text-end">Haber</th></tr></thead>
+            <tbody>${lin.map(l => `<tr><td>${esc(nombreCta(l.cta))}</td><td>${esc(l.nota)}</td><td class="text-end">${l.debe ? moneda(l.debe) : ''}</td><td class="text-end">${l.haber ? moneda(l.haber) : ''}</td></tr>`).join('')}</tbody>
+            <tfoot><tr class="fw-bold"><td colspan="2">Totales</td><td class="text-end">${moneda(sd)}</td><td class="text-end">${moneda(sh)}</td></tr></tfoot>
+            </table></div>
+            ${Math.abs(sd - sh) < 0.01 ? '<span class="badge bg-success">Asiento cuadrado</span>' : '<span class="badge bg-danger">Asiento descuadrado: revisa la nómina</span>'}
+            <p class="small text-muted mt-2">Composición verificada: Contribución a la Seguridad Social del empleador ${prm.seguridadSocialEmpleador} % (${prm.seguridadSocialPresupuesto} % al Presupuesto + ${prm.seguridadSocialProvision} % de provisión para prestaciones a corto plazo); Impuesto por la Utilización de la Fuerza de Trabajo ${prm.fuerzaTrabajo} %; retenciones al trabajador según la escala vigente del año.</p>` + nominaProFirmas();
+            nominaProImprimir('Resumen de nómina para contabilidad · ' + periodo, html);
+        }
+        function nominaDocListadoPago() {
+            const { periodo, lineas, tot } = nominaProDatos();
+            if (!lineas.length) { alert('Todavía no hay trabajadores incluidos en la nómina de ' + periodo + '.'); return; }
+            const html = `<h5 class="mb-1">Listado para pago por tarjeta / banco</h5>
+            <div class="small mb-3">Período: <b>${esc(periodo)}</b> · Importes netos a acreditar a cada trabajador.</div>
+            <div class="table-responsive"><table class="table table-sm table-bordered">
+            <thead><tr><th>#</th><th>Trabajador</th><th>Tarjeta</th><th>Cuenta asociada</th><th class="text-end">Neto a pagar</th></tr></thead>
+            <tbody>${lineas.map((L, i) => `<tr><td>${i + 1}</td><td>${esc(L.t.nombre || '')}</td><td>${esc(L.t.tarjeta || '—')}</td><td>${esc(L.t.cuenta || '—')}</td><td class="text-end"><b>${moneda(L.calc.neto)}</b></td></tr>`).join('')}</tbody>
+            <tfoot><tr class="fw-bold"><td colspan="4">Total a pagar</td><td class="text-end">${moneda(tot.neto)}</td></tr></tfoot>
+            </table></div>
+            <p class="small text-muted">Los trabajadores sin tarjeta registrada aparecen con «—»: completa su ficha en el registro de trabajadores antes de pagar.</p>` + nominaProFirmas();
+            nominaProImprimir('Listado para pago por tarjeta · ' + periodo, html);
+        }
+        function nominaVacDatos() {
+            const d = getRRHH();
+            const periodos = Object.keys(d.nominas || {}).sort((a, b) => { const pa = periodoParts(a), pb = periodoParts(b); return ((pa ? pa.y : 0) - (pb ? pb.y : 0)) || ((pa ? pa.m : 0) - (pb ? pb.m : 0)); });
+            const porTrab = {};
+            periodos.forEach(per => {
+                const r = obtenerNominaParaPeriodo(per);
+                (r.lineas || []).forEach(L => {
+                    const k = String(L.t.id);
+                    const e = porTrab[k] || (porTrab[k] = { t: L.t, meses: 0, descansados: 0, deveng: 0, pagado: 0 });
+                    e.meses += 1;
+                    e.descansados += Number((L.comp || {}).vacDias) || 0;
+                    e.deveng += Number(L.calc.provisionVac) || 0;
+                    (L.calc.detalle || []).forEach(dt => { if (/^Vacaciones \(/.test(dt[0] || '') && Number(dt[1]) > 0) e.pagado += Number(dt[1]); });
+                });
+            });
+            return Object.values(porTrab).map(e => {
+                const diasDev = Math.round(e.meses * 30 / 11 * 100) / 100;
+                return { t: e.t, meses: e.meses, descansados: e.descansados, deveng: e.deveng, pagado: e.pagado, diasDev, saldoDias: Math.round((diasDev - e.descansados) * 100) / 100, saldoImp: Math.round((e.deveng - e.pagado) * 100) / 100 };
+            });
+        }
+        function renderNominaPro() {
+            const per = periodoNominaActual();
+            const dl = document.getElementById('nominaDocsPeriodo'); if (dl) dl.textContent = per;
+            const datos = nominaProDatos(per);
+            const sel = document.getElementById('talonTrabSel');
+            if (sel) { const prev = sel.value; sel.innerHTML = datos.lineas.map(L => `<option value="${esc(String(L.t.id))}">${esc(L.t.nombre || '')}</option>`).join(''); if (prev && datos.lineas.some(L => String(L.t.id) === prev)) sel.value = prev; }
+            const anioSel = document.getElementById('certAnioSel');
+            if (anioSel) {
+                const d = getRRHH(); const anios = new Set();
+                Object.keys(d.nominas || {}).forEach(p2 => { const pp = periodoParts(p2); if (pp) anios.add(String(pp.y)); });
+                const ppA = periodoParts(per); if (ppA) anios.add(String(ppA.y));
+                const prev = anioSel.value;
+                anioSel.innerHTML = [...anios].sort().reverse().map(a => `<option value="${a}">${a}</option>`).join('');
+                if (prev && anios.has(prev)) anioSel.value = prev; else if (ppA) anioSel.value = String(ppA.y);
+            }
+            const vb = document.getElementById('vacSubmayorBox');
+            if (vb) {
+                const vac = nominaVacDatos();
+                const tasaP = Number(getCompCfg().params.provVac) || 9.09;
+                vb.innerHTML = vac.length ? `<div class="table-responsive"><table class="table table-sm align-middle mb-1">
+                    <thead><tr><th>Trabajador</th><th class="text-end">Meses en nómina</th><th class="text-end">Días devengados</th><th class="text-end">Días descansados</th><th class="text-end">Saldo (días)</th><th class="text-end">Provisión acumulada</th><th class="text-end">Vacaciones pagadas</th><th class="text-end">Saldo ($)</th></tr></thead>
+                    <tbody>${vac.map(e => `<tr><td><b>${esc(e.t.nombre || '')}</b><div class="small text-muted">${esc(e.t.cargo || '')}</div></td><td class="text-end">${e.meses}</td><td class="text-end">${e.diasDev.toFixed(2)}</td><td class="text-end">${e.descansados}</td><td class="text-end"><b>${e.saldoDias.toFixed(2)}</b></td><td class="text-end">${moneda(e.deveng)}</td><td class="text-end">${moneda(e.pagado)}</td><td class="text-end"><b>${moneda(e.saldoImp)}</b></td></tr>`).join('')}</tbody></table></div>
+                    <small class="text-muted">Devengo de vacaciones: 30 días por cada 11 meses trabajados. La provisión en dinero se calcula al ${tasaP} % del salario (parámetro de complementos) en los meses en que el trabajador la tiene activa.</small>`
+                    : '<p class="text-muted mb-0">Todavía no hay nóminas guardadas: el submayor de vacaciones se alimenta solo de cada nómina mensual.</p>';
+            }
+            const cb = document.getElementById('costoCentrosBox');
+            if (cb) {
+                const grupos = {};
+                datos.lineas.forEach(L => {
+                    const k = (L.t.centroCosto || '').trim() || 'Sin centro de costo';
+                    const g = grupos[k] || (grupos[k] = { n: 0, bruto: 0, fuerza: 0, ssEmp: 0, costo: 0 });
+                    g.n += 1; g.bruto += L.calc.bruto; g.fuerza += L.calc.fuerza; g.ssEmp += L.calc.ssEmp; g.costo += L.calc.costo;
+                });
+                const claves = Object.keys(grupos);
+                const hayCentros = claves.some(k => k !== 'Sin centro de costo');
+                cb.innerHTML = claves.length ? `<div class="table-responsive"><table class="table table-sm align-middle mb-1">
+                    <thead><tr><th>Centro de costo</th><th class="text-end">Trabajadores</th><th class="text-end">Salario devengado</th><th class="text-end">IUFT</th><th class="text-end">Contrib. S.S. empleador</th><th class="text-end">Costo laboral total</th></tr></thead>
+                    <tbody>${claves.map(k => { const g = grupos[k]; return `<tr><td>${esc(k)}</td><td class="text-end">${g.n}</td><td class="text-end">${moneda(g.bruto)}</td><td class="text-end">${moneda(g.fuerza)}</td><td class="text-end">${moneda(g.ssEmp)}</td><td class="text-end"><b>${moneda(g.costo)}</b></td></tr>`; }).join('')}</tbody>
+                    <tfoot><tr class="fw-bold"><td>Total del período</td><td class="text-end">${datos.lineas.length}</td><td class="text-end">${moneda(datos.tot.bruto)}</td><td class="text-end">${moneda(datos.tot.fuerza)}</td><td class="text-end">${moneda(datos.tot.ssEmp)}</td><td class="text-end">${moneda(datos.tot.costo)}</td></tr></tfoot></table></div>
+                    ${hayCentros ? '<small class="text-muted">El centro de costo se asigna en la ficha de cada trabajador y coincide con los centros de la pestaña Contabilidad.</small>' : '<small class="text-muted">Asigna un centro de costo en la ficha de cada trabajador (ej. Cocina, Salón, Administración) para ver el costo laboral separado por área.</small>'}`
+                    : '<p class="text-muted mb-0">Todavía no hay trabajadores en la nómina de este período.</p>';
+            }
+            const pb = document.getElementById('nominaParamsBox');
+            if (pb) {
+                const pp = periodoParts(per); const anio = pp ? String(pp.y) : '';
+                const prm = fiscalNominaPara(per);
+                const d = getRRHH();
+                const hayOverride = !!(d.fiscalNomina && d.fiscalNomina[anio]);
+                const tramosTxt = (prm.tramosIIP || []).map(t => (t[0] === Infinity ? 'sin tope' : t[0]) + ':' + Math.round(t[1] * 10000) / 100).join(', ');
+                const num = (id, val, paso) => `<input type="number" class="form-control form-control-sm" id="${id}" step="${paso || '0.01'}" value="${val}">`;
+                pb.innerHTML = `<div class="small mb-2">Parámetros del año <b>${esc(anio)}</b> — se aplican a las nóminas de ese año (la retención y los aportes se calculan con los valores del año del período, no con los de hoy). ${hayOverride ? '<span class="badge bg-info text-dark">Con ajuste propio guardado</span>' : '<span class="badge bg-secondary">Valores oficiales por defecto</span>'}</div>
+                <div class="row g-2">
+                  <div class="col-md-3"><label class="form-label mb-1 small">Impuesto por la Utilización de la Fuerza de Trabajo (%)</label>${num('npFuerza', prm.fuerzaTrabajo)}</div>
+                  <div class="col-md-3"><label class="form-label mb-1 small">Contribución a la Seguridad Social del empleador (%)</label>${num('npSsEmp', prm.seguridadSocialEmpleador)}</div>
+                  <div class="col-md-3"><label class="form-label mb-1 small">De ella, al Presupuesto (%)</label>${num('npSsPpto', prm.seguridadSocialPresupuesto)}</div>
+                  <div class="col-md-3"><label class="form-label mb-1 small">De ella, provisión de prestaciones (%)</label>${num('npSsProv', prm.seguridadSocialProvision)}</div>
+                  <div class="col-md-3"><label class="form-label mb-1 small">Contrib. especial del trabajador: límite (CUP)</label>${num('npSegLim', prm.segTrabLimite, '1')}</div>
+                  <div class="col-md-3"><label class="form-label mb-1 small">Contrib. especial hasta el límite (%)</label>${num('npSegBaja', prm.segTrabTasaBaja)}</div>
+                  <div class="col-md-3"><label class="form-label mb-1 small">Contrib. especial por el exceso (%)</label>${num('npSegAlta', prm.segTrabTasaAlta)}</div>
+                  <div class="col-md-9"><label class="form-label mb-1 small">Escala de retención del Impuesto s/ Ingresos Personales (tope mensual : % por tramo)</label><input type="text" class="form-control form-control-sm" id="npTramos" value="${esc(tramosTxt)}"></div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+                  <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="guardarParamsFiscalesNomina()"><i class="bi bi-save me-1"></i>Guardar parámetros del año ${esc(anio)}</button>
+                  <small class="text-muted">Fuentes: ${esc(prm.fuentes || 'Ley 113 «Del Sistema Tributario» · Gaceta Oficial')}</small>
+                </div>`;
+            }
+        }
+        function guardarParamsFiscalesNomina() {
+            const per = periodoNominaActual();
+            const pp = periodoParts(per);
+            if (!pp) { alert('Período no válido.'); return; }
+            const anio = String(pp.y);
+            const gv = id => { const e = document.getElementById(id); const v = e ? Number(e.value) : NaN; return isNaN(v) ? null : v; };
+            const ov = {};
+            const campos = [['npFuerza', 'fuerzaTrabajo'], ['npSsEmp', 'seguridadSocialEmpleador'], ['npSsPpto', 'seguridadSocialPresupuesto'], ['npSsProv', 'seguridadSocialProvision'], ['npSegLim', 'segTrabLimite'], ['npSegBaja', 'segTrabTasaBaja'], ['npSegAlta', 'segTrabTasaAlta']];
+            for (const [id, k] of campos) { const v = gv(id); if (v === null || v < 0) { alert('Revisa los valores: no puede haber campos vacíos ni negativos.'); return; } ov[k] = v; }
+            const tramosTxt = (document.getElementById('npTramos') || {}).value || '';
+            const tramos = [];
+            for (const parte of tramosTxt.split(',')) {
+                const trozos = parte.split(':').map(x => x.trim());
+                if (trozos.length !== 2) { alert('La escala debe escribirse como «tope:%, tope:%…» (ej. 3260:0, 9510:3, sin tope:20).'); return; }
+                const tope = /^sin tope$/i.test(trozos[0]) ? Infinity : Number(trozos[0]);
+                const pct = Number(trozos[1]);
+                if ((isNaN(tope) && tope !== Infinity) || isNaN(pct) || pct < 0) { alert('Revisa la escala de retención: hay un tramo no válido.'); return; }
+                tramos.push([tope, pct / 100]);
+            }
+            if (!tramos.length || tramos[tramos.length - 1][0] !== Infinity) { alert('La escala debe terminar con un tramo «sin tope».'); return; }
+            ov.tramosIIP = tramos;
+            const d = getRRHH();
+            if (!d.fiscalNomina) d.fiscalNomina = {};
+            d.fiscalNomina[anio] = ov;
+            saveRRHH(d);
+            renderAll();
+            alert('✅ Parámetros fiscales de la nómina guardados para ' + anio + '. Las nóminas de ese año se recalculan con estos valores.');
+        }
         // ===== EVENT LISTENERS =====
         function printBtnHTML(target){
             return `<button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="${target}" title="Exportar a PDF / imprimir"><i class="bi bi-printer me-1"></i>PDF</button>`;
         }
-        function printPane(targetId){
+        function printPane(targetId, tituloLibre){
             document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
             const el=document.getElementById(targetId);
             if(!el) return;
-            const titles={'pane-resumen':'Resumen','pane-chequera':'Chequera','pane-tarjeta_cup':'Tarjeta CUP','pane-tarjeta_usd':'Tarjeta USD','pane-nomina':'Nómina','pane-utilidades':'Trimestres y utilidades','pane-fiscal':'Vector Fiscal','pane-dj':'Declaración Jurada','pane-aft':'Activos Fijos Tangibles','onatModal':'Cálculo ONAT','qrRegistroBox':'Registro de pagos por comercio electrónico (QR)','gestorInformeBox':'Informe mensual del cliente','pane-gestor':'Panel del Gestor'};
+            const titles={'pane-resumen':'Resumen','pane-chequera':'Chequera','pane-tarjeta_cup':'Tarjeta CUP','pane-tarjeta_usd':'Tarjeta USD','pane-nomina':'Nómina','pane-utilidades':'Trimestres y utilidades','pane-fiscal':'Vector Fiscal','pane-dj':'Declaración Jurada','pane-aft':'Activos Fijos Tangibles','pane-conta':'Contabilidad','onatModal':'Cálculo ONAT','qrRegistroBox':'Registro de pagos por comercio electrónico (QR)','gestorInformeBox':'Informe mensual del cliente','pane-gestor':'Panel del Gestor','nominaDocBox':'Documento de nómina'};
             let ph=document.getElementById('printHeader');
             if(!ph){ ph=document.createElement('div'); ph.id='printHeader'; ph.className='print-only-header'; document.body.prepend(ph); }
             const neg=(document.getElementById('negocioNombreDisplay')||{}).textContent||'';
             const hoy=new Date();
-            ph.innerHTML=`<h4 class="fw-bold mb-1">${neg} — ${titles[targetId]||''}</h4><div class="text-secondary small">Generado el ${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}</div>`;
+            ph.innerHTML=`<h4 class="fw-bold mb-1">${neg} — ${(tituloLibre||titles[targetId]||'').replace(/</g,'&lt;')}</h4><div class="text-secondary small">Generado el ${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}</div>`;
             el.classList.add('print-target');
             document.body.classList.add('printing');
             setTimeout(()=>window.print(),80);
@@ -5779,6 +6544,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             $('movConcepto').value = m ? m.concepto : (tipo === 'onat' ? 'Aporte ONAT' : '');
             $('movMonto').value = m ? m.monto : ''; $('movFecha').value = m ? m.fecha : hoy();
             $('movCuenta').value = cuenta; $('movClas').value = m ? (m.clasificacion || 'operacional') : 'operacional';
+            try{ contaFillMovFields(m); }catch(e){}
             configurarCamposONAT(tipo,m);
             $('movTasaUSD').value = m && Number(m.tasaCambio)>0 ? Number(m.tasaCambio) : '';
             movTasaSource = m ? (m.tasaFuente||'Tasa guardada') : '';
@@ -5808,6 +6574,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!(monto > 0)) { alert('El monto debe ser mayor que 0.'); return; }
             if (!fecha) { alert('Elige una fecha.'); return; }
             const d = {concepto, monto, fecha, cuenta, clasificacion: $('movClas').value};
+            try{ const _cc=$('movCentro'); if(_cc&&_cc.value) d.centroCosto=_cc.value; const _cd=$('movCuentaDestino'); if($('movClas').value==='transferencia'&&_cd&&_cd.value) d.cuentaDestino=_cd.value; const _dc=$('movDocumento'); if(_dc&&_dc.value) d.documentoId=_dc.value; const _ct=$('movCuentaContable'); if(_ct&&_ct.value) d.cuentaContable=_ct.value; }catch(e){}
             if(movTipo==='onat') {
                 const numero=$('movAporteNumero').value.trim(), aporte=actualizarIdentificacionAporte(), desde=$('movAporteDesde').value, hasta=$('movAporteHasta').value;
                 if(!numero){alert('Escribe el número / código del aporte.');return;}

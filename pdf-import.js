@@ -435,6 +435,24 @@ function mostrarVistaPrevia(ops, infos) {
             try { f.op._clasif = clasificarOperacion(f.op); } catch (e) { f.op._clasif = null; }
         }
     });
+    /* Contabilidad (ronda 3): con la contabilidad activa, cada fila nueva se
+       evalúa contra las reglas del negocio: lo claro se contabilizará solo al
+       importar; lo dudoso va EN ROJO y espera clasificación en la bandeja. */
+    var evalConta = null;
+    try {
+        if (window.__contaEvalImport) {
+            var itemsEval = filas.map(function (f) {
+                if (!(f.estado === 'nueva' && f.destino)) return null;
+                var cl = f.op._clasif || {};
+                return { concepto: f.op.concepto, tipo: f.op.tipo, cuenta: (typeof cuentaPreseleccionada !== 'undefined' ? cuentaPreseleccionada : 'chequera'), fecha: f.op.fecha, monto: f.op.monto,
+                    clasificacion: cl.clase === 'transferencia' ? 'transferencia' : 'operacional', clase: cl.clase || 'normal', sospechaOnat: !!cl.sospechaOnat };
+            });
+            var rEval = window.__contaEvalImport(itemsEval);
+            if (Array.isArray(rEval)) evalConta = rEval;
+        }
+    } catch (e) { evalConta = null; }
+    var nContaClaros = 0, nContaRojos = 0;
+    if (evalConta) evalConta.forEach(function (r) { if (!r) return; if (r.claro) nContaClaros++; else nContaRojos++; });
     function esNueva(f) { return f.estado === 'nueva' && f.destino && f.op._clasif; }
     var nTransf = filas.filter(function (f) { return esNueva(f) && f.op._clasif.clase === 'transferencia'; }).length;
     var nOnat = filas.filter(function (f) { return esNueva(f) && f.op._clasif.clase === 'onat'; }).length;
@@ -475,9 +493,12 @@ function mostrarVistaPrevia(ops, infos) {
                 (c.onat ? '<div class="small">ONAT: <b>' + pdfEsc(c.onat.codigo) + '</b> ' + pdfEsc(c.onat.nombre) + (c.onat.periodo ? ' · ' + pdfEsc(c.onat.periodo) : '') + '</div>' : '') +
                 (c.sospechaOnat && c.clase !== 'onat' ? '<div class="small text-warning">⚠ Parece un pago de impuestos, pero el concepto no trae un código reconocido: no se clasificó solo.</div>' : '');
         }
-        return '<tr>' +
+        var evF = evalConta ? evalConta[idxFila] : null;
+        var rojoHtml = (evF && !evF.claro) ? '<div class="small text-danger fw-semibold">● En rojo: no se contabilizará hasta clasificarlo. ' + pdfEsc(evF.motivo || '') + ' Quedará en la bandeja «Por clasificar» de la pestaña Contabilidad.</div>' : '';
+        var claroHtml = (evF && evF.claro) ? '<div class="small text-success">✓ Se contabilizará automáticamente (' + pdfEsc(evF.via || 'regla clara') + ').</div>' : '';
+        return '<tr' + ((evF && !evF.claro) ? ' style="background:#fdeaea"' : '') + '>' +
             '<td class="text-nowrap">' + pdfEsc(fechaCorta(op.fecha)) + '</td>' +
-            '<td title="' + concepto + '">' + corto + ctrl + '</td>' +
+            '<td title="' + concepto + '">' + corto + ctrl + rojoHtml + claroHtml + '</td>' +
             '<td class="text-end text-nowrap">$' + Number(op.monto).toFixed(2) + '</td>' +
             '<td>' + badge + '</td>' +
             '<td class="text-nowrap small">' + (f.destino ? pdfEsc(f.destino) : '—') + '</td>' +
@@ -500,6 +521,8 @@ function mostrarVistaPrevia(ops, infos) {
               (nOnat ? '<span class="badge bg-dark">' + nOnat + ' pagos ONAT</span>' : '') +
               (nQR ? '<span class="badge bg-info">' + nQR + ' con QR</span>' : '') +
               (nSospecha ? '<span class="badge bg-warning text-dark">⚠ ' + nSospecha + ' posible ONAT sin código</span>' : '') +
+              (evalConta ? '<span class="badge bg-success">✓ ' + nContaClaros + ' se contabilizarán automáticamente</span>' : '') +
+              (evalConta && nContaRojos ? '<span class="badge bg-danger">● ' + nContaRojos + ' en rojo: esperan clasificación</span>' : '') +
               '<span class="ms-auto d-flex align-items-center gap-2"><label class="small mb-0">Importar a:</label>' +
               '<select id="pdfImportCuenta" class="form-select form-select-sm" style="width:auto">' +
                 Object.keys(nombresCuenta).map(function (k) {
@@ -510,7 +533,7 @@ function mostrarVistaPrevia(ops, infos) {
             '<div class="table-responsive"><table class="table table-sm table-hover align-middle">' +
             '<thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th><th>Tipo</th><th>Mes destino</th><th>Estado</th></tr></thead>' +
             '<tbody>' + filasHtml + '</tbody></table></div>' +
-            '<div class="small text-secondary mt-2">Las duplicadas se detectan por Ref_Corriente + Ref_Origen y no se importan. El orden de las operaciones se conserva. La clasificación (transferencia / comercio electrónico QR / pago ONAT por código del tributo) se detecta sola y puedes corregirla por fila antes de importar: las transferencias no cuentan como ingreso ni gasto pero sí mueven el saldo; los pagos ONAT se vinculan al Vector Fiscal y alimentan la Declaración Jurada.</div>' +
+            '<div class="small text-secondary mt-2">Las duplicadas se detectan por Ref_Corriente + Ref_Origen y no se importan. El orden de las operaciones se conserva. Con la contabilidad activa, al importar se dispara la cadena sola: clasificación → plantilla de contrapartida → asiento. Lo claro se contabiliza automáticamente; lo que aparece en rojo NO genera asiento ni cuenta como contabilizado: queda en la bandeja «Por clasificar / Pendientes de contabilizar» de la pestaña Contabilidad hasta que lo clasifiques (y puedes guardar la decisión como regla para que el mes próximo ya no salga en rojo). La clasificación (transferencia / comercio electrónico QR / pago ONAT por código del tributo) se detecta sola y puedes corregirla por fila antes de importar: las transferencias no cuentan como ingreso ni gasto pero sí mueven el saldo; los pagos ONAT se vinculan al Vector Fiscal y alimentan la Declaración Jurada.</div>' +
           '</div>' +
           '<div class="modal-footer">' +
             '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>' +
@@ -616,7 +639,7 @@ function importarLote(cuenta) {
 
     if (enEdicion) {
         api.renderAll();
-        alert('✅ ' + n + ' operaciones agregadas al mes en edición (' + api.mesEdicion() + ').\nPulsa "Guardar" para conservarlas.');
+        alert('✅ ' + n + ' operaciones agregadas al mes en edición (' + api.mesEdicion() + ').\nPulsa "Guardar" para conservarlas.\nLa contabilidad se generará al guardar, desde la pestaña Contabilidad («Generar contabilidad»): lo claro se contabiliza solo y lo dudoso quedará en rojo en la bandeja.');
         return;
     }
     api.saveMovimientos(movs);
@@ -640,6 +663,15 @@ function importarLote(cuenta) {
     }
     api.renderAll();
 
+    var contaTxt = '';
+    try {
+        if (window.__contaTrasImportar) {
+            var rc = window.__contaTrasImportar();
+            if (rc && !rc.omitido) contaTxt = '\nContabilidad: ' + (rc.creados || 0) + ' asiento(s) generados automáticamente.' + (rc.pendientes ? ' ' + rc.pendientes + ' movimiento(s) en rojo esperan clasificación en la bandeja «Por clasificar» (pestaña Contabilidad).' : ' Sin pendientes en rojo.');
+            else if (rc && rc.razon === 'edicion') contaTxt = '\nContabilidad: se generará al guardar el mes en edición.';
+        }
+    } catch (e) { /* la importación ya quedó guardada; la contabilidad puede generarse desde su pestaña */ }
+
     var detalle = Object.keys(porMes).map(function (m) { return m + ': ' + porMes[m]; }).join(', ');
     var cT = 0, cO = 0, cQ = 0;
     nuevas.forEach(function (f) {
@@ -650,7 +682,7 @@ function importarLote(cuenta) {
         }
     });
     var extraClasif = (cT || cO || cQ) ? '\nClasificadas: ' + cT + ' transferencias entre cuentas, ' + cO + ' pagos ONAT, ' + cQ + ' con marca QR.' : '';
-    alert('✅ Importadas ' + n + ' operaciones del estado de cuenta.\n' + detalle + extraClasif);
+    alert('✅ Importadas ' + n + ' operaciones del estado de cuenta.\n' + detalle + extraClasif + contaTxt);
 }
 
 /* ---------------- Arranque ---------------- */
