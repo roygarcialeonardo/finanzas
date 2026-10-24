@@ -192,10 +192,14 @@ function pdfEsc(s) {
 }
 
 /* Une una palabra partida entre dos líneas: "C"+"OMISION" -> "COMISION".
-   Solo se aplica al caso seguro (letra mayúscula suelta al final); el resto
+   BANDEC envuelve el texto de las observaciones a ancho fijo cortando el
+   flujo de caracteres a mitad de palabra, así que también se pega sin
+   espacio cuando la línea anterior termina en letra y la siguiente
+   empieza con minúscula ("Tran"+"sferencia", "Comerci"+"o:"). El resto
    se une con espacio para no corromper palabras legítimas. */
 function unirLinea(prev, nueva) {
     if (/(?:^|[^A-Za-z])[A-Z]$/.test(prev) && /^[A-Z]/.test(nueva)) return prev + nueva;
+    if (/[A-Za-z]$/.test(prev) && /^[a-z]/.test(nueva)) return prev + nueva;
     return prev + ' ' + nueva;
 }
 
@@ -261,20 +265,43 @@ async function lineasDePagina(pdf, n) {
     }).filter(function (s) { return s.length > 0; });
 }
 
-/* Cierra una fila abierta y devuelve la operación (o null si está incompleta).
-   El formato 2 trae además el saldo corrido tras la operación (grupo 3 de
-   RE_FIN): se conserva como op.saldo — es la base del «saldo según banco»
-   de la conciliación (ronda 7). */
-function cerrarBuf(buf) {
+/* Extrae el fin de la operación (importe + Cr/Db [+ saldo corrido]) la
+   PRIMERA vez que aparece en el texto acumulado, lo guarda en buf.fin y
+   trunca obs en ese punto. En el formato 1 el importe va al final de la
+   PRIMERA línea, pero el concepto continúa en las líneas siguientes
+   (el código del tributo ONAT, «sferencia entre cuentas», el DET_PAGO…):
+   la operación NO se cierra aquí; el buf queda abierto acumulando
+   continuaciones hasta la siguiente operación o una línea de cierre.
+   Solo se extrae una vez: importes sueltos dentro de las continuaciones
+   («Imp: 77040.00», sin Cr/Db detrás) nunca disparan una extracción
+   falsa, y el saldo corrido del formato 2 (grupo 3 de RE_FIN) se sigue
+   guardando igual en buf.fin.saldo. */
+function extraerFin(buf) {
+    if (buf.fin) return;
     var m = RE_FIN.exec(buf.obs);
-    if (!m) return null;
-    return {
-        fecha: buf.y + '-' + buf.mo + '-' + buf.d,
-        refC: buf.refC, refO: buf.refO,
-        concepto: limpiarConcepto(buf.obs.slice(0, m.index)),
+    if (!m) return;
+    buf.fin = {
         monto: Math.abs(parseFloat(m[1].replace(/,/g, ''))),
         tipo: m[2] === 'Cr' ? 'ingreso' : 'gasto',
         saldo: (m[3] !== undefined && m[3] !== '') ? parseFloat(m[3].replace(/,/g, '')) : null
+    };
+    buf.obs = buf.obs.slice(0, m.index).replace(/\s+$/, '');
+}
+
+/* Cierra una fila y devuelve la operación (o null si está incompleta).
+   Si el fin ya fue extraído (buf.fin), la operación se construye desde
+   los datos guardados y el concepto es TODO el texto acumulado (línea
+   inicial + continuaciones); si no, se busca el RE_FIN clásico en obs. */
+function cerrarBuf(buf) {
+    extraerFin(buf);
+    if (!buf.fin) return null;
+    return {
+        fecha: buf.y + '-' + buf.mo + '-' + buf.d,
+        refC: buf.refC, refO: buf.refO,
+        concepto: limpiarConcepto(buf.obs),
+        monto: buf.fin.monto,
+        tipo: buf.fin.tipo,
+        saldo: buf.fin.saldo
     };
 }
 
@@ -287,9 +314,16 @@ function fechaISOdeDMY(t) {
 
 /* Parsea líneas a operaciones. `buf` permite continuar una fila abierta
    que viene de la página anterior. Devuelve {ops, resto, saldoLinea}.
+   La operación se cierra SOLO al llegar la siguiente fila o una línea
+   RE_OMITIR: aunque el importe ya venga en la primera línea (formato 1),
+   el buf sigue abierto acumulando las continuaciones, que son parte del
+   concepto (ver extraerFin). El resto sin cerrar lo cierra parsearPdf
+   al final del documento.
    saldoLinea: último importe de una línea «Saldo Contable/Disponible»
    (formato 1, que no trae saldo corrido por operación) — candidato a
-   saldo final según banco si no hay saldo corrido (ronda 7). */
+   saldo final según banco si no hay saldo corrido (ronda 7). Las líneas
+   reales del estado terminan en «905195.53 Cr»: se tolera el sufijo
+   Cr/Db tras el importe. */
 function parsearLineas(lineas, buf) {
     var ops = [], saldoLinea = null;
     lineas.forEach(function (line) {
@@ -297,12 +331,12 @@ function parsearLineas(lineas, buf) {
         if (ms) {                                   /* inicio de fila primero */
             if (buf) { var p0 = cerrarBuf(buf); if (p0) ops.push(p0); }
             buf = { d: ms[1], mo: ms[2], y: ms[3], refC: ms[4], refO: ms[5], obs: ms[6] || '' };
-            if (RE_FIN.test(buf.obs)) { var p1 = cerrarBuf(buf); if (p1) ops.push(p1); buf = null; }
+            extraerFin(buf);   /* guarda el importe si ya viene en la 1ª línea; el buf SIGUE abierto */
             return;
         }
         if (RE_OMITIR.test(line)) {                 /* cabeceras, saldos, pies */
             if (/^Saldo (Contable|Disponible)\b/.test(line)) {
-                var msl = /(-?[\d,]+\.\d{2})\s*$/.exec(line);
+                var msl = /(-?[\d,]+\.\d{2})(?:\s+(?:Cr|Db))?\s*$/.exec(line);
                 if (msl) saldoLinea = parseFloat(msl[1].replace(/,/g, ''));
             }
             if (buf) { var p2 = cerrarBuf(buf); if (p2) ops.push(p2); buf = null; }
@@ -310,7 +344,7 @@ function parsearLineas(lineas, buf) {
         }
         if (buf) {                                  /* continuación de la fila */
             buf.obs = unirLinea(buf.obs, line);
-            if (RE_FIN.test(line)) { var p3 = cerrarBuf(buf); if (p3) ops.push(p3); buf = null; }
+            extraerFin(buf);   /* por si el importe venía en una continuación; solo la 1ª vez */
         }
     });
     return { ops: ops, resto: buf, saldoLinea: saldoLinea };
@@ -815,6 +849,7 @@ if (document.readyState === 'loading') {
 /* Gancho para pruebas */
 window.__pdfImportTest = {
     parsearLineas: parsearLineas,
+    cerrarBuf: cerrarBuf,
     limpiarConcepto: limpiarConcepto,
     unirLinea: unirLinea,
     fechaISOdeDMY: fechaISOdeDMY,
