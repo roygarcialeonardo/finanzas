@@ -34,6 +34,129 @@ function API() {
     return window.FinanzasPDF;
 }
 
+/* ================= CLASIFICACIÓN AUTOMÁTICA =================
+   Reglas (2026-10-24):
+   1) «transferencia entre cuentas» → transferencia entre cuentas
+      propias: no cuenta como ingreso ni gasto, pero mueve el saldo.
+   2) «comercio electrónico» → marca QR en el movimiento.
+   3) Pago de impuestos con el CÓDIGO del tributo en el concepto →
+      «Pago de ONAT» vinculado a las obligaciones del Vector Fiscal;
+      alimenta la Declaración Jurada (tributos por concepto).
+   La detección ONAT es SOLO por código: el texto literal del concepto
+   bancario no aparece en fuentes públicas. Si el concepto no trae un
+   código reconocido NO se fuerza la clasificación: se marca «sospecha»
+   para revisión manual en la vista previa.
+   Códigos verificados: Vector Fiscal real 2025 + Manual del Tenedor de
+   Libros Rev. 01/2025 + Res. 306/2023 MFP (informe de códigos ONAT).
+   La cuota consolidada del régimen simplificado no tiene código
+   explícito en las fuentes: por verificar (no está en la tabla). */
+function normTxtPdf(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+function normCodigoLocal(v) {
+    var d = String(v || '').replace(/\D/g, '');
+    return d.replace(/^0+(?=\d)/, '');
+}
+/* Clave: código normalizado (sin ceros a la izquierda).
+   cat: categoría para la Declaración Jurada. */
+var TABLA_TRIBUTOS_LOCAL = {
+    '114022': { codigo: '0114022', nombre: 'Impuesto sobre las Ventas y Servicios', cat: 'deducible', fuente: 'verificado' },
+    '114822': { codigo: '0114822', nombre: 'Impuesto sobre las Ventas y Servicios', cat: 'deducible', fuente: 'verificado' },
+    '11482':  { codigo: '011482',  nombre: 'Impuesto sobre las Ventas y Servicios', cat: 'deducible', fuente: 'verificado' },
+    '510122': { codigo: '0510122', nombre: 'IIP · aporte mensual (anticipo 5 %)', cat: 'anticipo_iip', fuente: 'verificado' },
+    '520522': { codigo: '0520522', nombre: 'IIP · retención a trabajadores', cat: 'deducible', fuente: 'verificado' },
+    '520322': { codigo: '0520322', nombre: 'IIP · retención a trabajadores', cat: 'deducible', fuente: 'verificado' },
+    '52032':  { codigo: '052032',  nombre: 'IIP · retenciones y pagos parciales', cat: 'deducible', fuente: 'verificado' },
+    '530222': { codigo: '0530222', nombre: 'IIP · liquidación anual (DJ-08)', cat: 'liquidacion', fuente: 'verificado' },
+    '53022':  { codigo: '053022',  nombre: 'IIP · liquidación adicional / dividendos', cat: 'liquidacion', fuente: 'verificado' },
+    '610322': { codigo: '0610322', nombre: 'Impuesto por la Utilización de la Fuerza de Trabajo', cat: 'deducible', fuente: 'verificado' },
+    '610122': { codigo: '0610122', nombre: 'Impuesto por la Utilización de la Fuerza de Trabajo', cat: 'deducible', fuente: 'inferencia' },
+    '61012':  { codigo: '061012',  nombre: 'Impuesto por la Utilización de la Fuerza de Trabajo', cat: 'deducible', fuente: 'verificado' },
+    '810132': { codigo: '0810132', nombre: 'Contribución a la Seguridad Social', cat: 'deducible', fuente: 'verificado' },
+    '81013':  { codigo: '081013',  nombre: 'Contribución a la Seguridad Social', cat: 'deducible', fuente: 'verificado' },
+    '820132': { codigo: '0820132', nombre: 'Contribución Especial a la Seguridad Social (propia del TCP)', cat: 'deducible', fuente: 'verificado' },
+    '820232': { codigo: '0820232', nombre: 'Contribución Especial a la Seguridad Social (trabajadores)', cat: 'deducible', fuente: 'verificado' },
+    '82023':  { codigo: '082023',  nombre: 'Contribución Especial a la Seguridad Social (trabajadores)', cat: 'deducible', fuente: 'verificado' },
+    '730122': { codigo: '0730122', nombre: 'Impuesto sobre Documentos', cat: 'deducible', fuente: 'verificado' },
+    '900122': { codigo: '0900122', nombre: 'Tasa por radicación de anuncios y propaganda', cat: 'deducible', fuente: 'verificado' },
+    '740122': { codigo: '0740122', nombre: 'Contribución Territorial para el Desarrollo Local', cat: 'deducible', fuente: 'inferencia' },
+    '74012':  { codigo: '074012',  nombre: 'Contribución Territorial para el Desarrollo Local', cat: 'deducible', fuente: 'verificado' },
+    '400722': { codigo: '0400722', nombre: 'Impuesto sobre Utilidades (pago a cuenta / liquidación)', cat: 'pago_cuenta_utilidades', fuente: 'inferencia' },
+    '40072':  { codigo: '040072',  nombre: 'Impuesto sobre Utilidades (pago a cuenta / liquidación)', cat: 'pago_cuenta_utilidades', fuente: 'verificado' }
+};
+function categoriaDjPorCodigo(crudo) {
+    var hit = TABLA_TRIBUTOS_LOCAL[normCodigoLocal(crudo)];
+    return hit ? hit.cat : 'otros';
+}
+/* Resuelve un código: primero el Vector Fiscal importado en la app
+   (precedencia), después la tabla local verificada. */
+function resolverCodigoPdf(crudo) {
+    var limpio = String(crudo || '').replace(/\D/g, '');
+    if (!limpio) return null;
+    try {
+        var api = API();
+        if (api.fiscalTributos && api.codigoAporteNorm) {
+            var trib = api.fiscalTributos() || {};
+            for (var k in trib) {
+                if (Object.prototype.hasOwnProperty.call(trib, k) && api.codigoAporteNorm(k) === api.codigoAporteNorm(limpio)) {
+                    return { codigo: k, nombre: trib[k], cat: categoriaDjPorCodigo(limpio), fuente: 'vector' };
+                }
+            }
+        }
+        if (api.resolverAporte) {
+            var r = api.resolverAporte(limpio);
+            if (r && r.nombre) return { codigo: r.codigo || limpio, nombre: r.nombre, cat: categoriaDjPorCodigo(limpio), fuente: 'vector' };
+        }
+    } catch (e) { /* sin app (pruebas): cae a la tabla local */ }
+    var hit = TABLA_TRIBUTOS_LOCAL[normCodigoLocal(limpio)];
+    if (hit) return { codigo: hit.codigo, nombre: hit.nombre, cat: hit.cat, fuente: hit.fuente };
+    return null;
+}
+function extraerCodigosConcepto(concepto) {
+    var runs = String(concepto || '').match(/\d+/g) || [];
+    return runs.filter(function (r) { return r.length === 6 || r.length === 7; });
+}
+var MESES_TXT_PDF = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function capMesPdf(m) { return m.charAt(0).toUpperCase() + m.slice(1); }
+function detectarPeriodoConcepto(concepto) {
+    var t = ' ' + normTxtPdf(concepto) + ' ';
+    for (var i = 0; i < 12; i++) {
+        var m = t.match(new RegExp(MESES_TXT_PDF[i] + '\\s*(?:de\\s*)?(20\\d{2})'));
+        if (m) return capMesPdf(MESES_TXT_PDF[i]) + ' ' + m[1];
+    }
+    var m2 = t.match(/\b(0[1-9]|1[0-2])[\/\-](20\d{2})\b/);
+    if (m2) return capMesPdf(MESES_TXT_PDF[+m2[1] - 1]) + ' ' + m2[2];
+    var m3 = t.match(/\b(20\d{2})[\/\-](0[1-9]|1[0-2])\b/);
+    if (m3) return capMesPdf(MESES_TXT_PDF[+m3[2] - 1]) + ' ' + m3[1];
+    return null;
+}
+function clasificarOperacion(op) {
+    var t = normTxtPdf(op.concepto || '');
+    var res = { clase: 'normal', qr: false, onat: null, sospechaOnat: false };
+    if (/transferencia entre cuentas|traspaso entre cuentas/.test(t)) res.clase = 'transferencia';
+    if (/comercio electronico/.test(t)) res.qr = true;
+    var cods = extraerCodigosConcepto(op.concepto || '');
+    for (var i = 0; i < cods.length; i++) {
+        var r = resolverCodigoPdf(cods[i]);
+        if (r) {
+            res.onat = { codigo: r.codigo, nombre: r.nombre, cat: r.cat, fuente: r.fuente, periodo: detectarPeriodoConcepto(op.concepto) };
+            break;
+        }
+    }
+    if (res.onat) res.clase = 'onat';
+    else if (/\bonat\b/.test(t) || (/pago|aporte/.test(t) && /tributo|impuesto/.test(t))) res.sospechaOnat = true;
+    return res;
+}
+/* Corrección manual desde la vista previa (índice = fila de ultimoLote) */
+window.__pdfSetClase = function (idx, val) {
+    var f = ultimoLote[idx];
+    if (f && f.op && f.op._clasif) f.op._clasif.clase = val;
+};
+window.__pdfSetQr = function (idx, val) {
+    var f = ultimoLote[idx];
+    if (f && f.op && f.op._clasif) f.op._clasif.qr = !!val;
+};
+
 /* Escape HTML local (la app tiene su propio esc() dentro del IIFE) */
 function pdfEsc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -306,6 +429,18 @@ function mostrarVistaPrevia(ops, infos) {
     });
     ultimoLote = filas;
 
+    /* Clasificación automática de las filas importables (reglas 1-3) */
+    filas.forEach(function (f) {
+        if (f.estado === 'nueva' && f.destino) {
+            try { f.op._clasif = clasificarOperacion(f.op); } catch (e) { f.op._clasif = null; }
+        }
+    });
+    function esNueva(f) { return f.estado === 'nueva' && f.destino && f.op._clasif; }
+    var nTransf = filas.filter(function (f) { return esNueva(f) && f.op._clasif.clase === 'transferencia'; }).length;
+    var nOnat = filas.filter(function (f) { return esNueva(f) && f.op._clasif.clase === 'onat'; }).length;
+    var nQR = filas.filter(function (f) { return esNueva(f) && f.op._clasif.qr; }).length;
+    var nSospecha = filas.filter(function (f) { return esNueva(f) && f.op._clasif.sospechaOnat && f.op._clasif.clase !== 'onat'; }).length;
+
     var nuevas = filas.filter(function (f) { return f.estado === 'nueva' && f.destino; }).length;
     var dups = filas.filter(function (f) { return f.estado === 'duplicada'; }).length;
     var omitidas = filas.length - nuevas - dups;
@@ -316,7 +451,7 @@ function mostrarVistaPrevia(ops, infos) {
     }).join('<br>');
 
     var nombresCuenta = { chequera: 'Chequera', tarjeta_cup: 'Tarjeta CUP', tarjeta_usd: 'Tarjeta USD' };
-    var filasHtml = filas.map(function (f) {
+    var filasHtml = filas.map(function (f, idxFila) {
         var op = f.op;
         var badge = op.tipo === 'ingreso'
             ? '<span class="badge bg-success">Ingreso</span>'
@@ -327,9 +462,22 @@ function mostrarVistaPrevia(ops, infos) {
                          : '<span class="badge bg-warning text-dark">Se omite</span>');
         var concepto = pdfEsc(op.concepto);
         var corto = concepto.length > 90 ? concepto.slice(0, 90) + '…' : concepto;
+        var ctrl = '';
+        if (f.estado === 'nueva' && f.destino && op._clasif) {
+            var c = op._clasif;
+            ctrl = '<div class="d-flex flex-wrap gap-1 align-items-center mt-1">' +
+                '<select class="form-select form-select-sm" style="width:auto" title="Clasificación del movimiento" onchange="window.__pdfSetClase(' + idxFila + ',this.value)">' +
+                '<option value="normal"' + (c.clase === 'normal' ? ' selected' : '') + '>Normal</option>' +
+                '<option value="transferencia"' + (c.clase === 'transferencia' ? ' selected' : '') + '>Transferencia entre cuentas</option>' +
+                '<option value="onat"' + (c.clase === 'onat' ? ' selected' : '') + (c.onat ? '' : ' disabled') + '>Pago de ONAT</option>' +
+                '</select>' +
+                '<label class="form-check form-check-inline m-0 small"><input type="checkbox" class="form-check-input" onchange="window.__pdfSetQr(' + idxFila + ',this.checked)"' + (c.qr ? ' checked' : '') + '> QR</label></div>' +
+                (c.onat ? '<div class="small">ONAT: <b>' + pdfEsc(c.onat.codigo) + '</b> ' + pdfEsc(c.onat.nombre) + (c.onat.periodo ? ' · ' + pdfEsc(c.onat.periodo) : '') + '</div>' : '') +
+                (c.sospechaOnat && c.clase !== 'onat' ? '<div class="small text-warning">⚠ Parece un pago de impuestos, pero el concepto no trae un código reconocido: no se clasificó solo.</div>' : '');
+        }
         return '<tr>' +
             '<td class="text-nowrap">' + pdfEsc(fechaCorta(op.fecha)) + '</td>' +
-            '<td title="' + concepto + '">' + corto + '</td>' +
+            '<td title="' + concepto + '">' + corto + ctrl + '</td>' +
             '<td class="text-end text-nowrap">$' + Number(op.monto).toFixed(2) + '</td>' +
             '<td>' + badge + '</td>' +
             '<td class="text-nowrap small">' + (f.destino ? pdfEsc(f.destino) : '—') + '</td>' +
@@ -348,6 +496,10 @@ function mostrarVistaPrevia(ops, infos) {
               '<span class="badge bg-primary">' + nuevas + ' nuevas</span>' +
               '<span class="badge bg-secondary">' + dups + ' duplicadas (se omiten)</span>' +
               (omitidas ? '<span class="badge bg-warning text-dark">' + omitidas + ' omitidas</span>' : '') +
+              (nTransf ? '<span class="badge bg-info text-dark">' + nTransf + ' transferencias</span>' : '') +
+              (nOnat ? '<span class="badge bg-dark">' + nOnat + ' pagos ONAT</span>' : '') +
+              (nQR ? '<span class="badge bg-info">' + nQR + ' con QR</span>' : '') +
+              (nSospecha ? '<span class="badge bg-warning text-dark">⚠ ' + nSospecha + ' posible ONAT sin código</span>' : '') +
               '<span class="ms-auto d-flex align-items-center gap-2"><label class="small mb-0">Importar a:</label>' +
               '<select id="pdfImportCuenta" class="form-select form-select-sm" style="width:auto">' +
                 Object.keys(nombresCuenta).map(function (k) {
@@ -358,7 +510,7 @@ function mostrarVistaPrevia(ops, infos) {
             '<div class="table-responsive"><table class="table table-sm table-hover align-middle">' +
             '<thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th><th>Tipo</th><th>Mes destino</th><th>Estado</th></tr></thead>' +
             '<tbody>' + filasHtml + '</tbody></table></div>' +
-            '<div class="small text-secondary mt-2">Las duplicadas se detectan por Ref_Corriente + Ref_Origen y no se importan. El orden de las operaciones se conserva.</div>' +
+            '<div class="small text-secondary mt-2">Las duplicadas se detectan por Ref_Corriente + Ref_Origen y no se importan. El orden de las operaciones se conserva. La clasificación (transferencia / comercio electrónico QR / pago ONAT por código del tributo) se detecta sola y puedes corregirla por fila antes de importar: las transferencias no cuentan como ingreso ni gasto pero sí mueven el saldo; los pagos ONAT se vinculan al Vector Fiscal y alimentan la Declaración Jurada.</div>' +
           '</div>' +
           '<div class="modal-footer">' +
             '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>' +
@@ -410,6 +562,37 @@ function importarLote(cuenta) {
             refOrigen: op.refO,
             origen: 'pdf_banco'
         };
+        /* Clasificación automática (corregible en la vista previa):
+           - transferencia: clasificacion 'transferencia' + tipo según
+             Cr/Db → mueve el saldo de la cuenta sin contar en totales.
+           - onat: tipo 'onat' con código/nombre/período y vínculo a la
+             obligación del Vector Fiscal (queda marcada como pagada).
+           - qr: marca en el movimiento (registro QR del cierre). */
+        var cl = op._clasif;
+        if (cl) {
+            if (cl.qr) mov.qr = true;
+            if (cl.clase === 'transferencia') {
+                mov.clasificacion = 'transferencia';
+                mov.autoBanco = 'transferencia';
+            } else if (cl.clase === 'onat' && cl.onat) {
+                var periodoOnat = cl.onat.periodo || mesDeFecha(op.fecha);
+                mov.tipo = 'onat';
+                mov.aporteNumero = cl.onat.codigo;
+                mov.tributoCodigo = cl.onat.codigo;
+                mov.aporteNombre = cl.onat.nombre;
+                mov.aportePeriodoTexto = periodoOnat;
+                mov.fiscalPeriodo = periodoOnat;
+                mov.aporteDesde = op.fecha;
+                mov.aporteHasta = op.fecha;
+                mov.autoBanco = 'onat';
+                try {
+                    if (api.obligacionParaAporte) {
+                        var ob = api.obligacionParaAporte(cl.onat.codigo, op.fecha, op.fecha);
+                        if (ob && ob.id) mov.fiscalId = ob.id;
+                    }
+                } catch (e) { /* el vínculo por código+período queda igual */ }
+            }
+        }
         if (enEdicion) {
             movs.push(mov);          /* copia de trabajo; se guarda con "Guardar" */
         } else if (mesOp === actual) {
@@ -438,6 +621,16 @@ function importarLote(cuenta) {
     }
     api.saveMovimientos(movs);
     if (histModificado) {
+        /* Refrescar el Registro QR de los meses cerrados que recibieron
+           operaciones con marca de comercio electrónico. */
+        if (typeof api.registroQRDeMovs === 'function') {
+            Object.keys(porMes).forEach(function (m) {
+                if (m === actual) return;
+                for (var i = 0; i < historial.length; i++) {
+                    if (historial[i].mes === m) historial[i].registroQR = api.registroQRDeMovs(historial[i].movimientos || []);
+                }
+            });
+        }
         api.saveHistorial(historial);
         /* Los meses cerrados que recibieron operaciones cambian su saldo final:
            encadenar saldos hacia adelante (incluye el mes en curso). */
@@ -448,7 +641,16 @@ function importarLote(cuenta) {
     api.renderAll();
 
     var detalle = Object.keys(porMes).map(function (m) { return m + ': ' + porMes[m]; }).join(', ');
-    alert('✅ Importadas ' + n + ' operaciones del estado de cuenta.\n' + detalle);
+    var cT = 0, cO = 0, cQ = 0;
+    nuevas.forEach(function (f) {
+        if (f.op._clasif) {
+            if (f.op._clasif.clase === 'transferencia') cT++;
+            if (f.op._clasif.clase === 'onat') cO++;
+            if (f.op._clasif.qr) cQ++;
+        }
+    });
+    var extraClasif = (cT || cO || cQ) ? '\nClasificadas: ' + cT + ' transferencias entre cuentas, ' + cO + ' pagos ONAT, ' + cQ + ' con marca QR.' : '';
+    alert('✅ Importadas ' + n + ' operaciones del estado de cuenta.\n' + detalle + extraClasif);
 }
 
 /* ---------------- Arranque ---------------- */
@@ -463,7 +665,11 @@ window.__pdfImportTest = {
     parsearLineas: parsearLineas,
     limpiarConcepto: limpiarConcepto,
     unirLinea: unirLinea,
-    mesDeFecha: mesDeFecha
+    mesDeFecha: mesDeFecha,
+    clasificarOperacion: clasificarOperacion,
+    extraerCodigosConcepto: extraerCodigosConcepto,
+    detectarPeriodoConcepto: detectarPeriodoConcepto,
+    TABLA_TRIBUTOS_LOCAL: TABLA_TRIBUTOS_LOCAL
 };
 
 })();

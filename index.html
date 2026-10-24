@@ -787,6 +787,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link nomina" id="tab-nomina" data-bs-toggle="tab" data-bs-target="#pane-nomina"><i class="bi bi-people me-1"></i> Nómina</button></li>
         <li class="nav-item"><button class="nav-link utilidades" id="tab-utilidades" data-bs-toggle="tab" data-bs-target="#pane-utilidades"><i class="bi bi-bar-chart-line me-1"></i> Trimestres</button></li>
         <li class="nav-item"><button class="nav-link fiscal" id="tab-fiscal" data-bs-toggle="tab" data-bs-target="#pane-fiscal"><i class="bi bi-file-earmark-check me-1"></i> Fiscal</button></li>
+        <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><i class="bi bi-file-earmark-text me-1"></i> DJ</button></li>
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><i class="bi bi-currency-exchange me-1"></i> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><i class="bi bi-pc-display-horizontal me-1"></i> Activos</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><i class="bi bi-archive me-1"></i> Historial</button></li>
@@ -826,7 +827,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-chequera">$0.00</span></span>
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">💰 Saldo Actual: <span id="saldo-chequera">$0.00</span></span>
-                                        <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-chequera">0</span></span>
+                    <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-chequera">0</span></span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -851,8 +852,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_cup">$0.00</span></span>
                     <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_cup">$0.00</span></span>
-                                        <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-tarjeta_cup">0</span></span>
-                    
+                    <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-tarjeta_cup">0</span></span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -878,7 +878,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_usd">$0.00 USD</span></span>
                     <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_usd">$0.00 USD</span></span>
                     <span class="badge bg-soft-secondary px-3 py-2">🔄 Equiv CUP: <span id="saldo-tarjeta_usd_cup">$0.00</span></span>
-                                        <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-tarjeta_usd">0</span></span>
+                    <span class="badge bg-soft-secondary px-3 py-2">🧾 Cantidad de Movimientos: <span id="cantMov-tarjeta_usd">0</span></span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -1087,6 +1087,77 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
         </div>
 
+        <!-- DECLARACIÓN JURADA (DJ automática) -->
+        <div class="tab-pane fade" id="pane-dj">
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div><h5 class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2" style="color:#0f766e"></i>Declaración Jurada automática</h5><div class="small text-secondary">Borrador calculado desde tus movimientos, nómina y pagos ONAT clasificados. La firma y la presentación ante la ONAT siguen siendo tuyas.</div></div>
+                <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="djAnioSel">Año fiscal</label><select id="djAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="pane-dj"><i class="bi bi-printer me-1"></i>PDF</button></div>
+            </div>
+            <div id="djAvisos" class="mb-3"></div>
+            <div class="card p-3 p-md-4 mb-3">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-person-vcard me-2"></i>Ficha fiscal del negocio</h6>
+                <div class="row g-2">
+                    <div class="col-md-3"><label class="form-label small mb-1">Régimen</label><select id="djFichaRegimen" class="form-select form-select-sm"><option value="tcp_general">TCP · Régimen general</option><option value="tcp_simplificado">TCP · Régimen simplificado</option><option value="mipyme">MIPYME</option></select></div>
+                    <div class="col-md-3"><label class="form-label small mb-1">NIT</label><input id="djFichaNIT" class="form-control form-control-sm" placeholder="NIT del contribuyente"></div>
+                    <div class="col-md-6"><label class="form-label small mb-1">Nombre / Razón social</label><input id="djFichaNombre" class="form-control form-control-sm" placeholder="Nombre del contribuyente o la MIPYME"></div>
+                    <div class="col-md-4"><label class="form-label small mb-1">Municipio de inscripción</label><input id="djFichaMunicipio" class="form-control form-control-sm"></div>
+                    <div class="col-md-5"><label class="form-label small mb-1">Actividad</label><input id="djFichaActividad" class="form-control form-control-sm"></div>
+                    <div class="col-md-3"><label class="form-label small mb-1">Fecha de inscripción</label><input id="djFichaFecha" type="date" class="form-control form-control-sm"></div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"><span class="small text-secondary">Si ya importaste el Vector Fiscal (RC-04A), el NIT, el nombre y el municipio se toman de ahí.</span><button class="btn btn-sm btn-primary" id="btnDjGuardarFicha"><i class="bi bi-check2-circle me-1"></i> Guardar ficha</button></div>
+            </div>
+            <div class="card p-3 p-md-4 mb-3">
+                <h6 class="fw-semibold mb-1"><i class="bi bi-sliders me-2"></i>Parámetros del año fiscal <span id="djParAnio" class="text-secondary"></span></h6>
+                <div class="small text-secondary mb-3">La Ley Anual del Presupuesto puede cambiarlos: contrasta siempre contra el modelo oficial del año (DJ-08 / DJ-01) publicado por la ONAT.</div>
+                <div class="row g-2">
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Mínimo exento IIP (CUP)</label><input id="djParExento" type="number" min="0" step="1" class="form-control form-control-sm"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Bonif. pronto pago % (≤ 28 feb)</label><input id="djParBonifP" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Bonif. canales electrónicos %</label><input id="djParBonifE" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Tope régimen simplificado (CUP)</label><input id="djParTopeSimp" type="number" min="0" step="1" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala IIP (tope:tasa% por tramo, último tramo con tope vacío)</label><input id="djParEscalaIIP" class="form-control form-control-sm" placeholder="10000:15, 20000:20, 30000:30, 50000:40, :50"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Impuesto sobre Utilidades %</label><input id="djParTipoUtil" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Exento dividendos socios (CUP)</label><input id="djParExentoDiv" type="number" min="0" step="1" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala dividendos de socios (tope:tasa%)</label><input id="djParEscalaDiv" class="form-control form-control-sm" placeholder="75000:3, 150000:5, 250000:10, 350000:15, :20"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Retención anticipos de dividendos %</label><input id="djParRetDiv" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
+                </div>
+                <div class="text-end mt-3"><button class="btn btn-sm btn-primary" id="btnDjGuardarParams"><i class="bi bi-check2-circle me-1"></i> Guardar parámetros del año</button></div>
+            </div>
+            <div id="djCalcTCP">
+                <div class="card p-3 p-md-4 mb-3">
+                    <h6 class="fw-semibold mb-3"><i class="bi bi-calculator me-2"></i><span id="djTituloTCP">DJ-08 · Impuesto sobre Ingresos Personales</span></h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Gastos con justificante (CUP, opcional)</label><input id="djGastosJust" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Vacío = todos"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Arrendamiento a entidades estatales (CUP)</label><input id="djArrend" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Otras deducciones autorizadas (CUP)</label><input id="djOtrasDed" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Fecha prevista de pago</label><input id="djFechaPago" type="date" class="form-control form-control-sm"></div>
+                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djCanalElec"><label class="form-check-label small" for="djCanalElec">Pago por canales electrónicos (bonificación adicional)</label></div></div>
+                    </div>
+                    <div id="djLineasTCP" class="aporte-box"></div>
+                </div>
+                <div class="card p-3 p-md-4 mb-3">
+                    <h6 class="fw-semibold mb-3"><i class="bi bi-people me-2"></i>Sección I · Trabajadores contratados (desde la nómina)</h6>
+                    <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Trabajador</th><th>NIT (CI)</th><th>Municipio</th><th>Período</th><th class="text-end">Remuneración anual</th></tr></thead><tbody id="djSeccionIBody"></tbody></table></div>
+                    <div id="djSeccionIVacio" class="text-muted small mt-2" style="display:none">Sin trabajadores registrados en la nómina de este año.</div>
+                </div>
+            </div>
+            <div id="djCalcMIPYME" style="display:none">
+                <div class="card p-3 p-md-4 mb-3">
+                    <h6 class="fw-semibold mb-3"><i class="bi bi-calculator me-2"></i>DJ-01 · Impuesto sobre Utilidades</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-4"><label class="form-label small mb-1">Pérdidas fiscales de años anteriores (CUP)</label><input id="djPerdidas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-4"><label class="form-label small mb-1">Reservas autorizadas antes del impuesto (CUP)</label><input id="djReservas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-12 col-md-4"><label class="form-label small mb-1">Pagos a cuenta trimestrales (CUP)</label><div class="d-flex gap-1"><input id="djPC1" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="T1"><input id="djPC2" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="T2"><input id="djPC3" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="T3"></div></div>
+                    </div>
+                    <div id="djLineas01" class="aporte-box"></div>
+                    <div class="small text-secondary mt-2">La DJ-01 se presenta solo en formato digital con firma electrónica (servicio de la ONAT); usa esta hoja como borrador de cálculo.</div>
+                </div>
+                <div class="card p-3 p-md-4 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-people me-2"></i>DJ de socios por dividendos</h6><button class="btn btn-sm btn-outline-primary" id="btnDjAddSocio"><i class="bi bi-plus-lg me-1"></i> Socio</button></div>
+                    <div id="djSociosBox"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- TASAS BCC -->
         <div class="tab-pane fade" id="pane-tasas">
             <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><i class="bi bi-currency-exchange me-2" style="color:#0369a1"></i>Tasas de cambio</h5><div class="small text-secondary">Consulta la tasa del Banco Central de Cuba por fecha y moneda.</div></div>
@@ -1122,6 +1193,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <div class="d-flex gap-3 flex-wrap" id="mesActualDisplay"></div>
                     </div>
                 </div>
+            </div>
+            <div class="card p-3 p-md-4 mt-3" id="qrRegistroBox">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-qr-code me-2"></i>Registro de pagos por comercio electrónico (QR)</h6><div class="d-flex gap-2 align-items-center"><select id="qrMesSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="qrRegistroBox"><i class="bi bi-printer me-1"></i>PDF</button></div></div>
+                <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto</th><th>Cuenta</th><th class="text-end">Monto (CUP)</th></tr></thead><tbody id="qrRegistroBody"></tbody></table></div>
+                <div id="qrRegistroVacio" class="text-muted small mt-2" style="display:none">Este mes no tiene pagos marcados como comercio electrónico (QR).</div>
+                <div class="text-end mt-2"><b>Total QR del mes: <span id="qrRegistroTotal">$0.00</span></b></div>
             </div>
         </div>
 
@@ -1818,7 +1895,68 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const r=calcularResumen(h.movimientos||[],{tasa:Number(h.tasa)||tasaVista(),saldoInicial:h.saldoInicial||z,saldoInicialTasaUSD:h.saldoInicialTasaUSD});
                 saldos={chequera:r.saldos.chequera.montoDivisa,tarjeta_cup:r.saldos.tarjeta_cup.montoDivisa,tarjeta_usd:r.saldos.tarjeta_usd.montoDivisa};
             }
-            return {mes:ant,saldos:{chequera:Number(saldos.chequera)||0,tarjeta_cup:Number(saldos.tarjeta_cup)||0,tarjeta_usd:Number(saldos.tarjeta_usd)||0},tasaUSD:Number(h.tasa)||tasaVista()}; } /* Siguiente mes que existe (en el historial o el mes en curso), saltando los meses que nunca se abrieron. Incluye cambio de año. */ function siguienteMesExistente(actual) { const enHist = {}; getHistorial().forEach(function(x){ enHist[x.mes] = true; }); const mesData = getMesActual() || {}; const mesEnCurso = mesData.mesSeleccionado || getMesActualStr(); let sig = obtenerSiguienteMes(actual), guard = 0; while (sig && guard++ < 36) { if (enHist[sig] || sig === mesEnCurso) return sig; sig = obtenerSiguienteMes(sig); } return null; } /* Encadena los saldos: el saldo final de cada cuenta en mesNombre pasa a ser el saldo inicial del mes siguiente, en cascada hasta el mes en curso (incluye el cambio de año). */ function propagarSaldos(mesNombre) { if (!mesNombre) return; function finDe(nombre) { const hist = getHistorial(); const h = hist.find(function(x){ return x.mes === nombre; }); if (!h) return {fin:{chequera:0, tarjeta_cup:0, tarjeta_usd:0}, tasa:tasaVista(), existe:false}; const z = {chequera:0, tarjeta_cup:0, tarjeta_usd:0}; const r = calcularResumen(h.movimientos || [], {tasa:Number(h.tasa)||tasaVista(), saldoInicial:h.saldoInicial||z, saldoInicialTasaUSD:h.saldoInicialTasaUSD}); const fin = {chequera:r.saldos.chequera.montoDivisa, tarjeta_cup:r.saldos.tarjeta_cup.montoDivisa, tarjeta_usd:r.saldos.tarjeta_usd.montoDivisa}; h.saldoFinal = {chequera:r.saldos.chequera.monto, tarjeta_cup:r.saldos.tarjeta_cup.monto, tarjeta_usd:r.saldos.tarjeta_usd.monto}; h.saldoFinalMoneda = fin; h.saldoFinalTasaUSD = Number(h.tasa) || tasaVista(); h.totalUtilidad = r.utilidad; h.totalMovimientos = (h.movimientos || []).length; saveHistorial(hist); return {fin:fin, tasa:Number(h.tasa)||tasaVista(), existe:true}; } let actual = mesNombre, guard = 0; while (actual && guard++ < 36) { const fr = finDe(actual); const sig = siguienteMesExistente(actual); if (!sig) break; const hist2 = getHistorial(); const hSig = hist2.find(function(x){ return x.mes === sig; }); const mesData = getMesActual() || {}; const mesEnCurso = mesData.mesSeleccionado || getMesActualStr(); if (hSig) { hSig.saldoInicial = {chequera:fr.fin.chequera, tarjeta_cup:fr.fin.tarjeta_cup, tarjeta_usd:fr.fin.tarjeta_usd}; hSig.saldoInicialTasaUSD = fr.tasa; saveHistorial(hist2); actual = sig; } else if (sig === mesEnCurso) { mesData.saldoInicial = {chequera:fr.fin.chequera, tarjeta_cup:fr.fin.tarjeta_cup, tarjeta_usd:fr.fin.tarjeta_usd}; mesData.saldoInicialTasaUSD = fr.tasa; saveMesActual(mesData); break; } else { break; } } }
+            return {mes:ant,saldos:{chequera:Number(saldos.chequera)||0,tarjeta_cup:Number(saldos.tarjeta_cup)||0,tarjeta_usd:Number(saldos.tarjeta_usd)||0},tasaUSD:Number(h.tasa)||tasaVista()};
+        }
+        /* Siguiente mes que existe (en el historial o el mes en curso),
+           saltando los meses que nunca se abrieron. Incluye cambio de año. */
+        function siguienteMesExistente(actual) {
+            const enHist = {};
+            getHistorial().forEach(function(x){ enHist[x.mes] = true; });
+            const mesData = getMesActual() || {};
+            const mesEnCurso = mesData.mesSeleccionado || getMesActualStr();
+            let sig = obtenerSiguienteMes(actual), guard = 0;
+            while (sig && guard++ < 36) {
+                if (enHist[sig] || sig === mesEnCurso) return sig;
+                sig = obtenerSiguienteMes(sig);
+            }
+            return null;
+        }
+        /* Encadena los saldos: el saldo final de cada cuenta en `mesNombre`
+           pasa a ser el saldo inicial del mes siguiente, en cascada hasta el
+           mes en curso (incluye el cambio de año). Se usa cuando un mes ya
+           cerrado cambia después de existir el siguiente: editar+guardar,
+           importar PDF a un mes cerrado, o eliminar un mes. */
+        function propagarSaldos(mesNombre) {
+            if (!mesNombre) return;
+            function finDe(nombre) {
+                const hist = getHistorial();
+                const h = hist.find(function(x){ return x.mes === nombre; });
+                if (!h) return {fin:{chequera:0, tarjeta_cup:0, tarjeta_usd:0}, tasa:tasaVista(), existe:false};
+                const z = {chequera:0, tarjeta_cup:0, tarjeta_usd:0};
+                const r = calcularResumen(h.movimientos || [], {tasa:Number(h.tasa)||tasaVista(), saldoInicial:h.saldoInicial||z, saldoInicialTasaUSD:h.saldoInicialTasaUSD});
+                const fin = {chequera:r.saldos.chequera.montoDivisa, tarjeta_cup:r.saldos.tarjeta_cup.montoDivisa, tarjeta_usd:r.saldos.tarjeta_usd.montoDivisa};
+                h.saldoFinal = {chequera:r.saldos.chequera.monto, tarjeta_cup:r.saldos.tarjeta_cup.monto, tarjeta_usd:r.saldos.tarjeta_usd.monto};
+                h.saldoFinalMoneda = fin;
+                h.saldoFinalTasaUSD = Number(h.tasa) || tasaVista();
+                h.totalUtilidad = r.utilidad;
+                h.totalMovimientos = (h.movimientos || []).length;
+                saveHistorial(hist);
+                return {fin:fin, tasa:Number(h.tasa)||tasaVista(), existe:true};
+            }
+            let actual = mesNombre, guard = 0;
+            while (actual && guard++ < 36) {
+                const fr = finDe(actual);
+                const sig = siguienteMesExistente(actual);
+                if (!sig) break;
+                const hist2 = getHistorial();
+                const hSig = hist2.find(function(x){ return x.mes === sig; });
+                const mesData = getMesActual() || {};
+                const mesEnCurso = mesData.mesSeleccionado || getMesActualStr();
+                if (hSig) {
+                    hSig.saldoInicial = {chequera:fr.fin.chequera, tarjeta_cup:fr.fin.tarjeta_cup, tarjeta_usd:fr.fin.tarjeta_usd};
+                    hSig.saldoInicialTasaUSD = fr.tasa;
+                    saveHistorial(hist2);
+                    actual = sig;
+                } else if (sig === mesEnCurso) {
+                    mesData.saldoInicial = {chequera:fr.fin.chequera, tarjeta_cup:fr.fin.tarjeta_cup, tarjeta_usd:fr.fin.tarjeta_usd};
+                    mesData.saldoInicialTasaUSD = fr.tasa;
+                    saveMesActual(mesData);
+                    break;
+                } else {
+                    break;
+                }
+            }
+        }
         function copiarNominaAlSiguientePeriodo(origen,destino) {
             try {
                 const d=getRRHH();
@@ -1938,7 +2076,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function calcularResumen(movs, opts) {
             opts = opts || {}; const T = opts.tasa || tasaVista();
             const data = movs || movimientos;
-            let mesData = opts.saldoInicial ? {saldoInicial: opts.saldoInicial, saldoInicialTasaUSD: opts.saldoInicialTasaUSD} : getMesActual(); if (!opts.saldoInicial && modoEdicionActivo) { const hv = getHistorial()[edicionIndex]; if (hv) mesData = {saldoInicial: hv.saldoInicial, saldoInicialTasaUSD: hv.saldoInicialTasaUSD}; }
+            let mesData = opts.saldoInicial ? {saldoInicial: opts.saldoInicial, saldoInicialTasaUSD: opts.saldoInicialTasaUSD} : getMesActual();
+            /* En modo edición se está viendo un mes cerrado: el saldo inicial
+               es el de ese mes (su foto histórica), no el del mes en curso. */
+            if (!opts.saldoInicial && modoEdicionActivo) {
+                const hv = getHistorial()[edicionIndex];
+                if (hv) mesData = {saldoInicial: hv.saldoInicial, saldoInicialTasaUSD: hv.saldoInicialTasaUSD};
+            }
             let ingresos = 0, gastos = 0, onat = 0;
             const mk = () => ({ ingresos:0,gastos:0,onat:0,monto:0,ingresosDivisa:0,gastosDivisa:0,onatDivisa:0,montoDivisa:0 });
             let saldos = {chequera:mk(), tarjeta_cup:mk(), tarjeta_usd:mk()};
@@ -3398,7 +3542,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 }
 
                 tr.innerHTML = `
-                    <td><span class="fw-medium">${esc(m.concepto)}</span>${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
+                    <td><span class="fw-medium">${esc(m.concepto)}</span>${m.qr?'<span class="badge bg-info text-dark ms-1" title="Pago por comercio electrónico">QR</span>':''}${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
                     <td>${badgeTipo}</td>
                     <td>${getClasificacionBadge(m.clasificacion || 'operacional')}</td>
                     <td>${badgeCuenta}</td>
@@ -3426,16 +3570,36 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const esUSD = cuenta === 'tarjeta_usd';
             const unidadMoneda = esUSD ? 'USD' : 'CUP';
             
-            let si = getSaldoInicial(); if (modoEdicionActivo) { const hv = getHistorial()[edicionIndex]; if (hv && hv.saldoInicial) si = hv.saldoInicial; }
+            let si = getSaldoInicial();
+            /* En modo edición se muestra el inicial del mes que se está viendo. */
+            if (modoEdicionActivo) {
+                const hv = getHistorial()[edicionIndex];
+                if (hv && hv.saldoInicial) si = hv.saldoInicial;
+            }
             const saldoInicialVal = esUSD ? (si[cuenta] || 0) : (si[cuenta] || 0);
             document.getElementById(`saldoInicial-${cuenta}`).textContent = `$${saldoInicialVal.toFixed(2)} ${esUSD ? 'USD' : 'CUP'}`;
-                        const elCantMov = document.getElementById(`cantMov-${cuenta}`);
-                        if (elCantMov) elCantMov.textContent = movs.length;
+            const elCantMov = document.getElementById(`cantMov-${cuenta}`);
+            if (elCantMov) elCantMov.textContent = movs.length;
             
             const puedeEditarUsuario = puedeEditar();
             
-            const saldoPorId = {}; { const _asc = [...movs].sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); let _acc = Number(saldoInicialVal) || 0; _asc.forEach(function(_mm){ const _v = esUSD ? (Number(_mm.monto) || 0) : getMontoMovimientoCUP(_mm); _acc += (_mm.tipo === 'ingreso' ? _v : -_v); saldoPorId[_mm.id] = _acc; }); } tbodyCuenta.innerHTML = sorted.map(m => {
-                const valor = esUSD ? m.monto : getMontoMovimientoCUP(m); const _sAc = Number(saldoPorId[m.id] || 0); const saldoStr = '<span class="' + (_sAc < 0 ? 'text-danger fw-semibold' : '') + '">$' + Math.abs(_sAc).toFixed(2) + '</span>';
+            /* Saldo acumulado por operación, en orden cronológico (igual que el
+               estado de cuenta: de la primera a la última operación). */
+            const saldoPorId = {};
+            {
+                const asc = [...movs].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+                let acc = Number(saldoInicialVal) || 0;
+                asc.forEach(function(mm){
+                    const v = esUSD ? (Number(mm.monto) || 0) : getMontoMovimientoCUP(mm);
+                    acc += (mm.tipo === 'ingreso' ? v : -v);
+                    saldoPorId[mm.id] = acc;
+                });
+            }
+            
+            tbodyCuenta.innerHTML = sorted.map(m => {
+                const valor = esUSD ? m.monto : getMontoMovimientoCUP(m);
+                const sAc = Number(saldoPorId[m.id] || 0);
+                const saldoStr = '<span class="' + (sAc < 0 ? 'text-danger fw-semibold' : '') + '">$' + Math.abs(sAc).toFixed(2) + '</span>';
                 let badgeTipo = '';
                 if (m.tipo === 'ingreso') badgeTipo = '<span class="badge badge-soft-success rounded-pill"><i class="bi bi-arrow-up-short"></i> Ingreso</span>';
                 else if (m.tipo === 'gasto') badgeTipo = '<span class="badge badge-soft-danger rounded-pill"><i class="bi bi-arrow-down-short"></i> Gasto</span>';
@@ -3458,10 +3622,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 
                 return `
                     <tr>
-                        <td><span class="fw-medium">${esc(m.concepto)}</span>${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
+                        <td><span class="fw-medium">${esc(m.concepto)}</span>${m.qr?'<span class="badge bg-info text-dark ms-1" title="Pago por comercio electrónico">QR</span>':''}${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
                         <td>${badgeTipo}</td>
                         <td>${getClasificacionBadge(m.clasificacion || 'operacional')}</td>
-                        <td class="text-end">${montoStr}</td><td class="text-end">${saldoStr}</td><td class="text-center small">${m.fecha}</td><td class="text-center">${botones}</td>
+                        <td class="text-end">${montoStr}</td>
+                        <td class="text-end">${saldoStr}</td>
+                        <td class="text-center small">${m.fecha}</td>
+                        <td class="text-center">${botones}</td>
                     </tr>
                 `;
             }).join('');
@@ -3594,7 +3761,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const mes = historial[index];
             if (!mes) return;
             if (!confirm(`⚠️ ¿Eliminar el mes de ${mes.mes}?\n¡Esta acción no se puede deshacer!`)) return;
-            historial.splice(index, 1); saveHistorial(historial); propagarSaldos(obtenerMesAnterior(mes.mes));
+            historial.splice(index, 1);
+            saveHistorial(historial);
+            /* Re-encadenar los saldos a partir del mes anterior al eliminado. */
+            propagarSaldos(obtenerMesAnterior(mes.mes));
             renderAll();
         }
 
@@ -3607,6 +3777,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             
             mes.movimientos = JSON.parse(JSON.stringify(movimientos));
             mes.totalMovimientos = movimientos.length;
+            mes.registroQR = registroQRDeMovs(movimientos);
             const res = calcularResumen(movimientos, {tasa: tasaEntrada(mes), saldoInicial: mes.saldoInicial || {chequera:0, tarjeta_cup:0, tarjeta_usd:0}});
             mes.totalUtilidad = res.utilidad;
             mes.saldoFinal = {
@@ -3623,7 +3794,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             saveHistorial(historial);
             // El slot de movimientos guarda SIEMPRE el mes real en curso: no se toca.
             // Se vuelve al mes de trabajo real con sus movimientos intactos.
-            restaurarMesRealTrasEdicion(); propagarSaldos(mes.mes); actualizarBarraMes();
+            restaurarMesRealTrasEdicion();
+            /* El final de este mes pudo cambiar: encadenar saldos hacia adelante. */
+            propagarSaldos(mes.mes);
+
+            actualizarBarraMes();
             renderAll();
             alert(`✅ Cambios guardados en el mes de ${mes.mes}.`);
         }
@@ -3805,6 +3980,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             _safe(renderTrimestres,'trimestres');
             _safe(renderCierreAnual,'cierre-anual');
             _safe(renderFiscal,'fiscal');
+            _safe(renderDJ,'dj');
+            _safe(renderRegistroQR,'qr');
             _safe(renderFX,'fx');
             _safe(renderAFT,'aft');
             
@@ -3868,6 +4045,481 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         // ===== CERRAR MES =====
+        // ===== DECLARACIÓN JURADA (DJ automática) =====
+        /* Reglas según el informe «DJ automática TCP/MIPYME» (2026-10-24):
+           DJ-08: ingresos − exento 39 120 − gastos deducibles (100 %,
+           justificando ≥ 80 %) − tributos pagados → escala 15-50 % −
+           anticipos 5 % − bonificaciones 5 % (≤28 feb) y 3 % (electrónico).
+           DJ-01: 35 % sobre utilidad − pérdidas − reservas − pagos a cuenta.
+           Socios: dividendos − 39 120 → escala 3-20 % − retenciones 5 %.
+           Todos los parámetros son editables por año fiscal en la interfaz. */
+        const DJ_PARAMS_DEF = {
+            exentoIIP: 39120,
+            escalaIIP: [[10000,15],[20000,20],[30000,30],[50000,40],[Infinity,50]],
+            bonifPronto: 5, bonifElec: 3,
+            tipoUtilidades: 35,
+            escalaDiv: [[75000,3],[150000,5],[250000,10],[350000,15],[Infinity,20]],
+            exentoDiv: 39120, retencionDiv: 5,
+            topeSimplificado: 200000
+        };
+        /* Tabla código de tributo → categoría DJ. Códigos verificados contra
+           un Vector Fiscal real 2025, el Manual del Tenedor de Libros
+           Rev. 01/2025 y la Res. 306/2023 del MFP (informe de códigos ONAT,
+           2026-10-24). Formas de 6 dígitos = párrafos del Clasificador
+           (MIPYME); de 7 = código del Vector Fiscal. La cuota consolidada
+           del régimen simplificado no tiene código explícito en las
+           fuentes: queda «por verificar» y no se auto-clasifica. */
+        const DJ_CODIGOS = [
+            ['0114022','deducible','Impuesto sobre las Ventas y Servicios'],
+            ['0114822','deducible','Impuesto sobre las Ventas y Servicios'],
+            ['011482','deducible','Impuesto sobre las Ventas y Servicios'],
+            ['0510122','anticipo_iip','IIP · aporte mensual (anticipo 5 %)'],
+            ['0520522','deducible','IIP · retención a trabajadores'],
+            ['0520322','deducible','IIP · retención a trabajadores'],
+            ['052032','deducible','IIP · retenciones y pagos parciales'],
+            ['0530222','liquidacion','IIP · liquidación anual (DJ-08)'],
+            ['053022','liquidacion','IIP · liquidación adicional / dividendos'],
+            ['0610322','deducible','Impuesto por la Utilización de la Fuerza de Trabajo'],
+            ['0610122','deducible','Impuesto por la Utilización de la Fuerza de Trabajo'],
+            ['061012','deducible','Impuesto por la Utilización de la Fuerza de Trabajo'],
+            ['0810132','deducible','Contribución a la Seguridad Social'],
+            ['081013','deducible','Contribución a la Seguridad Social'],
+            ['0820132','deducible','Contribución Especial a la Seguridad Social (propia del TCP)'],
+            ['0820232','deducible','Contribución Especial a la Seguridad Social (trabajadores)'],
+            ['082023','deducible','Contribución Especial a la Seguridad Social (trabajadores)'],
+            ['0730122','deducible','Impuesto sobre Documentos'],
+            ['0900122','deducible','Tasa por radicación de anuncios y propaganda'],
+            ['0740122','deducible','Contribución Territorial para el Desarrollo Local'],
+            ['074012','deducible','Contribución Territorial para el Desarrollo Local'],
+            ['0400722','pago_cuenta_utilidades','Impuesto sobre Utilidades (pago a cuenta / liquidación)'],
+            ['040072','pago_cuenta_utilidades','Impuesto sobre Utilidades (pago a cuenta / liquidación)']
+        ];
+        const DJ_COD_MAP = {};
+        DJ_CODIGOS.forEach(function(x){ DJ_COD_MAP[codigoAporteNorm(x[0])] = {cat: x[1], nom: x[2]}; });
+
+        function getDJKey(){ return `finanzas_dj_${getCurrentUser()}`; }
+        function getDJ(){
+            let d = {};
+            try { d = JSON.parse(Store.getItem(getDJKey()) || '{}') || {}; } catch(e) { d = {}; }
+            if (!d.ficha || typeof d.ficha !== 'object') d.ficha = {};
+            if (!d.params || typeof d.params !== 'object') d.params = {};
+            if (!d.manual || typeof d.manual !== 'object') d.manual = {};
+            return d;
+        }
+        function saveDJ(d){ Store.setItem(getDJKey(), JSON.stringify(d)); }
+        function djParamsAnio(anio){
+            const d = getDJ(), g = (d.params && d.params[anio]) || {};
+            const P = {
+                exentoIIP: DJ_PARAMS_DEF.exentoIIP, bonifPronto: DJ_PARAMS_DEF.bonifPronto,
+                bonifElec: DJ_PARAMS_DEF.bonifElec, tipoUtilidades: DJ_PARAMS_DEF.tipoUtilidades,
+                exentoDiv: DJ_PARAMS_DEF.exentoDiv, retencionDiv: DJ_PARAMS_DEF.retencionDiv,
+                topeSimplificado: DJ_PARAMS_DEF.topeSimplificado,
+                escalaIIP: DJ_PARAMS_DEF.escalaIIP.map(t => t.slice()),
+                escalaDiv: DJ_PARAMS_DEF.escalaDiv.map(t => t.slice())
+            };
+            ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv','topeSimplificado'].forEach(k => {
+                if (g[k] !== undefined && g[k] !== '' && !isNaN(Number(g[k]))) P[k] = Number(g[k]);
+            });
+            if (Array.isArray(g.escalaIIP) && g.escalaIIP.length) P.escalaIIP = g.escalaIIP;
+            if (Array.isArray(g.escalaDiv) && g.escalaDiv.length) P.escalaDiv = g.escalaDiv;
+            return P;
+        }
+        function djManualAnio(anio){
+            const d = getDJ(), m = (d.manual && d.manual[anio]) || {};
+            return {
+                gastosJustificados: (m.gastosJustificados === '' || m.gastosJustificados == null) ? null : Number(m.gastosJustificados),
+                arrendEstatales: Number(m.arrendEstatales) || 0,
+                otrasDeducciones: Number(m.otrasDeducciones) || 0,
+                fechaPago: m.fechaPago || '', canalElectronico: !!m.canalElectronico,
+                perdidas: Number(m.perdidas) || 0, reservas: Number(m.reservas) || 0,
+                pagosCuenta: Array.isArray(m.pagosCuenta) ? m.pagosCuenta.map(x => Number(x) || 0) : [0,0,0],
+                socios: Array.isArray(m.socios) ? m.socios : []
+            };
+        }
+        function djEscalaTexto(esc){ return esc.map(t => (isFinite(t[0]) ? t[0] : '') + ':' + t[1]).join(', '); }
+        function djParseEscala(txt, def){
+            try {
+                const out = String(txt || '').split(',').map(s => s.trim()).filter(Boolean).map(p => {
+                    const a = p.split(':');
+                    const tope = (a[0] === '' || a[0] === undefined) ? Infinity : parseFloat(a[0]);
+                    const tasa = parseFloat(a[1]);
+                    if (!(tasa >= 0) || (tope !== Infinity && !(tope > 0))) throw new Error('escala');
+                    return [tope, tasa];
+                });
+                return out.length ? out : def;
+            } catch(e) { return def; }
+        }
+        function djAplicarEscala(base, escala){
+            base = Math.max(0, Number(base) || 0);
+            let anterior = 0, total = 0; const detalle = [];
+            for (const par of escala) {
+                const tope = par[0], tasa = par[1];
+                if (base <= anterior) break;
+                const parte = Math.min(base, tope) - anterior;
+                if (parte > 0) { const imp = parte * tasa / 100; detalle.push({desde: anterior, hasta: tope, base: parte, tasa: tasa, importe: imp}); total += imp; }
+                anterior = tope;
+            }
+            return { total: +total.toFixed(2), detalle: detalle };
+        }
+        function djCategoriaOnat(m){
+            const cod = m.aporteNumero || m.tributoCodigo || '';
+            const hit = DJ_COD_MAP[codigoAporteNorm(cod)];
+            if (hit) return { cat: hit.cat, nombre: m.aporteNombre || hit.nom, via: 'código' };
+            const t = normTxt((m.aporteNombre || '') + ' ' + (m.concepto || ''));
+            const nom = m.aporteNombre || m.concepto || 'Tributo';
+            if (/utilidad/.test(t)) return { cat: 'pago_cuenta_utilidades', nombre: nom, via: 'nombre' };
+            if (/ingresos personales/.test(t) && /liquid|anual|adicional/.test(t)) return { cat: 'liquidacion', nombre: nom, via: 'nombre' };
+            if (/ingresos personales/.test(t) && /trabajador|retenc/.test(t)) return { cat: 'deducible', nombre: nom, via: 'nombre' };
+            if (/ingresos personales/.test(t)) return { cat: 'anticipo_iip', nombre: nom, via: 'nombre' };
+            if (/ventas|servicios|fuerza.*trabajo|seguridad social|territorial|documentos|anuncios|transporte/.test(t)) return { cat: 'deducible', nombre: nom, via: 'nombre' };
+            return { cat: 'otros', nombre: nom, via: '—' };
+        }
+        function djDatosAnio(anio){
+            const movs = allMovimientos().filter(m => String(m.fecha || '').slice(0,4) === String(anio));
+            let ingresos = 0, gastos = 0;
+            const trib = { deducible: 0, anticipo_iip: 0, pago_cuenta_utilidades: 0, liquidacion: 0, otros: 0, detalle: [] };
+            movs.forEach(m => {
+                if (m.clasificacion !== 'operacional') return;
+                const cup = getMontoMovimientoCUP(m);
+                if (m.tipo === 'ingreso') ingresos += cup;
+                else if (m.tipo === 'gasto') gastos += cup;
+                else if (m.tipo === 'onat') {
+                    const c = djCategoriaOnat(m);
+                    trib[c.cat] = (trib[c.cat] || 0) + cup;
+                    trib.detalle.push({ nombre: c.nombre, cat: c.cat, monto: cup, fecha: m.fecha, via: c.via });
+                }
+            });
+            return { ingresos: +ingresos.toFixed(2), gastos: +gastos.toFixed(2), trib: trib };
+        }
+        /* Núcleo puro de la DJ-08 (sin DOM): datos = djDatosAnio() */
+        function djCore08(datos, P, man, anio){
+            const L = [];
+            const add = (etiqueta, importe, origen, clase) => L.push({ etiqueta: etiqueta, importe: importe == null ? null : +Number(importe).toFixed(2), origen: origen || '', clase: clase || '' });
+            add('Ingresos brutos del año', datos.ingresos, 'Movimientos operacionales del año');
+            add('Menos: mínimo exento', -P.exentoIIP, 'Parámetro del año fiscal');
+            const T = datos.gastos;
+            let dedGastos = T, notaGastos = 'Se asume el 100 % con justificante; captura el monto justificado para aplicar la regla del 80 %';
+            if (man.gastosJustificados != null) {
+                const J = Math.min(T, Math.max(0, man.gastosJustificados));
+                dedGastos = Math.min(T, J + 0.20 * T);
+                notaGastos = 'Justificado ' + moneda(J) + ' de ' + moneda(T) + ': se reconoce lo justificado + hasta el 20 % sin justificar';
+            }
+            add('Menos: gastos deducibles de la actividad', -dedGastos, notaGastos);
+            add('Menos: tributos pagados deducibles', -datos.trib.deducible, 'Pagos ONAT clasificados por concepto (ventas, fuerza de trabajo, seguridad social, territorial…)');
+            if (man.arrendEstatales > 0) add('Menos: arrendamiento a entidades estatales', -man.arrendEstatales, 'Dato manual');
+            if (man.otrasDeducciones > 0) add('Menos: otras deducciones autorizadas', -man.otrasDeducciones, 'Dato manual');
+            const base = Math.max(0, datos.ingresos - P.exentoIIP - dedGastos - datos.trib.deducible - man.arrendEstatales - man.otrasDeducciones);
+            add('Base imponible', base, 'Ingresos − exento − gastos − tributos deducibles − demás deducciones', 'subtotal');
+            const esc = djAplicarEscala(base, P.escalaIIP);
+            esc.detalle.forEach(d => add('Escala ' + d.tasa + ' % sobre ' + moneda(d.base), d.importe, 'Tramo ' + moneda(d.desde) + ' – ' + (isFinite(d.hasta) ? moneda(d.hasta) : 'en adelante')));
+            add('Impuesto determinado (IIP)', esc.total, 'Escala progresiva del año', 'subtotal');
+            add('Menos: anticipos del IIP pagados (5 % mensual)', -datos.trib.anticipo_iip, 'Clasificados por código 0510122: minoran el impuesto, NO la base');
+            let saldo = esc.total - datos.trib.anticipo_iip;
+            const limiteBonif = (Number(anio) + 1) + '-02-28';
+            if (saldo > 0 && man.fechaPago && man.fechaPago <= limiteBonif) {
+                const b = +(saldo * P.bonifPronto / 100).toFixed(2);
+                add('Menos: bonificación por pronto pago (' + P.bonifPronto + ' %)', -b, 'Declarar y pagar hasta el 28 de febrero de ' + (Number(anio) + 1));
+                saldo -= b;
+            }
+            if (saldo > 0 && man.canalElectronico) {
+                const b = +(saldo * P.bonifElec / 100).toFixed(2);
+                add('Menos: bonificación por canales electrónicos (' + P.bonifElec + ' %)', -b, 'Pago por Transfermóvil / EnZona u otro canal electrónico');
+                saldo -= b;
+            }
+            saldo = +saldo.toFixed(2);
+            add(saldo >= 0 ? 'IMPORTE A PAGAR' : 'SALDO A FAVOR', saldo, saldo >= 0 ? 'A ingresar con el vector fiscal del año declarado' : 'Exceso de anticipos sobre el impuesto del año', 'total');
+            return { lineas: L, base: base, impuesto: esc.total, resultado: saldo };
+        }
+        /* Núcleo puro de la DJ-01 */
+        function djCore01(datos, P, man){
+            const L = [];
+            const add = (etiqueta, importe, origen, clase) => L.push({ etiqueta: etiqueta, importe: importe == null ? null : +Number(importe).toFixed(2), origen: origen || '', clase: clase || '' });
+            add('Ingresos devengados del año', datos.ingresos, 'Movimientos operacionales del año');
+            add('Menos: gastos deducibles', -datos.gastos, 'Movimientos operacionales del año');
+            const utilidad = datos.ingresos - datos.gastos;
+            add('Utilidad del ejercicio', utilidad, 'Ingresos − gastos', 'subtotal');
+            if (man.perdidas > 0) add('Menos: pérdidas fiscales de años anteriores', -man.perdidas, 'Dato manual');
+            if (man.reservas > 0) add('Menos: reservas autorizadas antes del impuesto', -man.reservas, 'Dato manual (porcentaje por verificar en el Instructivo DJ-01)');
+            const base = Math.max(0, utilidad - man.perdidas - man.reservas);
+            add('Base imponible', base, '', 'subtotal');
+            const impuesto = +(base * P.tipoUtilidades / 100).toFixed(2);
+            add('Impuesto sobre Utilidades (' + P.tipoUtilidades + ' %)', impuesto, 'Tipo fijo del año');
+            const pcManual = man.pagosCuenta.reduce((a,x) => a + x, 0);
+            const pcDetectado = datos.trib.pago_cuenta_utilidades || 0;
+            const pc = pcManual > 0 ? pcManual : pcDetectado;
+            add('Menos: pagos a cuenta trimestrales', -pc, pcManual > 0 ? 'Datos manuales T1+T2+T3' : 'Detectados en pagos ONAT (código 040072)');
+            const saldo = +(impuesto - pc).toFixed(2);
+            add(saldo >= 0 ? 'IMPORTE A PAGAR' : 'SALDO A FAVOR', saldo, 'Liquidación anual DJ-01', 'total');
+            return { lineas: L, base: base, impuesto: impuesto, resultado: saldo };
+        }
+        /* Núcleo puro de la DJ de un socio por dividendos */
+        function djCoreDiv(socio, P, man, anio){
+            const L = [];
+            const add = (etiqueta, importe, origen, clase) => L.push({ etiqueta: etiqueta, importe: importe == null ? null : +Number(importe).toFixed(2), origen: origen || '', clase: clase || '' });
+            const div = Number(socio.dividendos) || 0, ret = Number(socio.retenciones) || 0;
+            add('Dividendos devengados del año', div, 'Dato manual por socio');
+            add('Menos: mínimo exento', -P.exentoDiv, 'Parámetro del año fiscal');
+            const base = Math.max(0, div - P.exentoDiv);
+            add('Base imponible', base, '', 'subtotal');
+            const esc = djAplicarEscala(base, P.escalaDiv);
+            esc.detalle.forEach(d => add('Escala ' + d.tasa + ' % sobre ' + moneda(d.base), d.importe, 'Tramo ' + moneda(d.desde) + ' – ' + (isFinite(d.hasta) ? moneda(d.hasta) : 'en adelante')));
+            add('Impuesto determinado', esc.total, 'Escala de socios del año', 'subtotal');
+            add('Menos: retenciones sobre anticipos de dividendos (' + P.retencionDiv + ' %)', -ret, 'Retenidas y aportadas por la MIPYME');
+            let saldo = esc.total - ret;
+            const limiteBonif = (Number(anio) + 1) + '-02-28';
+            if (saldo > 0 && man.fechaPago && man.fechaPago <= limiteBonif) {
+                const b = +(saldo * P.bonifPronto / 100).toFixed(2);
+                add('Menos: bonificación por pronto pago (' + P.bonifPronto + ' %)', -b, 'Declarar y pagar hasta el 28 de febrero de ' + (Number(anio) + 1));
+                saldo -= b;
+            }
+            if (saldo > 0 && man.canalElectronico) {
+                const b = +(saldo * P.bonifElec / 100).toFixed(2);
+                add('Menos: bonificación por canales electrónicos (' + P.bonifElec + ' %)', -b, 'Pago por canal electrónico');
+                saldo -= b;
+            }
+            saldo = +saldo.toFixed(2);
+            add(saldo >= 0 ? 'IMPORTE A PAGAR' : 'SALDO A FAVOR', saldo, 'DJ del socio por dividendos', 'total');
+            return { lineas: L, base: base, impuesto: esc.total, resultado: saldo };
+        }
+        /* Sección I de la DJ-08: solo meses con nómina guardada de verdad
+           (registro del trabajador o selección guardada), para no fabricar
+           salarios de meses nunca procesados. */
+        function djSeccionI(anio){
+            const rrhh = getRRHH(), acc = {};
+            Object.keys(rrhh.nominas || {}).forEach(periodo => {
+                const p = periodoParts(periodo);
+                if (!p || p.y !== Number(anio)) return;
+                const recs = rrhh.nominas[periodo] || {};
+                const sel = (rrhh.selNomina || {})[periodo];
+                let d = null;
+                try { d = obtenerNominaParaPeriodo(periodo); } catch(e) { return; }
+                (d.lineas || []).forEach(l => {
+                    const id = String(l.t.id);
+                    const tieneRec = recs[id] !== undefined || recs[l.t.id] !== undefined;
+                    const enSel = Array.isArray(sel) && sel.map(String).includes(id);
+                    if (!tieneRec && !enSel) return;
+                    if (!acc[id]) acc[id] = { nombre: l.t.nombre || '', nit: l.t.ci || '', municipio: l.t.municipio || '', mesesIdx: [], total: 0 };
+                    acc[id].mesesIdx.push(p.mi);
+                    acc[id].total += Number(l.calc && l.calc.bruto) || 0;
+                });
+            });
+            return Object.values(acc).map(a => {
+                a.mesesIdx.sort((x,y) => x - y);
+                return { nombre: a.nombre, nit: a.nit, municipio: a.municipio,
+                    periodo: a.mesesIdx.length ? MESES_ES[a.mesesIdx[0]] + ' – ' + MESES_ES[a.mesesIdx[a.mesesIdx.length-1]] + ' ' + anio : '',
+                    remuneracion: +a.total.toFixed(2) };
+            });
+        }
+        function djLineasHTML(lineas){
+            return lineas.map(l => '<div class="aporte-line' + (l.clase === 'total' ? ' fw-bold' : '') + '"><span>' + esc(l.etiqueta) + (l.origen ? '<div class="small text-secondary fw-normal">' + esc(l.origen) + '</div>' : '') + '</span><b>' + (l.importe === null ? '—' : moneda(l.importe)) + '</b></div>').join('');
+        }
+        let djAnioSel = null, djWired = false;
+        function djAniosOpciones(){
+            const s = new Set(triAniosDisponibles());
+            const y = new Date().getFullYear();
+            s.add(y - 1); s.add(y); s.add(y + 1);
+            if (djAnioSel) s.add(Number(djAnioSel));
+            return [...s].sort((a,b) => b - a);
+        }
+        function renderDJ(){
+            const pane = document.getElementById('pane-dj');
+            if (!pane) return;
+            const anioDef = (() => { const h = new Date(); return h.getFullYear() - (h.getMonth() < 10 ? 1 : 0); })();
+            if (!djAnioSel) djAnioSel = anioDef;
+            const sel = document.getElementById('djAnioSel');
+            sel.innerHTML = djAniosOpciones().map(y => '<option value="' + y + '"' + (Number(y) === Number(djAnioSel) ? ' selected' : '') + '>' + y + '</option>').join('');
+            const d = getDJ();
+            const f = Object.assign({}, d.ficha);
+            const vf = (() => { try { return getFiscal(); } catch(e) { return null; } })();
+            if (vf && vf.meta) {
+                if (!f.nit && vf.meta.nit) f.nit = vf.meta.nit;
+                if (!f.nombre && vf.meta.razon) f.nombre = vf.meta.razon;
+                if (!f.municipio && vf.meta.dpa) f.municipio = vf.meta.dpa;
+            }
+            if (!f.regimen) f.regimen = getEntityType() === 'mipyme' ? 'mipyme' : 'tcp_general';
+            const focused = pane.contains(document.activeElement);
+            if (!focused) {
+                document.getElementById('djFichaRegimen').value = f.regimen;
+                document.getElementById('djFichaNIT').value = f.nit || '';
+                document.getElementById('djFichaNombre').value = f.nombre || '';
+                document.getElementById('djFichaMunicipio').value = f.municipio || '';
+                document.getElementById('djFichaActividad').value = f.actividad || '';
+                document.getElementById('djFichaFecha').value = f.fechaInscripcion || '';
+                const P = djParamsAnio(djAnioSel);
+                document.getElementById('djParAnio').textContent = '· ' + djAnioSel;
+                document.getElementById('djParExento').value = P.exentoIIP;
+                document.getElementById('djParBonifP').value = P.bonifPronto;
+                document.getElementById('djParBonifE').value = P.bonifElec;
+                document.getElementById('djParTopeSimp').value = P.topeSimplificado;
+                document.getElementById('djParEscalaIIP').value = djEscalaTexto(P.escalaIIP);
+                document.getElementById('djParTipoUtil').value = P.tipoUtilidades;
+                document.getElementById('djParExentoDiv').value = P.exentoDiv;
+                document.getElementById('djParEscalaDiv').value = djEscalaTexto(P.escalaDiv);
+                document.getElementById('djParRetDiv').value = P.retencionDiv;
+                const man = djManualAnio(djAnioSel);
+                document.getElementById('djGastosJust').value = man.gastosJustificados == null ? '' : man.gastosJustificados;
+                document.getElementById('djArrend').value = man.arrendEstatales || '';
+                document.getElementById('djOtrasDed').value = man.otrasDeducciones || '';
+                document.getElementById('djFechaPago').value = man.fechaPago || '';
+                document.getElementById('djCanalElec').checked = !!man.canalElectronico;
+                document.getElementById('djPerdidas').value = man.perdidas || '';
+                document.getElementById('djReservas').value = man.reservas || '';
+                document.getElementById('djPC1').value = man.pagosCuenta[0] || '';
+                document.getElementById('djPC2').value = man.pagosCuenta[1] || '';
+                document.getElementById('djPC3').value = man.pagosCuenta[2] || '';
+            }
+            renderDJCalculo();
+            if (!djWired) {
+                djWired = true;
+                sel.addEventListener('change', () => { djAnioSel = Number(sel.value); renderDJ(); });
+                document.getElementById('btnDjGuardarFicha').addEventListener('click', () => {
+                    const dd = getDJ();
+                    dd.ficha = { regimen: document.getElementById('djFichaRegimen').value, nit: document.getElementById('djFichaNIT').value.trim(), nombre: document.getElementById('djFichaNombre').value.trim(), municipio: document.getElementById('djFichaMunicipio').value.trim(), actividad: document.getElementById('djFichaActividad').value.trim(), fechaInscripcion: document.getElementById('djFichaFecha').value };
+                    saveDJ(dd); renderDJ(); alert('✅ Ficha fiscal guardada.');
+                });
+                document.getElementById('btnDjGuardarParams').addEventListener('click', () => {
+                    const dd = getDJ(); if (!dd.params[djAnioSel]) dd.params[djAnioSel] = {};
+                    const P = dd.params[djAnioSel];
+                    P.exentoIIP = parseFloat(document.getElementById('djParExento').value);
+                    P.bonifPronto = parseFloat(document.getElementById('djParBonifP').value);
+                    P.bonifElec = parseFloat(document.getElementById('djParBonifE').value);
+                    P.topeSimplificado = parseFloat(document.getElementById('djParTopeSimp').value);
+                    P.escalaIIP = djParseEscala(document.getElementById('djParEscalaIIP').value, DJ_PARAMS_DEF.escalaIIP);
+                    P.tipoUtilidades = parseFloat(document.getElementById('djParTipoUtil').value);
+                    P.exentoDiv = parseFloat(document.getElementById('djParExentoDiv').value);
+                    P.escalaDiv = djParseEscala(document.getElementById('djParEscalaDiv').value, DJ_PARAMS_DEF.escalaDiv);
+                    P.retencionDiv = parseFloat(document.getElementById('djParRetDiv').value);
+                    saveDJ(dd); renderDJ(); alert('✅ Parámetros de ' + djAnioSel + ' guardados.');
+                });
+                const guardarManual = () => {
+                    const dd = getDJ(); if (!dd.manual[djAnioSel]) dd.manual[djAnioSel] = {};
+                    const m = dd.manual[djAnioSel];
+                    const gj = document.getElementById('djGastosJust').value;
+                    m.gastosJustificados = gj === '' ? '' : parseFloat(gj);
+                    m.arrendEstatales = parseFloat(document.getElementById('djArrend').value) || 0;
+                    m.otrasDeducciones = parseFloat(document.getElementById('djOtrasDed').value) || 0;
+                    m.fechaPago = document.getElementById('djFechaPago').value;
+                    m.canalElectronico = document.getElementById('djCanalElec').checked;
+                    m.perdidas = parseFloat(document.getElementById('djPerdidas').value) || 0;
+                    m.reservas = parseFloat(document.getElementById('djReservas').value) || 0;
+                    m.pagosCuenta = [parseFloat(document.getElementById('djPC1').value) || 0, parseFloat(document.getElementById('djPC2').value) || 0, parseFloat(document.getElementById('djPC3').value) || 0];
+                    saveDJ(dd); renderDJCalculo();
+                };
+                ['djGastosJust','djArrend','djOtrasDed','djFechaPago','djCanalElec','djPerdidas','djReservas','djPC1','djPC2','djPC3'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('change', guardarManual);
+                });
+                document.getElementById('btnDjAddSocio').addEventListener('click', () => {
+                    const dd = getDJ(); if (!dd.manual[djAnioSel]) dd.manual[djAnioSel] = {};
+                    if (!Array.isArray(dd.manual[djAnioSel].socios)) dd.manual[djAnioSel].socios = [];
+                    dd.manual[djAnioSel].socios.push({ nombre: '', nit: '', dividendos: 0, retenciones: 0 });
+                    saveDJ(dd); renderDJCalculo();
+                });
+                document.getElementById('djSociosBox').addEventListener('change', e => {
+                    const inp = e.target.closest('[data-socio]');
+                    if (!inp) return;
+                    const dd = getDJ(); const m = (dd.manual[djAnioSel] || {}); const socios = m.socios || [];
+                    const s = socios[Number(inp.dataset.socio)];
+                    if (!s) return;
+                    const campo = inp.dataset.campo;
+                    s[campo] = (campo === 'dividendos' || campo === 'retenciones') ? (parseFloat(inp.value) || 0) : inp.value;
+                    saveDJ(dd); renderDJCalculo();
+                });
+                document.getElementById('djSociosBox').addEventListener('click', e => {
+                    const btn = e.target.closest('[data-socio-del]');
+                    if (!btn) return;
+                    const dd = getDJ(); const m = (dd.manual[djAnioSel] || {}); const socios = m.socios || [];
+                    socios.splice(Number(btn.dataset.socioDel), 1);
+                    saveDJ(dd); renderDJCalculo();
+                });
+            }
+        }
+        function renderDJCalculo(){
+            const d = getDJ(), f = d.ficha || {};
+            const regimen = document.getElementById('djFichaRegimen').value || f.regimen || (getEntityType() === 'mipyme' ? 'mipyme' : 'tcp_general');
+            const anio = Number(djAnioSel), P = djParamsAnio(anio), man = djManualAnio(anio), datos = djDatosAnio(anio);
+            const esMipyme = regimen === 'mipyme';
+            document.getElementById('djCalcTCP').style.display = esMipyme ? 'none' : 'block';
+            document.getElementById('djCalcMIPYME').style.display = esMipyme ? 'block' : 'none';
+            /* Avisos de plazo */
+            const hoyStr = hoy();
+            const mk = (fecha, txt) => {
+                const dias = Math.round((new Date(fecha + 'T00:00:00') - new Date(hoyStr + 'T00:00:00')) / 864e5);
+                const cls = dias < 0 ? 'alert-danger' : (dias <= 30 ? 'alert-warning' : 'alert-info');
+                return '<div class="alert ' + cls + ' py-2 px-3 mb-2 small"><i class="bi bi-calendar-event me-1"></i>' + txt + ' <b>' + fecha.split('-').reverse().join('/') + '</b>' + (dias >= 0 ? ' (quedan ' + dias + ' días)' : ' (vencido hace ' + Math.abs(dias) + ' días)') + '</div>';
+            };
+            let avisos = '';
+            if (esMipyme) avisos += mk((anio + 1) + '-03-31', 'Plazo DJ-01 de utilidades ' + anio + ':');
+            else avisos += mk((anio + 1) + '-04-30', 'Plazo DJ-08 ' + anio + ':');
+            avisos += mk((anio + 1) + '-02-28', 'Bonificación por pronto pago si declaras y pagas antes del:');
+            if (datos.trib.otros > 0) avisos += '<div class="alert alert-warning py-2 px-3 mb-2 small"><i class="bi bi-exclamation-triangle me-1"></i>Hay ' + moneda(datos.trib.otros) + ' en pagos ONAT sin categoría DJ identificada: no se incluyeron en el cálculo. Revísalos en Fiscal.</div>';
+            if (datos.trib.liquidacion > 0) avisos += '<div class="alert alert-info py-2 px-3 mb-2 small"><i class="bi bi-info-circle me-1"></i>Pagos por liquidación anual detectados (' + moneda(datos.trib.liquidacion) + '): corresponden a la DJ de un año anterior y no entran en este cálculo.</div>';
+            document.getElementById('djAvisos').innerHTML = avisos;
+            if (!esMipyme) {
+                document.getElementById('djTituloTCP').textContent = regimen === 'tcp_simplificado' ? 'DJ-08 · Régimen simplificado (control)' : 'DJ-08 · Impuesto sobre Ingresos Personales';
+                let html = '';
+                if (regimen === 'tcp_simplificado' && datos.ingresos <= P.topeSimplificado) {
+                    html = '<div class="aporte-line"><span>Ingresos brutos del año<div class="small text-secondary fw-normal">Régimen simplificado: la DJ-08 se presenta como control; solo hay liquidación adicional si los ingresos superan ' + moneda(P.topeSimplificado) + '</div></span><b>' + moneda(datos.ingresos) + '</b></div>' +
+                           '<div class="aporte-line fw-bold"><span>IMPORTE A PAGAR (liquidación)</span><b>' + moneda(0) + '</b></div>';
+                } else {
+                    const r = djCore08(datos, P, man, anio);
+                    if (regimen === 'tcp_simplificado') html += '<div class="alert alert-warning py-2 px-3 small">Los ingresos superan el tope del régimen simplificado (' + moneda(P.topeSimplificado) + '): se liquida como régimen general y corresponde migrar de régimen.</div>';
+                    html += djLineasHTML(r.lineas);
+                }
+                document.getElementById('djLineasTCP').innerHTML = html;
+                const sec = djSeccionI(anio);
+                document.getElementById('djSeccionIBody').innerHTML = sec.map(w => '<tr><td>' + esc(w.nombre) + '</td><td>' + esc(w.nit || '—') + '</td><td>' + esc(w.municipio || '—') + '</td><td>' + esc(w.periodo) + '</td><td class="text-end">' + moneda(w.remuneracion) + '</td></tr>').join('');
+                document.getElementById('djSeccionIVacio').style.display = sec.length ? 'none' : 'block';
+            } else {
+                const r = djCore01(datos, P, man);
+                document.getElementById('djLineas01').innerHTML = djLineasHTML(r.lineas);
+                const box = document.getElementById('djSociosBox');
+                if (!man.socios.length) {
+                    box.innerHTML = '<div class="text-muted small">Sin socios registrados. Añade cada socio con sus dividendos devengados y las retenciones del 5 % que la MIPYME aportó por sus anticipos.</div>';
+                } else {
+                    box.innerHTML = man.socios.map((s, i) => {
+                        const rr = djCoreDiv(s, P, man, anio);
+                        return '<div class="border rounded p-3 mb-3"><div class="row g-2 mb-2">' +
+                            '<div class="col-md-4"><label class="form-label small mb-1">Socio</label><input class="form-control form-control-sm" data-socio="' + i + '" data-campo="nombre" value="' + esc(s.nombre || '') + '" placeholder="Nombre y apellidos"></div>' +
+                            '<div class="col-md-2"><label class="form-label small mb-1">NIT</label><input class="form-control form-control-sm" data-socio="' + i + '" data-campo="nit" value="' + esc(s.nit || '') + '"></div>' +
+                            '<div class="col-md-3"><label class="form-label small mb-1">Dividendos del año (CUP)</label><input type="number" min="0" step="0.01" class="form-control form-control-sm" data-socio="' + i + '" data-campo="dividendos" value="' + (s.dividendos || '') + '"></div>' +
+                            '<div class="col-md-2"><label class="form-label small mb-1">Retenciones 5 % (CUP)</label><input type="number" min="0" step="0.01" class="form-control form-control-sm" data-socio="' + i + '" data-campo="retenciones" value="' + (s.retenciones || '') + '"></div>' +
+                            '<div class="col-md-1 d-flex align-items-end"><button class="btn btn-sm btn-outline-danger" data-socio-del="' + i + '" title="Quitar socio"><i class="bi bi-trash3"></i></button></div></div>' +
+                            '<div class="aporte-box">' + djLineasHTML(rr.lineas) + '</div></div>';
+                    }).join('');
+                }
+            }
+        }
+        /* Registro QR: selector de mes + tabla (mes en curso o cerrado) */
+        let qrMesSelVal = '', qrWired = false;
+        function renderRegistroQR(){
+            const sel = document.getElementById('qrMesSel');
+            if (!sel) return;
+            const hist = getHistorial(), actual = periodoNominaActual();
+            const opciones = hist.map(h => h.mes);
+            if (!opciones.includes(actual)) opciones.push(actual);
+            if (!opciones.includes(qrMesSelVal)) qrMesSelVal = opciones[opciones.length - 1] || actual;
+            sel.innerHTML = opciones.map(m => '<option value="' + esc(m) + '"' + (m === qrMesSelVal ? ' selected' : '') + '>' + esc(m) + '</option>').join('');
+            let regs = [];
+            const h = hist.find(x => x.mes === qrMesSelVal);
+            if (h) regs = Array.isArray(h.registroQR) ? h.registroQR : registroQRDeMovs(h.movimientos || []);
+            else if (qrMesSelVal === actual) regs = registroQRDeMovs(movimientos);
+            document.getElementById('qrRegistroBody').innerHTML = regs.map(r => '<tr><td class="text-nowrap">' + esc(r.fecha) + '</td><td>' + esc(r.concepto) + '</td><td>' + esc(getNombreCuenta(r.cuenta)) + '</td><td class="text-end">' + moneda(r.monto) + '</td></tr>').join('');
+            document.getElementById('qrRegistroVacio').style.display = regs.length ? 'none' : 'block';
+            document.getElementById('qrRegistroTotal').textContent = moneda(regs.reduce((a,r) => a + (Number(r.monto) || 0), 0));
+            if (!qrWired) { qrWired = true; sel.addEventListener('change', () => { qrMesSelVal = sel.value; renderRegistroQR(); }); }
+        }
+
+        /* Registro de pagos por comercio electrónico (QR) de un conjunto de
+           movimientos: lista plana lista para guardar con el cierre del mes. */
+        function registroQRDeMovs(movs) {
+            return (movs || []).filter(m => m && m.qr).map(m => ({
+                fecha: m.fecha || '', concepto: m.concepto || '',
+                monto: +getMontoMovimientoCUP(m).toFixed(2),
+                cuenta: m.cuenta || '', tipo: m.tipo || ''
+            }));
+        }
+
         function cerrarMes() {
             if (!puedeEditar()) {
                 alert('No tienes permisos para cerrar el mes.');
@@ -3910,6 +4562,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     tarjeta_usd: res.saldos.tarjeta_usd.monto
                 },
                 saldoFinalMoneda: {chequera:res.saldos.chequera.montoDivisa,tarjeta_cup:res.saldos.tarjeta_cup.montoDivisa,tarjeta_usd:res.saldos.tarjeta_usd.montoDivisa},
+                registroQR: registroQRDeMovs(movimientos),
                 movimientos: JSON.parse(JSON.stringify(movimientos))
             };
             const idxHist = historial.findIndex(h => h.mes === mesStr);
@@ -3949,11 +4602,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const chequera = parseFloat(document.getElementById('saldoInicialChequera').value) || 0;
             const tarjeta_cup = parseFloat(document.getElementById('saldoInicialCUP').value) || 0;
             const tarjeta_usd = parseFloat(document.getElementById('saldoInicialUSD').value) || 0;
+
             const mesData = getMesActual() || {};
             const estabaCerrado = !!mesData.cerrado;
             const periodo = mesData.mesSeleccionado || getMesActualStr();
             const enMesCerrado = modoEdicionActivo && mesRealEnCurso;
             if (enMesCerrado) {
+                /* Se edita el inicial de un mes cerrado: el slot conserva la identidad
+                   del mes real en curso (no se contamina con el mes que se está viendo).
+                   El inicial del mes visto se actualiza solo en su fotografía histórica;
+                   propagarSaldos ajustará el inicial del mes en curso si corresponde. */
                 mesData.mesSeleccionado = mesRealEnCurso.mes;
                 mesData.cerrado = !!mesRealEnCurso.cerrado;
             } else {
@@ -3973,7 +4631,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 hist[idx].totalUtilidad=r.utilidad;
                 hist[idx].saldoFinal={chequera:r.saldos.chequera.monto,tarjeta_cup:r.saldos.tarjeta_cup.monto,tarjeta_usd:r.saldos.tarjeta_usd.monto};
                 hist[idx].saldoFinalMoneda={chequera:r.saldos.chequera.montoDivisa,tarjeta_cup:r.saldos.tarjeta_cup.montoDivisa,tarjeta_usd:r.saldos.tarjeta_usd.montoDivisa};
-                saveHistorial(hist); propagarSaldos(periodo);
+                saveHistorial(hist);
+                /* El final de este mes cambió: encadenar saldos hacia adelante. */
+                propagarSaldos(periodo);
             }
 
             saldoInicialModal.hide();
@@ -4157,7 +4817,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
             const el=document.getElementById(targetId);
             if(!el) return;
-            const titles={'pane-resumen':'Resumen','pane-chequera':'Chequera','pane-tarjeta_cup':'Tarjeta CUP','pane-tarjeta_usd':'Tarjeta USD','pane-nomina':'Nómina','pane-utilidades':'Trimestres y utilidades','pane-fiscal':'Vector Fiscal','pane-aft':'Activos Fijos Tangibles','onatModal':'Cálculo ONAT'};
+            const titles={'pane-resumen':'Resumen','pane-chequera':'Chequera','pane-tarjeta_cup':'Tarjeta CUP','pane-tarjeta_usd':'Tarjeta USD','pane-nomina':'Nómina','pane-utilidades':'Trimestres y utilidades','pane-fiscal':'Vector Fiscal','pane-dj':'Declaración Jurada','pane-aft':'Activos Fijos Tangibles','onatModal':'Cálculo ONAT','qrRegistroBox':'Registro de pagos por comercio electrónico (QR)'};
             let ph=document.getElementById('printHeader');
             if(!ph){ ph=document.createElement('div'); ph.id='printHeader'; ph.className='print-only-header'; document.body.prepend(ph); }
             const neg=(document.getElementById('negocioNombreDisplay')||{}).textContent||'';
@@ -4533,11 +5193,37 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         window.toggleBloqueoMes = toggleBloqueoMes;
         window.setTipoUsuario = setTipoUsuario;
         window.verMesDetalle = verMesDetalle;
-        window.editarSaldoInicial = editarSaldoInicial;         /* API para el importador de estados de cuenta (pdf-import.js) */         window.FinanzasPDF = {             movs: function(){ return movimientos; },             nextId: function(){ return nextId++; },             getHistorial: getHistorial,             saveHistorial: saveHistorial,             saveMovimientos: saveMovimientos,             renderAll: renderAll,             puedeEditar: puedeEditar,             isAdmin: isAdmin,             mesEstaBloqueado: mesEstaBloqueado,             getFechaStr: getFechaStr,             periodoNominaActual: periodoNominaActual,             hoy: hoy,             tasaVista: tasaVista,             enEdicion: function(){ return modoEdicionActivo; },             mesEdicion: function(){ return edicionMesNombre; }, propagarSaldos: propagarSaldos         };
+        window.editarSaldoInicial = editarSaldoInicial;
+        /* API para el importador de estados de cuenta (pdf-import.js) */
+        window.FinanzasPDF = {
+            movs: function(){ return movimientos; },
+            nextId: function(){ return nextId++; },
+            getHistorial: getHistorial,
+            saveHistorial: saveHistorial,
+            saveMovimientos: saveMovimientos,
+            renderAll: renderAll,
+            puedeEditar: puedeEditar,
+            isAdmin: isAdmin,
+            mesEstaBloqueado: mesEstaBloqueado,
+            getFechaStr: getFechaStr,
+            periodoNominaActual: periodoNominaActual,
+            hoy: hoy,
+            tasaVista: tasaVista,
+            enEdicion: function(){ return modoEdicionActivo; },
+            mesEdicion: function(){ return edicionMesNombre; },
+            propagarSaldos: propagarSaldos,
+            /* DJ automática: resolver códigos de tributo y vincular obligaciones */
+            resolverAporte: resolverAportePorCodigo,
+            codigoAporteNorm: codigoAporteNorm,
+            obligacionParaAporte: obligacionFiscalParaAporte,
+            fiscalTributos: function(){ try { const f = getFiscal(); return f.tributos || {}; } catch(e) { return {}; } },
+            registroQRDeMovs: registroQRDeMovs
+        };
+        // Ganchos de prueba (node) para el módulo DJ
+        window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
         api('me').then(async r => { if (r.ok) { await cargar(r); handleLogin({preventDefault(){}}); } });
         
     })();
 </script>
-<script src="pdf-import.js?v=5"></script>
 </body>
 </html>
