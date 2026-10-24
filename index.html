@@ -715,6 +715,41 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         @media print{ .app-layout{display:block} }
 
+        /* ===== SUBMENÚ DE SECCIONES (a la derecha del menú, pedido de Leonardo) =====
+           Al abrir cada pestaña, una columna lista las tarjetas/tablas de esa
+           pestaña; un clic lleva directo a la sección, sin bajar a mano. */
+        #subNavRail{
+          background:#fff;border:1px solid var(--line);border-radius:1rem;
+          padding:.7rem .6rem;margin-bottom:1.25rem;
+        }
+        html[data-theme="dark"] #subNavRail{background:#0f1d1a;border-color:#263b36}
+        #subNavRail .subnav-title{
+          font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+          color:var(--mut);padding:.15rem .5rem .5rem;
+        }
+        #subNavRail .subnav-list{display:flex;flex-direction:column;gap:.12rem}
+        #subNavRail .subnav-item{
+          border:0;background:transparent;text-align:left;width:100%;cursor:pointer;
+          padding:.45rem .55rem;border-radius:.6rem;font-size:.86rem;font-weight:600;
+          color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        }
+        #subNavRail .subnav-item:hover{background:rgba(31,58,107,.06);color:var(--ink)}
+        #subNavRail .subnav-item.on{background:var(--ink);color:#fff}
+        html[data-theme="dark"] #subNavRail .subnav-item.on{background:#17685e;color:#fff}
+        .subsec-flash{animation:subsecFlash 1.4s ease}
+        @keyframes subsecFlash{0%{box-shadow:0 0 0 3px var(--brand)}100%{box-shadow:none}}
+        @media (min-width: 992px){
+          #subNavRail{
+            flex:0 0 205px;width:205px;position:sticky;top:1rem;margin-bottom:0;
+            max-height:calc(100vh - 2rem);overflow-y:auto;
+          }
+        }
+        @media (max-width: 991.98px){
+          #subNavRail .subnav-list{flex-direction:row;overflow-x:auto;padding-bottom:.2rem}
+          #subNavRail .subnav-item{width:auto;flex:0 0 auto;border:1px solid var(--line)}
+        }
+        @media print{ #subNavRail{display:none!important} }
+
 </style>
 </head>
 <body>
@@ -8764,6 +8799,72 @@ function mjPermisos(rol,modulo){ const M={
         api('me').then(async r => { if (r.ok) { await cargar(r); handleLogin({preventDefault(){}}); } });
         
     })();
+</script>
+<script>
+/* ===== SUBMENÚ DE SECCIONES POR PESTAÑA (pedido de Leonardo, 2026-10-24) =====
+   Al abrir cada menú, a su derecha aparece la lista de tarjetas/tablas de
+   esa pestaña (p. ej. en Nómina: «Nómina del mes», «Documentos de nómina»,
+   «Pre-nómina · Tarjeta de tiempo»…). Un clic lleva directo a la sección,
+   sin tener que bajar hasta el final de la página. Se genera solo desde
+   los títulos de las tarjetas de cada panel: cada menú tiene las suyas. */
+(function(){
+  function seccionesDe(pane){
+    var out=[];
+    if(!pane) return out;
+    var cards=pane.querySelectorAll('.card, .module-hero');
+    cards.forEach(function(card){
+      // saltar tarjetas anidadas dentro de otra tarjeta (se lista la externa)
+      var p=card.parentElement;
+      while(p && p!==pane){ if(p.classList && (p.classList.contains('card'))) return; p=p.parentElement; }
+      var h=card.querySelector('h1,h2,h3,h4,h5,h6');
+      if(!h) return;
+      // saltar secciones ocultas en este momento (p. ej. el bloque de la DJ del otro régimen)
+      if(card.getClientRects && !card.getClientRects().length) return;
+      var titulo=(h.textContent||'').replace(/\s+/g,' ').trim();
+      if(!titulo) return;
+      out.push({el:card,titulo:titulo});
+    });
+    return out;
+  }
+  function construir(pane){
+    var rail=document.getElementById('subNavRail');
+    if(!rail) return;
+    var secs=seccionesDe(pane);
+    var list=rail.querySelector('.subnav-list');
+    list.innerHTML='';
+    if(secs.length<2){ rail.style.display='none'; return; }
+    rail.style.display='';
+    secs.forEach(function(s,idx){
+      if(!s.el.id) s.el.id='subsec-'+pane.id+'-'+idx;
+      s.el.style.scrollMarginTop='1rem';
+      var b=document.createElement('button');
+      b.type='button'; b.className='subnav-item'; b.textContent=s.titulo; b.title=s.titulo;
+      b.addEventListener('click',function(){
+        list.querySelectorAll('.subnav-item').forEach(function(x){x.classList.remove('on');});
+        b.classList.add('on');
+        s.el.scrollIntoView({behavior:'smooth',block:'start'});
+        s.el.classList.remove('subsec-flash'); void s.el.offsetWidth; s.el.classList.add('subsec-flash');
+      });
+      list.appendChild(b);
+    });
+  }
+  function init(){
+    var tabs=document.getElementById('cuentasTabs');
+    var content=document.getElementById('cuentasTabsContent');
+    if(!tabs||!content) return;
+    var rail=document.createElement('nav');
+    rail.id='subNavRail'; rail.setAttribute('aria-label','Secciones de la pestaña');
+    rail.innerHTML='<div class="subnav-title"><i class="bi bi-list-ul me-1"></i>En esta sección</div><div class="subnav-list"></div>';
+    content.parentNode.insertBefore(rail,content);
+    var activa=content.querySelector('.tab-pane.active')||content.querySelector('.tab-pane');
+    construir(activa);
+    document.addEventListener('shown.bs.tab',function(e){
+      var sel=e.target && e.target.getAttribute('data-bs-target');
+      if(sel) construir(document.querySelector(sel));
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
 </script>
 </body>
 </html>
