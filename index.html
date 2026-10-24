@@ -485,6 +485,38 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         .sc406-totarea td{font-weight:bold}
         .sc406-total td{font-weight:bold;border-top:2.5px solid #000}
         @page sc406land{size:A4 landscape;margin:8mm}
+        /* ===== DOCUMENTOS OFICIALES (andamiaje común: arqueo SC-1-03,
+           conciliación CON-02, talón, certificado y plantillas internas) =====
+           Un solo esqueleto de documento para todas las salidas impresas:
+           entidad, título/modelo, campos de encabezado, tablas con bordes,
+           fila de totales y firmas Elaborado/Revisado/Aprobado. Solo cambia
+           la PLANTILLA: los datos salen de lo que la app ya muestra. */
+        .docof{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;font-size:11px;line-height:1.3;page:docofA4}
+        .docof table{border-collapse:collapse;width:100%}
+        .docof-sup{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.15rem}
+        .docof-cab{border-bottom:2.5px solid #000;padding-bottom:.35rem;margin-bottom:.5rem}
+        .docof-cab td{vertical-align:top;padding:0}
+        .docof-ent{font-weight:bold;font-size:12.5px;text-transform:uppercase}
+        .docof-tit{font-weight:bold;font-size:14.5px;text-transform:uppercase;margin-top:.1rem}
+        .docof-sub{font-size:10.5px;margin-top:.1rem}
+        .docof-modelo{font-weight:bold;font-size:11.5px;text-align:right;white-space:nowrap;text-transform:uppercase}
+        .docof-campos{margin-bottom:.35rem}
+        .docof-campos td{padding:1.5px 8px 1.5px 0;font-size:11px;vertical-align:top;width:50%}
+        .docof-sec{font-weight:bold;font-size:11.5px;margin:.6rem 0 .25rem;text-transform:uppercase}
+        .docof-tab th,.docof-tab td{border:1px solid #000;padding:2px 5px;font-size:10.5px}
+        .docof-tab th{text-align:center;font-weight:bold;background:#e9e9e9}
+        .docof-tab td.n{text-align:right;white-space:nowrap}
+        .docof-tab td.c{text-align:center}
+        .docof-tab tr.docof-total td{font-weight:bold;border-top:2.5px solid #000}
+        .docof-tab tr.docof-subtotal td{font-weight:bold;background:#f2f2f2}
+        .docof-neto{border:2.5px solid #000;padding:.45rem .7rem;margin-top:.55rem;font-size:13.5px;font-weight:bold;display:flex;justify-content:space-between;gap:1rem}
+        .docof-txt{font-size:10.5px;margin-top:.4rem}
+        .docof-firmas{margin-top:.4rem}
+        .docof-firmas td{padding:0 12px;text-align:center;font-size:10.5px;vertical-align:top;width:33%}
+        .docof-fir{border-top:1px solid #000;margin-top:2rem;padding-top:2px}
+        .docof-pie{font-size:9.5px;margin-top:.55rem}
+        .docof-pag{text-align:right;font-size:10px;margin-top:.3rem}
+        @page docofA4{size:A4 portrait;margin:10mm}
 .app-hero .badge{background:rgba(255,255,255,.12)!important;color:#e6fffb!important;font-weight:600}
 .app-hero .btn{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.25)!important;color:#fff!important;border-radius:999px;font-weight:600}
 .app-hero .btn:hover{background:rgba(255,255,255,.2)!important}
@@ -941,6 +973,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div id="alertaTrimestral" class="alerta-financiera mt-3"></div>
             <div id="alertaSalarioNomina" class="mt-3"></div>
             <div class="row g-3 mb-4" id="resumenCuentas"></div>
+            <div id="docResumenBox" class="d-none"></div>
+            <div id="docOnatBox" class="d-none"></div>
             <div class="card p-3 p-md-4">
                 <h6 class="fw-semibold mb-3"><i class="bi bi-table me-2"></i>Todos los movimientos</h6>
                 <div class="table-responsive">
@@ -974,6 +1008,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <tbody id="body-chequera"></tbody>
                     </table>
                 </div>
+                <div id="docChequeraBox" class="d-none"></div>
             </div>
         </div>
 
@@ -999,6 +1034,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <tbody id="body-tarjeta_cup"></tbody>
                     </table>
                 </div>
+                <div id="docTarjetaCUPBox" class="d-none"></div>
             </div>
         </div>
 
@@ -1025,6 +1061,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <tbody id="body-tarjeta_usd"></tbody>
                     </table>
                 </div>
+                <div id="docTarjetaUSDBox" class="d-none"></div>
             </div>
         </div>
 
@@ -1246,6 +1283,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div id="cierreAnualBody"></div>
             </div>
+            <div id="docUtilidadesBox" class="d-none"></div>
         </div>
 
         <!-- FISCAL / VECTOR ONAT -->
@@ -1384,7 +1422,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaCtaCodigo" class="form-control form-control-sm" placeholder="110-040"></div><div class="col-md-3"><label class="form-label mb-1 small">Nombre</label><input id="contaCtaNombre" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Naturaleza</label><select id="contaCtaNat" class="form-select form-select-sm"><option value="deudora">Deudora</option><option value="acreedora">Acreedora</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Grupo</label><select id="contaCtaGrupo" class="form-select form-select-sm"><option value="activo">Activo</option><option value="pasivo">Pasivo</option><option value="patrimonio">Patrimonio</option><option value="ingreso">Ingreso</option><option value="costo">Costo</option><option value="gasto">Gasto</option><option value="cierre">Cierre</option></select></div><div class="col-md-1"><label class="form-label mb-1 small">Admite</label><select id="contaCtaAdmite" class="form-select form-select-sm"><option value="1">Sí</option><option value="0">No</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Auxiliar</label><select id="contaCtaAux" class="form-select form-select-sm"><option value="ninguno">Ninguno</option><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="trabajador">Trabajador</option><option value="socio">Socio</option><option value="banco">Banco</option><option value="almacen">Almacén / artículo</option><option value="centro">Centro de costo</option></select></div><div class="col-md-2"><label class="form-check small mt-3"><input type="checkbox" id="contaCtaAuxReq" class="form-check-input"> Auxiliar obligatorio</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCuenta()">Agregar cuenta</button></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div><div class="col-md-7 d-flex justify-content-end gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docCierreAnualPrint()"><i class="bi bi-printer me-1"></i>Imprimir cierre anual</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docBalanceAperturaPrint()"><i class="bi bi-printer me-1"></i>Imprimir Balance de Apertura</button></div></div><div id="docCierreBox" class="d-none"></div></div>
         </div>
 
         <!-- GESTIÓN AMPLIADA · RONDAS 10-13 (blindaje, cumplimiento, gestión, profundidad) -->
@@ -1545,11 +1583,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
             </div>
             <div class="card p-3 p-md-4 mt-3" id="qrRegistroBox">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-qr-code me-2"></i>Registro de pagos por comercio electrónico (QR)</h6><div class="d-flex gap-2 align-items-center"><select id="qrMesSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="qrRegistroBox"><i class="bi bi-printer me-1"></i>PDF</button></div></div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-qr-code me-2"></i>Registro de pagos por comercio electrónico (QR)</h6><div class="d-flex gap-2 align-items-center"><select id="qrMesSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docQRPrint()"><i class="bi bi-printer me-1"></i>PDF</button></div></div>
                 <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto</th><th>Cuenta</th><th class="text-end">Monto (CUP)</th></tr></thead><tbody id="qrRegistroBody"></tbody></table></div>
                 <div id="qrRegistroVacio" class="text-muted small mt-2" style="display:none">Este mes no tiene pagos marcados como comercio electrónico (QR).</div>
                 <div class="text-end mt-2"><b>Total QR del mes: <span id="qrRegistroTotal">$0.00</span></b></div>
             </div>
+            <div id="docQRBox" class="d-none"></div>
         </div>
 
         <!-- ADMIN -->
@@ -6587,7 +6626,48 @@ function mjPermisos(rol,modulo){ const M={
                     +filaPart('Con la misma referencia pero importe distinto',r.diferenciasImporte,p=>`<tr><td class="text-nowrap">${fmtF(p.libro.fecha)}</td><td>${esc(p.libro.concepto||'')}<div class="small text-danger">Libros ${moneda(p.libro.firmado)} ≠ banco ${moneda(ctaFirmadoMov(p.banco.tipo,p.banco.monto))}</div></td><td class="text-end">${moneda(p.diferencia)}</td></tr>`)
                     +(r.saldoBanco!=null?`<div class="mt-2 small">Saldo ajustado según libros: <b>${moneda(r.ajustadoLibros)}</b> · Saldo ajustado según banco: <b>${moneda(r.ajustadoBanco)}</b> ${r.conciliada?'— coinciden: la diferencia queda explicada por las partidas listadas.':'— NO coinciden: queda diferencia sin explicar.'}</div>`:'');
                     box.innerHTML=cuerpo;
-                    if(docBox) docBox.innerHTML=`<h6 class="fw-semibold mb-2">Documento de conciliación · ${esc(r.cuenta)} · ${esc(selP?selP.value:'')}</h6>${cuerpo}<div class="row mt-4"><div class="col-6"><div class="border-top pt-1 small">Conciliado por (firma)</div></div><div class="col-6"><div class="border-top pt-1 small">Revisado por (firma)</div></div></div>`; } }
+                    if(docBox){ /* MODELO CON-02 — solo plantilla: todos los importes
+                       salen de r = contaConcCalcular(c) (ctaConciliacion), la
+                       misma fuente de la vista en pantalla #contaConcBox, que
+                       NO se toca. Grupos A/B/C vacíos: NO se imprimen (ni su
+                       separador); si los tres están vacíos, la tabla de la
+                       sección II queda sin filas. */
+                      const periodoConc=selP?selP.value:'';
+                      const etiqCuenta=r.cuenta==='chequera'?'Chequera':(r.cuenta==='tarjeta_cup'?'Tarjeta CUP':(r.cuenta==='tarjeta_usd'?'Tarjeta USD':r.cuenta));
+                      const mayorConc=((c.plantillas&&c.plantillas.banco)||{})[r.cuenta]||'—';
+                      const tablaResumenConc=docOficialTabla([{t:'SALDO SEGÚN LIBRO CONTABLE',n:true},{t:'SALDO SEGÚN ESTADO BANCARIO',n:true}],[[docOficialNum(r.saldoLibros),r.saldoBanco==null?'—':docOficialNum(r.saldoBanco)]]);
+                      const filasPart=[];
+                      const sepPart=t=>({c:[esc(t),'','','',''],cls:'docof-subtotal'});
+                      const refPart=x=>(x&&(x.refO||x.refC))?esc(x.refO||x.refC):'—';
+                      const grpA=(r.enLibrosSinBanco||[]).filter(m=>(Number(m.firmado)||0)<0);
+                      if(grpA.length){ filasPart.push(sepPart('A. CHEQUES Y TRANSFERENCIAS EMITIDAS NO COBRADAS EN BANCO')); grpA.forEach(m=>filasPart.push([fmtF(m.fecha),refPart(m),esc(m.concepto||''),'',docOficialNum(Math.abs(Number(m.firmado)||0))])); }
+                      const grpB=(r.enLibrosSinBanco||[]).filter(m=>(Number(m.firmado)||0)>0);
+                      if(grpB.length){ filasPart.push(sepPart('B. DEPÓSITOS Y TRANSFERENCIAS EN TRÁNSITO NO ACREDITADAS POR EL BANCO')); grpB.forEach(m=>filasPart.push([fmtF(m.fecha),refPart(m),esc(m.concepto||''),docOficialNum(Number(m.firmado)||0),''])); }
+                      const filasC=[];
+                      (r.enBancoSinLibros||[]).forEach(op=>{ const f=ctaFirmadoMov(op.tipo,op.monto); filasC.push([fmtF(op.fecha),refPart(op),esc(op.concepto||''),f>0?docOficialNum(f):'',f<0?docOficialNum(Math.abs(f)):'']); });
+                      (r.diferenciasImporte||[]).forEach(pr=>{ const fB=ctaFirmadoMov(pr.banco.tipo,pr.banco.monto); const desc=(pr.libro.concepto||'')+' (importe distinto: libros '+docOficialNum(pr.libro.firmado)+' ≠ banco '+docOficialNum(fB)+')'; const d=Number(pr.diferencia)||0; filasC.push([fmtF(pr.libro.fecha),refPart(pr.libro),esc(desc),d>0?docOficialNum(d):'',d<0?docOficialNum(Math.abs(d)):'']); });
+                      if(filasC.length){ filasPart.push(sepPart('C. NOTAS DE DÉBITO / CRÉDITO BANCARIAS NO CONTABILIZADAS EN LIBROS')); filasC.forEach(f=>filasPart.push(f)); }
+                      const tablaPart=docOficialTabla(['Fecha','No. documento','Descripción / Concepto',{t:'Débitos (+)',n:true},{t:'Créditos (−)',n:true}],filasPart);
+                      let cierreConc=`<div class="docof-neto"><span>SALDO CONCILIADO EN LIBROS:</span><span>${docOficialNum(r.ajustadoLibros)}</span></div>`;
+                      if(r.saldoBanco==null) cierreConc+=`<p class="docof-txt">Sin saldo del banco: importa el estado de cuenta del período</p>`;
+                      else cierreConc+=`<div class="docof-neto"><span>SALDO CONCILIADO EN BANCO:</span><span>${docOficialNum(r.ajustadoBanco)}</span></div>`;
+                      cierreConc+=r.conciliada?`<p class="docof-txt"><b>✓ LA CUENTA BANCARIA SE ENCUENTRA TOTALMENTE CONCILIADA Y CONFORME</b></p>`:`<p class="docof-txt">La diferencia no queda totalmente explicada por las partidas en tránsito (estado: ${esc(r.estado)}).</p>`;
+                      docBox.innerHTML=docOficialHTML({
+                        sup:'SISTEMA CONTABLE Y FINANCIERO — NORMA RESOLUCIÓN 60 MFP',
+                        titulo:'ESTADO DE CONCILIACIÓN BANCARIA',
+                        modelo:'MODELO CON-02',
+                        campos:[
+                          ['Entidad',esc(docOficialNegocio())],
+                          ['Período conciliado',esc(periodoConc)],
+                          ['Banco / Sucursal','—'],
+                          ['Fecha de emisión',esc(docOficialHoy())],
+                          ['Cuenta bancaria',esc(etiqCuenta)],
+                          ['Cuenta mayor',esc(mayorConc)]
+                        ],
+                        cuerpo:`<div class="docof-sec">I. RESUMEN DE SALDOS AL CIERRE DEL PERÍODO</div>${tablaResumenConc}<div class="docof-sec">II. PARTIDAS EN TRÁNSITO Y PARTIDAS PENDIENTES DE CONCILIAR</div>${tablaPart}${cierreConc}`,
+                        firmas:['Elaboró (Especialista Contable)','Revisó (Auditor Interno)','Aprobó (Director Financiero)']
+                      });
+                    } } }
             if(selC&&!selC.onchange) selC.onchange=function(){ renderConta(); };
             if(selP&&!selP.onchange) selP.onchange=function(){ renderConta(); };
             /* --- Programador de pagos --- */
@@ -6608,7 +6688,44 @@ function mjPermisos(rol,modulo){ const M={
             const aFecha=document.getElementById('contaArqFecha'); if(aFecha&&!aFecha.value) aFecha.value=hoy();
             const arqs=(c.arqueos||[]); const ult=arqs[arqs.length-1];
             const aDoc=document.getElementById('contaArqueoDocBox');
-            if(aDoc){ aDoc.innerHTML=ult?`<h6 class="fw-semibold mb-2">Documento de arqueo · ${esc(ult.cuenta)} · ${fmtF(ult.fecha)}</h6><table class="table table-sm align-middle mb-2"><tbody><tr><td>Cuenta</td><td><b>${esc(ult.cuenta)} · ${esc(ult.cuentaNombre||'')}</b></td></tr><tr><td>Saldo según libros (mayor contable)</td><td class="text-end"><b>${moneda(ult.saldoLibros)}</b></td></tr><tr><td>Conteo físico</td><td class="text-end"><b>${moneda(ult.conteo)}</b></td></tr><tr><td>Diferencia</td><td class="text-end"><b class="${ult.diferencia===0?'text-success':'text-danger'}">${ult.diferencia===0?'Sin diferencia':((ult.diferencia<0?'Faltante ':'Sobrante ')+moneda(Math.abs(ult.diferencia)))}</b>${ult.asientoId?' <span class="small text-secondary">(asiento de ajuste generado)</span>':''}</td></tr></tbody></table><div class="row mt-4"><div class="col-6"><div class="border-top pt-1 small">Contó: ${esc(ult.conto||'')} (firma)</div></div><div class="col-6"><div class="border-top pt-1 small">Revisó: ${esc(ult.reviso||'')} (firma)</div></div></div>`:'<span class="text-muted small">Todavía no hay arqueos: el primero que registres aparecerá aquí como documento imprimible con sus firmas.</span>'; }
+            if(aDoc){ if(!ult) aDoc.innerHTML='<span class="text-muted small">Todavía no hay arqueos: el primero que registres aparecerá aquí como documento imprimible con sus firmas.</span>';
+                else { /* MODELO SC-1-03 — solo plantilla: los importes salen del
+                   último arqueo `ult` (ctaArqueo): saldoLibros del mayor,
+                   conteo físico y diferencia = conteo − saldoLibros. El
+                   desglose por denominaciones va EN BLANCO: la app captura
+                   solo el conteo total, no el desglose (no se inventa). */
+                    const denoms=['1,000.00','500.00','200.00','100.00','50.00','20.00','10.00','5.00','Monedas varias'];
+                    const filasBil=denoms.map(d=>[esc(d),'','']);
+                    filasBil.push({c:[esc('TOTAL EFECTIVO FÍSICO'),'',docOficialNum(ult.conteo)],cls:'docof-total'});
+                    const tablaBil=docOficialTabla(['Denominación ($)',{t:'Cantidad',c:true},{t:'Importe total ($)',n:true}],filasBil);
+                    const tablaVales=docOficialTabla(['No. Doc','Concepto',{t:'Monto ($)',n:true}],[{c:['',esc('TOTAL VALES / DOCS'),docOficialNum(0)],cls:'docof-total'}]);
+                    const etiqDif=ult.diferencia>0?'(SOBRANTE)':(ult.diferencia<0?'(FALTANTE)':'(EXACTO)');
+                    const tablaRes=docOficialTabla(['Concepto',{t:'Importe ($)',n:true}],[
+                        [esc('(+) Total Efectivo Físico'),docOficialNum(ult.conteo)],
+                        [esc('(+) Total Comprobantes en Caja'),docOficialNum(0)],
+                        {c:[esc('(=) TOTAL EXISTENCIA ARQUEADA'),docOficialNum(ult.conteo)],cls:'docof-subtotal'},
+                        [esc('(−) Saldo Contable / Fondo Asignado'),docOficialNum(ult.saldoLibros)],
+                        {c:[esc('DIFERENCIA '+etiqDif),docOficialNum(Math.abs(ult.diferencia))],cls:'docof-total'}
+                    ]);
+                    const cuerpoArq=`<table><tbody><tr><td style="vertical-align:top;width:55%;padding-right:8px;border:none"><div class="docof-sec">I. ARQUEO FÍSICO DEL EFECTIVO (DESGLOSE DE BILLETES Y MONEDAS)</div>${tablaBil}</td><td style="vertical-align:top;width:45%;border:none"><div class="docof-sec">II. COMPROBANTES PENDIENTES EN CAJA</div>${tablaVales}<div class="docof-sec">III. DETERMINACIÓN DEL RESULTADO</div>${tablaRes}</td></tr></tbody></table>`
+                        +(ult.asientoId?`<p class="docof-txt">Se generó el asiento de ajuste correspondiente.</p>`:'')
+                        +`<p class="docof-txt">CERTIFICACIÓN: El que suscribe certifica que el arqueo de caja fue realizado en su presencia, devolviendo la totalidad de los valores registrados a la custodia del cajero responsable sin reclamo alguno.</p>`;
+                    aDoc.innerHTML=docOficialHTML({
+                        sup:'MINISTERIO DE FINANZAS Y PRECIOS — REPÚBLICA DE CUBA',
+                        titulo:'ACTA DE ARQUEO DE CAJA (EFECTIVO)',
+                        modelo:'MODELO SC-1-03',
+                        campos:[
+                            ['Entidad/Empresa',esc(docOficialNegocio())],
+                            ['Fecha de arqueo',esc(sc406FechaDMY(ult.fecha)||ult.fecha||'')],
+                            ['Unidad / Centro de costo',esc(ult.cuenta+' · '+(ult.cuentaNombre||''))],
+                            ['Hora de inicio','____'],
+                            ['Cajero / Custodio',esc(ult.conto||'____')],
+                            ['Fondo fijo','____']
+                        ],
+                        cuerpo:cuerpoArq,
+                        firmas:[{rol:'Cajero / Custodio',nombre:ult.conto||''},{rol:'Auditor / Contador Verificador',nombre:ult.reviso||''},{rol:'Especialista Principal de Contabilidad',nombre:''}]
+                    });
+                } }
             const aBox=document.getElementById('contaArqueosBox');
             if(aBox) aBox.innerHTML=arqs.slice().reverse().map(a=>`<tr><td class="text-nowrap">${fmtF(a.fecha)}</td><td>${esc(a.cuenta)}</td><td class="text-end">${moneda(a.saldoLibros)}</td><td class="text-end">${moneda(a.conteo)}</td><td class="text-end">${a.diferencia===0?'<span class="text-success">0.00</span>':('<span class="text-danger">'+moneda(a.diferencia)+'</span>')}</td><td>${esc(a.conto||'')}</td><td>${esc(a.reviso||'')}</td></tr>`).join('')||'<tr><td colspan="7" class="text-center text-muted">Sin arqueos registrados.</td></tr>';
         }
@@ -8627,6 +8744,486 @@ function mjPermisos(rol,modulo){ const M={
             box.innerHTML = (meta ? `<div class="small text-muted mb-2">${esc(meta)}</div>` : '') + cuerpoHtml;
             printPane('nominaDocBox', titulo);
         }
+        /* ===== DOCUMENTOS OFICIALES (andamiaje común de impresión) =====
+           Esqueleto único para las salidas con formato oficial o plantilla
+           interna: encabezado (entidad, título, modelo), campos, cuerpo
+           (tablas .docof-tab), neto destacado opcional y firmas. Cada
+           generador arma su cuerpo con docOficialTabla() y lo imprime con
+           docOficialImprimirEn() sobre la caja de documento de su panel.
+           Ningún cálculo vive aquí: solo presentación. */
+        function docOficialNum(n) { return (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function docOficialHoy() { const d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
+        function docOficialNegocio() { try { const n = getNegocioNombre(); if (n) return n; } catch(e) {} const el = document.getElementById('negocioNombreDisplay'); return el ? el.textContent : ''; }
+        function docOficialNIT() { try { const d = getDatos(); const meta = (d.fiscal || {}).importMeta || {}; const dj = (d.dj || {}).ficha || {}; return meta.nit || dj.nit || ''; } catch(e) { return ''; } }
+        function docOficialTabla(cols, filas, pies) {
+            const th = cols.map(c => { const o = (typeof c === 'string') ? { t: c } : c; return `<th>${esc(o.t)}</th>`; }).join('');
+            const celda = (o, v) => `<td${o.n ? ' class="n"' : (o.c ? ' class="c"' : '')}>${v == null ? '' : v}</td>`;
+            const fila = f => { if (f && !Array.isArray(f)) return `<tr${f.cls ? ` class="${f.cls}"` : ''}>${(f.c || []).map((v, i) => celda(cols[i] || {}, v)).join('')}</tr>`; return `<tr>${(f || []).map((v, i) => celda(cols[i] || {}, v)).join('')}</tr>`; };
+            return `<table class="docof-tab"><thead><tr>${th}</tr></thead><tbody>${(filas || []).map(fila).join('')}</tbody>${pies && pies.length ? `<tfoot>${pies.map(fila).join('')}</tfoot>` : ''}</table>`;
+        }
+        function docOficialHTML(op) {
+            const campos = (op.campos || []).filter(p => p && p[0]);
+            let filasCampos = '';
+            for (let i = 0; i < campos.length; i += 2) {
+                const a = campos[i], b = campos[i + 1];
+                filasCampos += `<tr><td><b>${esc(a[0])}:</b> ${a[1] == null ? '' : a[1]}</td><td>${b ? `<b>${esc(b[0])}:</b> ${b[1] == null ? '' : b[1]}` : ''}</td></tr>`;
+            }
+            const firmas = op.firmas || ['Elaborado por', 'Revisado por', 'Aprobado por'];
+            const colsF = Math.max(1, firmas.length);
+            return `<div class="docof">
+            ${op.sup ? `<div class="docof-sup">${esc(op.sup)}</div>` : ''}
+            <table class="docof-cab"><tbody><tr>
+              <td><div class="docof-ent">${esc(docOficialNegocio().toUpperCase())}</div>
+              <div class="docof-tit">${esc(op.titulo || '')}</div>
+              ${op.subtitulo ? `<div class="docof-sub">${op.subtitulo}</div>` : ''}</td>
+              ${op.modelo ? `<td class="docof-modelo">${esc(op.modelo)}</td>` : ''}
+            </tr></tbody></table>
+            ${filasCampos ? `<table class="docof-campos"><tbody>${filasCampos}</tbody></table>` : ''}
+            ${op.cuerpo || ''}
+            <table class="docof-firmas"><tbody><tr>${firmas.map(f => { const o = (f && typeof f === 'object') ? f : { rol: f, nombre: '' }; return `<td style="width:${Math.floor(100 / colsF)}%">${o.nombre ? `<div>${esc(o.nombre)}</div>` : ''}<div class="docof-fir"><b>${esc(o.rol || '')}</b><br>Nombre y firma</div></td>`; }).join('')}</tr></tbody></table>
+            ${op.pie ? `<div class="docof-pie">${op.pie}</div>` : ''}
+            <div class="docof-pag">Página 1</div>
+            </div>`;
+        }
+        function docOficialImprimirEn(boxId, titulo, html) {
+            const box = document.getElementById(boxId);
+            if (!box) { alert('No se encontró el contenedor de documentos.'); return; }
+            box.innerHTML = html;
+            printPane(boxId, titulo);
+        }
+        /* ===== ESTADOS DE CUENTA (Grupo B): ficha interna de cada cuenta
+           financiera (Chequera / Tarjeta CUP / Tarjeta USD). Solo plantilla:
+           los datos salen de getResumenPeriodo() y getMovimientosPeriodo()
+           del período en curso, las mismas fuentes de la pantalla.
+           Criterio de signo (VERIFICADO contra renderTablaCuenta, que es
+           quien pinta la columna «Saldo» en pantalla): el importe en la
+           unidad del documento es, para tarjeta_usd, el monto en divisa
+           (m.monto) y para las demás getMontoMovimientoCUP(m); suma si
+           tipo==='ingreso' y resta en cualquier otro caso (gasto, onat,
+           transferencia…). Con ese criterio el saldo corrido de la última
+           fila coincide con el saldo final de getResumenPeriodo()
+           (sal.monto en CUP o sal.montoDivisa en USD). El saldo inicial se
+           deriva de ese mismo resumen: final − ingresos + gastos + onat
+           de la cuenta (en su unidad), así el documento siempre cuadra
+           con la app. Convención de cuenta de activo: Débito = importe
+           firmado que AUMENTA el saldo; Crédito = |importe| que lo
+           DISMINUYE. */
+        function docCuentaPrint(cuenta) {
+            const cfgDoc = {
+                chequera: { titulo: 'CHEQUERA', subtitulo: 'Estado de la cuenta — control de movimientos y saldo.', moneda: 'CUP', box: 'docChequeraBox' },
+                tarjeta_cup: { titulo: 'TARJETA CUP', subtitulo: 'Ficha de control de movimientos y saldo de la cuenta en CUP (moneda nacional).', moneda: 'CUP', box: 'docTarjetaCUPBox' },
+                tarjeta_usd: { titulo: 'TARJETA USD', subtitulo: 'Ficha de control de movimientos y saldo de la cuenta en USD / MLC (moneda libremente convertible).', moneda: 'USD', box: 'docTarjetaUSDBox' }
+            }[cuenta];
+            if (!cfgDoc) return;
+            const periodo = periodoNominaActual();
+            const res = getResumenPeriodo(periodo);
+            const sal = res && res.saldos ? res.saldos[cuenta] : null;
+            if (!sal) { alert('Sin datos de la cuenta en este período.'); return; }
+            const esUSD = cuenta === 'tarjeta_usd';
+            const saldoFinal = esUSD ? (Number(sal.montoDivisa) || 0) : (Number(sal.monto) || 0);
+            const totIng = esUSD ? (Number(sal.ingresosDivisa) || 0) : (Number(sal.ingresos) || 0);
+            const totGas = esUSD ? (Number(sal.gastosDivisa) || 0) : (Number(sal.gastos) || 0);
+            const totOnat = esUSD ? (Number(sal.onatDivisa) || 0) : (Number(sal.onat) || 0);
+            const saldoInicial = Math.round((saldoFinal - totIng + totGas + totOnat) * 100) / 100;
+            const movs = getMovimientosPeriodo(periodo).filter(m => m && m.cuenta === cuenta)
+                .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+            let corrido = saldoInicial, totD = 0, totC = 0;
+            const filas = movs.map(m => {
+                const v = esUSD ? (Number(m.monto) || 0) : getMontoMovimientoCUP(m);
+                const firmado = m.tipo === 'ingreso' ? v : -v;
+                corrido = Math.round((corrido + firmado) * 100) / 100;
+                if (firmado > 0) totD += firmado; else if (firmado < 0) totC += Math.abs(firmado);
+                return [esc(sc406FechaDMY(m.fecha) || m.fecha || ''), esc(m.refCorriente || m.refOrigen || '—'), esc(m.concepto || ''),
+                    firmado > 0 ? docOficialNum(firmado) : '', firmado < 0 ? docOficialNum(Math.abs(firmado)) : '', docOficialNum(corrido)];
+            });
+            const tabla = docOficialTabla(
+                ['Fecha', 'Documento / Ref.', 'Descripción', { t: 'Débito', n: true }, { t: 'Crédito', n: true }, { t: 'Saldo', n: true }],
+                filas,
+                [{ c: ['', '', esc('SALDO FINAL'), docOficialNum(totD), docOficialNum(totC), docOficialNum(saldoFinal)], cls: 'docof-total' }]
+            );
+            const html = docOficialHTML({
+                titulo: cfgDoc.titulo,
+                subtitulo: cfgDoc.subtitulo,
+                campos: [
+                    ['Titular', esc(docOficialNegocio())],
+                    ['No. de tarjeta / cuenta', '—'],
+                    ['Moneda', esc(cfgDoc.moneda)],
+                    ['Saldo inicial', docOficialNum(saldoInicial)],
+                    ['Período', esc(periodo)]
+                ],
+                cuerpo: tabla
+            });
+            docOficialImprimirEn(cfgDoc.box, cfgDoc.titulo + ' · ' + periodo, html);
+        }
+        /* ===== REGISTRO DE PAGOS QR (Grupo B): plantilla interna.
+           Solo plantilla: los registros salen EXACTAMENTE de la misma
+           obtención que el render en pantalla de Historial
+           (renderRegistroQR): si el mes elegido en #qrMesSel es un mes
+           del historial, su registroQR guardado (o registroQRDeMovs de
+           sus movimientos si no lo trae); si es el mes actual,
+           registroQRDeMovs(movimientos). Los regs no guardan plataforma,
+           cliente ni nº de operación: plataforma se imprime «QR» (es un
+           registro de pagos QR) y cliente «—»; el nº de operación se
+           enriquece solo si el movimiento original del mismo mes que
+           generó el reg (qr, misma fecha, concepto e importe en CUP)
+           trae refOrigen/refCorriente. */
+        function docQRPrint() {
+            const sel = document.getElementById('qrMesSel');
+            const mesSel = (sel && sel.value) || qrMesSelVal || periodoNominaActual();
+            const hist = getHistorial(), actual = periodoNominaActual();
+            let regs = [], movsMes = [];
+            const h = hist.find(x => x.mes === mesSel);
+            if (h) { regs = Array.isArray(h.registroQR) ? h.registroQR : registroQRDeMovs(h.movimientos || []); movsMes = h.movimientos || []; }
+            else if (mesSel === actual) { regs = registroQRDeMovs(movimientos); movsMes = movimientos; }
+            const nombresCuenta = { chequera: 'Chequera', tarjeta_cup: 'Tarjeta CUP', tarjeta_usd: 'Tarjeta USD' };
+            const cuentas = [...new Set(regs.map(r => r.cuenta).filter(Boolean))].map(cu => nombresCuenta[cu] || cu);
+            let total = 0;
+            const filas = regs.map(reg => {
+                total += Number(reg.monto) || 0;
+                let noOp = '—';
+                const orig = (movsMes || []).find(m => m && m.qr && (m.fecha || '') === (reg.fecha || '') && (m.concepto || '') === (reg.concepto || '') && Math.abs(getMontoMovimientoCUP(m) - (Number(reg.monto) || 0)) < 0.005);
+                if (orig && (orig.refOrigen || orig.refCorriente)) noOp = orig.refOrigen || orig.refCorriente;
+                return [esc(sc406FechaDMY(reg.fecha) || reg.fecha || ''), esc('QR'), esc(noOp), '—', esc(reg.concepto || ''), docOficialNum(reg.monto), '—'];
+            });
+            const tabla = docOficialTabla(
+                ['Fecha y hora', 'Plataforma', 'No. de operación', 'Cliente / Pagador', 'Concepto', { t: 'Importe ($)', n: true }, { t: 'Conciliado', c: true }],
+                filas,
+                [{ c: ['', '', '', '', esc('TOTALES'), docOficialNum(total), ''], cls: 'docof-total' }]
+            );
+            const html = docOficialHTML({
+                titulo: 'REGISTRO DE PAGOS QR',
+                subtitulo: 'Bitácora de transacciones por Transfermóvil / EnZona.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Cuenta de cobro', esc(cuentas.length ? cuentas.join(', ') : '—')],
+                    ['Período', esc(mesSel)],
+                    ['Responsable', '—']
+                ],
+                cuerpo: tabla
+            });
+            docOficialImprimirEn('docQRBox', 'Registro de pagos QR · ' + mesSel, html);
+        }
+        /* ===== DOCUMENTOS DE PANEL (Grupo C1): Resumen, Nómina completa
+           con submayores, Trimestres, Cálculo ONAT, Cierre anual y Balance
+           de apertura. Solo plantillas y botones: ningún cálculo nuevo;
+           los datos son exactamente los que alimentan cada pantalla
+           (getResumenPeriodo, nominaProDatos/nominaVacDatos/
+           nomSubmayorAdelantos, triDatosAnio, calcFiscalPeriodo y
+           getConta().cierres/aperturas). */
+        function docC1R2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+        function docResumenPrint() {
+            const actual = periodoNominaActual();
+            const pp = periodoParts(actual);
+            let anterior = '';
+            if (pp) { let mi = pp.mi - 1, y = pp.y; if (mi < 0) { mi = 11; y--; } anterior = MESES_ES[mi] + ' ' + y; }
+            const resAct = getResumenPeriodo(actual) || {};
+            const resAnt = anterior ? (getResumenPeriodo(anterior) || {}) : {};
+            let accIng = 0, accGas = 0, accUtil = 0;
+            const anio = pp ? pp.y : null;
+            const periodosAnio = [];
+            (getHistorial() || []).forEach(h => { const p = periodoParts(h.mes); if (p && anio != null && p.y === anio && periodosAnio.indexOf(h.mes) < 0) periodosAnio.push(h.mes); });
+            if (actual && periodosAnio.indexOf(actual) < 0) periodosAnio.push(actual);
+            periodosAnio.forEach(per => { const r = getResumenPeriodo(per) || {}; accIng += Number(r.ingresos) || 0; accGas += Number(r.gastos) || 0; accUtil += Number(r.utilidad) || 0; });
+            const filaRes = (etiqueta, ant, act, acu, esSubtotal) => {
+                const a = Number(ant) || 0, b = Number(act) || 0;
+                const variacion = docC1R2(b - a);
+                const pct = a !== 0 ? (variacion / Math.abs(a) * 100).toFixed(1) + ' %' : '—';
+                const celdasFila = [esc(etiqueta), docOficialNum(a), docOficialNum(b), docOficialNum(acu), docOficialNum(variacion), esc(pct), ''];
+                return esSubtotal ? { c: celdasFila, cls: 'docof-subtotal' } : celdasFila;
+            };
+            const tabla = docOficialTabla(
+                ['Área / Concepto', { t: 'Mes anterior', n: true }, { t: 'Mes actual', n: true }, { t: 'Acumulado año', n: true }, { t: 'Variación', n: true }, { t: '% variación', c: true }, 'Observaciones'],
+                [
+                    filaRes('Ingresos', resAnt.ingresos, resAct.ingresos, accIng, false),
+                    filaRes('Gastos', resAnt.gastos, resAct.gastos, accGas, false),
+                    filaRes('Utilidad del período', resAnt.utilidad, resAct.utilidad, accUtil, true)
+                ]
+            );
+            const html = docOficialHTML({
+                titulo: 'RESUMEN GENERAL',
+                subtitulo: 'Vista consolidada de totales por área o concepto.',
+                campos: [
+                    ['Entidad / Titular', esc(docOficialNegocio())],
+                    ['NIT / Código', esc(docOficialNIT() || '—')],
+                    ['Período', esc(actual)],
+                    ['Fecha de emisión', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla
+            });
+            docOficialImprimirEn('docResumenBox', 'Resumen general · ' + actual, html);
+        }
+        function docNominaSubmayoresPrint() {
+            const datosNom = nominaProDatos();
+            const periodo = datosNom.periodo, lineas = datosNom.lineas || [], tot = datosNom.tot || {};
+            if (!lineas.length) { alert('Todavía no hay trabajadores incluidos en la nómina de ' + periodo + '.'); return; }
+            let sumBas = 0, sumAdi = 0, sumDev = 0, sumSS = 0, sumImp = 0, sumOtr = 0, sumLiq = 0;
+            const filas = lineas.map((L, i) => {
+                const c = L.calc || {};
+                const aCobrar = docC1R2(sc406DatosLinea(L, periodo).aCobrar);
+                const devengado = docC1R2((Number(c.bruto) || 0) + (Number(c.subsidios) || 0));
+                const adicionales = docC1R2(devengado - aCobrar);
+                const ss = docC1R2(c.segTrab), imp = docC1R2(c.iip);
+                const otros = docC1R2((Number(c.deducciones) || 0) + (Number(c.descAdelanto) || 0));
+                const liquido = docC1R2(c.neto);
+                sumBas += aCobrar; sumAdi += adicionales; sumDev += devengado; sumSS += ss; sumImp += imp; sumOtr += otros; sumLiq += liquido;
+                return [esc(String(i + 1)), esc((L.t && L.t.nombre) || ''), docOficialNum(aCobrar), docOficialNum(adicionales), docOficialNum(devengado), docOficialNum(ss), docOficialNum(imp), docOficialNum(otros), docOficialNum(liquido)];
+            });
+            /* Totales = suma de las filas TAL CUAL se imprimen (cada valor
+               redondeado a centavos antes de sumar): así el pie es la suma
+               exacta de la tabla. Contrasta con tot de nominaProDatos:
+               devengado total = tot.bruto + (tot.subsidios||0) y líquido
+               total = tot.neto; si hubiera diferencia de redondeo frente
+               a tot, manda la suma de filas (esto). */
+            const tablaPrinc = docOficialTabla(
+                [{ t: 'No.', c: true }, 'Trabajador', { t: 'Salario básico', n: true }, { t: 'Pagos adicionales', n: true }, { t: 'Total devengado', n: true }, { t: 'Contrib. S. Social', n: true }, { t: 'Impuesto / Retención', n: true }, { t: 'Otros descuentos', n: true }, { t: 'Líquido a pagar', n: true }],
+                filas,
+                [{ c: ['', esc('TOTALES'), docOficialNum(sumBas), docOficialNum(sumAdi), docOficialNum(sumDev), docOficialNum(sumSS), docOficialNum(sumImp), docOficialNum(sumOtr), docOficialNum(sumLiq)], cls: 'docof-total' }]
+            );
+            const vac = nominaVacDatos();
+            let vMes = 0, vDiasDev = 0, vDiasDes = 0, vSaldoDias = 0, vDev = 0, vPag = 0, vSaldoImp = 0;
+            const filasVac = vac.map(e => {
+                vMes += Number(e.meses) || 0; vDiasDev += docC1R2(e.diasDev); vDiasDes += docC1R2(e.descansados); vSaldoDias += docC1R2(e.saldoDias); vDev += docC1R2(e.deveng); vPag += docC1R2(e.pagado); vSaldoImp += docC1R2(e.saldoImp);
+                return [esc((e.t && e.t.nombre) || ''), esc(String(e.meses != null ? e.meses : '')), docOficialNum(e.diasDev), docOficialNum(e.descansados), docOficialNum(e.saldoDias), docOficialNum(e.deveng), docOficialNum(e.pagado), docOficialNum(e.saldoImp)];
+            });
+            const tablaVac = docOficialTabla(
+                ['Trabajador', { t: 'Meses', c: true }, { t: 'Días devengados', n: true }, { t: 'Días descansados', n: true }, { t: 'Saldo (días)', n: true }, { t: 'Importe devengado', n: true }, { t: 'Pagado', n: true }, { t: 'Saldo (importe)', n: true }],
+                filasVac,
+                filasVac.length ? [{ c: [esc('TOTALES'), esc(String(vMes)), docOficialNum(vDiasDev), docOficialNum(vDiasDes), docOficialNum(vSaldoDias), docOficialNum(vDev), docOficialNum(vPag), docOficialNum(vSaldoImp)], cls: 'docof-total' }] : []
+            );
+            const sm = nomSubmayorAdelantos(getRRHH());
+            let aOto = 0, aDes = 0, aSal = 0;
+            const filasAd = [];
+            (sm.grupos || []).forEach(g => {
+                const otorgado = (g.filas || []).reduce((s, f) => s + (Number(f.adelanto && f.adelanto.importe) || 0), 0);
+                const descontado = (g.filas || []).reduce((s, f) => s + (Number(f.descontado) || 0), 0);
+                const saldo = g.saldoTotal != null ? (Number(g.saldoTotal) || 0) : (g.filas || []).reduce((s, f) => s + (Number(f.saldo) || 0), 0);
+                if (!(saldo > 0.004 || otorgado > 0.004)) return;
+                aOto += otorgado; aDes += descontado; aSal += saldo;
+                filasAd.push([esc(g.nombre || ''), docOficialNum(otorgado), docOficialNum(descontado), docOficialNum(saldo)]);
+            });
+            const tablaAd = docOficialTabla(
+                ['Trabajador', { t: 'Otorgado', n: true }, { t: 'Descontado', n: true }, { t: 'Saldo pendiente', n: true }],
+                filasAd.length ? filasAd : [[esc('Sin adelantos registrados.'), '', '', '']],
+                filasAd.length ? [{ c: [esc('TOTALES'), docOficialNum(aOto), docOficialNum(aDes), docOficialNum(aSal)], cls: 'docof-total' }] : []
+            );
+            const cuerpo = tablaPrinc
+                + '<div class="docof-sec">SUBMAYOR DE VACACIONES</div>' + tablaVac
+                + '<div class="docof-sec">SUBMAYOR DE SALARIOS POR COBRAR (139-000) · ADELANTOS</div>' + tablaAd;
+            const html = docOficialHTML({
+                titulo: 'NÓMINA COMPLETA (CON SUBMAYORES)',
+                subtitulo: 'Cálculo analítico de salarios con desglose por conceptos.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Área / Centro de costo', esc('Todos')],
+                    ['Período', esc(periodo)],
+                    ['Fecha de pago', esc(docOficialHoy())]
+                ],
+                cuerpo: cuerpo
+            });
+            docOficialImprimirEn('nominaDocBox', 'Nómina completa con submayores · ' + periodo, html);
+        }
+        function docTrimestresPrint() {
+            const d = triDatosAnio(trimestreAnioSel);
+            const qs = d.trimestres || [];
+            const sumaQ = (fn) => qs.reduce((a, q) => a + (Number(fn(q)) || 0), 0);
+            const ingQ = q => (q.meses || []).reduce((a, m) => a + (Number(m.ingresos) || 0), 0);
+            const gasQ = q => (q.meses || []).reduce((a, m) => a + (Number(m.gastos) || 0), 0);
+            const filaTri = (etiqueta, fn, esSubtotal) => {
+                const vals = qs.map(q => Number(fn(q)) || 0);
+                const totalAnio = vals.reduce((a, v) => a + v, 0);
+                const celdasFila = [esc(etiqueta)].concat(vals.map(v => docOficialNum(v))).concat([docOficialNum(totalAnio)]);
+                return esSubtotal ? { c: celdasFila, cls: 'docof-subtotal' } : celdasFila;
+            };
+            const tabla1 = docOficialTabla(
+                ['Concepto', { t: '1er trimestre', n: true }, { t: '2do trimestre', n: true }, { t: '3er trimestre', n: true }, { t: '4to trimestre', n: true }, { t: 'Total año', n: true }],
+                [
+                    filaTri('Ingresos', ingQ, false),
+                    filaTri('Gastos', gasQ, false),
+                    filaTri('UTILIDAD ANTES DE IMPUESTOS', q => q.utilidad, true),
+                    filaTri('Reserva de contingencia (10 %)', q => q.contingencia, false),
+                    filaTri('Impuesto sobre utilidades (35 %)', q => q.impuesto, false),
+                    filaTri('35 % pagado', q => q.pagado35, false),
+                    filaTri('35 % pendiente', q => q.pendiente35, false)
+                ]
+            );
+            const pctSocios = (Number(d.utilidad) || 0) > 0 ? ((Number(d.utilidadSocios) || 0) / (Number(d.utilidad) || 1) * 100).toFixed(1) + ' %' : '—';
+            const filasDist = [
+                [esc('Reserva para pérdidas y contingencias'), docOficialNum(d.utilidad), esc('10 %'), docOficialNum(d.contingencia), esc('Fondo retenido · Disponible: ' + moneda(d.contingenciaDisponible))],
+                [esc('Impuesto sobre utilidades (ONAT)'), docOficialNum(d.utilidad), esc(String((CFG.onat && CFG.onat.utilidades) || 35) + ' %'), docOficialNum(d.impuesto35), esc('Pagado ' + moneda(d.pagado35) + ' · Pendiente ' + moneda(d.pendiente35))],
+                [esc('Utilidades a socios'), docOficialNum(d.utilidad), esc(pctSocios), docOficialNum(d.utilidadSocios), esc('Retirado ' + moneda(d.retiroSocios) + ' · Disponible ' + moneda(d.sociosDisponible))]
+            ];
+            /* Fila TOTAL DISTRIBUIDO: en la app, utilidadSocios =
+               utilidad − contingencia (el impuesto del 35 % se calcula
+               aparte sobre la utilidad y NO se resta de socios). Por eso
+               el total verdadero de la distribución es solo contingencia
+               + utilidades a socios, y solo se imprime cuando esa suma
+               coincide con la utilidad del año (trimestres sin pérdidas
+               que la rompan); el impuesto queda como fila informativa
+               fuera del total. Si no coincide, no se fuerza ningún total. */
+            const totalDist = docC1R2((Number(d.contingencia) || 0) + (Number(d.utilidadSocios) || 0));
+            const piesDist = (Math.abs(totalDist - docC1R2(d.utilidad)) < 0.011)
+                ? [{ c: [esc('TOTAL DISTRIBUIDO'), docOficialNum(d.utilidad), '', docOficialNum(totalDist), esc('Contingencia + utilidades a socios')], cls: 'docof-total' }]
+                : [];
+            const tabla2 = docOficialTabla(
+                ['Destino', { t: 'Base', n: true }, { t: '%', c: true }, { t: 'Importe', n: true }, 'Beneficiario / Observación'],
+                filasDist,
+                piesDist
+            );
+            const notaDist = '<p class="docof-txt">Nota: en la app, «Utilidades a socios» = utilidad − contingencia; el impuesto sobre utilidades se calcula aparte sobre la utilidad y no se resta de socios, por lo que se presenta como fila informativa fuera del total distribuido.</p>';
+            const cuerpo = tabla1 + '<div class="docof-sec">DISTRIBUCIÓN DE UTILIDADES</div>' + tabla2 + notaDist;
+            const html = docOficialHTML({
+                titulo: 'TRIMESTRES Y UTILIDADES',
+                subtitulo: 'Acumulado trimestral y distribución de utilidades.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['NIT', esc(docOficialNIT() || '—')],
+                    ['Año', esc(String(d.anio != null ? d.anio : trimestreAnioSel))],
+                    ['Fecha de cierre', esc(docOficialHoy())]
+                ],
+                cuerpo: cuerpo
+            });
+            docOficialImprimirEn('docUtilidadesBox', 'Trimestres y utilidades · ' + (d.anio != null ? d.anio : trimestreAnioSel), html);
+        }
+        function docOnatPrint() {
+            try { const inst = bootstrap.Modal.getInstance(document.getElementById('onatModal')); if (inst) inst.hide(); } catch(e) {}
+            const periodo = periodoNominaActual();
+            const cf = calcFiscalPeriodo(periodo);
+            const nom = cf.nom || {};
+            const prm = fiscalNominaPara(periodo);
+            const tasaIUFT = prm && prm.fuerzaTrabajo != null ? String(prm.fuerzaTrabajo) + ' %' : '—';
+            const brutoNom = Number(nom.bruto) || 0;
+            const candidatas = [
+                { concepto: 'Impuesto sobre las ventas / servicios', base: Number(cf.ingresos) || 0, tasa: String((CFG.onat && CFG.onat.ventas) || 0) + ' %', importe: cf.ventas, obs: 'Sobre ingresos del período' },
+                (cf.territorial != null ? { concepto: 'Contribución territorial / desarrollo local', base: Number(cf.ingresos) || 0, tasa: String((CFG.onat && CFG.onat.desarrolloLocal) || 0) + ' %', importe: cf.territorial, obs: '' } : null),
+                (cf.tipo === 'tcp' || cf.pagoCuentaTCP != null ? { concepto: 'Pago a cuenta del IIP (TCP)', base: Math.max(0, (Number(cf.ingresos) || 0) - 3260), tasa: '5 %', importe: cf.pagoCuentaTCP, obs: '5 % del ingreso que excede 3 260 CUP' } : null),
+                { concepto: 'Impuesto por la Utilización de la Fuerza de Trabajo', base: brutoNom, tasa: tasaIUFT, importe: nom.fuerza, obs: 'Desde la nómina del período' },
+                { concepto: 'Contribución a la Seguridad Social — aporte al Presupuesto', base: brutoNom, tasa: '—', importe: nom.ssPresupuesto, obs: 'Desde la nómina' },
+                { concepto: 'Contribución Especial a la Seguridad Social (retenida)', base: brutoNom, tasa: '—', importe: nom.segTrab, obs: 'Retención a trabajadores' },
+                { concepto: 'Impuesto sobre Ingresos Personales (retenido)', base: brutoNom, tasa: '—', importe: nom.iip, obs: 'Retención a trabajadores' },
+                (cf.utilidades != null ? { concepto: 'Impuesto sobre utilidades', base: Number((getResumenPeriodo(periodo) || {}).utilidad) || 0, tasa: String((CFG.onat && CFG.onat.utilidades) || 0) + ' %', importe: cf.utilidades, obs: '' } : null)
+            ];
+            let totalPagar = 0;
+            const filas = [];
+            candidatas.forEach(r => {
+                if (!r) return;
+                if (r.importe == null || !(Math.abs(Number(r.importe) || 0) > 0.004)) return;
+                /* El total suma los importes YA redondeados por fila, así
+                   el TOTAL A PAGAR impreso es exactamente la suma de las
+                   filas impresas (sin diferencia de un centavo). */
+                totalPagar += docC1R2(r.importe);
+                filas.push([esc(r.concepto), docOficialNum(r.base), esc(r.tasa), docOficialNum(r.importe), esc(r.obs || '')]);
+            });
+            const tabla = docOficialTabla(
+                ['Concepto', { t: 'Base', n: true }, { t: 'Tasa / Escala', c: true }, { t: 'Importe', n: true }, 'Observaciones'],
+                filas,
+                [{ c: [esc('TOTAL A PAGAR'), '', '', docOficialNum(totalPagar), ''], cls: 'docof-total' }]
+            );
+            const tipoEnt = cf.tipo || getEntityType() || '';
+            const html = docOficialHTML({
+                titulo: 'CÁLCULO ONAT',
+                subtitulo: 'Determinación de la base y la cuota tributaria del período.',
+                campos: [
+                    ['Contribuyente', esc(docOficialNegocio())],
+                    ['NIT / CI', esc(docOficialNIT() || '—')],
+                    ['Período', esc(periodo)],
+                    ['Fecha de cálculo', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla,
+                pie: 'Régimen: ' + esc(tipoEnt) + ' · Modalidad de pago: según Vector Fiscal · Las tasas se completan con la normativa vigente de la ONAT; este formato no fija porcentajes.'
+            });
+            docOficialImprimirEn('docOnatBox', 'Cálculo ONAT · ' + periodo, html);
+        }
+        function docC1FilasSaldos(saldos, plan) {
+            const out = [];
+            (saldos || []).forEach(s => {
+                if (!s) return;
+                const cuenta = s.cuenta || s.codigo || '';
+                let nombre = s.nombre || s.descripcion || '';
+                if (!nombre && cuenta) { const pc = (plan || []).find(x => x.codigo === cuenta); if (pc) nombre = pc.nombre || ''; }
+                let debe = 0, haber = 0;
+                if (s.debe != null || s.haber != null) { debe = Number(s.debe) || 0; haber = Number(s.haber) || 0; }
+                else if (s.saldoFirmado != null) { const v = Number(s.saldoFirmado) || 0; if (v >= 0) debe = v; else haber = Math.abs(v); }
+                else if (s.saldo != null) { const v = Number(s.saldo) || 0; if (v >= 0) debe = v; else haber = Math.abs(v); }
+                out.push({ cuenta: cuenta, nombre: nombre, debe: docC1R2(debe), haber: docC1R2(haber) });
+            });
+            return out;
+        }
+        function docCierreAnualPrint() {
+            const c = getConta();
+            const cierres = c.cierres || [];
+            if (!cierres.length) { alert('Todavía no hay ningún cierre anual registrado.'); return; }
+            const inp = document.getElementById('contaCierreAnio');
+            const anioInp = inp && inp.value ? String(inp.value).trim() : '';
+            let cierre = anioInp ? cierres.find(x => String(x.anio) === anioInp) : null;
+            if (!cierre) cierre = cierres[cierres.length - 1];
+            const anio = cierre.anio;
+            let saldosFuente = null, notaDetalle = '';
+            if (Array.isArray(cierre.saldos) && cierre.saldos.length) saldosFuente = cierre.saldos;
+            else {
+                const ap = (c.aperturas || []).find(a => String(a.anio) === String(Number(anio) + 1));
+                if (ap && Array.isArray(ap.saldos)) { saldosFuente = ap.saldos; notaDetalle = 'Detalle: saldos trasladados al Balance de Apertura ' + (Number(anio) + 1); }
+            }
+            const filasDat = docC1FilasSaldos(saldosFuente || [], c.plan);
+            let totD = 0, totH = 0;
+            const filas = filasDat.map(f => { totD += f.debe; totH += f.haber; return [esc(f.cuenta), esc(f.nombre), f.debe ? docOficialNum(f.debe) : '', f.haber ? docOficialNum(f.haber) : '', '', '']; });
+            totD = docC1R2(totD); totH = docC1R2(totH);
+            const dif = docC1R2(totD - totH);
+            const obsTotal = Math.abs(dif) > 0.004 ? ('Diferencia: ' + docOficialNum(dif)) : '';
+            const tabla = docOficialTabla(
+                ['Cuenta', 'Descripción', { t: 'Saldo deudor', n: true }, { t: 'Saldo acreedor', n: true }, { t: 'Asiento de cierre No.', c: true }, 'Observaciones'],
+                filas,
+                [{ c: [esc('TOTALES'), '', docOficialNum(totD), docOficialNum(totH), '', esc(obsTotal)], cls: 'docof-total' }]
+            );
+            const cuerpo = tabla
+                + (notaDetalle ? '<p class="docof-txt">' + esc(notaDetalle) + '</p>' : '')
+                + '<div class="docof-neto"><span>RESULTADO DEL EJERCICIO</span><span>' + docOficialNum(cierre.resultado) + '</span></div>';
+            const html = docOficialHTML({
+                titulo: 'CIERRE ANUAL',
+                subtitulo: 'Cierre del ejercicio contable.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['NIT', esc(docOficialNIT() || '—')],
+                    ['Ejercicio cerrado', esc(String(anio))],
+                    ['Fecha de cierre', esc(sc406FechaDMY(cierre.fecha) || cierre.fecha || '')]
+                ],
+                cuerpo: cuerpo
+            });
+            docOficialImprimirEn('docCierreBox', 'Cierre anual · ' + anio, html);
+        }
+        function docBalanceAperturaPrint() {
+            const c = getConta();
+            const aperturas = c.aperturas || [];
+            if (!aperturas.length) { alert('Todavía no hay ningún Balance de Apertura registrado.'); return; }
+            const inp = document.getElementById('contaCierreAnio');
+            const anioInp = inp && inp.value ? String(inp.value).trim() : '';
+            let ap = null;
+            if (anioInp) ap = aperturas.find(a => String(a.anio) === String(Number(anioInp) + 1)) || null;
+            if (!ap) ap = aperturas[aperturas.length - 1];
+            const filasDat = docC1FilasSaldos(ap.saldos || [], c.plan);
+            let totD = 0, totH = 0;
+            const filas = filasDat.map(f => { totD += f.debe; totH += f.haber; return [esc(f.cuenta), esc(f.nombre), f.debe ? docOficialNum(f.debe) : '', f.haber ? docOficialNum(f.haber) : '', esc('Sí'), '']; });
+            totD = docC1R2(totD); totH = docC1R2(totH);
+            const tabla = docOficialTabla(
+                ['Cuenta', 'Descripción', { t: 'Saldo deudor', n: true }, { t: 'Saldo acreedor', n: true }, { t: 'Cuadre con cierre anterior', c: true }, 'Observaciones'],
+                filas,
+                [{ c: [esc('TOTALES'), '', docOficialNum(totD), docOficialNum(totH), '', ''], cls: 'docof-total' }]
+            );
+            const sit = ap.situacion || {};
+            const cuerpo = tabla
+                + '<div class="docof-neto"><span>ACTIVO = PASIVO + PATRIMONIO</span><span>' + docOficialNum(sit.activo) + ' = ' + docOficialNum(sit.pasivo) + ' + ' + docOficialNum(sit.patrimonio) + '</span></div>';
+            const html = docOficialHTML({
+                titulo: 'BALANCE DE APERTURA',
+                subtitulo: 'Saldos iniciales para abrir los libros del nuevo ejercicio.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['NIT', esc(docOficialNIT() || '—')],
+                    ['Ejercicio nuevo', esc(String(ap.anio != null ? ap.anio : ''))],
+                    ['Fecha de apertura', esc(sc406FechaDMY(ap.fecha) || ap.fecha || '')]
+                ],
+                cuerpo: cuerpo
+            });
+            docOficialImprimirEn('docCierreBox', 'Balance de Apertura · ' + (ap.anio != null ? ap.anio : ''), html);
+        }
         /* ===== MODELO SC-4-06 (formato oficial tipo Versat): NOMINA y PRE-NOMINA =====
            Solo cambia la PLANTILLA de impresión: todos los importes salen del
            motor de nómina de siempre (calcLineaNominaExt /
@@ -8729,28 +9326,62 @@ function mjPermisos(rol,modulo){ const M={
             const { periodo, lineas } = nominaProDatos();
             if (!lineas.length) { alert('Todavía no hay trabajadores incluidos en la nómina de ' + periodo + '.'); return; }
             const L = lineas.find(x => String(x.t.id) === String(sel ? sel.value : '')) || lineas[0];
-            const det = (L.calc.detalle || []).map(dt => `<tr><td>${esc(dt[0])}</td><td class="text-end">${moneda(dt[1])}</td></tr>`).join('');
-            const html = `<h5 class="mb-1">Talón de pago</h5>
-            <div class="small mb-3">Período: <b>${esc(periodo)}</b></div>
-            <table class="table table-sm table-borderless"><tbody>
-              <tr><td style="width:35%"><b>Trabajador</b></td><td>${esc(L.t.nombre || '')}</td></tr>
-              <tr><td><b>Cargo</b></td><td>${esc(L.t.cargo || '—')}</td></tr>
-              <tr><td><b>Carné de identidad</b></td><td>${esc(L.t.ci || '—')}</td></tr>
-              ${L.t.numSegSocial ? `<tr><td><b>Nº de Seguridad Social</b></td><td>${esc(L.t.numSegSocial)}</td></tr>` : ''}
-              <tr><td><b>Salario base</b></td><td>${moneda(L.salario)}</td></tr>
-            </tbody></table>
-            <table class="table table-sm"><thead><tr><th>Concepto</th><th class="text-end">Importe</th></tr></thead>
-            <tbody>${det}
-              <tr><td><b>Total devengado</b></td><td class="text-end"><b>${moneda(L.calc.bruto)}</b></td></tr>
-              <tr><td>Subsidios (enfermedad / maternidad)</td><td class="text-end">${moneda(L.calc.subsidios)}</td></tr>
-              <tr><td>Contribución Especial a la Seguridad Social (deducción)</td><td class="text-end">−${moneda(L.calc.segTrab)}</td></tr>
-              <tr><td>Impuesto sobre Ingresos Personales (retención)</td><td class="text-end">−${moneda(L.calc.iip)}</td></tr>
-              <tr><td>Otras deducciones</td><td class="text-end">−${moneda(L.calc.deducciones)}</td></tr>
-              ${(L.calc.descAdelanto || 0) > 0 ? `<tr><td>Descuento de adelanto (saldo pendiente tras este mes: ${moneda(L.calc.saldoAdelantoTras || 0)})</td><td class="text-end">−${moneda(L.calc.descAdelanto)}</td></tr>` : ''}
-              <tr class="table-light"><td><b>NETO A COBRAR</b></td><td class="text-end"><b>${moneda(L.calc.neto)}</b></td></tr>
-            </tbody></table>
-            <p class="small text-muted">El trabajador puede conservar este talón: resume lo devengado y lo retenido en el período.</p>` + nominaProFirmas('Recibí (firma del trabajador)');
-            nominaProImprimir('Talón de pago · ' + (L.t.nombre || '') + ' · ' + periodo, html);
+            const c = L.calc || {};
+            const R2 = n => Math.round((Number(n) || 0) * 100) / 100;
+            const bruto = Number(c.bruto) || 0, subsidios = Number(c.subsidios) || 0;
+            const seg = Number(c.segTrab) || 0, iip = Number(c.iip) || 0, ded = Number(c.deducciones) || 0, desc = Number(c.descAdelanto) || 0;
+            /* Identidad del talón: el motor calcula neto = bruto - segTrab - iip
+               + subsidios - deducciones y después resta descAdelanto
+               (nomAplicarDescuentoAdelanto). El bruto NO incluye los subsidios,
+               así que TOTAL DEVENGADO = bruto + subsidios y
+               TOTAL DEDUCCIONES = segTrab + iip + deducciones + descAdelanto;
+               su diferencia es exactamente calc.neto. */
+            const totalDev = R2(bruto + subsidios);
+            const totalDed = R2(seg + iip + ded + desc);
+            const pp = periodoParts(periodo);
+            const modelo = pp ? 'TALÓN N-' + pp.y + String(pp.mi + 1).padStart(2, '0') : 'TALÓN · ' + periodo;
+            let diasTxt = '—';
+            try { const dl = sc406DatosLinea(L, periodo); if (dl && dl.dias != null && dl.dias !== '') diasTxt = String(dl.dias); } catch(e) {}
+            /* Devengados: salario base (salario + otras) más los conceptos del
+               detalle que no son subsidio ni deducción. Los ajustes por días /
+               proporcional ya vienen como conceptos del detalle, así que
+               salario base + detalle devengado = bruto. Los subsidios del
+               detalle se resumen en la fila agregada de subsidios y las
+               deducciones del detalle (tipo 'deduccion') en el bloque derecho
+               como «Otras deducciones / retenciones» (campo deducciones), sin
+               duplicarlas: el descuento de adelanto va en su propia fila. */
+            const salarioBase0 = R2((Number(L.salario) || 0) + (Number(L.otras) || 0));
+            const filasDev = [[esc('Salario base'), docOficialNum(salarioBase0)]];
+            (c.detalle || []).forEach(dt => { if (dt[2] === 'subsidio' || dt[2] === 'deduccion') return; filasDev.push([esc(dt[0]), docOficialNum(dt[1])]); });
+            if (subsidios > 0) filasDev.push([esc('Subsidios (enfermedad / maternidad)'), docOficialNum(subsidios)]);
+            const filasDed = [
+                [esc('Contribución Especial a la Seguridad Social'), docOficialNum(seg)],
+                [esc('Impuesto sobre Ingresos Personales'), docOficialNum(iip)],
+                [esc('Otras deducciones / retenciones'), docOficialNum(ded)]
+            ];
+            if (desc > 0) filasDed.push([esc('Descuento de adelanto'), docOficialNum(desc)]);
+            const tablaDev = docOficialTabla(['DEVENGADOS / INGRESOS ($)', { t: 'Importe', n: true }], filasDev, [{ c: ['TOTAL DEVENGADO', docOficialNum(totalDev)], cls: 'docof-total' }]);
+            const tablaDed = docOficialTabla(['DEDUCCIONES / RETENCIONES ($)', { t: 'Importe', n: true }], filasDed, [{ c: ['TOTAL DEDUCCIONES', docOficialNum(totalDed)], cls: 'docof-total' }]);
+            const textoPago = L.t.tarjeta ? ('Acreditado en tarjeta · Ref. bancaria: ' + L.t.tarjeta + (L.t.cuenta ? ' · Cuenta: ' + L.t.cuenta : '')) : 'Pago en efectivo / sin tarjeta registrada';
+            const cuerpo = `<table style="border:0;width:100%"><tbody><tr><td style="width:50%;vertical-align:top;padding:0 4px 0 0">${tablaDev}</td><td style="width:50%;vertical-align:top;padding:0 0 0 4px">${tablaDed}</td></tr></tbody></table>`
+                + `<div class="docof-neto"><span>NETO A COBRAR&nbsp;&nbsp;${moneda(c.neto)}</span><span style="font-size:10.5px;font-weight:normal">${esc(textoPago)}</span></div>`
+                + `<p class="docof-txt">El trabajador puede conservar este talón: resume lo devengado y lo retenido en el período.</p>`;
+            const html = docOficialHTML({
+                sup: 'COMPROBANTE OFICIAL DE SALARIO',
+                titulo: 'TALÓN DE PAGO INDIVIDUAL DE NÓMINA',
+                modelo: modelo,
+                campos: [
+                    ['Empleado', esc(L.t.nombre || '')],
+                    ['Cargo', esc(L.t.cargo || '—')],
+                    ['Expediente', esc(String(L.t.id != null ? L.t.id : '—'))],
+                    ['Período', esc(periodo)],
+                    ['Unidad organizativa', esc(L.t.centroCosto || '—')],
+                    ['Días trabajados', esc(diasTxt)]
+                ],
+                cuerpo: cuerpo,
+                firmas: ['Elaboró (Especialista de Nóminas)', 'Trabajador (firma y conforme)', 'Revisó']
+            });
+            docOficialImprimirEn('nominaDocBox', 'Talón de pago · ' + (L.t.nombre || '') + ' · ' + periodo, html);
         }
         function nominaDocCertificado() {
             const anioSel = document.getElementById('certAnioSel');
@@ -8771,16 +9402,46 @@ function mjPermisos(rol,modulo){ const M={
             });
             const lista = Object.values(porTrab);
             if (!lista.length) { alert('No hay trabajadores con nómina en ' + anio + '.'); return; }
-            const secciones = lista.map((e, idx) => `<div${idx > 0 ? ' style="page-break-before:always"' : ''}>
-            <h5 class="mb-1">Certificado de ingresos y retenciones</h5>
-            <div class="small mb-3">Año: <b>${esc(anio)}</b></div>
-            <p>Se certifica que <b>${esc(e.t.nombre || '')}</b>${e.t.ci ? ', con carné de identidad <b>' + esc(e.t.ci) + '</b>' : ''}${e.t.cargo ? ', en el cargo de ' + esc(e.t.cargo) : ''}, percibió en este negocio los ingresos y se le practicaron las retenciones que se relacionan. Este certificado le sirve de respaldo para su Declaración Jurada del Impuesto sobre Ingresos Personales.</p>
-            <div class="table-responsive"><table class="table table-sm table-bordered">
-            <thead><tr><th>Período</th><th class="text-end">Ingresos devengados</th><th class="text-end">Contrib. especial S.S. retenida</th><th class="text-end">Impuesto s/ ingresos personales retenido</th><th class="text-end">Neto cobrado</th></tr></thead>
-            <tbody>${e.meses.map(m => `<tr><td>${esc(m.per)}</td><td class="text-end">${moneda(m.bruto)}</td><td class="text-end">${moneda(m.seg)}</td><td class="text-end">${moneda(m.iip)}</td><td class="text-end">${moneda(m.neto)}</td></tr>`).join('')}</tbody>
-            <tfoot><tr class="fw-bold"><td>Total del año</td><td class="text-end">${moneda(e.tb)}</td><td class="text-end">${moneda(e.ts)}</td><td class="text-end">${moneda(e.ti)}</td><td class="text-end">${moneda(e.tn)}</td></tr></tfoot>
-            </table></div></div>`).join('');
-            nominaProImprimir('Certificado anual de ingresos y retenciones · ' + anio, secciones + nominaProFirmas('Firma y cuño del empleador'));
+            const R2 = n => Math.round((Number(n) || 0) * 100) / 100;
+            const nit = docOficialNIT();
+            const secciones = lista.map((e, idx) => {
+                const pctSeg = e.tb > 0 ? (e.ts / e.tb * 100).toFixed(1) + ' %' : '—';
+                const pctIip = e.tb > 0 ? (e.ti / e.tb * 100).toFixed(1) + ' %' : '—';
+                const filasPrinc = [
+                    [esc('Total salarios devengados brutos (fondo de salarios)'), docOficialNum(e.tb), '—', '—'],
+                    [esc('Contribución Especial a la Seguridad Social'), docOficialNum(e.tb), esc(pctSeg), docOficialNum(e.ts)],
+                    [esc('Impuesto sobre Ingresos Personales'), docOficialNum(e.tb), esc(pctIip), docOficialNum(e.ti)]
+                ];
+                const tablaPrinc = docOficialTabla(
+                    ['Concepto de ingreso y retención tributaria', { t: 'Acumulado anual ($)', n: true }, { t: 'Porcentaje aplicado', c: true }, { t: 'Monto retenido ($)', n: true }],
+                    filasPrinc,
+                    [{ c: [esc('TOTAL RETENCIONES TRIBUTARIAS EJECUTADAS Y APORTADAS A LA ONAT'), '', '', docOficialNum(R2(e.ts + e.ti))], cls: 'docof-total' }]
+                );
+                const filasMes = e.meses.map(m => [esc(m.per), docOficialNum(m.bruto), docOficialNum(m.seg), docOficialNum(m.iip), docOficialNum(m.neto)]);
+                const tablaMes = docOficialTabla(
+                    ['Período', { t: 'Ingresos devengados', n: true }, { t: 'Contrib. S.S.', n: true }, { t: 'Impuesto', n: true }, { t: 'Neto cobrado', n: true }],
+                    filasMes,
+                    [{ c: [esc('Total del año'), docOficialNum(e.tb), docOficialNum(e.ts), docOficialNum(e.ti), docOficialNum(e.tn)], cls: 'docof-total' }]
+                );
+                const texto = `<p class="docof-txt">Se certifica que <b>${esc(e.t.nombre || '')}</b>${e.t.ci ? ', con carné de identidad <b>' + esc(e.t.ci) + '</b>' : ''}${e.t.cargo ? ', en el cargo de ' + esc(e.t.cargo) : ''}, percibió en este negocio los ingresos y se le practicaron las retenciones que se relacionan. Este certificado le sirve de respaldo para su Declaración Jurada del Impuesto sobre Ingresos Personales.</p>`;
+                const cuerpo = texto + tablaPrinc + `<div class="docof-sec">DESGLOSE MENSUAL</div>` + tablaMes;
+                const docHtml = docOficialHTML({
+                    sup: 'OFICINA NACIONAL DE ADMINISTRACIÓN TRIBUTARIA — ONAT',
+                    titulo: 'CERTIFICADO ANUAL DE INGRESOS Y RETENCIONES',
+                    modelo: 'MODELO DJ-08',
+                    campos: [
+                        ['Retenedor (empresa)', esc(docOficialNegocio())],
+                        ['NIT / REEUP', esc(nit || '—')],
+                        ['Año fiscal', esc(anio)],
+                        ['Trabajador / Contribuyente', esc(e.t.nombre || '')],
+                        ['Carné de identidad', esc(e.t.ci || '—')],
+                        ['Cargo', esc(e.t.cargo || '—')]
+                    ],
+                    cuerpo: cuerpo
+                });
+                return (idx > 0 ? '<div style="page-break-before:always"></div>' : '') + docHtml;
+            }).join('');
+            docOficialImprimirEn('nominaDocBox', 'Certificado anual de ingresos y retenciones · ' + anio, secciones);
         }
         function nominaDocResumenContable() {
             const { periodo, tot, prm } = nominaProDatos();
@@ -8821,15 +9482,34 @@ function mjPermisos(rol,modulo){ const M={
         function nominaDocListadoPago() {
             const { periodo, lineas, tot } = nominaProDatos();
             if (!lineas.length) { alert('Todavía no hay trabajadores incluidos en la nómina de ' + periodo + '.'); return; }
-            const html = `<h5 class="mb-1">Listado para pago por tarjeta / banco</h5>
-            <div class="small mb-3">Período: <b>${esc(periodo)}</b> · Importes netos a acreditar a cada trabajador.</div>
-            <div class="table-responsive"><table class="table table-sm table-bordered">
-            <thead><tr><th>#</th><th>Trabajador</th><th>Tarjeta</th><th>Cuenta asociada</th><th class="text-end">Neto a pagar</th></tr></thead>
-            <tbody>${lineas.map((L, i) => `<tr><td>${i + 1}</td><td>${esc(L.t.nombre || '')}</td><td>${esc(L.t.tarjeta || '—')}</td><td>${esc(L.t.cuenta || '—')}</td><td class="text-end"><b>${moneda(L.calc.neto)}</b></td></tr>`).join('')}</tbody>
-            <tfoot><tr class="fw-bold"><td colspan="4">Total a pagar</td><td class="text-end">${moneda(tot.neto)}</td></tr></tfoot>
-            </table></div>
-            <p class="small text-muted">Los trabajadores sin tarjeta registrada aparecen con «—»: completa su ficha en el registro de trabajadores antes de pagar.</p>` + nominaProFirmas();
-            nominaProImprimir('Listado para pago por tarjeta · ' + periodo, html);
+            const R2 = n => Math.round((Number(n) || 0) * 100) / 100;
+            const sumaFilas = R2(lineas.reduce((a, L) => a + (Number(L.calc.neto) || 0), 0));
+            /* El total del pie es la suma de las filas; coincide con tot.neto
+               de nominaProDatos porque ese total es la misma suma de netos. */
+            const filas = lineas.map((L, i) => {
+                const tar = String(L.t.tarjeta || '').trim(), cta = String(L.t.cuenta || '').trim();
+                const tarTxt = tar && cta ? 'Tarjeta ' + tar + ' · Cuenta ' + cta : (tar || cta || '—');
+                return [String(i + 1), esc(L.t.nombre || ''), esc(L.t.ci || '—'), esc(tarTxt), esc(L.t.banco || '—'), esc('Salario ' + periodo), docOficialNum(L.calc.neto), 'Pendiente'];
+            });
+            const tabla = docOficialTabla(
+                [{ t: 'No.', c: true }, 'Beneficiario', 'CI / NIT', 'No. de tarjeta / cuenta', 'Banco', 'Concepto', { t: 'Importe', n: true }, { t: 'Estado', c: true }],
+                filas,
+                [{ c: ['', esc('TOTALES'), '', '', '', '', docOficialNum(sumaFilas), ''], cls: 'docof-total' }]
+            );
+            const sinTarjeta = lineas.some(L => !String(L.t.tarjeta || '').trim());
+            const html = docOficialHTML({
+                titulo: 'LISTADO DE PAGO POR TARJETA',
+                subtitulo: 'Relación de pagos masivos por transferencia electrónica (nómina o proveedores).',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Lote / Período', esc(periodo)],
+                    ['Fecha de pago', esc(docOficialHoy())],
+                    ['Cuenta origen', '—']
+                ],
+                cuerpo: tabla,
+                pie: sinTarjeta ? esc('Los trabajadores sin tarjeta registrada aparecen con «—»: completa su ficha en el registro de trabajadores antes de pagar.') : undefined
+            });
+            docOficialImprimirEn('nominaDocBox', 'Listado de pago por tarjeta · ' + periodo, html);
         }
         function nominaVacDatos() {
             const d = getRRHH();
@@ -9109,18 +9789,44 @@ function mjPermisos(rol,modulo){ const M={
                 else if(how==='after') el.insertAdjacentHTML('afterend',printBtnHTML(target));
                 else if(how==='prepend') el.insertAdjacentHTML('afterbegin',printBtnHTML(target));
             };
-            put('#botonesChequera','pane-chequera','append');
-            put('#botonesCUP','pane-tarjeta_cup','append');
-            put('#botonesUSD','pane-tarjeta_usd','append');
-            put('#btnGuardarNomina','pane-nomina','after');
-            put('#triAnio','pane-utilidades','after');
+            /* Estados de cuenta (Grupo B): el botón ya no vuelca el panel
+               entero; genera el documento oficial de la cuenta con
+               docCuentaPrint(). Guarda anti-duplicado: si el contenedor
+               ya tiene un [data-doc-cuenta], no se repite. */
+            const putCuenta=(sel,cuenta)=>{
+                const el=document.querySelector(sel);
+                if(!el||el.querySelector('[data-doc-cuenta]')) return;
+                el.insertAdjacentHTML('beforeend',`<button type="button" class="btn btn-sm btn-outline-secondary" data-doc-cuenta="${cuenta}" onclick="docCuentaPrint('${cuenta}')"><i class="bi bi-printer me-1"></i>PDF</button>`);
+            };
+            putCuenta('#botonesChequera','chequera');
+            putCuenta('#botonesCUP','tarjeta_cup');
+            putCuenta('#botonesUSD','tarjeta_usd');
+            /* Documentos de panel (Grupo C1): botones propios que generan
+               el documento oficial en su caja, en lugar del volcado del
+               panel. Guarda anti-duplicado equivalente a la del Grupo B:
+               si el contenedor ya tiene un [data-doc-c1] de la misma
+               clave, no se repite. Las demás inyecciones quedan igual. */
+            const putC1=(sel,clave,fnName,how)=>{
+                const el=document.querySelector(sel);
+                if(!el||el.querySelector('[data-doc-c1="'+clave+'"]')) return;
+                /* Para how='after' el botón es HERMANO del ancla: la guarda
+                   debe mirar también al padre, o un segundo init lo
+                   duplicaría (el ancla no contiene al hermano). */
+                if(how==='after'&&el.parentElement&&el.parentElement.querySelector('[data-doc-c1="'+clave+'"]')) return;
+                const btnC1=`<button type="button" class="btn btn-sm btn-outline-secondary" data-doc-c1="${clave}" onclick="${fnName}()"><i class="bi bi-printer me-1"></i>PDF</button>`;
+                if(how==='append') el.insertAdjacentHTML('beforeend',btnC1);
+                else if(how==='after') el.insertAdjacentHTML('afterend',btnC1);
+                else if(how==='prepend') el.insertAdjacentHTML('afterbegin',btnC1);
+            };
+            putC1('#btnGuardarNomina','nomina-submayores','docNominaSubmayoresPrint','after');
+            putC1('#triAnio','trimestres','docTrimestresPrint','after');
             put('#vectorEstadoBadge','pane-fiscal','after');
             put('#btnContabilizarDep','pane-aft','after');
-            put('#onatModal .modal-footer','onatModal','prepend');
+            putC1('#onatModal .modal-footer','onat','docOnatPrint','prepend');
             const tbl=document.getElementById('movimientosTable');
-            if(tbl&&!tbl.closest('.card').querySelector('.btn-print-pane')){
+            if(tbl&&!tbl.closest('.card').querySelector('[data-doc-c1="resumen"]')){
                 tbl.closest('.table-responsive').insertAdjacentHTML('beforebegin',
-                    `<div class="d-flex justify-content-end mb-2 no-print">${printBtnHTML('pane-resumen')}</div>`);
+                    `<div class="d-flex justify-content-end mb-2 no-print"><button type="button" class="btn btn-sm btn-outline-secondary" data-doc-c1="resumen" onclick="docResumenPrint()"><i class="bi bi-printer me-1"></i>PDF</button></div>`);
             }
         }
         loginForm.addEventListener('submit', async function(e){
@@ -9511,7 +10217,8 @@ function mjPermisos(rol,modulo){ const M={
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'mjContratoCrearUI','mjUtilCrearUI','mjTraspasoUI','mjOrdenTerminarUI','mjOrdenCrearUI','mjCreditoDevengoUI',
          'mjCreditoCrearUI','mjSaldoDivisaUI','mjRevalAmpliaUI','mjConsignacionRecibirUI','mjConsignacionVentaUI',
-         'guardarParamsFiscalesNomina'
+         'guardarParamsFiscalesNomina','docCuentaPrint','docQRPrint',
+         'docResumenPrint','docNominaSubmayoresPrint','docTrimestresPrint','docOnatPrint','docCierreAnualPrint','docBalanceAperturaPrint'
         ].forEach(function(n){ try { var f = eval(n); if (typeof f === 'function') window[n] = f; } catch(e) {} });
         // Ganchos de prueba (node) para el módulo DJ
         window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
