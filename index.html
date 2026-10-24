@@ -59,9 +59,13 @@
         
         #dashboardContainer {
             display: none;
-            padding: 2rem 1.5rem;
-            max-width: 1400px;
-            margin: 0 auto;
+            /* Ancho completo (pedido de Leonardo 2026-10-24): la app se usa en
+               PC; sin el tope de 1400px las tablas del centro dejan de verse
+               apretadas y se aprovecha toda la pantalla. */
+            padding: 1.5rem 2rem;
+            max-width: none;
+            width: 100%;
+            margin: 0;
         }
         #dashboardContainer.visible { display: block; }
         
@@ -1905,7 +1909,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         // ===== CAPA SERVIDOR =====
         const API_URL = 'https://script.google.com/macros/s/AKfycbxnsS1IaVCWfv-qio1Hd9FStbvT_HMcJaI466ozn7MVq4ZiavQZonprPh31LEtgmwZcEQ/exec';
         let ME = null, USERS = {}, BLOQ = {}, CACHE = {}, Q = Promise.resolve();
-        let TOKEN = sessionStorage.getItem('finanzas_token') || '';
+        /* Sesión persistente (pedido de Leonardo 2026-10-24): el token vive en
+           localStorage, no en sessionStorage, para que actualizar la página,
+           cerrar la pestaña o reabrir el navegador NO bote al login. La sesión
+           del servidor dura 30 días; el botón «Salir» la cierra al momento. */
+        let TOKEN = localStorage.getItem('finanzas_token') || sessionStorage.getItem('finanzas_token') || '';
         function setConn(ok){
             [['connDot','connText','connBadge'],['connDotLogin','connTextLogin','connBadgeLogin']].forEach(function(ids){
                 const d=document.getElementById(ids[0]),t=document.getElementById(ids[1]),b=document.getElementById(ids[2]);
@@ -1922,7 +1930,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const r = await fetch(API_URL, {method: 'POST', body: JSON.stringify(payload), redirect: 'follow'});
                 const j = await r.json();
                 setConn(true);
-                if (j && j.error === 'Sesión expirada') { TOKEN=''; sessionStorage.removeItem('finanzas_token'); }
+                if (j && j.error === 'Sesión expirada') { TOKEN=''; localStorage.removeItem('finanzas_token'); sessionStorage.removeItem('finanzas_token'); }
                 return j;
             } catch (e) { setConn(false); return {ok: false, error: 'No hay conexión con el servidor'}; }
         }
@@ -1987,7 +1995,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         };
         async function cargar(r) {
             ME = {username: r.username, user: r.user};
-            if (r.token) { TOKEN = r.token; sessionStorage.setItem('finanzas_token', TOKEN); }
+            if (r.token) { TOKEN = r.token; localStorage.setItem('finanzas_token', TOKEN); sessionStorage.removeItem('finanzas_token'); }
             if (r.user && (r.user.theme === 'dark' || r.user.theme === 'light')) aplicarTema(r.user.theme, true);
             const d = await api('data');
             CACHE = d.data || {}; BLOQ = d.bloq || {}; applyCfg(d.config); USERS = d.users || {}; USERS[r.username] = r.user;
@@ -7982,7 +7990,7 @@ function mjPermisos(rol,modulo){ const M={
         // ===== LOGOUT =====
         function handleLogout() {
             if (modoEdicionActivo && !confirm('Hay cambios sin guardar. ¿Salir?')) return;
-            api('logout').finally(()=>{ TOKEN=''; sessionStorage.removeItem('finanzas_token'); location.reload(); });
+            api('logout').finally(()=>{ TOKEN=''; localStorage.removeItem('finanzas_token'); sessionStorage.removeItem('finanzas_token'); location.reload(); });
         }
 
         /* ===== NOMINA-PRO (ronda 4): documentos profesionales, submayor de vacaciones,
@@ -8858,6 +8866,15 @@ function mjPermisos(rol,modulo){ const M={
     content.parentNode.insertBefore(rail,content);
     var activa=content.querySelector('.tab-pane.active')||content.querySelector('.tab-pane');
     construir(activa);
+    // Al entrar (el panel pasa a visible tras el login) se reconstruye: en la
+    // carga inicial el panel está oculto y las secciones no se pueden medir.
+    var dash=document.getElementById('dashboardContainer');
+    if(dash && window.MutationObserver){
+      new MutationObserver(function(){
+        if(dash.classList.contains('visible'))
+          construir(content.querySelector('.tab-pane.active')||activa);
+      }).observe(dash,{attributes:true,attributeFilter:['class']});
+    }
     document.addEventListener('shown.bs.tab',function(e){
       var sel=e.target && e.target.getAttribute('data-bs-target');
       if(sel) construir(document.querySelector(sel));
