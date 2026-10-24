@@ -145,12 +145,39 @@ function clasificarOperacion(op) {
     }
     if (res.onat) res.clase = 'onat';
     else if (/\bonat\b/.test(t) || (/pago|aporte/.test(t) && /tributo|impuesto/.test(t))) res.sospechaOnat = true;
+
+    /* Clasificaciones de movimiento pedidas por Leonardo (ronda 5):
+       solo salidas (gasto) y solo cuando la clase quedó 'normal' — un
+       pago ONAT con código o una transferencia mandan sobre el concepto.
+       Si el concepto no lo dice con claridad, NO se clasifica aquí y el
+       movimiento sigue el flujo normal (rojo en contabilidad hasta que
+       Leonardo lo clasifique en la app). */
+    res.claseMov = null;
+    if (op.tipo === 'gasto' && res.clase === 'normal') {
+        if (/contingencia/.test(t)) {
+            res.claseMov = 'contingencia';        /* salida del Fondo: NO es gasto */
+        } else if (/dividendo/.test(t) || (/utilidad/.test(t) && /socio/.test(t))) {
+            res.claseMov = 'utilidades';         /* pago a socios: NO es gasto */
+        } else if (/salario|nomina/.test(t)) {
+            res.claseMov = 'salario';             /* SÍ es gasto; se cruza con la nómina */
+        }
+    }
     return res;
 }
 /* Corrección manual desde la vista previa (índice = fila de ultimoLote) */
 window.__pdfSetClase = function (idx, val) {
     var f = ultimoLote[idx];
-    if (f && f.op && f.op._clasif) f.op._clasif.clase = val;
+    if (f && f.op && f.op._clasif) {
+        /* Las clasificaciones de la ronda 5 viven en claseMov (la clase
+           sigue siendo 'normal': ni transferencia ni pago ONAT). */
+        if (val === 'contingencia' || val === 'utilidades' || val === 'salario') {
+            f.op._clasif.clase = 'normal';
+            f.op._clasif.claseMov = val;
+        } else {
+            f.op._clasif.clase = val;
+            f.op._clasif.claseMov = null;
+        }
+    }
 };
 window.__pdfSetQr = function (idx, val) {
     var f = ultimoLote[idx];
@@ -445,7 +472,7 @@ function mostrarVistaPrevia(ops, infos) {
                 if (!(f.estado === 'nueva' && f.destino)) return null;
                 var cl = f.op._clasif || {};
                 return { concepto: f.op.concepto, tipo: f.op.tipo, cuenta: (typeof cuentaPreseleccionada !== 'undefined' ? cuentaPreseleccionada : 'chequera'), fecha: f.op.fecha, monto: f.op.monto,
-                    clasificacion: cl.clase === 'transferencia' ? 'transferencia' : 'operacional', clase: cl.clase || 'normal', sospechaOnat: !!cl.sospechaOnat };
+                    clasificacion: cl.claseMov || (cl.clase === 'transferencia' ? 'transferencia' : 'operacional'), clase: cl.clase || 'normal', sospechaOnat: !!cl.sospechaOnat };
             });
             var rEval = window.__contaEvalImport(itemsEval);
             if (Array.isArray(rEval)) evalConta = rEval;
@@ -453,8 +480,27 @@ function mostrarVistaPrevia(ops, infos) {
     } catch (e) { evalConta = null; }
     var nContaClaros = 0, nContaRojos = 0;
     if (evalConta) evalConta.forEach(function (r) { if (!r) return; if (r.claro) nContaClaros++; else nContaRojos++; });
+    /* Cruce salario↔nómina (ronda 5): aviso AMARILLO junto a cada fila
+       «Salario» cuya suma del mes no coincida con el neto de la nómina
+       (o sin nómina ese mes). No bloquea la importación. */
+    var evalSalario = null;
+    try {
+        if (window.__salarioEvalImport) {
+            var itemsSal = filas.map(function (f) {
+                if (!(f.estado === 'nueva' && f.destino)) return null;
+                var cl = f.op._clasif || {};
+                return { concepto: f.op.concepto, tipo: f.op.tipo, cuenta: (typeof cuentaPreseleccionada !== 'undefined' ? cuentaPreseleccionada : 'chequera'), fecha: f.op.fecha, monto: f.op.monto,
+                    clasificacion: cl.claseMov || (cl.clase === 'transferencia' ? 'transferencia' : 'operacional') };
+            });
+            var rSal = window.__salarioEvalImport(itemsSal);
+            if (Array.isArray(rSal)) evalSalario = rSal;
+        }
+    } catch (e) { evalSalario = null; }
     function esNueva(f) { return f.estado === 'nueva' && f.destino && f.op._clasif; }
     var nTransf = filas.filter(function (f) { return esNueva(f) && f.op._clasif.clase === 'transferencia'; }).length;
+    var nConting = filas.filter(function (f) { return esNueva(f) && f.op._clasif.claseMov === 'contingencia'; }).length;
+    var nUtilSoc = filas.filter(function (f) { return esNueva(f) && f.op._clasif.claseMov === 'utilidades'; }).length;
+    var nSalario = filas.filter(function (f) { return esNueva(f) && f.op._clasif.claseMov === 'salario'; }).length;
     var nOnat = filas.filter(function (f) { return esNueva(f) && f.op._clasif.clase === 'onat'; }).length;
     var nQR = filas.filter(function (f) { return esNueva(f) && f.op._clasif.qr; }).length;
     var nSospecha = filas.filter(function (f) { return esNueva(f) && f.op._clasif.sospechaOnat && f.op._clasif.clase !== 'onat'; }).length;
@@ -483,20 +529,35 @@ function mostrarVistaPrevia(ops, infos) {
         var ctrl = '';
         if (f.estado === 'nueva' && f.destino && op._clasif) {
             var c = op._clasif;
+            var selVal = c.claseMov || c.clase;
+            var evS = evalSalario ? evalSalario[idxFila] : null;
+            var notaMov = '';
+            if (c.claseMov === 'contingencia') notaMov = '<div class="small text-secondary">🛡️ Contingencia: sale del Fondo de contingencia — NO es un gasto y descuenta el fondo una sola vez.</div>';
+            else if (c.claseMov === 'utilidades') notaMov = '<div class="small text-secondary">👥 Utilidades a socios: distribución de utilidades — NO es un gasto ni deducible.</div>';
+            else if (c.claseMov === 'salario') {
+                if (evS && evS.amarillo) notaMov = '<div class="small fw-semibold" style="color:#92400e">⚠ No coincide con la nómina: ' + pdfEsc(evS.motivo || '') + ' (aviso, no bloquea).</div>';
+                else if (evS) notaMov = '<div class="small text-success">✓ Salario: coincide con la nómina del mes.</div>';
+                else notaMov = '<div class="small text-secondary">👷 Salario: se cruzará con la nómina del mes al importar.</div>';
+            }
             ctrl = '<div class="d-flex flex-wrap gap-1 align-items-center mt-1">' +
                 '<select class="form-select form-select-sm" style="width:auto" title="Clasificación del movimiento" onchange="window.__pdfSetClase(' + idxFila + ',this.value)">' +
-                '<option value="normal"' + (c.clase === 'normal' ? ' selected' : '') + '>Normal</option>' +
-                '<option value="transferencia"' + (c.clase === 'transferencia' ? ' selected' : '') + '>Transferencia entre cuentas</option>' +
-                '<option value="onat"' + (c.clase === 'onat' ? ' selected' : '') + (c.onat ? '' : ' disabled') + '>Pago de ONAT</option>' +
+                '<option value="normal"' + (selVal === 'normal' ? ' selected' : '') + '>Normal</option>' +
+                '<option value="transferencia"' + (selVal === 'transferencia' ? ' selected' : '') + '>Transferencia entre cuentas</option>' +
+                '<option value="onat"' + (selVal === 'onat' ? ' selected' : '') + (c.onat ? '' : ' disabled') + '>Pago de ONAT</option>' +
+                '<option value="contingencia"' + (selVal === 'contingencia' ? ' selected' : '') + '>Contingencia (no es gasto)</option>' +
+                '<option value="utilidades"' + (selVal === 'utilidades' ? ' selected' : '') + '>Utilidades a socios (no es gasto)</option>' +
+                '<option value="salario"' + (selVal === 'salario' ? ' selected' : '') + '>Salario</option>' +
                 '</select>' +
                 '<label class="form-check form-check-inline m-0 small"><input type="checkbox" class="form-check-input" onchange="window.__pdfSetQr(' + idxFila + ',this.checked)"' + (c.qr ? ' checked' : '') + '> QR</label></div>' +
                 (c.onat ? '<div class="small">ONAT: <b>' + pdfEsc(c.onat.codigo) + '</b> ' + pdfEsc(c.onat.nombre) + (c.onat.periodo ? ' · ' + pdfEsc(c.onat.periodo) : '') + '</div>' : '') +
-                (c.sospechaOnat && c.clase !== 'onat' ? '<div class="small text-warning">⚠ Parece un pago de impuestos, pero el concepto no trae un código reconocido: no se clasificó solo.</div>' : '');
+                (c.sospechaOnat && c.clase !== 'onat' ? '<div class="small text-warning">⚠ Parece un pago de impuestos, pero el concepto no trae un código reconocido: no se clasificó solo.</div>' : '') +
+                notaMov;
         }
         var evF = evalConta ? evalConta[idxFila] : null;
+        var evSalF = evalSalario ? evalSalario[idxFila] : null;
         var rojoHtml = (evF && !evF.claro) ? '<div class="small text-danger fw-semibold">● En rojo: no se contabilizará hasta clasificarlo. ' + pdfEsc(evF.motivo || '') + ' Quedará en la bandeja «Por clasificar» de la pestaña Contabilidad.</div>' : '';
         var claroHtml = (evF && evF.claro) ? '<div class="small text-success">✓ Se contabilizará automáticamente (' + pdfEsc(evF.via || 'regla clara') + ').</div>' : '';
-        return '<tr' + ((evF && !evF.claro) ? ' style="background:#fdeaea"' : '') + '>' +
+        return '<tr' + ((evF && !evF.claro) ? ' style="background:#fdeaea"' : (evSalF && evSalF.amarillo ? ' style="background:#fff8e1"' : '')) + '>' +
             '<td class="text-nowrap">' + pdfEsc(fechaCorta(op.fecha)) + '</td>' +
             '<td title="' + concepto + '">' + corto + ctrl + rojoHtml + claroHtml + '</td>' +
             '<td class="text-end text-nowrap">$' + Number(op.monto).toFixed(2) + '</td>' +
@@ -518,6 +579,9 @@ function mostrarVistaPrevia(ops, infos) {
               '<span class="badge bg-secondary">' + dups + ' duplicadas (se omiten)</span>' +
               (omitidas ? '<span class="badge bg-warning text-dark">' + omitidas + ' omitidas</span>' : '') +
               (nTransf ? '<span class="badge bg-info text-dark">' + nTransf + ' transferencias</span>' : '') +
+              (nConting ? '<span class="badge bg-secondary">' + nConting + ' contingencia (no es gasto)</span>' : '') +
+              (nUtilSoc ? '<span class="badge bg-secondary">' + nUtilSoc + ' utilidades a socios (no es gasto)</span>' : '') +
+              (nSalario ? '<span class="badge bg-secondary">' + nSalario + ' salario</span>' : '') +
               (nOnat ? '<span class="badge bg-dark">' + nOnat + ' pagos ONAT</span>' : '') +
               (nQR ? '<span class="badge bg-info">' + nQR + ' con QR</span>' : '') +
               (nSospecha ? '<span class="badge bg-warning text-dark">⚠ ' + nSospecha + ' posible ONAT sin código</span>' : '') +
@@ -614,6 +678,12 @@ function importarLote(cuenta) {
                         if (ob && ob.id) mov.fiscalId = ob.id;
                     }
                 } catch (e) { /* el vínculo por código+período queda igual */ }
+            } else if (cl.claseMov) {
+                /* Ronda 5: 'contingencia' (no es gasto, descuenta el Fondo),
+                   'utilidades' (no es gasto, distribución a socios) o
+                   'salario' (sí es gasto; la app lo cruza con la nómina). */
+                mov.clasificacion = cl.claseMov;
+                mov.autoBanco = cl.claseMov;
             }
         }
         if (enEdicion) {

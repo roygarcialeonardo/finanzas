@@ -324,6 +324,10 @@
         .clasificacion-badge.operacional { background: #dbeafe; color: #1e4b7a; }
         .clasificacion-badge.transferencia { background: #fef3c7; color: #92400e; }
         .clasificacion-badge.extraccion { background: #fce4ec; color: #a11f2e; }
+        .clasificacion-badge.contingencia { background: #ede9fe; color: #5b21b6; }
+        .clasificacion-badge.utilidades { background: #dcfce7; color: #166534; }
+        .clasificacion-badge.salario { background: #e0f2fe; color: #075985; }
+        .badge-salario-aviso { background: #fef08a; color: #854d0e; font-weight: 600; }
 
         .tipo-usuario-selector {
             display: flex;
@@ -809,6 +813,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade show active" id="pane-resumen">
             <div id="alertaFinanciera" class="alerta-financiera"></div>
             <div id="alertaTrimestral" class="alerta-financiera mt-3"></div>
+            <div id="alertaSalarioNomina" class="mt-3"></div>
             <div class="row g-3 mb-4" id="resumenCuentas"></div>
             <div class="card p-3 p-md-4">
                 <h6 class="fw-semibold mb-3"><i class="bi bi-table me-2"></i>Todos los movimientos</h6>
@@ -1447,6 +1452,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <button class="btn btn-outline-primary btn-clasificacion" data-clasificacion="operacional"><i class="bi bi-cash-stack me-2"></i> 💰 Operacional</button>
                     <button class="btn btn-outline-warning btn-clasificacion" data-clasificacion="transferencia"><i class="bi bi-arrow-left-right me-2"></i> 🔄 Transferencia</button>
                     <button class="btn btn-outline-danger btn-clasificacion" data-clasificacion="extraccion"><i class="bi bi-box-arrow-right me-2"></i> 🏦 Extracción</button>
+                    <button class="btn btn-outline-secondary btn-clasificacion" data-clasificacion="contingencia"><i class="bi bi-shield-check me-2"></i> 🛡️ Contingencia (no es gasto)</button>
+                    <button class="btn btn-outline-success btn-clasificacion" data-clasificacion="utilidades"><i class="bi bi-people me-2"></i> 👥 Utilidades a socios (no es gasto)</button>
+                    <button class="btn btn-outline-info btn-clasificacion" data-clasificacion="salario"><i class="bi bi-person-badge me-2"></i> 👷 Salario</button>
                 </div>
             </div>
         </div>
@@ -1532,7 +1540,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="col-6"><label class="form-label" for="movMonto">Monto</label><input id="movMonto" type="number" step="0.01" min="0.01" inputmode="decimal" class="form-control" placeholder="0.00"></div>
 <div class="col-6"><label class="form-label" for="movFecha">Fecha</label><input id="movFecha" type="date" class="form-control"></div>
 <div class="col-6"><label class="form-label" for="movCuenta">Cuenta</label><select id="movCuenta" class="form-select"><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option></select></div>
-<div class="col-6"><label class="form-label" for="movClas">Clasificación</label><select id="movClas" class="form-select"><option value="operacional">Operacional</option><option value="transferencia">Transferencia</option><option value="extraccion">Extracción</option></select></div>
+<div class="col-6"><label class="form-label" for="movClas">Clasificación</label><select id="movClas" class="form-select"><option value="operacional">Operacional</option><option value="transferencia">Transferencia</option><option value="extraccion">Extracción</option><option value="contingencia">Contingencia (no es gasto)</option><option value="utilidades">Utilidades a socios (no es gasto)</option><option value="salario">Salario</option></select></div>
 <div class="col-6"><label class="form-label" for="movCentro">Centro de costo (contabilidad)</label><select id="movCentro" class="form-select"><option value="">— Sin centro —</option></select></div>
 <div class="col-6"><label class="form-label" for="movCuentaDestino">Otra cuenta (solo transferencias)</label><select id="movCuentaDestino" class="form-select"><option value="">— Sin indicar —</option><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option></select></div>
 <div class="col-6"><label class="form-label" for="movDocumento">Documento CxC/CxP (contabilidad)</label><select id="movDocumento" class="form-select"><option value="">— Ninguno —</option></select></div>
@@ -2156,12 +2164,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         function getClasificacionLabel(clasificacion) {
-            const map = { 'operacional': '💰 Operacional', 'transferencia': '🔄 Transferencia', 'extraccion': '🏦 Extracción' };
+            const map = { 'operacional': '💰 Operacional', 'transferencia': '🔄 Transferencia', 'extraccion': '🏦 Extracción', 'contingencia': '🛡️ Contingencia', 'utilidades': '👥 Utilidades a socios', 'salario': '👷 Salario' };
             return map[clasificacion] || clasificacion;
         }
 
         function getClasificacionBadge(clasificacion) {
             return `<span class="clasificacion-badge ${clasificacion}">${getClasificacionLabel(clasificacion)}</span>`;
+        }
+
+        /* Ronda 5 — criterio ÚNICO de «cuenta en los totales operativos»:
+           suman 'operacional' y 'salario' (el salario SÍ es gasto);
+           NO suman 'transferencia', 'extraccion', 'contingencia' (salida
+           del Fondo) ni 'utilidades' (distribución a socios). Lo usan el
+           resumen del mes, la DJ, el Gestor y los Trimestres. */
+        function clasifEnTotales(clasificacion) {
+            return clasificacion === 'operacional' || clasificacion === 'salario';
         }
 
         function getMontoEnCUP(monto, cuenta, t) {
@@ -2192,7 +2209,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const mk = () => ({ ingresos:0,gastos:0,onat:0,monto:0,ingresosDivisa:0,gastosDivisa:0,onatDivisa:0,montoDivisa:0 });
             let saldos = {chequera:mk(), tarjeta_cup:mk(), tarjeta_usd:mk()};
             data.forEach(m => {
-                const esOperacional = m.clasificacion === 'operacional';
+                const esOperacional = clasifEnTotales(m.clasificacion || 'operacional');
                 const montoCUP = m.cuenta === 'tarjeta_usd' ? getMontoEnCUP(m.monto,m.cuenta,(Number(m.tasaCambio)>0?Number(m.tasaCambio):T)) : Number(m.monto)||0;
                 if (m.cuenta === 'ajuste_contable') {
                     if (m.tipo === 'ingreso' && esOperacional) ingresos += montoCUP;
@@ -2956,11 +2973,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function triQuarterLabel(q){return ['Primer trimestre','Segundo trimestre','Tercer trimestre','Cuarto trimestre'][q]||`Trimestre ${q+1}`;}
         function triQuarterRango(anio,q){const sm=q*3,em=sm+2,pad=n=>String(n).padStart(2,'0');return {desde:`${anio}-${pad(sm+1)}-01`,hasta:`${anio}-${pad(em+1)}-${pad(new Date(anio,em+1,0).getDate())}`};}
         function triMontoCUP(m,fallback){const raw=Number(m&&m.monto)||0;if(m&&m.cuenta==='tarjeta_usd'){const t=Number(m.tasaCambio)>0?Number(m.tasaCambio):(Number(fallback)>0?Number(fallback):Number(CFG.tasa)||1);return raw*t;}return raw;}
-        function triResumenOperativo(movs,fallback){let ingresos=0,gastos=0;for(const m of (movs||[])){if((m.clasificacion||'operacional')!=='operacional')continue;const cup=triMontoCUP(m,fallback);if(m.tipo==='ingreso')ingresos+=cup;else if(m.tipo==='gasto')gastos+=cup;}return {ingresos,gastos,utilidad:ingresos-gastos};}
+        function triResumenOperativo(movs,fallback){let ingresos=0,gastos=0;for(const m of (movs||[])){if(!clasifEnTotales(m.clasificacion||'operacional'))continue;const cup=triMontoCUP(m,fallback);if(m.tipo==='ingreso')ingresos+=cup;else if(m.tipo==='gasto')gastos+=cup;}return {ingresos,gastos,utilidad:ingresos-gastos};}
         function triMovsMes(anio,mi){const periodo=triPeriodoMes(anio,mi),h=getHistorial().find(x=>x.mes===periodo);if(h&&Array.isArray(h.movimientos))return {periodo,movs:h.movimientos,tasa:Number(h.tasa)||Number(CFG.tasa)||1,cerrado:true};const md=getMesActual(),actual=(md&&md.mesSeleccionado)||getMesActualStr();if(actual===periodo && !(md&&md.cerrado))return {periodo,movs:movimientos,tasa:tasaVista(),cerrado:false};return {periodo,movs:[],tasa:Number(CFG.tasa)||1,cerrado:false};}
         function triDatosMes(anio,mi){const x=triMovsMes(anio,mi),r=triResumenOperativo(x.movs,x.tasa),pagos={};let totalOnat=0;for(const m of x.movs){if(m.tipo!=='onat')continue;const code=triCodeNorm(m.aporteNumero||m.tributoCodigo||'');if(!code)continue;const cup=triMontoCUP(m,x.tasa);pagos[code]=(pagos[code]||0)+cup;totalOnat+=cup;}return {mi,periodo:x.periodo,movs:x.movs,ingresos:r.ingresos,gastos:r.gastos,utilidad:r.utilidad,meta:r.ingresos*(Number(CFG.meta)||15)/100,pagos,totalOnat};}
         function triTodosMovimientosConContexto(){const out=[];for(const h of getHistorial()){if(!Array.isArray(h.movimientos))continue;const p=periodoParts(h.mes);for(const m of h.movimientos)out.push({m,periodo:h.mes,anio:p?p.y:null,mi:p?p.mi:null,tasa:Number(h.tasa)||Number(CFG.tasa)||1});}const md=getMesActual(),per=(md&&md.mesSeleccionado)||getMesActualStr(),p=periodoParts(per);if(!(md&&md.cerrado))for(const m of movimientos)out.push({m,periodo:per,anio:p?p.y:null,mi:p?p.mi:null,tasa:tasaVista()});return out;}
-        function triOrigenMovimiento(m){if(m&&m.fondoOrigen)return m.fondoOrigen;const t=normTxt(m&&m.concepto||'');if((m&&m.clasificacion)==='extraccion'&&/contingencia/.test(t))return 'contingencia';if((m&&m.clasificacion)==='extraccion'&&/utilidad.*socio|pago.*utilidad/.test(t))return 'utilidades';return '';}
+        function triOrigenMovimiento(m){if(m&&m.fondoOrigen)return m.fondoOrigen;if(m&&m.clasificacion==='contingencia')return 'contingencia';if(m&&m.clasificacion==='utilidades')return 'utilidades';const t=normTxt(m&&m.concepto||'');if((m&&m.clasificacion)==='extraccion'&&/contingencia/.test(t))return 'contingencia';if((m&&m.clasificacion)==='extraccion'&&/utilidad.*socio|pago.*utilidad/.test(t))return 'utilidades';return '';}
         function triRetiros(anio,origen,quarterKey){let total=0;for(const x of triTodosMovimientosConContexto()){const m=x.m;if(triOrigenMovimiento(m)!==origen)continue;if(origen==='utilidades'){const mk=String(m.trimestreKey||'');if(mk&&mk!==String(quarterKey||''))continue;if(!mk){const qm=String(quarterKey||'').match(/^(\d{4})-Q([1-4])$/);if(qm&&(Number(x.anio)!==Number(qm[1])||Math.floor(Number(x.mi)/3)!==Number(qm[2])-1))continue;}}if(origen==='contingencia'){const fy=Number(m.fondoAnio)||Number(x.anio);if(fy!==Number(anio))continue;}total+=triMontoCUP(m,x.tasa);}return total;}
         function triQuarterDeAporte(m,x){let fecha=String(m&&m.aporteHasta||m&&m.aporteDesde||'');let z=fecha.match(/^(\d{4})-(\d{2})-/);if(z)return {y:Number(z[1]),q:Math.floor((Number(z[2])-1)/3)};const per=String(m&&m.fiscalPeriodo||m&&m.aportePeriodoTexto||'');const pp=periodoParts(per);if(pp)return {y:pp.y,q:Math.floor(pp.mi/3)};return {y:Number(x.anio),q:Math.floor(Number(x.mi)/3)};}
         function triPagadoUtilidadesQuarter(anio,q){let total=0;for(const x of triTodosMovimientosConContexto()){const m=x.m;if(m.tipo!=='onat'||!triEsCodigoUtilidades(m.aporteNumero||m.tributoCodigo||''))continue;const pq=triQuarterDeAporte(m,x);if(pq.y===Number(anio)&&pq.q===Number(q))total+=triMontoCUP(m,x.tasa);}return total;}
@@ -3036,9 +3053,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function renderTrimestres(){const sel=document.getElementById('triAnio');if(!sel)return;const anios=triAniosDisponibles();if(!anios.includes(Number(trimestreAnioSel)))trimestreAnioSel=anios[0]||new Date().getFullYear();sel.innerHTML=anios.map(y=>`<option value="${y}" ${Number(y)===Number(trimestreAnioSel)?'selected':''}>${y}</option>`).join('');const d=triDatosAnio(trimestreAnioSel),mipyme=getEntityType()==='mipyme';const aviso=document.getElementById('triTipoAviso');aviso.innerHTML=mipyme?`<div class="tri-note"><b>MIPYME:</b> la utilidad trimestral se toma como ingresos menos gastos operacionales. El 10% de contingencia y el 35% de impuesto se calculan por separado. Los pagos a socios no reciben descuentos de nómina. El saldo no retirado pasa al siguiente trimestre como arrastre; el 35% se calcula solo sobre la utilidad propia de cada trimestre.</div>`:`<div class="tri-tcp-note"><b>TCP:</b> este apartado de distribución trimestral de utilidades a socios está diseñado para MIPYME. El resumen ONAT permanece disponible como referencia de pagos registrados.</div>`;document.getElementById('triKpiUtilidad').textContent=moneda(d.utilidad);document.getElementById('triKpiContingencia').textContent=moneda(d.contingencia);document.getElementById('triKpiSocios').textContent=moneda(d.sociosDisponible);document.getElementById('triKpi35Pagado').textContent=moneda(d.pagado35);document.getElementById('triTrimestres').innerHTML=d.trimestres.map(q=>{const rows=q.meses.map(m=>`<tr><td>${MESES_ES[m.mi]}</td><td class="text-end tri-money">${moneda(m.gastos)}</td><td class="text-end tri-money ${m.utilidad<0?'tri-negative':'tri-positive'}">${moneda(m.utilidad)}</td><td class="text-end tri-money">${moneda(m.ingresos)}</td><td class="text-end tri-money">${moneda(m.meta)}</td></tr>`).join('');const btn35=mipyme&&puedeEditar()?`<button class="btn btn-sm btn-outline-primary tri-pay35" data-key="${q.key}"><i class="bi bi-file-check me-1"></i> Registrar 35% ONAT</button>`:'';const btnSoc=mipyme&&puedeEditar()?`<button class="btn btn-sm btn-success tri-pay-socios" data-key="${q.key}"><i class="bi bi-people me-1"></i> Pagar socios</button>`:'';return `<div class="tri-card">${(btn35||btnSoc)?`<div class="tri-top-actions">${btn35}${btnSoc}</div>`:``}<div class="tri-card-head"><div><b>${q.label}</b><div class="small text-secondary">${fechaAporteDMY(q.rango.desde)} al ${fechaAporteDMY(q.rango.hasta)}</div></div></div><div class="tri-card-body"><div class="table-responsive"><table class="table table-sm align-middle tri-month-grid mb-3"><thead><tr><th>Mes</th><th class="text-end">Gastos</th><th class="text-end">Utilidades</th><th class="text-end">Ingresos</th><th class="text-end">${Number(CFG.meta||15).toFixed(0)}%</th></tr></thead><tbody>${rows}<tr class="tri-total-row"><td>Total</td><td class="text-end">${moneda(q.meses.reduce((a,m)=>a+m.gastos,0))}</td><td class="text-end">${moneda(q.utilidad)}</td><td class="text-end">${moneda(q.meses.reduce((a,m)=>a+m.ingresos,0))}</td><td class="text-end">${moneda(q.meses.reduce((a,m)=>a+m.meta,0))}</td></tr></tbody></table></div><div class="row g-2"><div class="col-6 col-lg-3"><span class="tri-chip">Contingencia 10% <b>${moneda(q.contingencia)}</b></span></div><div class="col-6 col-lg-3"><span class="tri-chip">35% calculado <b>${moneda(q.impuesto)}</b></span></div><div class="col-6 col-lg-3"><span class="tri-chip">35% pagado <b>${moneda(q.pagado35)}</b></span></div><div class="col-6 col-lg-3"><span class="tri-chip">Para socios <b>${moneda(q.disponibleSocios)}</b></span></div></div>${q.retiradoSocios>0?`<div class="small text-secondary mt-2">Ya retirado por socios: <b>${moneda(q.retiradoSocios)}</b> · Saldo disponible: <b>${moneda(q.disponibleSocios)}</b></div>`:''}${q.arrastreIn>0.004?`<div class="small text-secondary mt-2">Incluye arrastre del trimestre anterior: <b>${moneda(q.arrastreIn)}</b> · Disponible acumulado hasta este trimestre: <b>${moneda(q.disponibleAcumulado)}</b></div>`:''}</div></div>`;}).join('');document.querySelectorAll('.tri-pay35').forEach(b=>b.onclick=()=>triRegistrarPago35(b.dataset.key));document.querySelectorAll('.tri-pay-socios').forEach(b=>b.onclick=()=>triRegistrarPagoSocios(b.dataset.key));document.getElementById('triContingenciaDetalle').innerHTML=`<div class="row g-2"><div class="col-6"><div class="tri-kpi"><small>Generado en ${d.anio}</small><strong>${moneda(d.contingencia)}</strong></div></div><div class="col-6"><div class="tri-kpi"><small>Extraído</small><strong>${moneda(d.retiroContingencia)}</strong></div></div><div class="col-12"><div class="tri-note d-flex justify-content-between align-items-center flex-wrap gap-2"><span>Saldo de contingencia disponible</span><b class="fs-5">${moneda(d.contingenciaDisponible)}</b></div></div></div>`;document.getElementById('btnExtraerContingencia').disabled=!mipyme||!puedeEditar()||d.contingenciaDisponible<=0.004;document.getElementById('triControl35').innerHTML=`<div class="d-grid gap-2"><div class="d-flex justify-content-between"><span>Calculado</span><b>${moneda(d.impuesto35)}</b></div><div class="d-flex justify-content-between"><span>Pagado</span><b>${moneda(d.pagado35)}</b></div><hr class="my-1"><div class="d-flex justify-content-between"><span>Pendiente</span><b class="${d.pendiente35>0.004?'text-danger':'text-success'}">${moneda(d.pendiente35)}</b></div></div>`;const acc=(title,field)=>`<div class="col-md-6 col-xl-3"><div class="tri-card h-100"><div class="tri-card-head"><b>${title}</b></div><div class="tri-card-body p-2"><table class="table table-sm tri-small-table mb-0"><thead><tr><th>Mes</th><th class="text-end">Cantidad</th></tr></thead><tbody>${d.trimestres.map(q=>`<tr><td>${MESES_ES[q.q*3+2]}</td><td class="text-end tri-money">${moneda(q[field])}</td></tr>`).join('')}<tr class="tri-total-row"><td>Total</td><td class="text-end">${moneda(d.trimestres.reduce((a,q)=>a+(Number(q[field])||0),0))}</td></tr></tbody></table></div></div></div>`;document.getElementById('triAcumulados').innerHTML=acc('35% pagado','pagado35')+acc('Contingencia 10%','contingencia')+acc('Utilidad menos contingencia','utilidadSocios')+acc('Utilidades por trimestre','utilidad');document.getElementById('triOnatResumen').innerHTML=triOnatMatrix(d.anio,d);renderNominaSocios();}
         function triBuscarQuarter(key){const m=String(key||'').match(/^(\d{4})-Q([1-4])$/);if(!m)return null;const d=triDatosAnio(Number(m[1]));return d.trimestres[Number(m[2])-1]||null;}
         function triRegistrarPago35(key){const q=triBuscarQuarter(key);if(!q||q.pendiente35<=0.004)return;abrirMovModal('onat','chequera',null);document.getElementById('movAporteNumero').value='0400722';document.getElementById('movMonto').value=q.pendiente35.toFixed(2);actualizarIdentificacionAporte();document.getElementById('movAporteDesde').value=q.rango.desde;document.getElementById('movAporteHasta').value=q.rango.hasta;document.getElementById('movClas').value='operacional';}
-        function triRegistrarPagoSocios(key){const q=triBuscarQuarter(key);if(!q||q.disponibleAcumulado<=0.004)return;pendingSpecialMovement={fondoOrigen:'utilidades',trimestreKey:q.key,trimestreLabel:q.label,fondoAnio:Number(q.key.slice(0,4)),sinDescuentosNomina:true};openingSpecialMovement=true;abrirMovModal('gasto','chequera',null);openingSpecialMovement=false;document.getElementById('movConcepto').value=`Pago de utilidades a socios · ${q.label} ${q.key.slice(0,4)}`;document.getElementById('movMonto').value=q.disponibleAcumulado.toFixed(2);document.getElementById('movClas').value='extraccion';}
-        function triRegistrarExtraccionContingencia(){const d=triDatosAnio(trimestreAnioSel);if(d.contingenciaDisponible<=0.004)return;pendingSpecialMovement={fondoOrigen:'contingencia',fondoAnio:Number(trimestreAnioSel),sinDescuentosNomina:true};openingSpecialMovement=true;abrirMovModal('gasto','chequera',null);openingSpecialMovement=false;document.getElementById('movConcepto').value=`Extracción fondo de contingencia · ${trimestreAnioSel}`;document.getElementById('movMonto').value=d.contingenciaDisponible.toFixed(2);document.getElementById('movClas').value='extraccion';}
-        function renderNominaSocios(){const card=document.getElementById('nominaSociosCard'),box=document.getElementById('nominaSociosUtilidades');if(!card||!box)return;if(getEntityType()!=='mipyme'){card.style.display='none';return;}card.style.display='block';const pp=periodoParts(periodoNominaActual()),anio=pp?pp.y:new Date().getFullYear(),d=triDatosAnio(anio);box.innerHTML=`<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Trimestre</th><th class="text-end">Utilidad - contingencia</th><th class="text-end">Retirado</th><th class="text-end">Disponible</th><th></th></tr></thead><tbody>${d.trimestres.map(q=>`<tr><td>${q.label}</td><td class="text-end tri-money">${moneda(q.utilidadSocios)}${q.arrastreIn>0.004?`<div class="small text-secondary">+ arrastre ${moneda(q.arrastreIn)}</div>`:''}</td><td class="text-end tri-money">${moneda(q.retiradoSocios)}</td><td class="text-end fw-bold tri-money">${moneda(q.disponibleSocios)}</td><td class="text-end">${puedeEditar()&&q.disponibleAcumulado>0.004?`<button class="btn btn-sm btn-outline-success nomina-pay-socios" data-key="${q.key}">Pagar</button>`:''}</td></tr>`).join('')}</tbody></table></div><div class="small text-secondary mt-2">Estos pagos son distribución de utilidades a socios y se registran como extracción, sin descuentos de salario. El saldo no retirado pasa al siguiente trimestre como arrastre (no cuenta para el 35%).</div>`;document.querySelectorAll('.nomina-pay-socios').forEach(b=>b.onclick=()=>triRegistrarPagoSocios(b.dataset.key));}
+        function triRegistrarPagoSocios(key){const q=triBuscarQuarter(key);if(!q||q.disponibleAcumulado<=0.004)return;pendingSpecialMovement={fondoOrigen:'utilidades',trimestreKey:q.key,trimestreLabel:q.label,fondoAnio:Number(q.key.slice(0,4)),sinDescuentosNomina:true};openingSpecialMovement=true;abrirMovModal('gasto','chequera',null);openingSpecialMovement=false;document.getElementById('movConcepto').value=`Pago de utilidades a socios · ${q.label} ${q.key.slice(0,4)}`;document.getElementById('movMonto').value=q.disponibleAcumulado.toFixed(2);document.getElementById('movClas').value='utilidades';}
+        function triRegistrarExtraccionContingencia(){const d=triDatosAnio(trimestreAnioSel);if(d.contingenciaDisponible<=0.004)return;pendingSpecialMovement={fondoOrigen:'contingencia',fondoAnio:Number(trimestreAnioSel),sinDescuentosNomina:true};openingSpecialMovement=true;abrirMovModal('gasto','chequera',null);openingSpecialMovement=false;document.getElementById('movConcepto').value=`Extracción fondo de contingencia · ${trimestreAnioSel}`;document.getElementById('movMonto').value=d.contingenciaDisponible.toFixed(2);document.getElementById('movClas').value='contingencia';}
+        function renderNominaSocios(){const card=document.getElementById('nominaSociosCard'),box=document.getElementById('nominaSociosUtilidades');if(!card||!box)return;if(getEntityType()!=='mipyme'){card.style.display='none';return;}card.style.display='block';const pp=periodoParts(periodoNominaActual()),anio=pp?pp.y:new Date().getFullYear(),d=triDatosAnio(anio);box.innerHTML=`<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Trimestre</th><th class="text-end">Utilidad - contingencia</th><th class="text-end">Retirado</th><th class="text-end">Disponible</th><th></th></tr></thead><tbody>${d.trimestres.map(q=>`<tr><td>${q.label}</td><td class="text-end tri-money">${moneda(q.utilidadSocios)}${q.arrastreIn>0.004?`<div class="small text-secondary">+ arrastre ${moneda(q.arrastreIn)}</div>`:''}</td><td class="text-end tri-money">${moneda(q.retiradoSocios)}</td><td class="text-end fw-bold tri-money">${moneda(q.disponibleSocios)}</td><td class="text-end">${puedeEditar()&&q.disponibleAcumulado>0.004?`<button class="btn btn-sm btn-outline-success nomina-pay-socios" data-key="${q.key}">Pagar</button>`:''}</td></tr>`).join('')}</tbody></table></div><div class="small text-secondary mt-2">Estos pagos son distribución de utilidades a socios y se registran con la clasificación «Utilidades a socios» (no es gasto), sin descuentos de salario. El saldo no retirado pasa al siguiente trimestre como arrastre (no cuenta para el 35%).</div>`;document.querySelectorAll('.nomina-pay-socios').forEach(b=>b.onclick=()=>triRegistrarPagoSocios(b.dataset.key));}
         function pagosObligacion(id){const f=getFiscal(),o=(f.obligaciones||[]).find(x=>String(x.id)===String(id));if(!o)return 0;return allMovimientos().filter(m=>{if(m.tipo!=='onat')return false;if(String(m.fiscalId||'')===String(id))return true;if(codigoAporteNorm(m.aporteNumero||m.tributoCodigo||'')!==codigoAporteNorm(o.codigo||''))return false;const per=String(m.fiscalPeriodo||m.aportePeriodoTexto||'');if(per===o.periodo)return true;const end=String(m.aporteHasta||m.aporteDesde||''),z=end.match(/^(\d{4})-(\d{2})-/);return !!z&&`${MESES_ES[Number(z[2])-1]} ${z[1]}`===o.periodo;}).reduce((a,m)=>a+getMontoMovimientoCUP(m),0);}
         function estadoObligacion(o,importe){const p=pagosObligacion(o.id);if(importe===null)return p>0?{key:'paid',txt:'Pago registrado',pagado:p}:{key:'na',txt:'Importe manual',pagado:0};if(importe===0)return {key:'na',txt:'Sin importe',pagado:p};if(p+0.005>=importe&&importe>0)return {key:'paid',txt:'Pagado',pagado:p};if(p>0)return {key:'partial',txt:'Parcial',pagado:p};return {key:'pending',txt:'Pendiente',pagado:0};}
         function parseVectorLines(lines,fileName){
@@ -3705,7 +3722,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 }
 
                 tr.innerHTML = `
-                    <td><span class="fw-medium">${esc(m.concepto)}</span>${m.qr?'<span class="badge bg-info text-dark ms-1" title="Pago por comercio electrónico">QR</span>':''}${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
+                    <td><span class="fw-medium">${esc(m.concepto)}</span>${m.qr?'<span class="badge bg-info text-dark ms-1" title="Pago por comercio electrónico">QR</span>':''}${salarioAvisoBadgeHTML(m)}${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
                     <td>${badgeTipo}</td>
                     <td>${getClasificacionBadge(m.clasificacion || 'operacional')}</td>
                     <td>${badgeCuenta}</td>
@@ -3785,7 +3802,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 
                 return `
                     <tr>
-                        <td><span class="fw-medium">${esc(m.concepto)}</span>${m.qr?'<span class="badge bg-info text-dark ms-1" title="Pago por comercio electrónico">QR</span>':''}${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
+                        <td><span class="fw-medium">${esc(m.concepto)}</span>${m.qr?'<span class="badge bg-info text-dark ms-1" title="Pago por comercio electrónico">QR</span>':''}${salarioAvisoBadgeHTML(m)}${m.tipo==='onat'&&m.aporteNumero?`<br><small class="text-muted"><code>${esc(m.aporteNumero)}</code>${m.aporteDesde&&m.aporteHasta?` · ${esc(fechaAporteDMY(m.aporteDesde))} al ${esc(fechaAporteDMY(m.aporteHasta))}`:''}</small>`:''}</td>
                         <td>${badgeTipo}</td>
                         <td>${getClasificacionBadge(m.clasificacion || 'operacional')}</td>
                         <td class="text-end">${montoStr}</td>
@@ -4152,9 +4169,11 @@ function ctaPlanSemilla(){return [
  {codigo:'230',nombre:'Obligaciones con el Presupuesto (ONAT)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
  {codigo:'240',nombre:'Préstamos por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
  {codigo:'250',nombre:'Otras cuentas por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
+ {codigo:'251',nombre:'Dividendos por pagar a socios',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',porVerificar:true},
  {codigo:'3',nombre:'Patrimonio',naturaleza:'acreedora',nivel:1,admite:false,grupo:'patrimonio',porVerificar:true},
  {codigo:'310',nombre:'Capital',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
  {codigo:'320',nombre:'Reservas',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
+ {codigo:'320.01',nombre:'Fondo de contingencia',naturaleza:'acreedora',nivel:3,admite:true,grupo:'patrimonio',porVerificar:true},
  {codigo:'330',nombre:'Utilidades retenidas',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
  {codigo:'335',nombre:'Extracciones de socios',naturaleza:'deudora',nivel:2,admite:true,grupo:'patrimonio',esContra:true,porVerificar:true},
  {codigo:'340',nombre:'Resultado del ejercicio',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
@@ -4174,7 +4193,7 @@ function ctaPlanSemilla(){return [
  {codigo:'531',nombre:'Gasto por diferencial cambiario',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
  {codigo:'540',nombre:'Otros gastos',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true}
 ];}
-function ctaPlantillasDef(){return {banco:{chequera:'110.01',tarjeta_cup:'110.02',tarjeta_usd:'110.03'},ventas:'410',otrosIngresos:'420',cxc:'120.01',cxp:'210.01',inventarios:'130.01',costoVentas:'510',gastoOperacion:'520',salarios:'521',segSocial:'522',fuerzaGasto:'523',gastoProvVac:'525',provVacaciones:'221',provPrestaciones:'222',retencionesPorPagar:'223',nominasPorPagar:'220',onatCargo:'230',depreciacionGasto:'524',depreciacionAcum:'141',extracciones:'335',difPos:'421',difNeg:'531',bancoNomina:'110.01',resultado:'340',utilRetenidas:'330'};}
+function ctaPlantillasDef(){return {banco:{chequera:'110.01',tarjeta_cup:'110.02',tarjeta_usd:'110.03'},ventas:'410',otrosIngresos:'420',cxc:'120.01',cxp:'210.01',inventarios:'130.01',costoVentas:'510',gastoOperacion:'520',salarios:'521',segSocial:'522',fuerzaGasto:'523',gastoProvVac:'525',provVacaciones:'221',provPrestaciones:'222',retencionesPorPagar:'223',nominasPorPagar:'220',onatCargo:'230',depreciacionGasto:'524',depreciacionAcum:'141',extracciones:'335',fondoContingencia:'320.01',dividendosPorPagar:'251',difPos:'421',difNeg:'531',bancoNomina:'110.01',resultado:'340',utilRetenidas:'330'};}
 function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],bandeja:[],seqAsiento:0,seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0};}
 function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
 function ctaValidarAsiento(conta,a){
@@ -4252,6 +4271,22 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
  if(clas==='extraccion'){
    if(falta(P.extracciones))return pend('Falta la cuenta de extracciones en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.extracciones,debe:cup,haber:0,centro},l]}]};}
+ if(clas==='contingencia'){
+   /* Uso del Fondo de contingencia: sale dinero del banco contra la
+      reserva (patrimonio 320.01) — NUNCA contra resultados: no es gasto. */
+   if(falta(P.fondoContingencia))return pend('Falta la cuenta del fondo de contingencia en el plan/plantillas');
+   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Uso del fondo de contingencia · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.fondoContingencia,debe:cup,haber:0,centro},l]}]};}
+ if(clas==='utilidades'){
+   /* Pago de utilidades/dividendos a socios: contra Dividendos por
+      pagar (pasivo 251) — distribución de patrimonio, NUNCA gasto. */
+   if(falta(P.dividendosPorPagar))return pend('Falta la cuenta de dividendos por pagar en el plan/plantillas');
+   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de utilidades a socios · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.dividendosPorPagar,debe:cup,haber:0,centro},l]}]};}
+ if(clas==='salario'){
+   /* Pago bancario de salarios: cancela Nóminas por pagar (220), igual
+      que el evento «pago» de la nómina; el gasto ya se devengó con la
+      nómina (521/522/523/525), así que aquí NO se duplica. */
+   if(falta(P.nominasPorPagar))return pend('Falta la cuenta de nóminas por pagar en el plan/plantillas');
+   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de salario · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.nominasPorPagar,debe:cup,haber:0,centro},l]}]};}
  if(mov.tipo==='ingreso'){
    if(mov.documentoId){const doc=(conta.documentos||[]).find(d=>d.id===mov.documentoId);if(!doc)return pend('El documento vinculado ('+mov.documentoId+') no existe en los submayores');if(falta(P.cxc))return pend('Falta la cuenta de cuentas por cobrar');const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:'Cobro · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:P.cxc,debe:0,haber:cup,analisis:doc.contraparteId,centro}]}],aplicacion:{documentoId:doc.id,monto:cup,fecha:mov.fecha}};}
    if(mov.aCredito||mov.ventaCredito){if(falta(P.cxc)||falta(P.ventas))return pend('Falta la cuenta de cuentas por cobrar o de ventas');return {clave,asientos:[{fecha:mov.fecha,concepto:'Venta a crédito · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.cxc,debe:cup,haber:0,analisis:mov.contraparteId||'',centro},{cuenta:P.ventas,debe:0,haber:cup,centro}]}]};}
@@ -4298,6 +4333,9 @@ function ctaClasificarMov(conta,mov){
  const clas=mov.clasificacion||'operacional';
  if(clas==='transferencia')return mov.cuentaDestino?{estado:'claro',via:'transferencia entre cuentas'}:{estado:'pendiente',motivo:'Transferencia entre cuentas propias: falta indicar la otra cuenta (origen/destino)'};
  if(clas==='extraccion')return {estado:'claro',via:'extracción clasificada en la app'};
+ if(clas==='contingencia')return {estado:'claro',via:'salida del fondo de contingencia (no es gasto)'};
+ if(clas==='utilidades')return {estado:'claro',via:'pago de utilidades a socios (no es gasto)'};
+ if(clas==='salario')return {estado:'claro',via:'pago de salario (se cruza con la nómina del mes)'};
  if(mov.sospechaOnat)return {estado:'pendiente',motivo:'Posible pago de impuestos sin código ONAT reconocido: confirma si es un pago de ONAT u otro gasto'};
  if(mov.tipo==='onat')return {estado:'claro',via:'pago ONAT identificado por código'};
  if(mov.documentoId)return {estado:'claro',via:'cobro/pago de documento de submayor'};
@@ -4311,6 +4349,11 @@ function ctaReconstruir(conta,eventos){
  const res={creados:0,yaExistian:0,pendientes:[],asientosIds:[]};const bandeja=[];
  const claves=new Set((conta.asientos||[]).map(a=>a.fuenteKey).filter(Boolean));
  const ordenados=(eventos||[]).slice().sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
+ /* Ronda 5: si el período tiene movimientos clasificados «Salario», ELLOS
+    son el pago bancario real de la nómina (Dr 220 / Cr banco del
+    movimiento): el asiento de pago sintético del evento de nómina se
+    omite para no pagar dos veces la misma nómina. El devengo no cambia. */
+ const periodosSalarioMov=new Set((eventos||[]).filter(e=>e&&e.tipo==='mov'&&e.mov&&(e.mov.clasificacion||'')==='salario').map(e=>e.periodo));
  const registrar=(r,ref,datos)=>{if(!r)return;
    if(r.pendiente){const p={clave:r.clave||'',motivo:r.pendiente,ref:ref||'',estado:'por-contabilizar'};if(datos)Object.assign(p,datos);res.pendientes.push(p);bandeja.push(p);return;}
    for(const borrador of (r.asientos||[])){if(borrador.fuenteKey&&claves.has(borrador.fuenteKey)){res.yaExistian++;continue;}
@@ -4354,7 +4397,7 @@ function ctaReconstruir(conta,eventos){
        if(pv)L.push({cuenta:P.provVacaciones,debe:0,haber:pv});
        if(ded)L.push({cuenta:P.retencionesPorPagar,debe:0,haber:ded});
        registrar({clave:claveD,asientos:[{fecha:ev.fecha,concepto:'Nómina devengada · '+ev.periodo,origen:'auto',fuenteKey:claveD,lineas:L}]},'Nómina '+ev.periodo);
-       registrar({clave:claveP,asientos:[{fecha:ev.fecha,concepto:'Pago de nómina · '+ev.periodo,origen:'auto',fuenteKey:claveP,lineas:[{cuenta:P.nominasPorPagar,debe:ctaR2(t.neto),haber:0},{cuenta:P.bancoNomina,debe:0,haber:ctaR2(t.neto)}]}]},'Pago nómina '+ev.periodo);}}}
+       if(!periodosSalarioMov.has(ev.periodo))registrar({clave:claveP,asientos:[{fecha:ev.fecha,concepto:'Pago de nómina · '+ev.periodo,origen:'auto',fuenteKey:claveP,lineas:[{cuenta:P.nominasPorPagar,debe:ctaR2(t.neto),haber:0},{cuenta:P.bancoNomina,debe:0,haber:ctaR2(t.neto)}]}]},'Pago nómina '+ev.periodo);}}}
  const vistas=new Set();conta.bandeja=bandeja.filter(p=>{const k=p.clave||p.ref;if(vistas.has(k))return false;vistas.add(k);return true;});
  return res;}
 function ctaAplicadoDoc(conta,docId){return ctaR2((conta.aplicaciones||[]).filter(a=>a.documentoId===docId).reduce((s,a)=>s+(Number(a.monto)||0),0));}
@@ -4417,6 +4460,44 @@ function ctaCierreAnual(conta,anio){
         function contaGenerarSilencioso(){ const c=getConta(); if(!c.activa) return {omitido:true,razon:'inactiva'}; if(modoEdicionActivo) return {omitido:true,razon:'edicion'}; const r=ctaReconstruir(c, contaEventos(false)); saveConta(c); try{ saveMovimientos(movimientos); }catch(e){} return {creados:r.creados, pendientes:r.pendientes.length, ya:r.yaExistian}; }
         window.__contaTrasImportar=function(){ try{ return contaGenerarSilencioso(); }catch(e){ return {omitido:true,razon:'error'}; } };
         window.__contaEvalImport=function(items){ try{ const c=getConta(); if(!c.activa||!Array.isArray(items)) return null; return items.map(it=>{ if(!it) return null; const mov={concepto:it.concepto,tipo:it.clase==='onat'?'onat':it.tipo,cuenta:it.cuenta,fecha:it.fecha,monto:it.monto,clasificacion:it.clasificacion||'operacional',sospechaOnat:!!it.sospechaOnat}; const r=ctaClasificarMov(c,mov); return {claro:r.estado==='claro',via:r.via||'',motivo:r.motivo||''}; }); }catch(e){ return null; } };
+        /* ===== CRUCE SALARIO ↔ NÓMINA (ronda 5) =====
+           Criterio exacto (documentado en CLASIF-BUILD-REPORT.md):
+           - El mes de un pago de salario es el mes de su FECHA.
+           - «Hay nómina ese mes» = el slot rrhh guarda al menos un
+             registro en nominas[periodo] (mismo criterio con el que el
+             núcleo contable genera el devengo/pago de la nómina).
+           - Importe esperado = total NETO a pagar de
+             obtenerNominaParaPeriodo(periodo).
+           - Se compara la SUMA en CUP de TODOS los movimientos del mes
+             con clasificacion 'salario' y tipo 'gasto' (mes actual +
+             historial) contra ese neto, con tolerancia de 0,01.
+           - Si no hay nómina o la suma difiere, TODOS los pagos de
+             salario de ese mes llevan la marca AMARILLA. Es un AVISO:
+             no bloquea guardar, importar ni contabilizar. */
+        function periodoDeFechaMov(fecha){ const mm=String(fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!mm) return null; return getFechaStr(Number(mm[2]), Number(mm[1])); }
+        function nominaExisteEnPeriodo(periodo){ try{ const rrhh=getRRHH(); const recs=(rrhh.nominas||{})[periodo]; return !!(recs && Object.keys(recs).length>0); }catch(e){ return false; } }
+        function cruceSalarioMes(periodo, extraPorMes){
+            const lista=allMovimientos().filter(m=>m && m.tipo==='gasto' && m.clasificacion==='salario' && periodoDeFechaMov(m.fecha)===periodo);
+            let suma=lista.reduce((a,m)=>a+getMontoMovimientoCUP(m),0);
+            if(extraPorMes && extraPorMes[periodo]) suma+=extraPorMes[periodo];
+            suma=+suma.toFixed(2);
+            if(!nominaExisteEnPeriodo(periodo)) return {periodo, hayNomina:false, neto:0, suma, n:lista.length, coincide:false};
+            let neto=0; try{ neto=+Number((obtenerNominaParaPeriodo(periodo).tot||{}).neto||0).toFixed(2); }catch(e){ neto=0; }
+            return {periodo, hayNomina:true, neto, suma, n:lista.length, coincide: Math.abs(suma-neto)<=0.01};
+        }
+        function salarioCruceDeMov(m){ if(!m || m.tipo!=='gasto' || m.clasificacion!=='salario') return null; const per=periodoDeFechaMov(m.fecha); if(!per) return null; return cruceSalarioMes(per); }
+        function salarioAvisoBadgeHTML(m){ const c=salarioCruceDeMov(m); if(!c || (c.hayNomina && c.coincide)) return '';
+            const titulo=c.hayNomina ? ('La suma de los pagos de salario de '+c.periodo+' ('+moneda(c.suma)+') no coincide con el neto de la nómina de ese mes ('+moneda(c.neto)+')') : ('No hay nómina registrada en '+c.periodo+': este pago de salario no se pudo cruzar');
+            return ' <span class="badge badge-salario-aviso" title="'+esc(titulo)+'">⚠ No coincide con la nómina</span>'; }
+        function renderAlertaSalarioNomina(){ const box=document.getElementById('alertaSalarioNomina'); if(!box) return; const periodo=periodoNominaActual(); const c=cruceSalarioMes(periodo); if(!c.n){ box.innerHTML=''; return; }
+            if(c.hayNomina && c.coincide){ box.innerHTML=''; return; }
+            const detalle=c.hayNomina ? ('La suma de los pagos clasificados «Salario» de '+esc(periodo)+' es <b>'+moneda(c.suma)+'</b> y el neto de la nómina de ese mes es <b>'+moneda(c.neto)+'</b>.') : ('Hay '+c.n+' pago(s) clasificado(s) «Salario» en '+esc(periodo)+' por <b>'+moneda(c.suma)+'</b>, pero ese mes no tiene nómina registrada para cruzarlos.');
+            box.innerHTML='<div class="alert alert-warning py-2 px-3 small mb-0"><b>⚠ Salarios sin cruzar con la nómina.</b> '+detalle+' Es solo un aviso: los pagos se guardan y se contabilizan igual; revisa la clasificación o la nómina cuando puedas.</div>'; }
+        /* Vista previa del importador: evalúa los «Salario» del lote sumando
+           el lote completo por mes a lo ya registrado en ese mes. */
+        window.__salarioEvalImport=function(items){ try{ if(!Array.isArray(items)) return null; const extra={}; items.forEach(it=>{ if(it && it.clasificacion==='salario' && it.tipo==='gasto'){ const per=periodoDeFechaMov(it.fecha); if(per){ const cup=it.cuenta==='tarjeta_usd' ? (Number(it.monto)||0)*tasaVista() : (Number(it.monto)||0); extra[per]=(extra[per]||0)+cup; } } });
+            return items.map(it=>{ if(!it || it.clasificacion!=='salario' || it.tipo!=='gasto') return null; const per=periodoDeFechaMov(it.fecha); if(!per) return null; const c=cruceSalarioMes(per, extra); if(c.hayNomina && c.coincide) return {amarillo:false, motivo:'Coincide con la nómina de '+per+' (neto '+moneda(c.neto)+')'};
+                return {amarillo:true, motivo: c.hayNomina ? ('suma de salarios del mes '+moneda(c.suma)+' vs neto de la nómina '+moneda(c.neto)) : ('no hay nómina registrada en '+per)}; }); }catch(e){ return null; } };
         window.__contaAlCerrarMes=function(periodo){ try{ const c=getConta(); if(!c.activa) return; const tasa=(CFG.tasasMes&&Number(CFG.tasasMes[periodo])>0)?Number(CFG.tasasMes[periodo]):tasaVista(); const r=ctaRevalorizacion(c, periodo, fechaContablePeriodo(periodo), tasa); if(r.ok&&!r.duplicado) saveConta(c); }catch(e){} };
         function contaFillMovFields(m){ const c=getConta(); const selC=document.getElementById('movCentro'); if(selC){ selC.innerHTML='<option value="">— Sin centro —</option>'+c.centros.map(x=>`<option value="${esc(x.nombre)}">${esc(x.nombre)}</option>`).join(''); if(m&&m.centroCosto) selC.value=m.centroCosto; }
             const selD=document.getElementById('movDocumento'); if(selD){ selD.innerHTML='<option value="">— Ninguno (o se crea en Contabilidad) —</option>'+c.documentos.map(d=>{ const cp=c.contrapartes.find(x=>x.id===d.contraparteId); const pend=ctaR2((Number(d.importe)||0)-ctaAplicadoDoc(c,d.id)); return pend>0?`<option value="${esc(d.id)}">${d.tipo==='cxc'?'CxC':'CxP'} · ${esc(d.numero)} · ${esc(cp?cp.nombre:d.contraparteId)} · pendiente ${moneda(pend)}</option>`:''; }).join(''); if(m&&m.documentoId) selD.value=m.documentoId; }
@@ -4469,7 +4550,7 @@ function ctaCierreAnual(conta,anio){
             const pb=document.getElementById('contaPlanBody'); if(pb) pb.innerHTML=c.plan.map(x=>`<tr><td class="fiscal-code">${esc(x.codigo)}</td><td>${esc(x.nombre)}</td><td>${x.naturaleza}</td><td>${x.nivel}</td><td>${x.admite?'Sí':'—'}</td><td>${esc(x.grupo)}</td><td>${x.porVerificar?'<span class="badge bg-warning text-dark">por verificar</span>':''}</td></tr>`).join('');
             const pl=document.getElementById('contaPlantillasBox'); if(pl){ const opts=sel=>c.plan.filter(x=>x.admite).map(x=>`<option value="${esc(x.codigo)}" ${x.codigo===sel?'selected':''}>${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('');
                 const fila=(label,key,val)=>`<div class="col-md-4"><label class="form-label mb-1 small">${label}</label><select class="form-select form-select-sm" data-conta-plant="${key}">${opts(val)}</select></div>`;
-                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('Provisión prestaciones corto plazo','provPrestaciones',c.plantillas.provPrestaciones)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Obligaciones ONAT (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio','resultado',c.plantillas.resultado)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+'</div>'; }
+                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('Provisión prestaciones corto plazo','provPrestaciones',c.plantillas.provPrestaciones)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Obligaciones ONAT (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Fondo de contingencia','fondoContingencia',c.plantillas.fondoContingencia)+fila('Dividendos por pagar a socios','dividendosPorPagar',c.plantillas.dividendosPorPagar)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio','resultado',c.plantillas.resultado)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+'</div>'; }
             const ab=document.getElementById('contaAsientosBody'); if(ab){ const anulados=new Set(c.asientos.filter(a=>a.anulaA).map(a=>a.anulaA)); ab.innerHTML=c.asientos.slice(-80).reverse().map(a=>{ const tot=a.lineas.reduce((s,l)=>s+(Number(l.debe)||0),0); return `<tr><td>${a.numero}</td><td class="text-nowrap">${esc(a.fecha)}</td><td>${esc(a.concepto)}${a.anulaA?' <span class="badge bg-secondary">contraasiento</span>':''}${anulados.has(a.id)?' <span class="badge bg-danger">anulado</span>':''}</td><td>${esc(a.origen)}</td><td class="text-end">${moneda(tot)}</td><td class="text-end">${moneda(tot)}</td><td>${!a.anulaA&&!anulados.has(a.id)?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="contaAnular('${a.id}')">Anular</button>`:''}</td></tr>`; }).join('')||'<tr><td colspan="7" class="text-center text-muted">Sin asientos todavía.</td></tr>'; }
             const bj=document.getElementById('contaBandejaBody'); if(bj){ const cuentasOpts=c.plan.filter(x=>x.admite).map(x=>`<option value="${esc(x.codigo)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join(''); const bancOpts=Object.keys(c.plantillas.banco).map(k=>`<option value="${k}">${k==='chequera'?'Chequera':k==='tarjeta_cup'?'Tarjeta CUP':'Tarjeta USD'}</option>`).join('');
                 bj.innerHTML=(c.bandeja||[]).map((b,i)=>{ const esTransf=b.clasificacion==='transferencia'; return `<tr class="table-danger"><td class="text-nowrap">${esc(b.fecha||'')}</td><td><b>${esc(b.concepto||b.ref||'')}</b><div class="small text-danger">${esc(b.motivo||'')}</div></td><td class="text-end">${b.monto!=null?moneda(b.monto):''}</td><td><select id="contaClfSel${i}" class="form-select form-select-sm">${esTransf?bancOpts:cuentasOpts}</select><label class="form-check small mt-1"><input type="checkbox" class="form-check-input" id="contaClfRegla${i}" ${esTransf?'disabled':''}> Recordar como regla</label></td><td><button type="button" class="btn btn-sm btn-danger" onclick="contaClasificar('${esc(b.clave)}',${i})">Clasificar y contabilizar</button></td></tr>`; }).join('')||'<tr><td colspan="5" class="text-center text-muted">Bandeja vacía: todo está contabilizado.</td></tr>'; }
@@ -4501,6 +4582,7 @@ function ctaCierreAnual(conta,anio){
             _safe(renderResumenCuentas,'resumen');
             _safe(renderAlertaFinanciera,'alerta');
             _safe(renderAlertaTrimestral,'alerta-trimestral');
+            _safe(renderAlertaSalarioNomina,'alerta-salario');
             ['chequera', 'tarjeta_cup', 'tarjeta_usd'].forEach(c => _safe(() => renderTablaCuenta(c),'cuenta-'+c));
             _safe(renderHistorial,'historial');
             _safe(renderSelTrab,'sel-trab');
@@ -4712,7 +4794,7 @@ function ctaCierreAnual(conta,anio){
             let ingresos = 0, gastos = 0;
             const trib = { deducible: 0, anticipo_iip: 0, pago_cuenta_utilidades: 0, liquidacion: 0, otros: 0, detalle: [] };
             movs.forEach(m => {
-                if (m.clasificacion !== 'operacional') return;
+                if (!clasifEnTotales(m.clasificacion || 'operacional')) return;
                 const cup = getMontoMovimientoCUP(m);
                 if (m.tipo === 'ingreso') ingresos += cup;
                 else if (m.tipo === 'gasto') gastos += cup;
@@ -5276,6 +5358,10 @@ function ctaCierreAnual(conta,anio){
            estado global del negocio abierto. Clona la lógica de Fiscal/Nómina/DJ del
            negocio actual, parametrizada por doc, para no duplicar criterios. */
         function gNormTxt(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
+        /* Ronda 5: mismo criterio que clasifEnTotales de la app — suman
+           'operacional' y 'salario'; no suman transferencia/extracción/
+           contingencia/utilidades. */
+        function gClasifEnTotales(clasificacion){return clasificacion==='operacional'||clasificacion==='salario';}
         function gHoyISOFecha(){const d=new Date();const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
         function gPeriodoKey(periodo){const p=periodoParts(periodo);return p?p.y*12+p.mi:-1;}
         function gPeriodoSiguiente(periodo){const p=periodoParts(periodo);if(!p)return '';let mi=p.mi+1,y=p.y;if(mi>11){mi=0;y++;}return MESES_ES[mi]+' '+y;}
@@ -5321,7 +5407,7 @@ function ctaCierreAnual(conta,anio){
             movs.forEach(m=>{ if(!m) return; const cup=gMontoMovCUP(m,tasa); const c=(m.cuenta in saldos)?m.cuenta:'chequera';
                 const dv=(m.cuenta==='tarjeta_usd')?(Number(m.monto)||0):cup;
                 if(m.tipo==='ingreso'){ saldos[c]+=cup; divisa[c]+=dv; } else if(m.tipo==='gasto'||m.tipo==='onat'){ saldos[c]-=cup; divisa[c]-=dv; }
-                if(m.clasificacion==='operacional'){ if(m.tipo==='ingreso') ingresos+=cup; else if(m.tipo==='gasto') gastos+=cup; else if(m.tipo==='onat') onat+=cup; }
+                if(gClasifEnTotales(m.clasificacion||'operacional')){ if(m.tipo==='ingreso') ingresos+=cup; else if(m.tipo==='gasto') gastos+=cup; else if(m.tipo==='onat') onat+=cup; }
             });
             const r2=x=>+x.toFixed(2);
             return {ingresos:r2(ingresos),gastos:r2(gastos),onat:r2(onat),utilidad:r2(ingresos-gastos-onat),saldos:{chequera:r2(saldos.chequera),tarjeta_cup:r2(saldos.tarjeta_cup),tarjeta_usd:r2(saldos.tarjeta_usd)},saldoTotal:r2(saldos.chequera+saldos.tarjeta_cup+saldos.tarjeta_usd),tasa,
@@ -5538,7 +5624,7 @@ function ctaCierreAnual(conta,anio){
             const tasa=gDocTasa(doc);
             let ingresos=0,gastos=0;
             const trib={deducible:0,anticipo_iip:0,pago_cuenta_utilidades:0,liquidacion:0,otros:0,detalle:[]};
-            movs.forEach(m=>{ if(m.clasificacion!=='operacional') return; const cup=gMontoMovCUP(m,tasa);
+            movs.forEach(m=>{ if(!gClasifEnTotales(m.clasificacion||'operacional')) return; const cup=gMontoMovCUP(m,tasa);
                 if(m.tipo==='ingreso') ingresos+=cup;
                 else if(m.tipo==='gasto') gastos+=cup;
                 else if(m.tipo==='onat'){ const c=djCategoriaOnat(m); trib[c.cat]=(trib[c.cat]||0)+cup; trib.detalle.push({nombre:c.nombre,cat:c.cat,monto:cup,fecha:m.fecha,via:c.via}); }
@@ -6594,7 +6680,7 @@ function ctaCierreAnual(conta,anio){
                 if(!vs.ok){ alert(vs.msg); return; }
             }
             if(pendingFiscalLink){d.fiscalId=pendingFiscalLink.id;d.tributoCodigo=pendingFiscalLink.codigo||d.tributoCodigo;d.fiscalPeriodo=pendingFiscalLink.periodo;}
-            if(pendingSpecialMovement){Object.assign(d,pendingSpecialMovement);d.clasificacion='extraccion';}
+            if(pendingSpecialMovement){Object.assign(d,pendingSpecialMovement);d.clasificacion=(pendingSpecialMovement.fondoOrigen==='contingencia')?'contingencia':(pendingSpecialMovement.fondoOrigen==='utilidades')?'utilidades':'extraccion';}
             if (movEditId) Object.assign(movimientos.find(x => x.id === movEditId), d);
             else movimientos.push(Object.assign({id: nextId++, tipo: movTipo}, d));
             pendingFiscalLink=null; pendingSpecialMovement=null;
