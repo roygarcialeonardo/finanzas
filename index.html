@@ -765,6 +765,33 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
           #subNavRail .subnav-item{width:auto;flex:0 0 auto;border:1px solid var(--line)}
         }
         @media print{ #subNavRail{display:none!important} }
+        /* ===== ICONOS DE AYUDA «?» Y MANUAL (pedido de Leonardo, 2026-10-24) =====
+           Círculo azul pequeño con «?» blanco, arriba a la derecha de cada
+           menú y de cada tarjeta; pulso constante para que se vea; al pasar
+           el ratón dice «Ayuda» (title) y al hacer clic abre el manual en
+           la explicación exacta de ese menú o sección. */
+        .tab-pane.ayuda-con-icono{padding-top:1.7rem}
+        .ayuda-dot{
+          position:absolute;width:23px;height:23px;border-radius:50%;z-index:30;
+          background:#0d6efd;color:#fff;border:2px solid #fff;padding:0;
+          font-size:13px;font-weight:800;line-height:1;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;
+          box-shadow:0 2px 8px rgba(13,110,253,.45);
+          animation:ayudaPulso 2.2s ease-out infinite;
+        }
+        .ayuda-dot:hover{background:#0b5ed7}
+        .ayuda-dot-pane{top:.3rem;right:.3rem}
+        .ayuda-dot-sec{top:-9px;right:-5px}
+        @keyframes ayudaPulso{
+          0%{box-shadow:0 0 0 0 rgba(13,110,253,.45)}
+          70%{box-shadow:0 0 0 9px rgba(13,110,253,0)}
+          100%{box-shadow:0 0 0 0 rgba(13,110,253,0)}
+        }
+        @media (prefers-reduced-motion: reduce){ .ayuda-dot{animation:none} }
+        @media print{ .ayuda-dot{display:none!important} }
+        #pane-ayuda .card{scroll-margin-top:1rem}
+        #pane-ayuda .ayuda-sec{scroll-margin-top:1rem;margin-top:.85rem;padding-top:.85rem;border-top:1px dashed var(--line)}
+        #pane-ayuda .ayuda-sec-tit{font-weight:700;font-size:.92rem;margin-bottom:.25rem}
 
 </style>
 </head>
@@ -878,6 +905,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><i class="bi bi-archive me-1"></i> Historial</button></li>
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><i class="bi bi-briefcase me-1"></i> Gestor</button></li>
         <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><i class="bi bi-gear-fill me-1"></i> Configuración</button></li>
+        <li class="nav-item"><button class="nav-link ayuda" id="tab-ayuda" data-bs-toggle="tab" data-bs-target="#pane-ayuda"><i class="bi bi-question-circle me-1"></i> Ayuda</button></li>
     </ul>
 
     <!-- CONTENIDO -->
@@ -1634,6 +1662,518 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             <span class="badge bg-danger ms-2">🚫 Bloqueado</span>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AYUDA · MANUAL DE USUARIO -->
+        <div class="tab-pane fade" id="pane-ayuda">
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-bienvenida">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-book me-2"></i>Manual de usuario</h6>
+                <p class="small mb-2">Este es el manual completo de <b>Finanzas</b>: explica para qué sirve cada menú, cada sección y cada botón, según lo que hacen de verdad en la aplicación.</p>
+                <p class="small mb-2"><b>Cómo usarlo:</b> con el submenú «En esta sección» (a la derecha) saltas directo a la tarjeta de cada menú. Y en toda la aplicación verás un botón azul redondo con un <b>«?»</b> arriba a la derecha de cada menú y de cada tarjeta: al pulsarlo vienes aquí, exactamente a la explicación de lo que estabas viendo.</p>
+                <p class="small mb-0 text-secondary">El flujo normal de trabajo parte de subir los estados de cuenta. Lo que no quede claro se muestra en rojo en Contabilidad y <b>no</b> se contabiliza hasta que lo clasifiques.</p>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-resumen">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-speedometer2 me-2"></i>Resumen</h6>
+                <p class="small mb-2">La pantalla de inicio del negocio: de un vistazo, cómo está el mes en curso.</p>
+                <ul class="small mb-0">
+                    <li><b>Selector de mes/año + ✓</b>: cambia el mes contable en pantalla a otro mes abierto o del historial; si eliges el que ya estás viendo, no cambia nada.</li>
+                    <li><b>Tarjetas de saldos</b>: muestran el saldo real de cada cuenta (encadenado desde el saldo inicial, mes a mes) y los totales de ingresos, gastos e impuestos del mes.</li>
+                </ul>
+                <div class="ayuda-sec" id="ayuda-resumen-0" data-ayuda-titulo="Todos los movimientos">
+                    <div class="ayuda-sec-tit">Todos los movimientos</div>
+                    <p class="small mb-0">Tabla con todos los movimientos del mes en curso de todas las cuentas: concepto, tipo, clasificación, cuenta, monto y fecha.</p>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-chequera">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-bank me-2"></i>Chequera</h6>
+                <p class="small mb-0">La cuenta de chequera del negocio. Las tres cuentas (Chequera, Tarjeta CUP y Tarjeta USD) comparten la misma tarjeta de movimientos, filtrada por cuenta.</p>
+                <div class="ayuda-sec" id="ayuda-chequera-0" data-ayuda-titulo="Chequera">
+                    <div class="ayuda-sec-tit">Chequera</div>
+                    <p class="small mb-1">Tarjeta de movimientos de la cuenta: muestra el saldo inicial, el saldo actual y la cantidad de movimientos, y la tabla con cada operación y su saldo corrido.</p>
+                    <ul class="small mb-0">
+                        <li><b>Ingreso / Gasto / ONAT</b> (añadir movimiento): abre el formulario para registrar un ingreso, un gasto, un pago ONAT o una transferencia con fecha, concepto, monto y clasificación.</li>
+                        <li><b>PDF</b>: importa el estado de cuenta BANDEC en PDF de esta cuenta; extrae fecha, concepto, monto y referencias, deduplica por referencia y deja vista previa antes de guardar (cada operación entra en el mes de su fecha).</li>
+                        <li><b>Editar (✏️) / Eliminar (🗑️)</b> por movimiento: corrige el registro o lo borra; si cambian meses cerrados, los saldos se re-encadenan solos.</li>
+                        <li><b>Guardar cambios</b> (en el formulario): guarda el movimiento en el servidor y vuelve a mostrar la tabla con el saldo actualizado.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-tarjeta_cup">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-credit-card me-2"></i>Tarjeta CUP</h6>
+                <p class="small mb-0">La tarjeta en CUP del negocio. Funciona igual que la Chequera: la misma tarjeta de movimientos, filtrada por esta cuenta.</p>
+                <div class="ayuda-sec" id="ayuda-tarjeta_cup-0" data-ayuda-titulo="Tarjeta CUP">
+                    <div class="ayuda-sec-tit">Tarjeta CUP</div>
+                    <p class="small mb-1">Tarjeta de movimientos de la cuenta: saldo inicial, saldo actual, cantidad de movimientos y la tabla de operaciones con su saldo corrido.</p>
+                    <ul class="small mb-0">
+                        <li><b>Ingreso / Gasto / ONAT</b>: abre el formulario para registrar un ingreso, un gasto, un pago ONAT o una transferencia con fecha, concepto, monto y clasificación.</li>
+                        <li><b>PDF</b>: importa el estado de cuenta BANDEC en PDF de esta cuenta, con deduplicación por referencia y vista previa antes de guardar.</li>
+                        <li><b>Editar (✏️) / Eliminar (🗑️)</b> por movimiento: corrige o borra el registro; si cambian meses cerrados, los saldos se re-encadenan solos.</li>
+                        <li><b>Guardar cambios</b>: guarda el movimiento y actualiza la tabla y el saldo.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-tarjeta_usd">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-currency-dollar me-2"></i>Tarjeta USD</h6>
+                <p class="small mb-0">La tarjeta en USD del negocio. Funciona igual que las demás cuentas; los importes se muestran en USD y se convierten a CUP con la tasa guardada.</p>
+                <div class="ayuda-sec" id="ayuda-tarjeta_usd-0" data-ayuda-titulo="Tarjeta USD">
+                    <div class="ayuda-sec-tit">Tarjeta USD</div>
+                    <p class="small mb-1">Tarjeta de movimientos de la cuenta en USD: saldo inicial, saldo actual, cantidad de movimientos y la tabla de operaciones con su saldo corrido.</p>
+                    <ul class="small mb-0">
+                        <li><b>Ingreso / Gasto / ONAT</b>: abre el formulario para registrar el movimiento con fecha, concepto, monto y clasificación.</li>
+                        <li><b>PDF</b>: importa el estado de cuenta BANDEC en PDF de esta cuenta, con deduplicación por referencia y vista previa antes de guardar.</li>
+                        <li><b>Editar (✏️) / Eliminar (🗑️)</b> por movimiento: corrige o borra el registro; si cambian meses cerrados, los saldos se re-encadenan solos.</li>
+                        <li><b>Guardar cambios</b>: guarda el movimiento y actualiza la tabla y el saldo.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-nomina">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-people me-2"></i>Nómina</h6>
+                <p class="small mb-0">El módulo de trabajadores y salarios: fichas, vigencia del mes, cálculo de la nómina con sus complementos, documentos y submayores.</p>
+                <div class="ayuda-sec" id="ayuda-nomina-0" data-ayuda-titulo="Trabajadores del mes">
+                    <div class="ayuda-sec-tit">Trabajadores del mes</div>
+                    <p class="small mb-1">Marca quiénes están vigentes cada mes; la lista viaja al mes siguiente. Desde aquí se abren las fichas de los trabajadores.</p>
+                    <ul class="small mb-0">
+                        <li><b>Ficha del trabajador</b> (alta y edición): nombre, CI, sexo, tarjeta CUP, cuenta, municipio/provincia/dirección y cargo (por el catálogo de Puestos de trabajo o libre).</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-1" data-ayuda-titulo="Nómina del mes">
+                    <div class="ayuda-sec-tit">Nómina del mes</div>
+                    <p class="small mb-1">La nómina calculada del mes con los trabajadores vigentes.</p>
+                    <ul class="small mb-0">
+                        <li><b>Guardar nómina</b>: calcula y guarda la nómina del mes con los complementos marcados por trabajador, y alimenta los documentos y la Declaración Jurada.</li>
+                        <li><b>Complementos aplicables</b> (por trabajador): interruptores individuales —sin ninguno marcado, la nómina queda igual—: salario proporcional, vacaciones promedio de 12 meses, certificado por enfermedad 60/80/90 %, licencia de maternidad/paternidad 100 %, horas extras ×2, feriados trabajados, plus por antigüedad, pago por resultados, interrupción laboral 60 %, licencia no retribuida, finiquito, retenciones (judiciales, créditos, responsabilidad material), provisión de vacaciones 9.09 % (informativa), aviso de salario mínimo 2100 CUP y acumulado anual para la DJ.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-2" data-ayuda-titulo="Documentos de nómina">
+                    <div class="ayuda-sec-tit">Documentos de nómina</div>
+                    <p class="small mb-0">Genera los documentos de la nómina con los datos reales en la caja de documentos, listos para imprimir: la «Nómina de pagos completa» y los demás documentos del módulo.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-3" data-ayuda-titulo="Pre-nómina · Tarjeta de tiempo">
+                    <div class="ayuda-sec-tit">Pre-nómina · Tarjeta de tiempo</div>
+                    <ul class="small mb-0">
+                        <li><b>Generar pre-nómina</b>: crea la pre-nómina del mes en borrador desde los días trabajados.</li>
+                        <li><b>Aprobar</b>: al aprobarla, los días alimentan la nómina del mes.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-4" data-ayuda-titulo="Submayor de salarios por cobrar · Adelantos a trabajadores (cuenta 139-000)">
+                    <div class="ayuda-sec-tit">Submayor de salarios por cobrar · Adelantos</div>
+                    <p class="small mb-1">Submayor de la cuenta 139-000 con lo que cada trabajador debe por adelantos.</p>
+                    <ul class="small mb-0">
+                        <li><b>Adelanto</b>: registra un adelanto a un trabajador con su asiento automático (Debe 139-000 contra banco) y se descuenta en la nómina.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-5" data-ayuda-titulo="Submayor de vacaciones">
+                    <div class="ayuda-sec-tit">Submayor de vacaciones</div>
+                    <p class="small mb-0">Muestra el acumulado de vacaciones por trabajador.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-6" data-ayuda-titulo="Costo laboral por centro de costo">
+                    <div class="ayuda-sec-tit">Costo laboral por centro de costo</div>
+                    <p class="small mb-0">Reparte el costo de la nómina entre los centros de costo del negocio.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-7" data-ayuda-titulo="Parámetros fiscales de la nómina">
+                    <div class="ayuda-sec-tit">Parámetros fiscales de la nómina</div>
+                    <p class="small mb-0">Guarda los % y valores con que la nómina calcula los aportes.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-8" data-ayuda-titulo="Puestos de trabajo">
+                    <div class="ayuda-sec-tit">Puestos de trabajo</div>
+                    <p class="small mb-0">Catálogo de cargos reutilizable en las fichas de los trabajadores.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-9" data-ayuda-titulo="Aportes derivados de la nómina">
+                    <div class="ayuda-sec-tit">Aportes derivados de la nómina</div>
+                    <p class="small mb-0">Muestra, ya calculados, los aportes que se derivan de la nómina del mes según los parámetros fiscales.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-10" data-ayuda-titulo="Qué incluye">
+                    <div class="ayuda-sec-tit">Qué incluye</div>
+                    <p class="small mb-0">Tarjeta informativa: detalla qué incluye el cálculo de aportes —del empleador, el Impuesto por la Utilización de la Fuerza de Trabajo (5 %) y la Contribución a la Seguridad Social (14 %); del trabajador, la Contribución Especial a la Seguridad Social y el Impuesto sobre Ingresos Personales retenido— y qué no incluye: el aporte propio del titular TCP ni la Seguridad Social/dividendos de socios de una MIPYME.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-nomina-11" data-ayuda-titulo="Utilidades de socios">
+                    <div class="ayuda-sec-tit">Utilidades de socios</div>
+                    <p class="small mb-1">Lista por trimestre la utilidad disponible para los socios. No lleva descuentos de nómina.</p>
+                    <ul class="small mb-0">
+                        <li><b>Pagar</b>: abre el pago de utilidades pre-rellenado cuando hay saldo.</li>
+                        <li><b>Ver trimestres</b>: lleva a la pestaña Trimestres.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-utilidades">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-bar-chart-line me-2"></i>Trimestres</h6>
+                <p class="small mb-2">Las utilidades del negocio por trimestre: el impuesto del 35 %, los pagos a socios, el fondo de contingencia y el cierre del año.</p>
+                <ul class="small mb-0">
+                    <li><b>Registrar 35% ONAT</b>: abre el pago del impuesto sobre utilidades (código 0400722) con el importe pendiente y el período del trimestre ya rellenados; solo actúa si hay 35 % pendiente.</li>
+                    <li><b>Pagar socios</b>: abre el registro de pago de utilidades a socios por el saldo disponible acumulado (sin descuentos de nómina); solo actúa si hay saldo.</li>
+                </ul>
+                <div class="ayuda-sec" id="ayuda-utilidades-0" data-ayuda-titulo="Fondo de contingencia">
+                    <div class="ayuda-sec-tit">Fondo de contingencia</div>
+                    <p class="small mb-1">Muestra lo generado y lo extraído del fondo de contingencia.</p>
+                    <ul class="small mb-0">
+                        <li><b>Extraer</b>: abre el movimiento correspondiente a la extracción.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-utilidades-1" data-ayuda-titulo="Control del 35%">
+                    <div class="ayuda-sec-tit">Control del 35%</div>
+                    <p class="small mb-0">Comparado del impuesto sobre utilidades en el año: calculado vs. pagado vs. pendiente.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-utilidades-2" data-ayuda-titulo="Acumulados del año">
+                    <div class="ayuda-sec-tit">Acumulados del año</div>
+                    <p class="small mb-0">Tabla anual de utilidades por trimestre.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-utilidades-3" data-ayuda-titulo="Resumen de pagos ONAT">
+                    <div class="ayuda-sec-tit">Resumen de pagos ONAT</div>
+                    <p class="small mb-0">Matriz con los pagos ONAT registrados en el año.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-utilidades-4" data-ayuda-titulo="Cierre anual">
+                    <div class="ayuda-sec-tit">Cierre anual</div>
+                    <p class="small mb-0">Consolida el año para la Declaración Jurada y deja los saldos de apertura del año siguiente.</p>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-fiscal">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-file-earmark-check me-2"></i>Fiscal</h6>
+                <p class="small mb-0">El Vector Fiscal del negocio y sus obligaciones con la ONAT.</p>
+                <div class="ayuda-sec" id="ayuda-fiscal-0" data-ayuda-titulo="Vector Fiscal y obligaciones ONAT">
+                    <div class="ayuda-sec-tit">Vector Fiscal y obligaciones ONAT</div>
+                    <ul class="small mb-0">
+                        <li><b>Importar RC-04A (PDF)</b>: lee el Vector Fiscal oficial y crea o actualiza las obligaciones con su código, importe y período.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-fiscal-1" data-ayuda-titulo="Actividades registradas">
+                    <div class="ayuda-sec-tit">Actividades registradas</div>
+                    <p class="small mb-0">Las actividades económicas registradas del negocio según el Vector.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-fiscal-2" data-ayuda-titulo="Tributos del Vector">
+                    <div class="ayuda-sec-tit">Tributos del Vector</div>
+                    <p class="small mb-0">La lista de tributos que trae el Vector Fiscal, con su código e importe cuando lo trae.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-fiscal-3" data-ayuda-titulo="Obligaciones tributarias">
+                    <div class="ayuda-sec-tit">Obligaciones tributarias</div>
+                    <p class="small mb-1">Cada obligación con su estado: pagado, parcial, pendiente o con importe manual.</p>
+                    <ul class="small mb-0">
+                        <li><b>Fijar importe (✏️)</b>: guarda un importe manual cuando el Vector no lo trae; queda persistido en la obligación.</li>
+                        <li><b>Pagar</b>: abre el movimiento ONAT vinculado a esa obligación, para que el pago descuente de su pendiente.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-fiscal-4" data-ayuda-titulo="Cálculos del período actual">
+                    <div class="ayuda-sec-tit">Cálculos del período actual</div>
+                    <p class="small mb-0">Muestra lo que corresponde pagar en el período según los movimientos y el Vector.</p>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-dj">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-file-earmark-text me-2"></i>Declaración Jurada</h6>
+                <p class="small mb-0">La Declaración Jurada automática del negocio, calculada desde los datos reales del año.</p>
+                <div class="ayuda-sec" id="ayuda-dj-0" data-ayuda-titulo="Declaración Jurada automática">
+                    <div class="ayuda-sec-tit">Declaración Jurada automática</div>
+                    <p class="small mb-0">Presentación del módulo: según el régimen del negocio (TCP o MIPYME) se calculan la DJ-08 o la DJ-01 y la DJ de socios por dividendos.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-1" data-ayuda-titulo="Ficha fiscal del negocio">
+                    <div class="ayuda-sec-tit">Ficha fiscal del negocio</div>
+                    <p class="small mb-1">Régimen, NIT, nombre, municipio, actividad y fecha de inscripción del negocio.</p>
+                    <ul class="small mb-0">
+                        <li><b>Guardar ficha</b>: guarda estos datos, que se usan en todas las declaraciones.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-2" data-ayuda-titulo="Parámetros del año fiscal">
+                    <div class="ayuda-sec-tit">Parámetros del año fiscal</div>
+                    <p class="small mb-1">Exento, escalas, bonificaciones y topes del año; son editables por año y alimentan el cálculo.</p>
+                    <ul class="small mb-0">
+                        <li><b>Guardar</b>: guarda los parámetros del año fiscal.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-3" data-ayuda-titulo="DJ-08 · Impuesto sobre Ingresos Personales">
+                    <div class="ayuda-sec-tit">DJ-08 · Impuesto sobre Ingresos Personales</div>
+                    <p class="small mb-0">Para TCP: calcula el impuesto sobre ingresos personales con la regla del 80 % de gastos justificados, a partir de los movimientos del año.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-4" data-ayuda-titulo="Sección I · Trabajadores contratados (desde la nómina)">
+                    <div class="ayuda-sec-tit">Sección I · Trabajadores contratados</div>
+                    <p class="small mb-0">Se llena sola desde la nómina: nombre, NIT, municipio y remuneración de cada trabajador contratado.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-5" data-ayuda-titulo="DJ-01 · Impuesto sobre Utilidades">
+                    <div class="ayuda-sec-tit">DJ-01 · Impuesto sobre Utilidades</div>
+                    <p class="small mb-0">Para MIPYME: calcula el impuesto sobre utilidades (35 %) con pérdidas, reservas y pagos a cuenta.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-6" data-ayuda-titulo="DJ de socios por dividendos">
+                    <div class="ayuda-sec-tit">DJ de socios por dividendos</div>
+                    <p class="small mb-1">Registra los socios con sus dividendos y la retención del 5 %; esos datos alimentan la DJ individual de cada socio.</p>
+                    <ul class="small mb-0">
+                        <li><b>Añadir socio / quitar socio</b>: agrega o elimina un socio de la lista; se guarda en los datos manuales del año.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-tasas">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-currency-exchange me-2"></i>Tasas</h6>
+                <p class="small mb-0">Las tasas de cambio del Banco Central de Cuba que usa el negocio para valorar sus operaciones en divisa.</p>
+                <div class="ayuda-sec" id="ayuda-tasas-0" data-ayuda-titulo="Tasas de cambio">
+                    <div class="ayuda-sec-tit">Tasas de cambio</div>
+                    <p class="small mb-0">Presentación del módulo: consulta la tasa del Banco Central por fecha y moneda.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-tasas-1" data-ayuda-titulo="Consultar Banco Central de Cuba">
+                    <div class="ayuda-sec-tit">Consultar Banco Central de Cuba</div>
+                    <ul class="small mb-0">
+                        <li><b>Consultar tasa</b>: obtiene la tasa oficial del BCC por fecha, moneda y segmento, y la guarda en el historial de tasas del negocio.</li>
+                        <li><b>Ingreso USD / Gasto USD</b>: con una tasa consultada, abre el formulario de movimiento con esa tasa ya cargada.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-tasas-2" data-ayuda-titulo="Banco Central de Cuba">
+                    <div class="ayuda-sec-tit">Banco Central de Cuba</div>
+                    <ul class="small mb-0">
+                        <li><b>Ver tasas en BCC</b>: abre la página oficial de tasas del Banco Central en una pestaña nueva.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-tasas-3" data-ayuda-titulo="Tasas utilizadas y guardadas">
+                    <div class="ayuda-sec-tit">Tasas utilizadas y guardadas</div>
+                    <p class="small mb-0">El historial de tasas aplicadas: fecha, moneda, segmento, tasa y fuente.</p>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-aft">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-pc-display-horizontal me-2"></i>Activos</h6>
+                <p class="small mb-0">Los activos fijos tangibles (AFT) del negocio: inventario, responsables, vida útil y depreciación.</p>
+                <div class="ayuda-sec" id="ayuda-aft-0" data-ayuda-titulo="Activos Fijos Tangibles">
+                    <div class="ayuda-sec-tit">Activos Fijos Tangibles</div>
+                    <p class="small mb-1">Tarjeta principal del módulo: indicadores de costo histórico, depreciación acumulada, valor en libros y depreciación del mes, la política de umbral y la tabla de activos.</p>
+                    <ul class="small mb-0">
+                        <li><b>Nuevo activo / Editar / Eliminar</b>: gestiona los activos fijos (código, costo, tasa, fecha de servicio, responsable y estado).</li>
+                        <li><b>Guardar política</b>: guarda el umbral interno para considerar un bien como AFT.</li>
+                        <li><b>Contabilizar depreciación</b>: muestra costo, depreciación del mes, acumulada y valor en libros por activo y en total.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-conta">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-journal-bookmark me-2"></i>Contabilidad</h6>
+                <p class="small mb-0">La contabilidad por partida doble del negocio. Todo nace de los movimientos ya clasificados: lo que está sin clasificar se muestra en rojo y <b>no</b> se contabiliza.</p>
+                <div class="ayuda-sec" id="ayuda-conta-0" data-ayuda-titulo="Contabilidad · Partida doble">
+                    <div class="ayuda-sec-tit">Contabilidad · Partida doble</div>
+                    <p class="small mb-0">Presentación del módulo y resumen del estado de la contabilidad del negocio.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-1" data-ayuda-titulo="Por clasificar / Pendientes de contabilizar (en rojo)">
+                    <div class="ayuda-sec-tit">Por clasificar / Pendientes de contabilizar</div>
+                    <p class="small mb-1">Movimientos importados aún sin cuenta contable, marcados en rojo.</p>
+                    <ul class="small mb-0">
+                        <li><b>Clasificar</b>: asigna la cuenta al movimiento y lo convierte en asiento.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-2" data-ayuda-titulo="Reglas aprendidas del negocio">
+                    <div class="ayuda-sec-tit">Reglas aprendidas del negocio</div>
+                    <p class="small mb-0">Reglas de clasificación automática que la app propone según tu historial de clasificaciones.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-3" data-ayuda-titulo="Estado de Situación Financiera">
+                    <div class="ayuda-sec-tit">Estado de Situación Financiera</div>
+                    <p class="small mb-0">El balance general del negocio, generado desde los asientos.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-4" data-ayuda-titulo="Estado de Resultados">
+                    <div class="ayuda-sec-tit">Estado de Resultados</div>
+                    <p class="small mb-0">Ingresos y gastos del período, generado desde los asientos.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-5" data-ayuda-titulo="Balance de Comprobación">
+                    <div class="ayuda-sec-tit">Balance de Comprobación</div>
+                    <p class="small mb-0">Balance de comprobación de 6 columnas, generado desde los asientos.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-6" data-ayuda-titulo="Libro Diario General">
+                    <div class="ayuda-sec-tit">Libro Diario General</div>
+                    <p class="small mb-0">Todos los asientos en orden cronológico.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-7" data-ayuda-titulo="Libro Mayor">
+                    <div class="ayuda-sec-tit">Libro Mayor</div>
+                    <p class="small mb-0">Los movimientos agrupados por cuenta contable.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-8" data-ayuda-titulo="Submayores · Cuentas por Cobrar y por Pagar (con antigüedad)">
+                    <div class="ayuda-sec-tit">Submayores · Cuentas por Cobrar y por Pagar</div>
+                    <p class="small mb-1">Documentos por cobrar y por pagar con su antigüedad.</p>
+                    <ul class="small mb-0">
+                        <li><b>Generar contabilidad</b>: crea los asientos de los documentos.</li>
+                        <li><b>Pagar / Cobrar</b>: crea el movimiento vinculado al documento.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-9" data-ayuda-titulo="Conciliación bancaria">
+                    <div class="ayuda-sec-tit">Conciliación bancaria</div>
+                    <p class="small mb-0">Concilia automáticamente los movimientos contra el estado de cuenta.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-10" data-ayuda-titulo="Programador de pagos · Cuentas por Pagar por vencimiento">
+                    <div class="ayuda-sec-tit">Programador de pagos</div>
+                    <p class="small mb-0">Las cuentas por pagar ordenadas por vencimiento, para planificar los pagos.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-11" data-ayuda-titulo="Notas de crédito y débito (CxC / CxP)">
+                    <div class="ayuda-sec-tit">Notas de crédito y débito</div>
+                    <p class="small mb-0">Emiten la nota y su asiento sobre el documento de cuentas por cobrar o por pagar.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-12" data-ayuda-titulo="Arqueo de caja y cuentas de efectivo">
+                    <div class="ayuda-sec-tit">Arqueo de caja y cuentas de efectivo</div>
+                    <p class="small mb-0">Compara el conteo físico con el saldo de la cuenta de efectivo; si hay diferencia, la registra y genera el asiento de ajuste (faltante contra 720-000).</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-13" data-ayuda-titulo="Inventario integrado (costo promedio ponderado)">
+                    <div class="ayuda-sec-tit">Inventario integrado</div>
+                    <p class="small mb-1">Productos con costo promedio ponderado; las existencias y el costo promedio están siempre visibles.</p>
+                    <ul class="small mb-0">
+                        <li><b>Entrada</b>: suma existencia con costo y genera su asiento.</li>
+                        <li><b>Salida</b>: rebaja la existencia.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-14" data-ayuda-titulo="Asientos (comprobantes)">
+                    <div class="ayuda-sec-tit">Asientos (comprobantes)</div>
+                    <p class="small mb-1">Listado de comprobantes numerados con su estado.</p>
+                    <ul class="small mb-0">
+                        <li><b>Ver / Anular / Imprimir</b>: anular crea el contraasiento del comprobante.</li>
+                        <li><b>Editor de comprobantes</b> (solo ajustes): crea asientos manuales de ajuste línea a línea y los asienta validando la partida doble.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-15" data-ayuda-titulo="Plan de cuentas (semilla con el clasificador cubano habitual; los códigos marcados «por verificar» deben contrastarse con el clasificador oficial vigente)">
+                    <div class="ayuda-sec-tit">Plan de cuentas</div>
+                    <p class="small mb-0">El clasificador de cuentas del negocio. Parte de una semilla con el clasificador cubano habitual; los códigos marcados «por verificar» deben contrastarse con el clasificador oficial vigente.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-16" data-ayuda-titulo="Plantillas de contrapartida">
+                    <div class="ayuda-sec-tit">Plantillas de contrapartida</div>
+                    <p class="small mb-0">Catálogo de contrapartes (proveedores y clientes) que los documentos y los patrones usan como auxiliar.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-17" data-ayuda-titulo="Centros de costo">
+                    <div class="ayuda-sec-tit">Centros de costo</div>
+                    <p class="small mb-0">Alta de centros de costo para repartir gastos e ingresos.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-18" data-ayuda-titulo="Cierre contable anual y Balance de Apertura">
+                    <div class="ayuda-sec-tit">Cierre contable anual y Balance de Apertura</div>
+                    <p class="small mb-0">Cierra el ejercicio y genera el asiento de apertura del año siguiente.</p>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-gestion">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-grid-1x2 me-2"></i>Gestión+</h6>
+                <p class="small mb-0">La gestión ampliada: blindaje de datos, cumplimiento, herramientas tipo Versat y profundidad contable. Todo nace de los estados de cuenta, los submayores y el mayor, sin pasos manuales nuevos en el flujo normal.</p>
+                <div class="ayuda-sec" id="ayuda-gestion-0" data-ayuda-titulo="Gestión ampliada">
+                    <div class="ayuda-sec-tit">Gestión ampliada</div>
+                    <p class="small mb-0">Presentación del módulo: blindaje de datos, cumplimiento (Res. 86/2026, ONAT), gestión tipo Versat y profundidad.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestion-1" data-ayuda-titulo="Blindaje de datos (ronda 10)">
+                    <div class="ayuda-sec-tit">Blindaje de datos</div>
+                    <ul class="small mb-0">
+                        <li><b>Descargar copia local (JSON)</b>: baja todos los datos del negocio en un archivo.</li>
+                        <li><b>Restaurar copia local</b>: vuelve a subir los datos desde ese archivo.</li>
+                        <li><b>Restaurar última versión buena</b>: pide al servidor la última copia sana guardada y la restablece.</li>
+                        <li><b>Reabrir año cerrado (con rastro)</b>: contraasienta los comprobantes del cierre y deja constancia de quién, cuándo y por qué. Solo administrador.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestion-2" data-ayuda-titulo="Cumplimiento (ronda 11)">
+                    <div class="ayuda-sec-tit">Cumplimiento</div>
+                    <p class="small mb-1">Controla el registro de operaciones de hasta 500 000, la bancarización de operaciones en efectivo de más de 5 000 y el calendario de deberes.</p>
+                    <ul class="small mb-0">
+                        <li><b>Flujo de efectivo + Cambios en el patrimonio</b>: genera ambos estados en pantalla para el año elegido.</li>
+                        <li><b>Exportar (CSV/Excel)</b>: exporta esos estados, también imprimibles.</li>
+                        <li><b>Dotar reserva de contingencias</b>: calcula el techo/piso según la utilidad y crea el asiento Dr 510-000 / Cr 505-000, dejando el registro en gestión.</li>
+                        <li><b>DJ de Utilidades PJ (salida para firma)</b>: genera el documento de declaración de utilidades de la persona jurídica, listo para imprimir y firmar (no es el modelo oficial).</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestion-3" data-ayuda-titulo="Gestor · Resolución 86/2026 (confidencial, solo tú)">
+                    <div class="ayuda-sec-tit">Gestor · Resolución 86/2026</div>
+                    <p class="small mb-1">Debida diligencia del tenedor de libros con sus clientes. Archivo confidencial: 5 años.</p>
+                    <ul class="small mb-0">
+                        <li><b>Ficha KYC por cliente</b>: identificación y beneficiario final, antes de prestar el servicio.</li>
+                        <li><b>Registrar ROS</b>: agrega el reporte de operación sospechosa al registro confidencial del tenedor (no se informa al cliente).</li>
+                        <li><b>Abstención</b>: registra los clientes con los que no se trabaja.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestion-4" data-ayuda-titulo="Gestión (ronda 12)">
+                    <div class="ayuda-sec-tit">Gestión</div>
+                    <p class="small mb-1">Indicadores, alertas y flujo de caja proyectado, más las herramientas de operación:</p>
+                    <ul class="small mb-0">
+                        <li><b>Facturación integrada</b> — <b>Crear factura</b>: crea la factura en borrador con su consecutivo (F-1, F-2…). <b>Confirmar</b>: genera la cuenta por cobrar, el asiento y la salida de inventario con el costo a 695-000. <b>Anular</b>: la conserva como anulada y crea el contraasiento.</li>
+                        <li><b>Depreciación mensual de AFT (con comprobante)</b>: calcula la depreciación del mes de los activos y crea su comprobante.</li>
+                        <li><b>Patrones recurrentes</b> — <b>Crear patrón</b>: guarda una plantilla de asiento periódico (pide la contraparte si una cuenta exige auxiliar). <b>Aplicar</b>: crea el comprobante del período y no duplica si ya se aplicó.</li>
+                        <li><b>Presupuesto</b>: añade líneas de presupuesto y compara contra lo real.</li>
+                        <li><b>Instrumentos (talonario)</b>: crea talonarios de instrumentos de pago y registra su uso.</li>
+                        <li><b>Contratos</b>: registra contratos con su contraparte y fechas.</li>
+                        <li><b>Útiles y herramientas</b>: entrega un útil a un custodio y queda registrado.</li>
+                        <li><b>Ficha de costos 148/2023</b>: calcula la ficha de costo por producto desde materiales, mano de obra directa, otros directos e indirectos, con su margen.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestion-5" data-ayuda-titulo="Profundidad (ronda 13)">
+                    <div class="ayuda-sec-tit">Profundidad</div>
+                    <ul class="small mb-0">
+                        <li><b>Centros de costo y traspaso</b>: mueve importes entre centros de costo con su asiento.</li>
+                        <li><b>Órdenes de producción</b> — <b>Nueva orden</b>: consume el insumo del inventario y deja el costo en proceso (186-000). <b>Terminar</b>: pasa el costo a producción terminada (187-000). Requiere productos creados en Contabilidad.</li>
+                        <li><b>Créditos</b> — <b>Registrar crédito</b>: guarda el préstamo con su tabla de amortización calculada. <b>Devengar intereses</b>: crea el asiento del mes (Dr 710-000 / Cr 315-000) y avisa si la tabla no cubre el período.</li>
+                        <li><b>Saldos en divisa / Revalorización amplia</b>: registra saldos en divisa y genera la revalorización correspondiente.</li>
+                        <li><b>IPV del turno y cierre de cajero</b>: registra el informe de producción/ventas por turno.</li>
+                        <li><b>Expediente laboral</b>: la ficha laboral de los trabajadores.</li>
+                        <li><b>Consignación</b> — <b>Recibir mercancía</b>: registra la mercancía de terceros. <b>Registrar venta</b>: anota su venta con precio.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-gestor">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-briefcase me-2"></i>Gestor</h6>
+                <p class="small mb-0">Solo administrador. El panel del tenedor de libros: todos tus clientes (TCP y MIPYME) en una sola vista. Los importes salen de los datos reales de cada negocio.</p>
+                <div class="ayuda-sec" id="ayuda-gestor-0" data-ayuda-titulo="Panel del Gestor">
+                    <div class="ayuda-sec-tit">Panel del Gestor</div>
+                    <p class="small mb-1">La lista de clientes con su semáforo de estado: al día o atrasado, según vencimientos y actividad.</p>
+                    <ul class="small mb-0">
+                        <li><b>Alta rápida de cliente</b>: crea el negocio con plantilla por actividad y su usuario; luego el RC-04A real sustituye la plantilla desde la pestaña Fiscal del negocio.</li>
+                        <li><b>Actualizar datos</b>: vuelve a cargar los datos de todos los negocios.</li>
+                        <li><b>Ver detalle</b>: abre la ficha del cliente con su informe mensual: saldo inicial → final por cuenta, ingresos, gastos e impuestos del período.</li>
+                        <li><b>WhatsApp</b> (en el detalle): deja el informe mensual listo para enviar al cliente.</li>
+                        <li><b>Respaldo del negocio</b> (en el detalle): descarga un ZIP con los datos completos, movimientos en CSV, resumen mensual, Vector Fiscal, la DJ en HTML imprimible y la contabilidad; sirve también como entrega si el cliente deja el servicio.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestor-1" data-ayuda-titulo="Calendario de vencimientos ONAT">
+                    <div class="ayuda-sec-tit">Calendario de vencimientos ONAT</div>
+                    <p class="small mb-0">Los próximos vencimientos de todos los clientes en un solo lugar; se puede filtrar por mes, negocio y estado.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestor-2" data-ayuda-titulo="Cobro de mis servicios como gestor">
+                    <div class="ayuda-sec-tit">Cobro de mis servicios como gestor</div>
+                    <p class="small mb-1">Tu control interno como gestor: no forma parte de los libros de ningún cliente.</p>
+                    <ul class="small mb-0">
+                        <li><b>Registrar pago</b>: anota lo que el cliente te pagó como gestor y lo guarda.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-cierre">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-archive me-2"></i>Historial</h6>
+                <p class="small mb-0">El cierre de meses y el historial del negocio.</p>
+                <div class="ayuda-sec" id="ayuda-cierre-0" data-ayuda-titulo="Historial de Meses">
+                    <div class="ayuda-sec-tit">Historial de Meses</div>
+                    <ul class="small mb-0">
+                        <li><b>Cerrar mes</b>: pasa el mes al historial, abre el siguiente y encadena los saldos iniciales automáticamente; el cierre persiste al salir y volver a entrar.</li>
+                        <li><b>Historial de meses</b>: los meses cerrados con sus totales; se pueden consultar y reabrir según permisos.</li>
+                        <li><b>Editar saldo inicial</b>: ajusta el saldo inicial del mes.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-cierre-1" data-ayuda-titulo="Registro de pagos por comercio electrónico (QR)">
+                    <div class="ayuda-sec-tit">Registro de pagos por comercio electrónico (QR)</div>
+                    <p class="small mb-0">Listado de las operaciones por código QR del mes, con su total. Queda congelado al cerrar el mes.</p>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-admin">
+                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-gear-fill me-2"></i>Configuración</h6>
+                <p class="small mb-0">Solo administrador: ajustes generales del negocio, usuarios, negocios y bloqueo de meses. Desde el encabezado, el botón <b>Salir</b> cierra la sesión al momento (la sesión normal dura 30 días en este dispositivo).</p>
+                <div class="ayuda-sec" id="ayuda-admin-0" data-ayuda-titulo="Ajustes generales (tasas y porcentajes)">
+                    <div class="ayuda-sec-tit">Ajustes generales</div>
+                    <p class="small mb-1">Tasas y porcentajes globales del negocio (ONAT de ventas, desarrollo local, utilidades, meta y tolerancia), la tasa USD de respaldo y la tasa por mes.</p>
+                    <ul class="small mb-0">
+                        <li><b>Guardar ajustes</b>: guarda la configuración en el servidor.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-admin-1" data-ayuda-titulo="Gestión de Usuarios">
+                    <div class="ayuda-sec-tit">Gestión de Usuarios</div>
+                    <p class="small mb-0">Crear usuarios y asociarlos a un negocio, asignando su rol (administrador o editor).</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-admin-2" data-ayuda-titulo="Negocios">
+                    <div class="ayuda-sec-tit">Negocios</div>
+                    <p class="small mb-1">Alta y edición de negocios.</p>
+                    <ul class="small mb-0">
+                        <li><b>Editar negocio</b>: abre su ficha.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-admin-3" data-ayuda-titulo="Bloqueo de Meses">
+                    <div class="ayuda-sec-tit">Bloqueo de Meses</div>
+                    <p class="small mb-0">Cada botón de mes bloquea o desbloquea ese mes en el servidor para impedir cambios.</p>
                 </div>
             </div>
         </div>
@@ -7135,8 +7675,26 @@ function mjPermisos(rol,modulo){ const M={
         function mjPatronCrearUI(){ const nombre=prompt('Nombre del comprobante patrón (ej. Alquiler mensual):'); if(!nombre) return;
             const ctaD=prompt('Cuenta del Debe:','705-000'); if(!ctaD) return; const ctaH=prompt('Cuenta del Haber:','311-000'); if(!ctaH) return;
             const imp=Number(prompt('Importe:','0'))||0; if(!(imp>0)) return;
-            const c=getConta(); const g=mjGestionDe(c); g.seqPatron=(Number(g.seqPatron)||0)+1;
-            g.patrones.push({id:'PAT'+g.seqPatron,nombre:nombre,frecuencia:'mensual',activo:true,lineas:[{cuenta:ctaD,debe:imp,haber:0},{cuenta:ctaH,debe:0,haber:imp}]});
+            const c=getConta();
+            /* Si una de las cuentas exige auxiliar (contraparte), hay que
+               capturarlo al crear el patrón: sin ese dato el validador de
+               asientos lo rechaza SIEMPRE al aplicar (el patrón nacía
+               inaplicable con las propias cuentas sugeridas, p. ej. la
+               311-000). Se pide aquí, que es donde se define la línea. */
+            function auxPara(cod){
+              const cu=ctaCuenta(c,cod); if(!cu||!cu.requiereAuxiliar||ctaAuxiliarDe(cu)==='ninguno') return null;
+              if(!(c.contrapartes||[]).length){ alert('La cuenta '+cod+' requiere el auxiliar ('+ctaAuxiliarDe(cu)+'): primero crea la contraparte en Contabilidad → Contrapartes y vuelve a crear el patrón.'); return undefined; }
+              const lista=c.contrapartes.map(x=>x.id+' = '+x.nombre).join(' · ');
+              const id=prompt('La cuenta '+cod+' requiere auxiliar ('+ctaAuxiliarDe(cu)+'). Escribe el código de la contraparte: '+lista, c.contrapartes[0].id);
+              if(!id||!c.contrapartes.some(x=>x.id===String(id).trim())){ alert('Contraparte no válida: patrón no creado.'); return undefined; }
+              return String(id).trim();
+            }
+            const auxD=auxPara(ctaD); if(auxD===undefined) return;
+            const auxH=auxPara(ctaH); if(auxH===undefined) return;
+            const linD={cuenta:ctaD,debe:imp,haber:0}; if(auxD) linD.analisis=auxD;
+            const linH={cuenta:ctaH,debe:0,haber:imp}; if(auxH) linH.analisis=auxH;
+            const g=mjGestionDe(c); g.seqPatron=(Number(g.seqPatron)||0)+1;
+            g.patrones.push({id:'PAT'+g.seqPatron,nombre:nombre,frecuencia:'mensual',activo:true,lineas:[linD,linH]});
             saveConta(c); mjRenderGestion(); alert('✅ Patrón creado. Aplícalo cada período con un toque: no se duplica dentro del mismo período.'); }
         function mjPatronAplicarUI(id){ const c=getConta(); const g=mjGestionDe(c); const p=g.patrones.find(x=>x.id===id); if(!p) return;
             const per=periodoNominaActual(); const r=mjPatronAplicar(c,p,per,fechaContablePeriodo(per),getCurrentUser());
@@ -7898,11 +8456,15 @@ function mjPermisos(rol,modulo){ const M={
             const anio=new Date().getFullYear();
             const datos=gDjDatosAnio(doc,anio), P=gDjParams(doc,anio), man=gDjManual(doc,anio);
             let L=[], titulo='';
-            if(gDocTipo(doc)==='mipyme'){ titulo='DJ-01 · Impuesto sobre Utilidades'; L=djCore01(datos,P,man); }
-            else { titulo='DJ-08 · Impuesto sobre los Ingresos Personales'; L=djCore08(datos,P,man,anio); }
-            const tabla=(lineas)=>'<table>'+lineas.map(l=>`<tr${l.clase==='subtotal'?' style="font-weight:bold"':''}><td>${esc(l.etiqueta)}</td><td style="text-align:right">${l.importe==null?'—':moneda(l.importe)}</td><td>${esc(l.origen||'')}</td></tr>`).join('')+'</table>';
+            /* djCore01/djCore08/djCoreDiv devuelven {lineas:[...]} (así los
+               consume la pestaña DJ); aquí hay que desenvolver .lineas o
+               tabla() revienta y el respaldo ZIP del negocio nunca se
+               genera (bug detectado en la auditoría de botones). */
+            if(gDocTipo(doc)==='mipyme'){ titulo='DJ-01 · Impuesto sobre Utilidades'; const r01=djCore01(datos,P,man); L=(r01&&r01.lineas)||[]; }
+            else { titulo='DJ-08 · Impuesto sobre los Ingresos Personales'; const r08=djCore08(datos,P,man,anio); L=(r08&&r08.lineas)||[]; }
+            const tabla=(lineas)=>'<table>'+(Array.isArray(lineas)?lineas:[]).map(l=>`<tr${l.clase==='subtotal'?' style="font-weight:bold"':''}><td>${esc(l.etiqueta)}</td><td style="text-align:right">${l.importe==null?'—':moneda(l.importe)}</td><td>${esc(l.origen||'')}</td></tr>`).join('')+'</table>';
             let socios='';
-            if(gDocTipo(doc)==='mipyme'&&man.socios&&man.socios.length){ socios='<h3>DJ de socios por dividendos</h3>'+man.socios.map(s=>'<h4>'+esc(s.nombre||'Socio')+'</h4>'+tabla(djCoreDiv(s,P,man,anio))).join(''); }
+            if(gDocTipo(doc)==='mipyme'&&man.socios&&man.socios.length){ socios='<h3>DJ de socios por dividendos</h3>'+man.socios.map(s=>{ const rd=djCoreDiv(s,P,man,anio); return '<h4>'+esc(s.nombre||'Socio')+'</h4>'+tabla((rd&&rd.lineas)||[]); }).join(''); }
             return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>DJ '+anio+' — '+esc(n)+'</title><style>body{font-family:Arial,sans-serif;margin:24px;color:#111}table{border-collapse:collapse;width:100%}td{border-bottom:1px solid #ddd;padding:4px 6px;font-size:13px}h1{font-size:18px}h3{margin-top:20px}</style></head><body><h1>'+esc(titulo)+' — '+esc(n)+'</h1><p>Año fiscal: '+anio+' · Borrador calculado desde los datos registrados en Finanzas. La firma y la presentación ante la ONAT corresponden al contribuyente.</p>'+tabla(L)+socios+'</body></html>';
         }
         async function descargarRespaldoNegocio(n){
@@ -8814,6 +9376,32 @@ function mjPermisos(rol,modulo){ const M={
             fiscalTributos: function(){ try { const f = getFiscal(); return f.tributos || {}; } catch(e) { return {}; } },
             registroQRDeMovs: registroQRDeMovs
         };
+        /* ===== EXPOSICIÓN PARA HANDLERS INLINE (auditoría de botones, 2026-10-24) =====
+           Todo este script vive dentro de un IIFE: sus funciones NO son
+           globales. Los botones creados con onclick="fn()" (HTML fijo y el
+           HTML generado por las rondas 6–13: Contabilidad, Tesorería,
+           Nómina-Pro, DJ y Gestión+) resuelven el nombre SOLO en el ámbito
+           global, así que sin esta exposición cada clic lanzaba
+           «ReferenceError: fn is not defined» y el botón parecía muerto.
+           Aquí se publican, con su mismo nombre, todas las funciones que
+           algún handler inline de la app invoca. No cambia ninguna lógica:
+           solo las hace alcanzables desde los atributos onclick/onchange/
+           oninput, igual que ya se hacía con irAPestana o verMesDetalle. */
+        ['nominaDocCompleta','nominaDocResumenContable','nominaDocListadoPago','nominaDocTalon','nominaDocCertificado',
+         'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
+         'contaGenerar','contaRevalBtn','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
+         'contaArqueoBtn','contaAddProducto','contaInvEntrada','contaInvSalida','contaEdAddLinea','contaEdAsentar',
+         'contaAddCuenta','contaSavePlantillas','contaAddCentro','contaCierreBtn','contaPagarDoc','contaEdRecalc',
+         'contaEdDelLinea','contaAsentar','contaAnular','contaClasificar','contaBorrarRegla',
+         'mjDescargarCopiaUI','mjRestaurarCopiaUI','mjRestaurarServidorUI','mjAltaPrestamoUI','mjReabrirUI',
+         'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
+         'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjKYCEditar',
+         'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
+         'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
+         'mjContratoCrearUI','mjUtilCrearUI','mjTraspasoUI','mjOrdenTerminarUI','mjOrdenCrearUI','mjCreditoDevengoUI',
+         'mjCreditoCrearUI','mjSaldoDivisaUI','mjRevalAmpliaUI','mjConsignacionRecibirUI','mjConsignacionVentaUI',
+         'guardarParamsFiscalesNomina'
+        ].forEach(function(n){ try { var f = eval(n); if (typeof f === 'function') window[n] = f; } catch(e) {} });
         // Ganchos de prueba (node) para el módulo DJ
         window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
         api('me').then(async r => { if (r.ok) { await cargar(r); handleLogin({preventDefault(){}}); } });
@@ -8907,5 +9495,143 @@ function mjPermisos(rol,modulo){ const M={
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
 </script>
+<script>
+/* ===== ICONOS DE AYUDA «?» → MANUAL (pedido de Leonardo, 2026-10-24) =====
+   Cada panel lleva un botón azul «?» arriba a la derecha (el menú completo)
+   y cada tarjeta/sección descubrible por el submenú lleva el suyo en su
+   esquina superior derecha. Al hacer clic se activa la pestaña Ayuda y se
+   llega EXACTAMENTE a la explicación correspondiente: la tarjeta del menú
+   (aislada con el submenú de Ayuda) y, si es una sección, su bloque dentro
+   de la tarjeta, con scroll y destello. Los anclas del manual siguen el
+   mismo orden en que el submenú descubre las secciones de cada panel
+   (ayuda-<panel>-<índice>); si el índice no cuadrara por contenido
+   dinámico, el destino se resuelve por el título de la sección. */
+(function(){
+  function norm(t){
+    return String(t||'').toLowerCase().replace(/\s*\([^()]*\)\s*$/,'').replace(/\s+/g,' ').trim();
+  }
+  function seccionesDe(pane){
+    var out=[];
+    if(!pane) return out;
+    pane.querySelectorAll('.card, .module-hero').forEach(function(card){
+      var p=card.parentElement, anidada=false;
+      while(p && p!==pane){ if(p.classList && p.classList.contains('card')){ anidada=true; break; } p=p.parentElement; }
+      if(anidada) return;
+      var h=card.querySelector('h1,h2,h3,h4,h5,h6');
+      if(!h) return;
+      var titulo=(h.textContent||'').replace(/\s+/g,' ').trim();
+      if(!titulo) return;
+      out.push({el:card,titulo:titulo});
+    });
+    return out;
+  }
+  function hijoDot(el,clase){
+    for(var i=0;i<el.children.length;i++){
+      if(el.children[i].classList && el.children[i].classList.contains(clase)) return el.children[i];
+    }
+    return null;
+  }
+  function irAyuda(clave, idx, titulo){
+    try{
+      var tabBtn=document.getElementById('tab-ayuda');
+      if(!tabBtn) return;
+      var destino=function(){
+        try{
+          var card=document.getElementById('ayuda-menu-'+clave);
+          var rail=document.getElementById('subNavRail');
+          if(rail && card){
+            var h=card.querySelector('h6');
+            var tit=norm(h ? h.textContent : '');
+            if(tit) rail.querySelectorAll('.subnav-item').forEach(function(it){
+              if(norm(it.textContent)===tit) it.click();
+            });
+          }
+          var target=card;
+          if(card && (idx!==null && idx!==undefined || titulo)){
+            var cand=null;
+            if(titulo){
+              var nt=norm(titulo);
+              card.querySelectorAll('[data-ayuda-titulo]').forEach(function(a){
+                if(norm(a.getAttribute('data-ayuda-titulo'))===nt) cand=a;
+              });
+            }
+            if(!cand && idx!==null && idx!==undefined) cand=document.getElementById('ayuda-'+clave+'-'+idx);
+            if(cand) target=cand;
+          }
+          if(target){
+            target.scrollIntoView({behavior:'smooth',block:'start'});
+            target.classList.remove('subsec-flash'); void target.offsetWidth; target.classList.add('subsec-flash');
+          }
+        }catch(e){}
+      };
+      var paneA=document.getElementById('pane-ayuda');
+      if(paneA && paneA.classList.contains('active')){ destino(); return; }
+      var handler=function(e){
+        if(e.target && e.target.id==='tab-ayuda'){
+          document.removeEventListener('shown.bs.tab',handler);
+          setTimeout(destino,90);
+        }
+      };
+      document.addEventListener('shown.bs.tab',handler);
+      setTimeout(function(){ document.removeEventListener('shown.bs.tab',handler); },4000);
+      if(window.bootstrap && bootstrap.Tab) bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+      else tabBtn.click();
+    }catch(e){}
+  }
+  function adornarAyuda(){
+    try{
+      var content=document.getElementById('cuentasTabsContent');
+      if(!content) return;
+      content.querySelectorAll('.tab-pane').forEach(function(pane){
+        if(pane.id==='pane-ayuda') return;
+        var clave=pane.id.replace(/^pane-/,'');
+        if(!hijoDot(pane,'ayuda-dot-pane')){
+          var bp=document.createElement('button');
+          bp.type='button'; bp.className='ayuda-dot ayuda-dot-pane'; bp.textContent='?';
+          bp.title='Ayuda'; bp.setAttribute('aria-label','Ayuda de este menú');
+          (function(c){ bp.addEventListener('click',function(ev){ ev.preventDefault(); ev.stopPropagation(); irAyuda(c,null,null); }); })(clave);
+          pane.appendChild(bp);
+        }
+        pane.classList.add('ayuda-con-icono');
+        seccionesDe(pane).forEach(function(s,idx){
+          if(hijoDot(s.el,'ayuda-dot')) return;
+          var b=document.createElement('button');
+          b.type='button'; b.className='ayuda-dot ayuda-dot-sec'; b.textContent='?';
+          b.title='Ayuda'; b.setAttribute('aria-label','Ayuda de esta sección');
+          (function(c,i,t){ b.addEventListener('click',function(ev){ ev.preventDefault(); ev.stopPropagation(); irAyuda(c,i,t); }); })(clave,idx,s.titulo);
+          try{ if(window.getComputedStyle && getComputedStyle(s.el).position==='static') s.el.style.position='relative'; }catch(e){}
+          s.el.appendChild(b);
+        });
+      });
+    }catch(e){}
+  }
+  function init(){
+    adornarAyuda();
+    document.addEventListener('shown.bs.tab',function(){ setTimeout(adornarAyuda,60); });
+    var dash=document.getElementById('dashboardContainer');
+    if(dash && window.MutationObserver){
+      new MutationObserver(function(){
+        if(dash.classList.contains('visible')) adornarAyuda();
+      }).observe(dash,{attributes:true,attributeFilter:['class']});
+    }
+    var content=document.getElementById('cuentasTabsContent');
+    if(content && window.MutationObserver){
+      var t=null;
+      new MutationObserver(function(){
+        if(t) clearTimeout(t);
+        t=setTimeout(adornarAyuda,400);
+      }).observe(content,{childList:true,subtree:true});
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  window.adornarAyuda=adornarAyuda;
+  window.irAyuda=irAyuda;
+})();
+</script>
+<!-- Importador de estados de cuenta PDF (BANDEC): inyecta el botón «PDF» en
+     Chequera / Tarjeta CUP / Tarjeta USD y usa la API window.FinanzasPDF.
+     Faltaba esta etiqueta: el archivo existía en el repo pero nunca se
+     cargaba, así que la importación no aparecía (auditoría 2026-10-24). -->
+<script src="pdf-import.js"></script>
 </body>
 </html>
