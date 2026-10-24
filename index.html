@@ -358,7 +358,11 @@
         .module-kpi{background:#fff;border:1px solid #e5e7eb;border-radius:1rem;padding:.9rem 1rem;height:100%}
         .module-kpi small{display:block;color:#64748b;margin-bottom:.2rem}.module-kpi strong{font-size:1.12rem;color:#0f172a}
         .vector-meta{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.65rem}.vector-meta>div{background:#f8fafc;border-radius:.75rem;padding:.65rem;border:1px solid #e2e8f0}.vector-meta small{display:block;color:#64748b}.vector-meta b{display:block;word-break:break-word}
-        .fiscal-status{font-size:.72rem;border-radius:999px;padding:.22rem .55rem;font-weight:700;white-space:nowrap}.fiscal-status.pending{background:#fff7ed;color:#9a3412}.fiscal-status.paid{background:#ecfdf5;color:#166534}.fiscal-status.partial{background:#eff6ff;color:#1d4ed8}.fiscal-status.na{background:#f1f5f9;color:#475569}
+        .fiscal-status{font-size:.72rem;border-radius:999px;padding:.22rem .55rem;font-weight:700;white-space:nowrap}.fiscal-status.pending{background:#fff7ed;color:#9a3412}.fiscal-status.paid{background:#ecfdf5;color:#166534}.fiscal-status.partial{background:#eff6ff;color:#1d4ed8}.fiscal-status.na{background:#f1f5f9;color:#475569}.fiscal-status.vencida{background:#fef2f2;color:#b91c1c}
+        .nav-link.gestor.active{background:linear-gradient(135deg,#7c3aed,#6d28d9)!important;color:#fff!important}
+        .gestor-dot{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;margin-right:.4rem;vertical-align:middle}.gestor-dot.verde{background:#16a34a}.gestor-dot.amarillo{background:#eab308}.gestor-dot.rojo{background:#dc2626}
+        .gestor-card{cursor:pointer;transition:box-shadow .15s ease}.gestor-card:hover{box-shadow:0 6px 18px rgba(15,23,42,.12)}
+        .just-bar{height:.55rem;border-radius:999px;background:#e2e8f0;overflow:hidden}.just-bar>div{height:100%;background:#16a34a}.just-bar.bajo>div{background:#dc2626}.just-meta{position:relative}.gestor-alert-venc{background:#fef2f2;border:1px solid #fecaca;border-radius:.75rem}.gestor-alert-semana{background:#fffbeb;border:1px solid #fde68a;border-radius:.75rem}
         .fiscal-row-current{background:#faf5ff!important}.fiscal-money{font-variant-numeric:tabular-nums;white-space:nowrap}.fiscal-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem}
         .fx-result{background:linear-gradient(135deg,#eff6ff,#ecfeff);border:1px solid #bae6fd;border-radius:1rem;padding:1rem}.fx-rate-big{font-size:1.7rem;font-weight:800;color:#0c4a6e}.fx-note{font-size:.8rem;color:#64748b}
         .aft-chip{font-size:.72rem;padding:.2rem .55rem;border-radius:999px;background:#fffbeb;color:#92400e}.aft-book{font-variant-numeric:tabular-nums}
@@ -791,6 +795,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><i class="bi bi-currency-exchange me-1"></i> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><i class="bi bi-pc-display-horizontal me-1"></i> Activos</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><i class="bi bi-archive me-1"></i> Historial</button></li>
+        <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><i class="bi bi-briefcase me-1"></i> Gestor</button></li>
         <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><i class="bi bi-gear-fill me-1"></i> Configuración</button></li>
     </ul>
 
@@ -1094,6 +1099,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="djAnioSel">Año fiscal</label><select id="djAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="pane-dj"><i class="bi bi-printer me-1"></i>PDF</button></div>
             </div>
             <div id="djAvisos" class="mb-3"></div>
+            <div id="djJustificacionBox" class="mb-3"></div>
             <div class="card p-3 p-md-4 mb-3">
                 <h6 class="fw-semibold mb-3"><i class="bi bi-person-vcard me-2"></i>Ficha fiscal del negocio</h6>
                 <div class="row g-2">
@@ -1155,6 +1161,28 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-people me-2"></i>DJ de socios por dividendos</h6><button class="btn btn-sm btn-outline-primary" id="btnDjAddSocio"><i class="bi bi-plus-lg me-1"></i> Socio</button></div>
                     <div id="djSociosBox"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
+        <div class="tab-pane fade" id="pane-gestor">
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div><h5 class="fw-bold mb-1"><i class="bi bi-briefcase me-2" style="color:#7c3aed"></i>Panel del Gestor</h5><div class="small text-secondary">Todos tus clientes (TCP y MIPYME) en una vista: cierres, vencimientos ONAT, justificación de gastos y tu cobro. Los importes salen de los datos reales de cada negocio.</div></div>
+                <div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" id="btnGestorRefrescar"><i class="bi bi-arrow-clockwise me-1"></i>Actualizar datos</button><button type="button" class="btn btn-sm btn-primary" id="btnAltaRapida"><i class="bi bi-person-plus me-1"></i>Alta rápida de cliente</button></div>
+            </div>
+            <div id="gestorAlertas" class="mb-3"></div>
+            <h6 class="fw-semibold mb-2"><i class="bi bi-people me-2"></i>Clientes</h6>
+            <div id="gestorClientes" class="row g-3 mb-4"><div class="col-12 text-secondary small">Cargando datos de los negocios…</div></div>
+            <div id="gestorDetalle" class="mb-4"></div>
+            <div class="card p-3 p-md-4 mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-calendar3 me-2"></i>Calendario de vencimientos ONAT</h6>
+                <div class="d-flex gap-2 flex-wrap align-items-center"><input type="month" id="gestorCalMes" class="form-control form-control-sm" style="width:auto"><select id="gestorCalNeg" class="form-select form-select-sm" style="width:auto"><option value="">Todos los negocios</option></select><select id="gestorCalEstado" class="form-select form-select-sm" style="width:auto"><option value="">Todos los estados</option><option value="paid">Pagadas</option><option value="pending">Pendientes</option><option value="vencida">Vencidas</option></select></div></div>
+                <div id="gestorCalendario"><div class="text-secondary small">Sin datos todavía.</div></div>
+            </div>
+            <div class="card p-3 p-md-4 mb-3">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-cash-coin me-2"></i>Cobro de mis servicios como gestor</h6>
+                <div class="small text-secondary mb-3">Esto es TU control interno como gestor: no forma parte de los libros de ningún cliente.</div>
+                <div id="gestorCobros"><div class="text-secondary small">Sin datos todavía.</div></div>
             </div>
         </div>
 
@@ -1535,6 +1563,23 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
 
 <!-- MODAL OBLIGACIÓN FISCAL MANUAL -->
+<div class="modal fade" id="altaRapidaModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Alta rápida de cliente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+<div class="alert alert-warning small mb-3"><i class="bi bi-exclamation-triangle me-1"></i>La plantilla por actividad es <b>ORIENTATIVA</b>: propone los tributos habituales de la actividad. El Vector Fiscal real de cada cliente es el <b>RC-04A</b> que emite la ONAT; cuando lo tengas, impórtalo en la pestaña Fiscal del negocio (reemplaza a la plantilla).</div>
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label">Nombre del negocio *</label><input id="altaNombre" class="form-control" maxlength="80" placeholder="Ej. Cafetería El Sol"></div>
+<div class="col-md-3"><label class="form-label">Tipo *</label><select id="altaTipo" class="form-select"><option value="tcp">TCP</option><option value="mipyme">MIPYME</option></select></div>
+<div class="col-md-3"><label class="form-label">Actividad (plantilla) *</label><select id="altaActividad" class="form-select"><option value="gastronomia">Gastronomía</option><option value="comercio">Comercio minorista</option><option value="transporte">Transporte</option><option value="servicios">Servicios</option><option value="produccion">Producción</option></select></div>
+<div class="col-md-4"><label class="form-label">NIT</label><input id="altaNIT" class="form-control" maxlength="20"></div>
+<div class="col-md-4"><label class="form-label">Municipio de inscripción</label><input id="altaMunicipio" class="form-control" maxlength="80"></div>
+<div class="col-md-4"><label class="form-label">Socios (solo MIPYME)</label><input id="altaSocios" type="number" min="1" max="99" value="1" class="form-control"></div>
+<div class="col-12"><label class="form-label">Nombre del contribuyente / Razón social</label><input id="altaRazon" class="form-control" maxlength="120" placeholder="Si se deja vacío se usa el nombre del negocio"></div>
+<div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="altaCrearUsuario" checked><label class="form-check-label" for="altaCrearUsuario">Crear también el usuario de acceso del cliente</label></div></div>
+<div class="col-md-4"><label class="form-label">Usuario</label><input id="altaUsuario" class="form-control" maxlength="40" autocomplete="off"></div>
+<div class="col-md-4"><label class="form-label">Contraseña inicial</label><input id="altaPass" class="form-control" maxlength="60" autocomplete="new-password"></div>
+<div class="col-md-4"><label class="form-label">Rol</label><select id="altaRol" class="form-select"><option value="editor">Editor (el cliente captura sus datos)</option><option value="viewer">Solo lectura</option></select></div>
+</div>
+<div class="small text-secondary mt-3" id="altaPlantillaPreview"></div>
+</div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarAltaRapida">Crear cliente</button></div></div></div></div>
 <div class="modal fade" id="fiscalManualModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-file-plus me-2"></i>Obligación fiscal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-5"><label class="form-label">Código tributo</label><input id="fisManCodigo" class="form-control" maxlength="20"></div><div class="col-7"><label class="form-label">Período</label><input id="fisManPeriodo" class="form-control" placeholder="Ej. Septiembre 2026"></div><div class="col-12"><label class="form-label">Concepto</label><input id="fisManConcepto" class="form-control" maxlength="160"></div><div class="col-6"><label class="form-label">Fecha límite</label><input id="fisManVence" type="date" class="form-control"></div><div class="col-6"><label class="form-label">Importe manual (CUP)</label><input id="fisManImporte" type="number" min="0" step="0.01" class="form-control"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarFiscalManual">Guardar</button></div></div></div></div>
 
 <!-- MODAL ACTIVO FIJO -->
@@ -1637,7 +1682,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             tasaAutoTimer = setInterval(refrescarTasaRespaldoAuto, 30 * 60 * 1000);
         }
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-        function slot(k) { return k.startsWith('finanzas_movimientos_') ? 'mov' : k.startsWith('finanzas_mes_') ? 'mes' : k.startsWith('finanzas_historial_') ? 'hist' : k.startsWith('finanzas_rrhh_') ? 'rrhh' : k.startsWith('finanzas_fiscal_') ? 'fiscal' : k.startsWith('finanzas_aft_') ? 'aft' : k.startsWith('finanzas_fx_') ? 'fx' : null; }
+        function slot(k) { return k.startsWith('finanzas_movimientos_') ? 'mov' : k.startsWith('finanzas_mes_') ? 'mes' : k.startsWith('finanzas_historial_') ? 'hist' : k.startsWith('finanzas_rrhh_') ? 'rrhh' : k.startsWith('finanzas_fiscal_') ? 'fiscal' : k.startsWith('finanzas_aft_') ? 'aft' : k.startsWith('finanzas_fx_') ? 'fx' : k.startsWith('finanzas_dj_') ? 'dj' : k.startsWith('finanzas_gestor_') ? 'gestor' : null; }
         const Store = {
             getItem(k) { if (k === 'finanzas_bloqueo_meses') return JSON.stringify(BLOQ); const c = slot(k); return c && CACHE[c] !== undefined ? JSON.stringify(CACHE[c]) : null; },
             setItem(k, v) {
@@ -3981,6 +4026,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             _safe(renderCierreAnual,'cierre-anual');
             _safe(renderFiscal,'fiscal');
             _safe(renderDJ,'dj');
+            _safe(renderJustificacionActual,'justificacion');
+            _safe(renderGestor,'gestor');
             _safe(renderRegistroQR,'qr');
             _safe(renderFX,'fx');
             _safe(renderAFT,'aft');
@@ -4737,6 +4784,676 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             alert(`✅ Usuario "${username}" asociado a "${negocio}" correctamente.`);
         }
 
+        /* GESTOR-CORE-INI — Núcleo puro del Panel del Gestor: trabaja sobre el DOCUMENTO
+           de cualquier negocio (el que devuelve el servidor vía gestor_data), sin DOM ni
+           estado global del negocio abierto. Clona la lógica de Fiscal/Nómina/DJ del
+           negocio actual, parametrizada por doc, para no duplicar criterios. */
+        function gNormTxt(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
+        function gHoyISOFecha(){const d=new Date();const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+        function gPeriodoKey(periodo){const p=periodoParts(periodo);return p?p.y*12+p.mi:-1;}
+        function gPeriodoSiguiente(periodo){const p=periodoParts(periodo);if(!p)return '';let mi=p.mi+1,y=p.y;if(mi>11){mi=0;y++;}return MESES_ES[mi]+' '+y;}
+        function gEsperadoDesdeHoy(hoyISO){const d=new Date(String(hoyISO||'').slice(0,10)+'T12:00:00');if(isNaN(d))return '';let mi=d.getMonth()-1,y=d.getFullYear();if(mi<0){mi=11;y--;}return MESES_ES[mi]+' '+y;}
+        function gDiasEntre(aISO,bISO){const a=new Date(String(aISO||'').slice(0,10)+'T12:00:00'),b=new Date(String(bISO||'').slice(0,10)+'T12:00:00');if(isNaN(a)||isNaN(b))return null;return Math.round((b-a)/86400000);}
+        function gMontoMovCUP(m,tasa){const monto=Number(m&&m.monto)||0;if(m&&m.cuenta==='tarjeta_usd'){const t=Number(m.tasaCambio)>0?Number(m.tasaCambio):(Number(tasa)||0);return monto*t;}return monto;}
+        function gDocTasa(doc){const md=(doc&&doc.mes)||{};const campos=['tasaUSDSeleccionada','tasaSeleccionada','tasa','tasaUSD'];for(const c of campos){const t=Number(md[c]);if(t>0)return t;}const h=(doc&&doc.hist)||[];for(let i=h.length-1;i>=0;i--){const th=Number(h[i]&&h[i].tasa);if(th>0)return th;}return 0;}
+        function gDocTipo(doc){return (doc&&(doc.tipo||(doc._info&&doc._info.tipo)))==='mipyme'?'mipyme':'tcp';}
+        function gActualPeriodo(doc){return (doc&&doc.mes&&doc.mes.mesSeleccionado)||'';}
+        function gMovsPeriodo(doc,periodo){
+            if(periodo&&periodo===gActualPeriodo(doc)) return Array.isArray(doc.mov)?doc.mov:[];
+            const h=((doc&&doc.hist)||[]).find(x=>x&&x.mes===periodo);
+            return h&&Array.isArray(h.movimientos)?h.movimientos:[];
+        }
+        function gAllMovs(doc){
+            const pAct=gActualPeriodo(doc), out=[];
+            ((doc&&doc.hist)||[]).forEach(h=>{if(h&&h.mes!==pAct&&Array.isArray(h.movimientos))out.push(...h.movimientos);});
+            if(Array.isArray(doc&&doc.mov)) out.push(...doc.mov);
+            return out;
+        }
+        function gSaldoInicialPeriodo(doc,periodo){
+            if(periodo===gActualPeriodo(doc)) return (doc.mes&&doc.mes.saldoInicial)||{};
+            const h=((doc&&doc.hist)||[]).find(x=>x&&x.mes===periodo);
+            return (h&&h.saldoInicial)||{};
+        }
+        function gTasaPeriodo(doc,periodo){
+            if(periodo===gActualPeriodo(doc)){const t=gDocTasa(doc);if(t>0)return t;}
+            const h=((doc&&doc.hist)||[]).find(x=>x&&x.mes===periodo);
+            const th=Number(h&&h.tasa); return th>0?th:gDocTasa(doc);
+        }
+        function gResumenPeriodo(doc,periodo){
+            const movs=gMovsPeriodo(doc,periodo), tasa=gTasaPeriodo(doc,periodo);
+            let ingresos=0,gastos=0,onat=0;
+            const saldos={chequera:0,tarjeta_cup:0,tarjeta_usd:0};
+            const divisa={chequera:0,tarjeta_cup:0,tarjeta_usd:0};
+            const si=gSaldoInicialPeriodo(doc,periodo);
+            const h=((doc&&doc.hist)||[]).find(x=>x&&x.mes===periodo);
+            const tasaIni=periodo===gActualPeriodo(doc)?(Number(doc.mes&&doc.mes.saldoInicialTasaUSD)||tasa):(Number(h&&h.saldoInicialTasaUSD)||tasa);
+            saldos.chequera+=Number(si.chequera)||0; saldos.tarjeta_cup+=Number(si.tarjeta_cup)||0;
+            saldos.tarjeta_usd+=(Number(si.tarjeta_usd)||0)*tasaIni;
+            divisa.chequera=Number(si.chequera)||0; divisa.tarjeta_cup=Number(si.tarjeta_cup)||0; divisa.tarjeta_usd=Number(si.tarjeta_usd)||0;
+            const inicialCuentas={chequera:divisa.chequera, tarjeta_cup:divisa.tarjeta_cup, tarjeta_usd:divisa.tarjeta_usd};
+            movs.forEach(m=>{ if(!m) return; const cup=gMontoMovCUP(m,tasa); const c=(m.cuenta in saldos)?m.cuenta:'chequera';
+                const dv=(m.cuenta==='tarjeta_usd')?(Number(m.monto)||0):cup;
+                if(m.tipo==='ingreso'){ saldos[c]+=cup; divisa[c]+=dv; } else if(m.tipo==='gasto'||m.tipo==='onat'){ saldos[c]-=cup; divisa[c]-=dv; }
+                if(m.clasificacion==='operacional'){ if(m.tipo==='ingreso') ingresos+=cup; else if(m.tipo==='gasto') gastos+=cup; else if(m.tipo==='onat') onat+=cup; }
+            });
+            const r2=x=>+x.toFixed(2);
+            return {ingresos:r2(ingresos),gastos:r2(gastos),onat:r2(onat),utilidad:r2(ingresos-gastos-onat),saldos:{chequera:r2(saldos.chequera),tarjeta_cup:r2(saldos.tarjeta_cup),tarjeta_usd:r2(saldos.tarjeta_usd)},saldoTotal:r2(saldos.chequera+saldos.tarjeta_cup+saldos.tarjeta_usd),tasa,
+                cuentas:[
+                    {cuenta:'chequera', etiqueta:'Chequera', moneda:'CUP', inicial:r2(inicialCuentas.chequera), final:r2(divisa.chequera)},
+                    {cuenta:'tarjeta_cup', etiqueta:'Tarjeta CUP', moneda:'CUP', inicial:r2(inicialCuentas.tarjeta_cup), final:r2(divisa.tarjeta_cup)},
+                    {cuenta:'tarjeta_usd', etiqueta:'Tarjeta USD', moneda:'USD', inicial:r2(inicialCuentas.tarjeta_usd), final:r2(divisa.tarjeta_usd)}
+                ]};
+        }
+        /* --- Nómina parametrizada por doc (clon de obtenerNominaParaPeriodo/calcLineaNominaExt) --- */
+        function gCompCfg(rrhh){const g=(rrhh&&rrhh.compCfg)||{};return {params:Object.assign({enfComun:60,enfAccidente:80,enfProfesional:90,divisorHoras:240,provVac:9.09,salarioMinimo:2100},g.params||{})};}
+        function gPromDiario(rrhh,workerId,periodo,meses){
+            const noms=(rrhh&&rrhh.nominas)||{}, p=periodoParts(periodo); if(!p) return 0;
+            let total=0,n=0,mi=p.mi-1,y=p.y;
+            for(let k=0;k<meses;k++){ if(mi<0){mi=11;y--;}
+                const rec=(noms[MESES_ES[mi]+' '+y]||{})[workerId];
+                if(rec){ total+=(Number(rec.salario)||0)+(Number(rec.otras)||0); n++; }
+                mi--; }
+            return n? total/(n*30.44) : 0;
+        }
+        function gCalcLinea(rrhh,t,salario,otras,comp,periodo){
+            comp=comp||{};
+            const P=gCompCfg(rrhh).params;
+            let baseSalarial=(Number(salario)||0)+(Number(otras)||0);
+            const diasMes=diasDelMes(periodo), detalle=[];
+            const APL=(cid)=>!!(t&&t.compAplica&&t.compAplica[cid]);
+            if(APL('proporcional')&&(t.fechaAlta||t.fechaBaja)){
+                const p=periodoParts(periodo);
+                if(p){ const ini=new Date(p.y,p.mi,1), fin=new Date(p.y,p.mi+1,0);
+                    let dIni=1,dFin=diasMes,aplica=false;
+                    if(t.fechaAlta){const fa=new Date(t.fechaAlta+'T00:00:00'); if(fa>ini){dIni=fa.getDate();aplica=true;}}
+                    if(t.fechaBaja){const fb=new Date(t.fechaBaja+'T00:00:00'); if(fb<=fin){dFin=fb.getDate();aplica=true;}}
+                    if(aplica){ const diasTrab=Math.max(0,dFin-dIni+1), factor=diasTrab/diasMes;
+                        if(factor<1){const antes=baseSalarial; baseSalarial=baseSalarial*factor; detalle.push(['Salario proporcional ('+diasTrab+'/'+diasMes+' días)', baseSalarial-antes]);} }
+                }
+            }
+            let extra=0, subsidios=0, deducciones=0;
+            const tarifa=()=>(P.divisorHoras>0? baseSalarial/P.divisorHoras : 0);
+            if(APL('antiguedad')&&Number(comp.antigPct)>0){const v=baseSalarial*Number(comp.antigPct)/100;extra+=v;detalle.push(['Plus antigüedad ('+Number(comp.antigPct)+'%)',v]);}
+            if(APL('horasExtras')&&Number(comp.heHoras)>0){const v=tarifa()*2*Number(comp.heHoras);extra+=v;detalle.push(['Horas extras ('+Number(comp.heHoras)+' h)',v]);}
+            if(APL('feriados')&&Number(comp.ferDias)>0){const v=tarifa()*2*Number(comp.ferDias)*8;extra+=v;detalle.push(['Feriados ('+Number(comp.ferDias)+' días)',v]);}
+            if(APL('resultados')&&Number(comp.resMonto)>0){extra+=Number(comp.resMonto);detalle.push(['Pago por resultados',Number(comp.resMonto)]);}
+            if(APL('vacaciones')&&Number(comp.vacDias)>0){const v=gPromDiario(rrhh,t.id,periodo,12)*Number(comp.vacDias);extra+=v;detalle.push(['Vacaciones ('+Number(comp.vacDias)+' días)',v]);}
+            if(APL('interrupcion')&&Number(comp.intDias)>0){const v=(baseSalarial/diasMes)*0.6*Number(comp.intDias);extra+=v;detalle.push(['Interrupción ('+Number(comp.intDias)+' días)',v]);}
+            if(APL('enfermedad')&&Number(comp.enfDias)>0){
+                const pct=comp.enfCausa==='accidente'?P.enfAccidente:(comp.enfCausa==='profesional'?P.enfProfesional:P.enfComun);
+                const v=gPromDiario(rrhh,t.id,periodo,6)*Number(comp.enfDias)*pct/100;
+                subsidios+=v;detalle.push(['Subsidio enfermedad ('+Number(comp.enfDias)+' días · '+pct+'%)',v,'subsidio']);
+            }
+            if(APL('maternidad')&&comp.matActiva){const dd=Number(comp.matDias)||0;const v=gPromDiario(rrhh,t.id,periodo,12)*dd;subsidios+=v;detalle.push(['Lic. maternidad ('+dd+' días)',v,'subsidio']);}
+            if(APL('paternidad')&&comp.patActiva){const dd=Number(comp.patDias)||0;const v=gPromDiario(rrhh,t.id,periodo,12)*dd;subsidios+=v;detalle.push(['Lic. paternidad ('+dd+' días)',v,'subsidio']);}
+            if(APL('licenciaNoRetrib')&&Number(comp.lnrDias)>0){const v=(baseSalarial/diasMes)*Number(comp.lnrDias);extra-=v;detalle.push(['Lic. no retribuida (−'+Number(comp.lnrDias)+' días)',-v]);}
+            if(APL('finiquito')&&comp.finiquito){
+                const fa=t.fechaAlta?new Date(t.fechaAlta+'T00:00:00'):null, p=periodoParts(periodo);
+                let mesesAnt=0;
+                if(fa&&p){mesesAnt=Math.max(0,(p.y-fa.getFullYear())*12+(p.mi-fa.getMonth()));}
+                const anos=Math.floor(mesesAnt/12), indem=baseSalarial*anos;
+                const diasVac=Math.min(30,(mesesAnt/11)*30), vacProp=gPromDiario(rrhh,t.id,periodo,12)*diasVac;
+                extra+=indem+vacProp;
+                detalle.push(['Finiquito: indemnización ('+anos+' año(s))',indem]);
+                detalle.push(['Finiquito: vacaciones proporcionales ('+diasVac.toFixed(1)+' días)',vacProp]);
+            }
+            if(APL('retenciones')){
+                if(Number(comp.retAlim)>0){deducciones+=Number(comp.retAlim);detalle.push(['Pensión alimenticia',-Number(comp.retAlim),'deduccion']);}
+                if(Number(comp.retCred)>0){deducciones+=Number(comp.retCred);detalle.push(['Crédito bancario',-Number(comp.retCred),'deduccion']);}
+                if(Number(comp.retResp)>0){deducciones+=Number(comp.retResp);detalle.push(['Responsabilidad material',-Number(comp.retResp),'deduccion']);}
+            }
+            const provisionVac=(APL('provisionVac'))?(baseSalarial+extra)*P.provVac/100:0;
+            const bruto=Math.max(0,baseSalarial+extra);
+            const segTrab=calcSeguridadTrabajador(bruto), iip=calcIIPTrabajador(bruto);
+            const fuerza=bruto*(FISCAL_NOMINA_2026.fuerzaTrabajo/100), ssEmp=bruto*(FISCAL_NOMINA_2026.seguridadSocialEmpleador/100);
+            return {bruto,segTrab,iip,neto:bruto-segTrab-iip+subsidios-deducciones,fuerza,ssEmp,costo:bruto+fuerza+ssEmp,baseSalarial,extra,subsidios,deducciones,provisionVac,detalle};
+        }
+        function gVigente(t,periodo){
+            const partes=String(periodo).split(' '), meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const mi=meses.indexOf(partes[0]), y=Number(partes[1]);
+            if(mi<0||!y) return true;
+            const ini=new Date(y,mi,1), fin=new Date(y,mi+1,0,23,59,59);
+            if(t.fechaAlta&&new Date(t.fechaAlta+'T00:00:00')>fin) return false;
+            if(t.fechaBaja&&new Date(t.fechaBaja+'T23:59:59')<ini) return false;
+            return true;
+        }
+        function gNominaIds(rrhh,periodo){
+            const tr=(rrhh&&rrhh.trabajadores)||[];
+            const sel=((rrhh&&rrhh.selNomina)||{})[periodo];
+            if(Array.isArray(sel)){ const ex=new Set(tr.map(t=>String(t.id))); return sel.map(String).filter(id=>ex.has(id)); }
+            return tr.filter(t=>gVigente(t,periodo)).map(t=>t.id);
+        }
+        function gNominaTot(doc,periodo){
+            const rrhh=(doc&&doc.rrhh)||{trabajadores:[],nominas:{}};
+            const n=(rrhh.nominas||{})[periodo]||{};
+            const inc=new Set(gNominaIds(rrhh,periodo).map(String));
+            const tot={bruto:0,segTrab:0,iip:0,neto:0,fuerza:0,ssEmp:0,costo:0,extra:0,subsidios:0,deducciones:0,provisionVac:0};
+            (rrhh.trabajadores||[]).forEach(t=>{ if(!inc.has(String(t.id))) return;
+                const rec=n[t.id]||{};
+                const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0;
+                const otras=rec.otras!==undefined?Number(rec.otras)||0:0;
+                const calc=gCalcLinea(rrhh,t,salario,otras,rec.comp||{},periodo);
+                for(const k of Object.keys(tot)) tot[k]+=(calc[k]||0);
+            });
+            tot.ssPresupuesto=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialPresupuesto/100);
+            tot.ssProvision=tot.bruto*(FISCAL_NOMINA_2026.seguridadSocialProvision/100);
+            tot.retenciones=tot.segTrab+tot.iip;
+            tot.aportesEmpleador=tot.fuerza+tot.ssEmp;
+            tot.totalAFisco=tot.fuerza+tot.ssPresupuesto+tot.retenciones;
+            return tot;
+        }
+        /* --- Fiscal parametrizado por doc (clon de calcFiscalPeriodo/calcImporteObligacion/pagosObligacion/estadoObligacion) --- */
+        function gFiscalPeriodo(doc,periodo,onatCfg){
+            const tipo=gDocTipo(doc);
+            const r=gResumenPeriodo(doc,periodo), nom=gNominaTot(doc,periodo);
+            const ventas=r.ingresos*(Number(onatCfg&&onatCfg.ventas)||0)/100;
+            const territorial=tipo==='mipyme'?r.ingresos*(Number(onatCfg&&onatCfg.desarrolloLocal)||0)/100:null;
+            const pagoCuentaTCP=tipo==='tcp'?Math.max(0,r.ingresos-3260)*0.05:0;
+            return {tipo, periodo, ingresos:r.ingresos, ventas, territorial, pagoCuentaTCP, nom:{fuerza:nom.fuerza||0, ssPresupuesto:nom.ssPresupuesto||0, retenciones:nom.retenciones||0, totalNomina:nom.totalAFisco||0}};
+        }
+        function gImporteObligacion(doc,o,onatCfg){
+            if(o&&o.importeManual!==null&&o.importeManual!==undefined&&o.importeManual!=='') return {importe:Math.max(0,Number(o.importeManual)||0), origen:'Importe manual'};
+            const c=gFiscalPeriodo(doc,o.periodo,onatCfg), n=gNormTxt((o.concepto||'')+' '+(o.codigo||''));
+            if(/liquidacion|declaracion jurada|dj[\s-]?08/.test(n)) return {importe:null, origen:'Liquidación anual: se calcula en la DJ'};
+            if(/utilidades/.test(n)&&!/pago a cuenta|anticipo/.test(n)) return {importe:null, origen:'Utilidades: se confirma en Trimestres/DJ'};
+            if(/ventas|servicios/.test(n)) return {importe:c.ventas, origen:'Ingresos del período × '+(onatCfg&&onatCfg.ventas)+'% (configuración)'};
+            if(/fuerza/.test(n)) return {importe:c.nom.fuerza, origen:'Nómina calculada del período'};
+            if(/seguridad social.*presupuesto|presupuesto.*seguridad social/.test(n)) return {importe:c.nom.ssPresupuesto, origen:'Nómina: SS al Presupuesto (12.5 % del bruto)'};
+            if(/retencion|seguridad social|ingresos personales/.test(n)) return {importe:c.nom.retenciones, origen:'Retenciones de nómina del período'};
+            if(/territorial|desarrollo local/.test(n)&&c.territorial!==null) return {importe:c.territorial, origen:'Ingresos × '+(onatCfg&&onatCfg.desarrolloLocal)+'% (MIPYME)'};
+            if(/pago a cuenta|anticipo/.test(n)&&c.tipo==='tcp') return {importe:c.pagoCuentaTCP, origen:'TCP: 5 % sobre ingresos − 3.260'};
+            if(/pago a cuenta|anticipo/.test(n)&&c.tipo==='mipyme') return {importe:null, origen:'Pago a cuenta de utilidades: ver Trimestres'};
+            return {importe:null, origen:'Sin regla automática: fija el importe manual'};
+        }
+        function gPagosObligacion(doc,o){
+            const movs=gAllMovs(doc), tasa=gDocTasa(doc), cod=codigoAporteNorm(o.codigo||''), hits=[];
+            movs.forEach(m=>{ if(!m||m.tipo!=='onat') return;
+                let match=false;
+                if(o.id&&String(m.fiscalId||'')===String(o.id)) match=true;
+                if(!match&&cod&&codigoAporteNorm(m.aporteNumero||m.tributoCodigo||'')===cod){
+                    const per=String(m.fiscalPeriodo||m.aportePeriodoTexto||'');
+                    if(per===o.periodo) match=true;
+                    else { const end=String(m.aporteHasta||m.aporteDesde||''), z=end.match(/^(\d{4})-(\d{2})-/); if(z&&(MESES_ES[Number(z[2])-1]+' '+z[1])===o.periodo) match=true; }
+                }
+                if(match) hits.push({fecha:m.fecha||'', monto:gMontoMovCUP(m,tasa), concepto:m.concepto||''});
+            });
+            return {total:+hits.reduce((a,h)=>a+h.monto,0).toFixed(2), pagos:hits};
+        }
+        function gEstadoObligacion(doc,o,onatCfg,hoyISO){
+            const imp=gImporteObligacion(doc,o,onatCfg), pg=gPagosObligacion(doc,o), p=pg.total;
+            let key,txt;
+            if(p>0&&(imp.importe===null||imp.importe===undefined)){key='paid';txt='Pagado (sin importe fijado)';}
+            else if(imp.importe!==null&&imp.importe!==undefined&&p>=imp.importe&&imp.importe>0){key='paid';txt='Pagado';}
+            else if(p>0){key='partial';txt='Parcial';}
+            else if(imp.importe===null||imp.importe===undefined){key='na';txt='Por determinar';}
+            else {key='pending';txt='Pendiente';}
+            let vencida=false, diasVence=null;
+            if(o.vence){ diasVence=gDiasEntre(hoyISO,o.vence); if(diasVence!==null&&diasVence<0&&key!=='paid') vencida=true; }
+            if(vencida){key='vencida';txt='Vencida';}
+            return {importe:imp.importe, origen:imp.origen, pagado:p, pagos:pg.pagos, key, txt, vencida, diasVence, restante:(imp.importe==null?null:Math.max(0,imp.importe-p))};
+        }
+        function gCalendarioItems(docsMap,hoyISO,onatCfg){
+            const out=[];
+            Object.keys(docsMap||{}).forEach(nombre=>{ const doc=docsMap[nombre];
+                const obs=(doc&&doc.fiscal&&Array.isArray(doc.fiscal.obligaciones))?doc.fiscal.obligaciones:[];
+                obs.forEach(o=>{ if(!o) return; out.push({negocio:nombre, obligacion:o, estado:gEstadoObligacion(doc,o,onatCfg,hoyISO)}); });
+            });
+            out.sort((a,b)=>String(a.obligacion.vence||'9999').localeCompare(String(b.obligacion.vence||'9999')));
+            return out;
+        }
+        /* --- Semáforo del negocio --- */
+        function gUltimoCerrado(doc){
+            const hs=((doc&&doc.hist)||[]).map(h=>h&&h.mes).filter(Boolean);
+            if(!hs.length) return '';
+            return hs.sort((a,b)=>gPeriodoKey(a)-gPeriodoKey(b))[hs.length-1];
+        }
+        function gUltimaActividad(doc){
+            let f='';
+            gAllMovs(doc).forEach(m=>{ if(m&&m.fecha&&String(m.fecha)>f) f=String(m.fecha); });
+            return f;
+        }
+        function gEstadoNegocio(doc,hoyISO,onatCfg){
+            const esperado=gEsperadoDesdeHoy(hoyISO);
+            const ultimo=gUltimoCerrado(doc);
+            const atraso=ultimo?Math.max(0,gPeriodoKey(esperado)-gPeriodoKey(ultimo)):null;
+            const fisc=(doc&&doc.fiscal)||{};
+            const obs=Array.isArray(fisc.obligaciones)?fisc.obligaciones:[];
+            const tieneVector=obs.some(o=>o&&o.vector);
+            const vencidas=[], porVencer=[]; let proxima=null;
+            obs.forEach(o=>{ if(!o) return; const e=gEstadoObligacion(doc,o,onatCfg,hoyISO);
+                const item={negocio:'', obligacion:o, estado:e};
+                if(e.vencida) vencidas.push(item);
+                else if(e.key!=='paid'&&e.diasVence!==null&&e.diasVence>=0&&e.diasVence<=7) porVencer.push(item);
+                if(e.key!=='paid'&&o.vence&&(!proxima||String(o.vence)<String(proxima.obligacion.vence))) proxima=item;
+            });
+            const tieneDatos=gAllMovs(doc).length>0||!!ultimo;
+            const motivos=[];
+            let semaforo='verde';
+            if(vencidas.length){semaforo='rojo';motivos.push(vencidas.length+' obligación(es) vencida(s) sin pagar');}
+            if(atraso!==null&&atraso>=2){semaforo='rojo';motivos.push('Cierre atrasado '+atraso+' meses (último: '+ultimo+')');}
+            if(semaforo==='rojo'){
+                if(atraso===1) motivos.push('Falta cerrar '+esperado+' (último cierre: '+ultimo+')');
+                if(!ultimo) motivos.push('Sin meses cerrados todavía');
+                if(!tieneVector) motivos.push('Sin Vector Fiscal importado (RC-04A)');
+            } else {
+                if(atraso===1){semaforo='amarillo';motivos.push('Falta cerrar '+esperado+' (último cierre: '+ultimo+')');}
+                if(!ultimo){semaforo='amarillo';motivos.push('Sin meses cerrados todavía');}
+                if(porVencer.length){semaforo='amarillo';motivos.push(porVencer.length+' obligación(es) vence(n) en ≤7 días');}
+                if(!tieneVector){semaforo='amarillo';motivos.push('Sin Vector Fiscal importado (RC-04A)');}
+                if(!tieneDatos){semaforo='amarillo';motivos.push('Sin movimientos registrados');}
+            }
+            if(semaforo==='verde') motivos.push('Al día');
+            return {semaforo, motivos, esperado, ultimoCerrado:ultimo, atrasoMeses:atraso, vencidas, porVencer, proxima, tieneVector, tieneDatos, ultimaActividad:gUltimaActividad(doc)};
+        }
+        /* --- DJ / justificación parametrizados por doc (misma definición que djDatosAnio) --- */
+        function gDjDatosAnio(doc,anio){
+            const movs=gAllMovs(doc).filter(m=>String(m.fecha||'').slice(0,4)===String(anio));
+            const tasa=gDocTasa(doc);
+            let ingresos=0,gastos=0;
+            const trib={deducible:0,anticipo_iip:0,pago_cuenta_utilidades:0,liquidacion:0,otros:0,detalle:[]};
+            movs.forEach(m=>{ if(m.clasificacion!=='operacional') return; const cup=gMontoMovCUP(m,tasa);
+                if(m.tipo==='ingreso') ingresos+=cup;
+                else if(m.tipo==='gasto') gastos+=cup;
+                else if(m.tipo==='onat'){ const c=djCategoriaOnat(m); trib[c.cat]=(trib[c.cat]||0)+cup; trib.detalle.push({nombre:c.nombre,cat:c.cat,monto:cup,fecha:m.fecha,via:c.via}); }
+            });
+            return {ingresos:+ingresos.toFixed(2), gastos:+gastos.toFixed(2), trib:trib};
+        }
+        function gJustificacion(doc,anio){
+            const datos=gDjDatosAnio(doc,anio), T=datos.gastos;
+            const man=(doc&&doc.dj&&doc.dj.manual&&doc.dj.manual[anio])||{};
+            const J=(man.gastosJustificados===''||man.gastosJustificados==null)?null:Number(man.gastosJustificados);
+            const pct=(J===null||T<=0)?null:+(Math.min(Math.max(0,J),T)/T*100).toFixed(1);
+            return {anio, total:T, justificado:J, pct, meta:80, bajo:(pct!==null&&pct<80), sinCapturar:J===null};
+        }
+        function gDjParams(doc,anio){
+            const d=(doc&&doc.dj)||{}, g=(d.params&&d.params[anio])||{};
+            const P={exentoIIP:DJ_PARAMS_DEF.exentoIIP, bonifPronto:DJ_PARAMS_DEF.bonifPronto, bonifElec:DJ_PARAMS_DEF.bonifElec, tipoUtilidades:DJ_PARAMS_DEF.tipoUtilidades, exentoDiv:DJ_PARAMS_DEF.exentoDiv, retencionDiv:DJ_PARAMS_DEF.retencionDiv, topeSimplificado:DJ_PARAMS_DEF.topeSimplificado, escalaIIP:DJ_PARAMS_DEF.escalaIIP.map(t=>t.slice()), escalaDiv:DJ_PARAMS_DEF.escalaDiv.map(t=>t.slice())};
+            ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv','topeSimplificado'].forEach(k=>{ if(g[k]!==undefined&&g[k]!==''&&!isNaN(Number(g[k]))) P[k]=Number(g[k]); });
+            if(Array.isArray(g.escalaIIP)&&g.escalaIIP.length) P.escalaIIP=g.escalaIIP;
+            if(Array.isArray(g.escalaDiv)&&g.escalaDiv.length) P.escalaDiv=g.escalaDiv;
+            return P;
+        }
+        function gDjManual(doc,anio){
+            const d=(doc&&doc.dj)||{}, m=(d.manual&&d.manual[anio])||{};
+            return {
+                gastosJustificados:(m.gastosJustificados===''||m.gastosJustificados==null)?null:Number(m.gastosJustificados),
+                arrendEstatales:Number(m.arrendEstatales)||0, otrasDeducciones:Number(m.otrasDeducciones)||0,
+                fechaPago:m.fechaPago||'', canalElectronico:!!m.canalElectronico,
+                perdidas:Number(m.perdidas)||0, reservas:Number(m.reservas)||0,
+                pagosCuenta:Array.isArray(m.pagosCuenta)?m.pagosCuenta.map(x=>Number(x)||0):[0,0,0],
+                socios:Array.isArray(m.socios)?m.socios:[]
+            };
+        }
+        /* --- Informe mensual para el cliente --- */
+        function gRegistroQR(movs,tasa){
+            return (movs||[]).filter(m=>m&&m.qr).map(m=>({fecha:m.fecha||'',concepto:m.concepto||'',monto:+gMontoMovCUP(m,tasa).toFixed(2),cuenta:m.cuenta||'',tipo:m.tipo||''}));
+        }
+        function gInformeMensual(doc,periodo,onatCfg){
+            const r=gResumenPeriodo(doc,periodo), movs=gMovsPeriodo(doc,periodo), tasa=r.tasa;
+            const impDetalle=movs.filter(m=>m&&m.tipo==='onat'&&m.clasificacion==='operacional').map(m=>({fecha:m.fecha||'',concepto:m.concepto||'',codigo:m.aporteNumero||'',monto:+gMontoMovCUP(m,tasa).toFixed(2)}));
+            const sig=gPeriodoSiguiente(periodo);
+            const obs=((doc.fiscal&&doc.fiscal.obligaciones)||[]).filter(o=>o&&o.periodo===sig).map(o=>{const e=gEstadoObligacion(doc,o,onatCfg,gHoyISOFecha()); return {codigo:o.codigo,concepto:o.concepto,periodo:o.periodo,vence:o.vence||'',importe:e.importe,estado:e.txt};});
+            const qr=gRegistroQR(movs,tasa);
+            const pp=periodoParts(periodo);
+            const jus=gJustificacion(doc, pp?pp.y:new Date().getFullYear());
+            return {periodo, ingresos:r.ingresos, gastos:r.gastos, impuestos:r.onat, impuestosDetalle:impDetalle, resultado:r.utilidad, saldos:r.saldos, saldoTotal:r.saldoTotal, cuentas:r.cuentas, justificacion:jus, qr, qrTotal:+qr.reduce((a,x)=>a+x.monto,0).toFixed(2), siguientes:obs, siguientePeriodo:sig};
+        }
+        /* --- Cobro del gestor (control interno, fuera de los libros del cliente) --- */
+        function gMesesEntre(desdeYM,hastaYM){
+            const a=String(desdeYM||'').match(/^(\d{4})-(\d{2})$/), b=String(hastaYM||'').match(/^(\d{4})-(\d{2})$/);
+            if(!a||!b) return 0;
+            return Math.max(0,(Number(b[1])*12+Number(b[2]))-(Number(a[1])*12+Number(a[2]))+1);
+        }
+        function gCobroEstado(c,hoyYM){
+            const tarifa=Math.max(0,Number(c&&c.tarifa)||0), desde=(c&&c.desde)||'';
+            const pagos=Array.isArray(c&&c.pagos)?c.pagos:[];
+            const pagado=+pagos.reduce((a,p)=>a+(Number(p.monto)||0),0).toFixed(2);
+            const meses=gMesesEntre(desde,hoyYM);
+            const esperado=+(tarifa*meses).toFixed(2);
+            const pendiente=+Math.max(0,esperado-pagado).toFixed(2);
+            const mesesPendientes=tarifa>0?Math.ceil(pendiente/tarifa-1e-9):0;
+            return {tarifa, desde, meses, esperado, pagado, pendiente, mesesPendientes, alerta:mesesPendientes>=2, sinConfigurar:!(tarifa>0&&desde)};
+        }
+        /* GESTOR-CORE-FIN */
+
+        /* ===== GESTOR: capa UI (Panel del Gestor) ===== */
+        let GDOCS=null, GDOC_META={}, gestorCargando=false, gestorNegSel='', gestorInformePeriodo='';
+        const altaRapidaModal = new bootstrap.Modal(document.getElementById('altaRapidaModal'));
+        function gestorOnatCfg(){ return {ventas:Number(CFG&&CFG.onat&&CFG.onat.ventas)||0, desarrolloLocal:Number(CFG&&CFG.onat&&CFG.onat.desarrolloLocal)||0, utilidades:Number(CFG&&CFG.onat&&CFG.onat.utilidades)||0}; }
+        function gestorHoyYM(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+        function cssId(s){ return String(s||'').replace(/[^a-zA-Z0-9_-]/g,'_'); }
+        async function cargarGestorDatos(){
+            if(!isAdmin()||gestorCargando) return;
+            gestorCargando=true;
+            try{ const r=await api('gestor_data'); if(r&&r.ok){ GDOCS=r.docs||{}; GDOC_META=r.negocios||{}; } }
+            catch(e){}
+            gestorCargando=false;
+            renderGestor();
+        }
+        function getCobrosGestor(){ try{ const s=Store.getItem('finanzas_gestor_'+getCurrentUser()); const d=s?JSON.parse(s):null; if(d&&typeof d==='object'&&d.cobros) return d; }catch(e){} return {cobros:{}}; }
+        function saveCobrosGestor(d){ Store.setItem('finanzas_gestor_'+getCurrentUser(), JSON.stringify(d)); }
+        function renderGestor(){
+            const pane=document.getElementById('pane-gestor'); if(!pane) return;
+            if(!isAdmin()) return;
+            if(!GDOCS){ if(!gestorCargando) cargarGestorDatos(); return; }
+            const hoy=gHoyISOFecha(), cfg=gestorOnatCfg();
+            const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
+            const estados={}; nombres.forEach(n=>{ estados[n]=gEstadoNegocio(GDOCS[n],hoy,cfg); });
+            const items=gCalendarioItems(GDOCS,hoy,cfg);
+            const vencidas=items.filter(x=>x.estado.vencida);
+            const semana=items.filter(x=>!x.estado.vencida&&x.estado.key!=='paid'&&x.estado.diasVence!==null&&x.estado.diasVence>=0&&x.estado.diasVence<=7);
+            const al=document.getElementById('gestorAlertas');
+            if(al) al.innerHTML =
+              (vencidas.length? `<div class="gestor-alert-venc p-3 mb-2"><div class="fw-semibold text-danger mb-1"><i class="bi bi-exclamation-octagon me-1"></i>Vencidas (${vencidas.length})</div>${vencidas.map(x=>`<div class="small"><b>${esc(x.negocio)}</b> · ${esc(x.obligacion.concepto||x.obligacion.codigo||'Tributo')} · ${esc(x.obligacion.periodo||'')} · venció ${esc(x.obligacion.vence||'')} · ${x.estado.importe==null?'importe por determinar':moneda(x.estado.restante)+' pendiente'}</div>`).join('')}</div>`:'') +
+              (semana.length? `<div class="gestor-alert-semana p-3 mb-2"><div class="fw-semibold mb-1" style="color:#92400e"><i class="bi bi-alarm me-1"></i>Vence esta semana (${semana.length})</div>${semana.map(x=>`<div class="small"><b>${esc(x.negocio)}</b> · ${esc(x.obligacion.concepto||x.obligacion.codigo||'Tributo')} · ${esc(x.obligacion.periodo||'')} · vence ${esc(x.obligacion.vence||'')} (${x.estado.diasVence===0?'hoy':'en '+x.estado.diasVence+' día(s)'})</div>`).join('')}</div>`:'');
+            const anio=new Date().getFullYear();
+            const cobrosData=getCobrosGestor();
+            const boxC=document.getElementById('gestorClientes');
+            if(boxC) boxC.innerHTML = nombres.length? nombres.map(n=>{
+                const doc=GDOCS[n], e=estados[n], jus=gJustificacion(doc,anio), cob=gCobroEstado((cobrosData.cobros||{})[n], gestorHoyYM());
+                const dot=e.semaforo==='verde'?'🟢':e.semaforo==='amarillo'?'🟡':'🔴';
+                return `<div class="col-md-6 col-xl-4"><div class="card gestor-card p-3 h-100">
+                  <div class="d-flex justify-content-between align-items-start"><div class="fw-bold">${dot} ${esc(n)}</div><span class="badge bg-soft-secondary">${esc((GDOC_META[n]&&GDOC_META[n].tipo)||doc.tipo||'')}</span></div>
+                  <div class="small text-secondary mt-1">${e.motivos.map(esc).join(' · ')}</div>
+                  <div class="small mt-2">Último cierre: <b>${esc(e.ultimoCerrado||'—')}</b> · Esperado: <b>${esc(e.esperado)}</b></div>
+                  <div class="small">Última actividad: <b>${esc(e.ultimaActividad||'—')}</b></div>
+                  <div class="small mt-2">Justificación ${anio}: ${jus.pct===null?'<span class="text-secondary">sin capturar</span>':`<b>${jus.pct} %</b> ${jus.bajo?'<span class="badge bg-danger">bajo el 80 %</span>':'<span class="badge bg-success">OK</span>'}`}</div>
+                  ${cob.alerta?`<div class="small mt-1"><span class="badge bg-danger">Tu cobro: ${cob.mesesPendientes} meses pendientes (${moneda(cob.pendiente)})</span></div>`:cob.pendiente>0?`<div class="small mt-1 text-secondary">Tu cobro pendiente: ${moneda(cob.pendiente)}</div>`:''}
+                  <div class="mt-2"><button class="btn btn-sm btn-outline-primary" data-gestor-ver="${esc(n)}"><i class="bi bi-eye me-1"></i>Ver detalle</button></div>
+                </div></div>`;
+            }).join('') : '<div class="col-12 text-secondary small">Todavía no hay negocios creados. Usa «Alta rápida de cliente» para crear el primero.</div>';
+            document.querySelectorAll('[data-gestor-ver]').forEach(b=>b.onclick=()=>{ gestorNegSel=b.getAttribute('data-gestor-ver'); gestorInformePeriodo=''; renderGestorDetalle(); const d=document.getElementById('gestorDetalle'); if(d) d.scrollIntoView({behavior:'smooth',block:'start'}); });
+            renderGestorCalendario(items);
+            renderGestorCobros();
+            if(gestorNegSel&&GDOCS[gestorNegSel]) renderGestorDetalle();
+        }
+        function renderGestorCalendario(items){
+            const box=document.getElementById('gestorCalendario'); if(!box) return;
+            const mesInp=document.getElementById('gestorCalMes'), negSel=document.getElementById('gestorCalNeg'), estSel=document.getElementById('gestorCalEstado');
+            if(negSel&&GDOCS&&negSel.getAttribute('data-filled')!=='1'){ Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es')).forEach(n=>{ const op=document.createElement('option'); op.value=n; op.textContent=n; negSel.appendChild(op); }); negSel.setAttribute('data-filled','1'); }
+            const mes=mesInp?mesInp.value:'', neg=negSel?negSel.value:'', est=estSel?estSel.value:'';
+            let rows=(items||[]).slice();
+            if(mes) rows=rows.filter(x=>String(x.obligacion.vence||'').slice(0,7)===mes);
+            if(neg) rows=rows.filter(x=>x.negocio===neg);
+            if(est==='vencida') rows=rows.filter(x=>x.estado.vencida);
+            else if(est) rows=rows.filter(x=>!x.estado.vencida&&x.estado.key===est);
+            const sinVector=GDOCS?Object.keys(GDOCS).filter(n=>{const d=GDOCS[n];return !(d.fiscal&&Array.isArray(d.fiscal.obligaciones)&&d.fiscal.obligaciones.some(o=>o&&o.vector));}):[];
+            box.innerHTML=(rows.length? `<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Fecha límite</th><th>Negocio</th><th>Código</th><th>Concepto</th><th>Período</th><th class="text-end">Importe</th><th class="text-end">Pagado</th><th>Estado</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.obligacion.vence||'—')}</td><td>${esc(x.negocio)}</td><td><code>${esc(x.obligacion.codigo||'—')}</code></td><td>${esc(x.obligacion.concepto||'Tributo')}</td><td>${esc(x.obligacion.periodo||'—')}</td><td class="text-end">${x.estado.importe==null?'—':moneda(x.estado.importe)}</td><td class="text-end">${moneda(x.estado.pagado)}</td><td><span class="fiscal-status ${x.estado.vencida?'vencida':x.estado.key}">${x.estado.txt}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="text-secondary small">No hay obligaciones para los filtros elegidos.</div>')
+              + (sinVector.length?`<div class="small text-secondary mt-2"><i class="bi bi-info-circle me-1"></i>Negocios sin Vector importado (RC-04A): ${sinVector.map(esc).join(', ')}. Sus vencimientos de plantilla, si los hay, son orientativos.</div>`:'');
+        }
+        function gestorPeriodosDisponibles(doc){
+            const set=new Set(); ((doc&&doc.hist)||[]).forEach(h=>{ if(h&&h.mes) set.add(h.mes); });
+            const act=gActualPeriodo(doc); if(act) set.add(act);
+            return Array.from(set).sort((a,b)=>gPeriodoKey(b)-gPeriodoKey(a));
+        }
+        function renderGestorDetalle(){
+            const box=document.getElementById('gestorDetalle'); if(!box) return;
+            const n=gestorNegSel, doc=GDOCS&&GDOCS[n];
+            if(!doc){ box.innerHTML=''; return; }
+            const cfg=gestorOnatCfg(), anio=new Date().getFullYear(), jus=gJustificacion(doc,anio);
+            const per=gestorPeriodosDisponibles(doc);
+            if(!gestorInformePeriodo||per.indexOf(gestorInformePeriodo)<0) gestorInformePeriodo=per[0]||'';
+            const inf=gestorInformePeriodo?gInformeMensual(doc,gestorInformePeriodo,cfg):null;
+            box.innerHTML=`<div class="card p-3 p-md-4">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-shop me-2"></i>${esc(n)} <span class="badge bg-soft-secondary ms-1">${esc(doc.tipo||'')}</span></h6>
+              <div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-secondary" id="btnGestorRespaldo"><i class="bi bi-download me-1"></i>Respaldo del negocio</button><button class="btn btn-sm btn-outline-dark" id="btnGestorCerrarDetalle">Cerrar detalle</button></div></div>
+              <div class="row g-3">
+                <div class="col-md-6"><div class="fw-semibold small mb-1">Justificación de gastos ${anio} (regla DJ-08)</div>
+                  ${jus.pct===null?'<div class="small text-secondary">Sin monto justificado capturado en la DJ de este negocio (o sin gastos en el año). Se captura en la pestaña DJ del negocio, en «Datos manuales».</div>':
+                  `<div class="d-flex justify-content-between small"><span>${moneda(jus.justificado||0)} de ${moneda(jus.total)}</span><b>${jus.pct} %</b></div><div class="just-bar ${jus.bajo?'bajo':''} mt-1"><div style="width:${Math.min(100,jus.pct)}%"></div></div><div class="small mt-1 ${jus.bajo?'text-danger fw-semibold':'text-success'}">${jus.bajo?'⚠️ Por debajo de la meta del 80 %: la DJ-08 solo reconoce lo justificado + hasta un 20 % sin justificar.':'Cumple la meta del 80 %.'}</div>`}
+                </div>
+                <div class="col-md-6"><div class="fw-semibold small mb-1">Informe mensual para el cliente</div>
+                  <div class="d-flex gap-2 align-items-center flex-wrap"><select id="gestorInformeMesSel" class="form-select form-select-sm" style="width:auto">${per.map(p=>`<option value="${esc(p)}" ${p===gestorInformePeriodo?'selected':''}>${esc(p)}</option>`).join('')}</select>
+                  <button class="btn btn-sm btn-outline-secondary" id="btnGestorInformePrint" ${inf?'':'disabled'}><i class="bi bi-printer me-1"></i>PDF</button>
+                  <button class="btn btn-sm btn-success" id="btnGestorInformeWA" ${inf?'':'disabled'}><i class="bi bi-whatsapp me-1"></i>Copiar texto para WhatsApp</button></div>
+                  <div class="small text-secondary mt-1">Usa los movimientos del mes elegido, los pagos ONAT clasificados y las obligaciones del mes siguiente.</div>
+                </div>
+              </div>
+              <div id="gestorInformeBox" class="mt-3">${inf?gestorInformeHTML(n,inf):'<div class="text-secondary small">Este negocio aún no tiene meses con movimientos.</div>'}</div>
+            </div>`;
+            const sel=document.getElementById('gestorInformeMesSel'); if(sel) sel.onchange=()=>{ gestorInformePeriodo=sel.value; renderGestorDetalle(); };
+            const bp=document.getElementById('btnGestorInformePrint'); if(bp) bp.onclick=()=>printPane('gestorInformeBox');
+            const bw=document.getElementById('btnGestorInformeWA'); if(bw) bw.onclick=()=>copiarInformeWhatsApp(n);
+            const br=document.getElementById('btnGestorRespaldo'); if(br) br.onclick=()=>descargarRespaldoNegocio(n);
+            const bc=document.getElementById('btnGestorCerrarDetalle'); if(bc) bc.onclick=()=>{ gestorNegSel=''; box.innerHTML=''; };
+        }
+        function gestorInformeHTML(n,inf){
+            const rows=inf.impuestosDetalle.length?inf.impuestosDetalle.map(d=>`<tr><td>${esc(d.fecha)}</td><td>${esc(d.concepto||'Pago ONAT')}${d.codigo?` <code>${esc(d.codigo)}</code>`:''}</td><td class="text-end">${moneda(d.monto)}</td></tr>`).join(''):'<tr><td colspan="3" class="text-secondary">Sin pagos de impuestos registrados en el mes.</td></tr>';
+            const sig=inf.siguientes.length?inf.siguientes.map(o=>`<tr><td><code>${esc(o.codigo||'—')}</code></td><td>${esc(o.concepto||'Tributo')}</td><td>${esc(o.vence||'—')}</td><td class="text-end">${o.importe==null?'Por determinar':moneda(o.importe)}</td><td>${esc(o.estado)}</td></tr>`).join(''):'<tr><td colspan="5" class="text-secondary">Sin obligaciones registradas para el mes siguiente (o negocio sin Vector).</td></tr>';
+            return `<div class="border rounded p-3">
+              <h5 class="fw-bold mb-1">Informe mensual · ${esc(n)}</h5>
+              <div class="text-secondary small mb-3">Período: <b>${esc(inf.periodo)}</b></div>
+              <div class="row g-2 mb-3">
+                <div class="col-6 col-md-3"><div class="small text-secondary">Ingresos</div><div class="fw-bold">${moneda(inf.ingresos)}</div></div>
+                <div class="col-6 col-md-3"><div class="small text-secondary">Gastos</div><div class="fw-bold">${moneda(inf.gastos)}</div></div>
+                <div class="col-6 col-md-3"><div class="small text-secondary">Impuestos pagados</div><div class="fw-bold">${moneda(inf.impuestos)}</div></div>
+                <div class="col-6 col-md-3"><div class="small text-secondary">Resultado del mes</div><div class="fw-bold">${moneda(inf.resultado)}</div></div>
+                <div class="col-6 col-md-3"><div class="small text-secondary">Justificación de gastos ${inf.justificacion.anio}</div><div class="fw-bold">${inf.justificacion.pct===null?'Sin capturar':inf.justificacion.pct+' %'}${inf.justificacion.bajo?' <span class="badge bg-danger">bajo el 80 %</span>':''}</div></div>
+              </div>
+              <h6 class="fw-semibold">Saldos de cuentas</h6>
+              <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Cuenta</th><th class="text-end">Saldo inicial</th><th class="text-end">Saldo final</th></tr></thead><tbody>${inf.cuentas.map(c=>`<tr><td>${esc(c.etiqueta)}</td><td class="text-end">${c.moneda==='USD'?'US$':'$'}${c.inicial.toFixed(2)}</td><td class="text-end fw-semibold">${c.moneda==='USD'?'US$':'$'}${c.final.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>
+              <h6 class="fw-semibold">Impuestos pagados en el mes</h6>
+              <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th></tr></thead><tbody>${rows}</tbody></table></div>
+              <h6 class="fw-semibold mt-3">Obligaciones del mes siguiente (${esc(inf.siguientePeriodo)})</h6>
+              <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Código</th><th>Concepto</th><th>Vence</th><th class="text-end">Importe</th><th>Estado</th></tr></thead><tbody>${sig}</tbody></table></div>
+              ${inf.qr.length?`<h6 class="fw-semibold mt-3">Pagos por comercio electrónico (QR)</h6><div class="small">${inf.qr.length} movimiento(s) · Total: <b>${moneda(inf.qrTotal)}</b></div>`:'<div class="small text-secondary mt-3">Sin movimientos marcados como comercio electrónico (QR) en el mes.</div>'}
+              <div class="small text-secondary mt-3">Informe generado desde los datos registrados en Finanzas. No sustituye los documentos oficiales de la ONAT.</div>
+            </div>`;
+        }
+        function gestorInformeTexto(n,inf){
+            const L=[];
+            L.push('📋 *Informe mensual — '+n+'*');
+            L.push('Período: '+inf.periodo);
+            L.push('💰 Ingresos: '+moneda(inf.ingresos));
+            L.push('🧾 Gastos: '+moneda(inf.gastos));
+            L.push('🏛️ Impuestos pagados: '+moneda(inf.impuestos));
+            L.push('📊 Resultado del mes: '+moneda(inf.resultado));
+            L.push('🧮 Justificación de gastos '+inf.justificacion.anio+': '+(inf.justificacion.pct===null?'sin capturar':inf.justificacion.pct+' %'+(inf.justificacion.bajo?' (bajo la meta del 80 %)':'')));
+            L.push(''); L.push('🏦 Saldos de cuentas:');
+            inf.cuentas.forEach(c=>L.push('• '+c.etiqueta+': inicial '+(c.moneda==='USD'?'US$':'$')+c.inicial.toFixed(2)+' → final '+(c.moneda==='USD'?'US$':'$')+c.final.toFixed(2)));
+            if(inf.impuestosDetalle.length){ L.push(''); L.push('Impuestos pagados en el mes:'); inf.impuestosDetalle.forEach(d=>L.push('• '+(d.fecha||'')+' — '+(d.concepto||'Pago ONAT')+': '+moneda(d.monto))); }
+            L.push(''); L.push('📌 Obligaciones de '+inf.siguientePeriodo+':');
+            if(inf.siguientes.length) inf.siguientes.forEach(o=>L.push('• '+(o.concepto||'Tributo')+' — vence '+(o.vence||'—')+' — '+(o.importe==null?'importe por determinar':moneda(o.importe))+' ('+o.estado+')'));
+            else L.push('• Sin obligaciones registradas (o negocio sin Vector Fiscal).');
+            if(inf.qr.length){ L.push(''); L.push('📱 Pagos por comercio electrónico (QR): '+inf.qr.length+' · Total: '+moneda(inf.qrTotal)); }
+            L.push(''); L.push('Generado desde Finanzas. No sustituye los documentos oficiales de la ONAT.');
+            return L.join('\n');
+        }
+        function fallbackCopiar(txt,done){ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); if(done) done(); }catch(e){ alert('No se pudo copiar automáticamente.'); } document.body.removeChild(ta); }
+        function copiarInformeWhatsApp(n){
+            const doc=GDOCS&&GDOCS[n]; if(!doc||!gestorInformePeriodo) return;
+            const txt=gestorInformeTexto(n, gInformeMensual(doc,gestorInformePeriodo,gestorOnatCfg()));
+            const done=()=>alert('Texto del informe copiado. Pégalo en el WhatsApp del cliente.');
+            if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopiar(txt,done)); }
+            else fallbackCopiar(txt,done);
+        }
+        /* --- Cobro del gestor: UI --- */
+        function renderGestorCobros(){
+            const box=document.getElementById('gestorCobros'); if(!box||!GDOCS) return;
+            const data=getCobrosGestor(), hoyYM=gestorHoyYM();
+            const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
+            let totPend=0;
+            const rows=nombres.map(n=>{ const c=(data.cobros||{})[n]||{}; const e=gCobroEstado(c,hoyYM); totPend+=e.pendiente;
+                return `<tr class="${e.alerta?'table-danger':''}"><td class="fw-semibold">${esc(n)}${e.alerta?' <span class="badge bg-danger">2+ meses</span>':''}</td>
+                <td><div class="input-group input-group-sm" style="max-width:250px"><input type="number" min="0" step="0.01" class="form-control" id="cobTarifa_${cssId(n)}" value="${c.tarifa!=null?c.tarifa:''}" placeholder="CUP/mes" title="Tarifa mensual"><input type="month" class="form-control" id="cobDesde_${cssId(n)}" value="${esc(c.desde||'')}" title="Se cobra desde"></div></td>
+                <td class="text-end">${moneda(e.esperado)}</td><td class="text-end">${moneda(e.pagado)}</td><td class="text-end fw-bold">${moneda(e.pendiente)}</td>
+                <td><div class="d-flex gap-1 flex-wrap"><button class="btn btn-sm btn-outline-primary" data-cob-guardar="${esc(n)}">Guardar tarifa</button><button class="btn btn-sm btn-success" data-cob-pago="${esc(n)}">Registrar pago</button></div>
+                ${(c.pagos&&c.pagos.length)?`<div class="small text-secondary mt-1">${c.pagos.slice(-3).map(p=>esc(p.fecha||'')+': '+moneda(p.monto)+(p.nota?' ('+esc(p.nota)+')':'')).join('<br>')}</div>`:''}</td></tr>`; }).join('');
+            box.innerHTML=`<div class="small mb-2">Total pendiente de cobro (todos los clientes): <b>${moneda(totPend)}</b></div>
+            <div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Negocio</th><th>Tarifa mensual / desde</th><th class="text-end">Esperado</th><th class="text-end">Pagado</th><th class="text-end">Pendiente</th><th>Acciones</th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="text-secondary">Sin negocios.</td></tr>'}</tbody></table></div>`;
+            box.querySelectorAll('[data-cob-guardar]').forEach(b=>b.onclick=()=>guardarCobroTarifa(b.getAttribute('data-cob-guardar')));
+            box.querySelectorAll('[data-cob-pago]').forEach(b=>b.onclick=()=>registrarCobroPago(b.getAttribute('data-cob-pago')));
+        }
+        function guardarCobroTarifa(n){
+            const t=document.getElementById('cobTarifa_'+cssId(n)), d=document.getElementById('cobDesde_'+cssId(n));
+            const data=getCobrosGestor(); if(!data.cobros) data.cobros={};
+            const cur=data.cobros[n]||{pagos:[]};
+            cur.tarifa=Math.max(0,Number(t&&t.value)||0); cur.desde=(d&&d.value)||'';
+            if(!Array.isArray(cur.pagos)) cur.pagos=[];
+            data.cobros[n]=cur; saveCobrosGestor(data); renderGestor();
+            alert('Tarifa guardada para '+n+'.');
+        }
+        function registrarCobroPago(n){
+            const montoTxt=prompt('Monto del pago de '+n+' (CUP):'); if(montoTxt===null) return;
+            const monto=Number(montoTxt); if(!(monto>0)){ alert('Monto inválido.'); return; }
+            const nota=prompt('Nota (opcional):')||'';
+            const data=getCobrosGestor(); if(!data.cobros) data.cobros={};
+            const cur=data.cobros[n]||{tarifa:0,desde:'',pagos:[]};
+            if(!Array.isArray(cur.pagos)) cur.pagos=[];
+            cur.pagos.push({id:'p'+Date.now(), fecha:gHoyISOFecha(), monto:+monto.toFixed(2), nota:String(nota).slice(0,120)});
+            data.cobros[n]=cur; saveCobrosGestor(data); renderGestor();
+        }
+        /* --- Indicador de justificación del negocio abierto (pestaña DJ) --- */
+        function renderJustificacionActual(){
+            const box=document.getElementById('djJustificacionBox'); if(!box) return;
+            try{
+                const selAnio=document.getElementById('djAnioSel');
+                const anio=selAnio&&selAnio.value?Number(selAnio.value):new Date().getFullYear();
+                const datos=djDatosAnio(anio), man=djManualAnio(anio), T=datos.gastos, J=man.gastosJustificados;
+                const pct=(J==null||T<=0)?null:+(Math.min(Math.max(0,J),T)/T*100).toFixed(1);
+                box.innerHTML=`<div class="card p-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div class="fw-semibold"><i class="bi bi-pie-chart me-2"></i>Justificación de gastos ${anio} (regla del 80 % de la DJ-08)</div>${pct===null?'<span class="badge bg-soft-secondary">Sin capturar</span>':pct<80?'<span class="badge bg-danger">Bajo la meta</span>':'<span class="badge bg-success">Meta cumplida</span>'}</div>
+                ${pct===null?'<div class="small text-secondary mt-1">Captura el «Monto de gastos con justificante» en los datos manuales de esta DJ para ver el indicador. Gastos deducibles del año: <b>'+moneda(T)+'</b>.</div>':`<div class="d-flex justify-content-between small mt-2"><span>Justificado: ${moneda(Math.min(Math.max(0,J),T))} de ${moneda(T)}</span><b>${pct} %</b></div><div class="just-bar ${pct<80?'bajo':''} mt-1"><div style="width:${Math.min(100,pct)}%"></div></div>${pct<80?'<div class="small text-danger fw-semibold mt-1">⚠️ Por debajo del 80 %: en la DJ-08 solo se reconoce lo justificado + hasta un 20 % sin justificar.</div>':'<div class="small text-success mt-1">En o sobre la meta del 80 %.</div>'}`}
+                </div>`;
+            }catch(e){ box.innerHTML=''; }
+        }
+
+        /* --- Alta rápida de cliente con plantilla por actividad (ORIENTATIVA) --- */
+        const GESTOR_PLANTILLAS = {
+            tcp: [
+                {codigo:'0114022', nombre:'Impuesto sobre las Ventas', frec:'mensual'},
+                {codigo:'0510122', nombre:'Anticipo a cuenta del IIP (5 %)', frec:'mensual'},
+                {codigo:'0610322', nombre:'Impuesto por la Utilización de la Fuerza de Trabajo', frec:'mensual'},
+                {codigo:'0810132', nombre:'Aporte a la Seguridad Social (empleador)', frec:'mensual'},
+                {codigo:'0820132', nombre:'Contribución a la Seguridad Social (propia del TCP)', frec:'trimestral'},
+                {codigo:'0530222', nombre:'Liquidación del IIP (DJ-08 anual)', frec:'anual'}
+            ],
+            mipyme: [
+                {codigo:'011482', nombre:'Impuesto sobre Ventas y Servicios — MIPYMES', frec:'mensual'},
+                {codigo:'061012', nombre:'Impuesto por la Utilización de la Fuerza de Trabajo', frec:'mensual'},
+                {codigo:'081013', nombre:'Contribución a la Seguridad Social', frec:'mensual'},
+                {codigo:'074012', nombre:'Contribución Territorial para el Desarrollo Local', frec:'mensual'},
+                {codigo:'040072', nombre:'Impuesto sobre Utilidades (pagos a cuenta)', frec:'trimestral'},
+                {codigo:'040072', nombre:'Impuesto sobre Utilidades (liquidación anual DJ-01)', frec:'anual'}
+            ],
+            extra: {
+                transporte: [{codigo:'0710622', nombre:'Impuesto sobre el Transporte Terrestre', frec:'mensual'}],
+                gastronomia: [{codigo:'0900122', nombre:'Tasa por radicación de anuncios y propaganda comercial', frec:'anual'}]
+            }
+        };
+        function plantillaObligaciones(tipo, actividad, hoyISO){
+            const base=(GESTOR_PLANTILLAS[tipo]||[]).concat((GESTOR_PLANTILLAS.extra&&GESTOR_PLANTILLAS.extra[actividad])||[]);
+            const d=new Date(String(hoyISO).slice(0,10)+'T12:00:00'); const y0=d.getFullYear(), m0=d.getMonth();
+            const obs=[]; let seq=1;
+            const p2=x=>String(x).padStart(2,'0');
+            const push=(t, periodo, vence)=>obs.push({id:'pl_'+Date.now()+'_'+(seq++), codigo:t.codigo, periodo, concepto:t.nombre, vence, vector:false, importeManual:null});
+            base.forEach(t=>{
+                if(t.frec==='mensual'){ for(let k=0;k<3;k++){ const mi=(m0+k)%12, y=y0+Math.floor((m0+k)/12); const vd=new Date(y,mi+1,20); push(t, MESES_ES[mi]+' '+y, vd.getFullYear()+'-'+p2(vd.getMonth()+1)+'-'+p2(vd.getDate())); } }
+                else if(t.frec==='trimestral'){ for(let q=0;q<2;q++){ const finTrim=m0-(m0%3)+2+q*3; const mi=((finTrim%12)+12)%12, y=y0+Math.floor(finTrim/12); const vd=new Date(y,mi+1,20); push(t, MESES_ES[mi]+' '+y, vd.getFullYear()+'-'+p2(vd.getMonth()+1)+'-'+p2(vd.getDate())); } }
+                else if(t.frec==='anual'){ const esDJ01=/DJ-01/.test(t.nombre); push(t, 'Diciembre '+y0, esDJ01?(y0+1)+'-03-31':(y0+1)+'-04-30'); }
+            });
+            return obs;
+        }
+        function plantillaFiscal(tipo, actividad, datos){
+            const obs=plantillaObligaciones(tipo, actividad, gHoyISOFecha());
+            const tributos={}; obs.forEach(o=>{ tributos[o.codigo]=o.concepto; });
+            return {
+                meta:{nit:datos.nit||'', razon:datos.razon||'', dpa:datos.municipio||'', anio:new Date().getFullYear()},
+                actividades:[], tributos, obligaciones:obs,
+                source:{fileName:'Plantilla orientativa por actividad ('+actividad+') — NO es el RC-04A', importedAt:new Date().toISOString(), plantilla:true}
+            };
+        }
+        function actualizarPreviewPlantilla(){
+            const tipo=document.getElementById('altaTipo').value, act=document.getElementById('altaActividad').value;
+            const lista=(GESTOR_PLANTILLAS[tipo]||[]).concat((GESTOR_PLANTILLAS.extra&&GESTOR_PLANTILLAS.extra[act])||[]);
+            document.getElementById('altaPlantillaPreview').innerHTML='Tributos de la plantilla: '+lista.map(t=>'<code>'+esc(t.codigo)+'</code> '+esc(t.nombre)+' ('+t.frec+')').join(' · ')+'. Vencimientos orientativos: mensual, día 20 del mes siguiente; DJ anual: 30 de abril (TCP) o 31 de marzo (MIPYME).';
+        }
+        function abrirAltaRapida(){
+            if(!isAdmin()){ alert('Solo el administrador/gestor puede dar de alta clientes.'); return; }
+            ['altaNombre','altaNIT','altaMunicipio','altaRazon','altaUsuario','altaPass'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+            actualizarPreviewPlantilla();
+            altaRapidaModal.show();
+        }
+        async function guardarAltaRapida(){
+            const nombre=document.getElementById('altaNombre').value.trim();
+            const tipo=document.getElementById('altaTipo').value, actividad=document.getElementById('altaActividad').value;
+            if(!nombre){ alert('Escribe el nombre del negocio.'); return; }
+            if(GDOCS&&GDOCS[nombre]){ alert('Ya existe un negocio con ese nombre.'); return; }
+            const razon=document.getElementById('altaRazon').value.trim()||nombre;
+            const ficha={regimen: tipo==='mipyme'?'mipyme':'tcp_general', nit:document.getElementById('altaNIT').value.trim(), nombre:razon, municipio:document.getElementById('altaMunicipio').value.trim()};
+            const fiscal=plantillaFiscal(tipo, actividad, {nit:ficha.nit, razon, municipio:ficha.municipio});
+            const r=await api('negocio_save',{nombre, tipo, semilla:{ficha, fiscal}});
+            if(!r||!r.ok){ alert('⚠️ '+((r&&r.error)||'No se pudo crear el negocio')); return; }
+            if(r.negocios) CFG.negocios=r.negocios;
+            let msg='Cliente «'+nombre+'» creado con su plantilla orientativa. Cuando tengas su RC-04A, impórtalo en la pestaña Fiscal del negocio para sustituirla.';
+            if(document.getElementById('altaCrearUsuario').checked){
+                const username=document.getElementById('altaUsuario').value.trim(), password=document.getElementById('altaPass').value.trim();
+                if(username&&password){
+                    const users=getUsuarios();
+                    if(users[username]){ msg+=' OJO: el usuario «'+username+'» ya existía; no se creó otro.'; }
+                    else { users[username]={password, role:document.getElementById('altaRol').value, entityType:tipo, socios: tipo==='mipyme'?(parseInt(document.getElementById('altaSocios').value)||1):0, negocio:nombre, negocioId:nombre}; saveUsuarios(users); msg+=' Usuario «'+username+'» creado.'; }
+                } else msg+=' No se creó usuario (faltó usuario o contraseña).';
+            }
+            altaRapidaModal.hide();
+            await cargarGestorDatos();
+            alert('✅ '+msg);
+        }
+        /* --- Respaldo por negocio (ZIP con JSZip bajo demanda; fallback: archivos sueltos) --- */
+        let _jszipCargando=null;
+        function cargarJSZip(){
+            if(window.JSZip) return Promise.resolve(window.JSZip);
+            if(_jszipCargando) return _jszipCargando;
+            _jszipCargando=new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload=()=>res(window.JSZip); s.onerror=()=>rej(new Error('CDN no disponible')); document.head.appendChild(s); });
+            return _jszipCargando;
+        }
+        function descargarBlob(blob, nombre){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},800); }
+        function csvEscape(v){ const s=String(v==null?'':v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+        function gestorDjHTML(n, doc){
+            const anio=new Date().getFullYear();
+            const datos=gDjDatosAnio(doc,anio), P=gDjParams(doc,anio), man=gDjManual(doc,anio);
+            let L=[], titulo='';
+            if(gDocTipo(doc)==='mipyme'){ titulo='DJ-01 · Impuesto sobre Utilidades'; L=djCore01(datos,P,man); }
+            else { titulo='DJ-08 · Impuesto sobre los Ingresos Personales'; L=djCore08(datos,P,man,anio); }
+            const tabla=(lineas)=>'<table>'+lineas.map(l=>`<tr${l.clase==='subtotal'?' style="font-weight:bold"':''}><td>${esc(l.etiqueta)}</td><td style="text-align:right">${l.importe==null?'—':moneda(l.importe)}</td><td>${esc(l.origen||'')}</td></tr>`).join('')+'</table>';
+            let socios='';
+            if(gDocTipo(doc)==='mipyme'&&man.socios&&man.socios.length){ socios='<h3>DJ de socios por dividendos</h3>'+man.socios.map(s=>'<h4>'+esc(s.nombre||'Socio')+'</h4>'+tabla(djCoreDiv(s,P,man,anio))).join(''); }
+            return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>DJ '+anio+' — '+esc(n)+'</title><style>body{font-family:Arial,sans-serif;margin:24px;color:#111}table{border-collapse:collapse;width:100%}td{border-bottom:1px solid #ddd;padding:4px 6px;font-size:13px}h1{font-size:18px}h3{margin-top:20px}</style></head><body><h1>'+esc(titulo)+' — '+esc(n)+'</h1><p>Año fiscal: '+anio+' · Borrador calculado desde los datos registrados en Finanzas. La firma y la presentación ante la ONAT corresponden al contribuyente.</p>'+tabla(L)+socios+'</body></html>';
+        }
+        async function descargarRespaldoNegocio(n){
+            const doc=GDOCS&&GDOCS[n]; if(!doc){ alert('Primero actualiza los datos del gestor.'); return; }
+            const datosJson=JSON.stringify({negocio:n, exportado:new Date().toISOString(), tipo:doc.tipo||'', doc:{mov:doc.mov, mes:doc.mes, hist:doc.hist, fiscal:doc.fiscal, rrhh:doc.rrhh, dj:doc.dj}}, null, 2);
+            const filas=[['Fecha','Concepto','Tipo','Clasificación','Cuenta','Monto','Tasa USD','Código ONAT','Período fiscal','QR'].join(',')];
+            gAllMovs(doc).slice().sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||''))).forEach(m=>{ filas.push([m.fecha||'', m.concepto||'', m.tipo||'', m.clasificacion||'', m.cuenta||'', Number(m.monto)||0, m.tasaCambio||'', m.aporteNumero||'', m.fiscalPeriodo||'', m.qr?'QR':''].map(csvEscape).join(',')); });
+            const csvMov=filas.join('\n');
+            const filasRes=[['Período','Ingresos','Gastos','Impuestos (ONAT)','Resultado','Saldo al cierre (CUP)'].join(',')];
+            gestorPeriodosDisponibles(doc).slice().reverse().forEach(p=>{ const r=gResumenPeriodo(doc,p); filasRes.push([p, r.ingresos, r.gastos, r.onat, r.utilidad, r.saldoTotal].map(csvEscape).join(',')); });
+            const csvRes=filasRes.join('\n');
+            const vectorJson=JSON.stringify(doc.fiscal||{}, null, 2);
+            const djHtml=gestorDjHTML(n, doc);
+            const leeme='Respaldo del negocio «'+n+'» generado desde Finanzas el '+new Date().toISOString()+'.\n\nContenido:\n- datos.json: copia completa de los datos del negocio (movimientos, mes abierto, historial, Vector Fiscal, nómina y DJ).\n- movimientos.csv: todos los movimientos registrados.\n- resumen_mensual.csv: totales por mes.\n- vector_fiscal.json: Vector Fiscal (RC-04A) y obligaciones.\n- dj_ultima.html: última Declaración Jurada calculada (borrador imprimible).\n\nEste paquete sirve también como entrega al cliente si deja el servicio.';
+            const base='respaldo_'+n.replace(/[^a-zA-Z0-9_-]+/g,'_');
+            try{
+                const JSZip=await cargarJSZip();
+                const zip=new JSZip();
+                zip.file('datos.json', datosJson); zip.file('movimientos.csv', csvMov); zip.file('resumen_mensual.csv', csvRes); zip.file('vector_fiscal.json', vectorJson); zip.file('dj_ultima.html', djHtml); zip.file('LEEME.txt', leeme);
+                const blob=await zip.generateAsync({type:'blob'});
+                descargarBlob(blob, base+'.zip');
+            }catch(e){
+                descargarBlob(new Blob([datosJson],{type:'application/json'}), base+'_datos.json');
+                descargarBlob(new Blob([csvMov],{type:'text/csv'}), base+'_movimientos.csv');
+                descargarBlob(new Blob([csvRes],{type:'text/csv'}), base+'_resumen_mensual.csv');
+                descargarBlob(new Blob([vectorJson],{type:'application/json'}), base+'_vector_fiscal.json');
+                descargarBlob(new Blob([djHtml],{type:'text/html'}), base+'_dj.html');
+                alert('Sin conexión con el CDN de compresión: se descargaron los archivos por separado.');
+            }
+        }
+        /* --- Listeners del Panel del Gestor --- */
+        document.getElementById('btnAltaRapida').addEventListener('click', abrirAltaRapida);
+        document.getElementById('btnGuardarAltaRapida').addEventListener('click', guardarAltaRapida);
+        document.getElementById('btnGestorRefrescar').addEventListener('click', ()=>cargarGestorDatos());
+        ['altaTipo','altaActividad'].forEach(id=>document.getElementById(id).addEventListener('change', actualizarPreviewPlantilla));
+        ['gestorCalMes','gestorCalNeg','gestorCalEstado'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', ()=>renderGestor()); });
+        document.getElementById('tab-gestor').addEventListener('shown.bs.tab', ()=>cargarGestorDatos());
+
         // ===== LOGIN =====
         function handleLogin(e) {
             e.preventDefault();
@@ -4756,6 +5473,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 userRoleBadge.textContent = esAdmin ? '👑 Administrador' : (userData.role === 'editor' ? '✏️ Editor' : '👁️ Consultor');
                 userRoleBadge.className = `badge ${esAdmin ? 'badge-admin' : 'badge-soft-info'} ms-2 px-3 py-2`;
                 document.getElementById('adminTabNav').style.display = esAdmin ? '' : 'none';
+                document.getElementById('gestorTabNav').style.display = esAdmin ? '' : 'none';
                 if (esAdmin) {
                     ['tab-resumen','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-tasas','tab-aft','tab-cierre'].forEach(id=>{
                         const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
@@ -4817,7 +5535,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
             const el=document.getElementById(targetId);
             if(!el) return;
-            const titles={'pane-resumen':'Resumen','pane-chequera':'Chequera','pane-tarjeta_cup':'Tarjeta CUP','pane-tarjeta_usd':'Tarjeta USD','pane-nomina':'Nómina','pane-utilidades':'Trimestres y utilidades','pane-fiscal':'Vector Fiscal','pane-dj':'Declaración Jurada','pane-aft':'Activos Fijos Tangibles','onatModal':'Cálculo ONAT','qrRegistroBox':'Registro de pagos por comercio electrónico (QR)'};
+            const titles={'pane-resumen':'Resumen','pane-chequera':'Chequera','pane-tarjeta_cup':'Tarjeta CUP','pane-tarjeta_usd':'Tarjeta USD','pane-nomina':'Nómina','pane-utilidades':'Trimestres y utilidades','pane-fiscal':'Vector Fiscal','pane-dj':'Declaración Jurada','pane-aft':'Activos Fijos Tangibles','onatModal':'Cálculo ONAT','qrRegistroBox':'Registro de pagos por comercio electrónico (QR)','gestorInformeBox':'Informe mensual del cliente','pane-gestor':'Panel del Gestor'};
             let ph=document.getElementById('printHeader');
             if(!ph){ ph=document.createElement('div'); ph.id='printHeader'; ph.className='print-only-header'; document.body.prepend(ph); }
             const neg=(document.getElementById('negocioNombreDisplay')||{}).textContent||'';
