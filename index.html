@@ -1230,7 +1230,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="mt-2"><button type="button" class="btn btn-sm btn-primary" id="contaEdBtnAsentar" onclick="contaEdAsentar()" disabled>Asentar comprobante</button></div>
             <p class="small text-secondary mt-2 mb-0">La diferencia Debe − Haber se muestra en vivo, en rojo hasta llegar a cero. Ningún asiento desbalanceado se guarda (tolerancia de redondeo: ±0,01, siempre con línea explícita «Ajuste por redondeo»). Los asientos nunca se borran: se anulan con contraasiento.</p></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plan de cuentas <span class="small text-secondary">(semilla con el clasificador cubano habitual; los códigos marcados «por verificar» deben contrastarse con el clasificador oficial vigente)</span></h6><div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr><th>Código</th><th>Nombre</th><th>Naturaleza</th><th>Nivel</th><th>Movimiento</th><th>Auxiliar</th><th>Grupo</th><th></th></tr></thead><tbody id="contaPlanBody"></tbody></table></div>
-            <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaCtaCodigo" class="form-control form-control-sm" placeholder="110.05"></div><div class="col-md-3"><label class="form-label mb-1 small">Nombre</label><input id="contaCtaNombre" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Naturaleza</label><select id="contaCtaNat" class="form-select form-select-sm"><option value="deudora">Deudora</option><option value="acreedora">Acreedora</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Grupo</label><select id="contaCtaGrupo" class="form-select form-select-sm"><option value="activo">Activo</option><option value="pasivo">Pasivo</option><option value="patrimonio">Patrimonio</option><option value="ingreso">Ingreso</option><option value="costo">Costo</option><option value="gasto">Gasto</option></select></div><div class="col-md-1"><label class="form-label mb-1 small">Admite</label><select id="contaCtaAdmite" class="form-select form-select-sm"><option value="1">Sí</option><option value="0">No</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Auxiliar</label><select id="contaCtaAux" class="form-select form-select-sm"><option value="ninguno">Ninguno</option><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="trabajador">Trabajador</option></select></div><div class="col-md-2"><label class="form-check small mt-3"><input type="checkbox" id="contaCtaAuxReq" class="form-check-input"> Auxiliar obligatorio</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCuenta()">Agregar cuenta</button></div></div></div>
+            <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaCtaCodigo" class="form-control form-control-sm" placeholder="110-040"></div><div class="col-md-3"><label class="form-label mb-1 small">Nombre</label><input id="contaCtaNombre" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Naturaleza</label><select id="contaCtaNat" class="form-select form-select-sm"><option value="deudora">Deudora</option><option value="acreedora">Acreedora</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Grupo</label><select id="contaCtaGrupo" class="form-select form-select-sm"><option value="activo">Activo</option><option value="pasivo">Pasivo</option><option value="patrimonio">Patrimonio</option><option value="ingreso">Ingreso</option><option value="costo">Costo</option><option value="gasto">Gasto</option><option value="cierre">Cierre</option></select></div><div class="col-md-1"><label class="form-label mb-1 small">Admite</label><select id="contaCtaAdmite" class="form-select form-select-sm"><option value="1">Sí</option><option value="0">No</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Auxiliar</label><select id="contaCtaAux" class="form-select form-select-sm"><option value="ninguno">Ninguno</option><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="trabajador">Trabajador</option><option value="socio">Socio</option><option value="banco">Banco</option><option value="almacen">Almacén / artículo</option><option value="centro">Centro de costo</option></select></div><div class="col-md-2"><label class="form-check small mt-3"><input type="checkbox" id="contaCtaAuxReq" class="form-check-input"> Auxiliar obligatorio</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCuenta()">Agregar cuenta</button></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div></div></div>
@@ -4156,56 +4156,155 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
 /* ===== CONTA-CORE (puro, sin DOM) ===== */
 function ctaR2(n){return Math.round((Number(n)||0)*100)/100;}
+/* ===== PLAN DE CUENTAS — CLASIFICADOR DEL DUEÑO (ronda 8) =====
+   Desde la ronda 8 la semilla ES el Clasificador Maestro entregado por
+   Leonardo (estilo Versat Sarasola / Cuba, CLASIFICADOR-LEONARDO.md),
+   tal cual: códigos con guion (110-010), naturaleza D/A/Mixta, nivel y
+   «Movimiento: S/N» → admite. Los niveles 1 y 2 con Mov N no reciben
+   asientos; solo las subcuentas con Mov S (y 410, nivel 2 con Mov S).
+   Auxiliar: el tipo del clasificador (cliente, proveedor, trabajador,
+   socio, banco, almacén/artículo, centro de costo) y su obligatoriedad.
+   MATICES DE IMPLEMENTACIÓN (documentados en RONDA8-BUILD-REPORT.md):
+   - Banco (110-010/020/030), inventarios (181…188) y gastos por
+     elementos (61x/70x) declaran su auxiliar pero NO lo exigen por
+     línea: el auxiliar banco se materializa en la cuenta financiera
+     del movimiento (chequera/tarjeta), el de artículo en el submayor
+     de inventario integrado y el de centro de costo en el campo
+     «centro» de cada línea. Exigirlo en el análisis rompería todos
+     los asientos automáticos sin ganar control.
+   - 331-000 y 332-000 tampoco lo exigen por línea: el devengo y el
+     pago de la nómina se registran por totales del período (el detalle
+     por trabajador vive en la nómina y en su Sección I de la DJ),
+     igual que la antigua 220 (decisión D3 de la ronda 6).
+   - 316-000 (socio) igual: los pagos a socios se registran por
+     totales del trimestre; el detalle por socio vive en la DJ.
+   - 801/802 (cliente) no lo exigen: el auxiliar cliente se exige
+     donde nace el derecho, en la 131-000; la línea de ventas de una
+     venta de contado no tiene contraparte que exigir.
+   - 345-000 SÍ lo exige: las líneas del devengo siempre llevan su
+     análisis («Impuesto s/ ingresos personales (retenido)»). */
 function ctaPlanSemilla(){return [
- {codigo:'1',nombre:'Activo',naturaleza:'deudora',nivel:1,admite:false,grupo:'activo',porVerificar:true},
- {codigo:'110',nombre:'Efectivo en caja y banco',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo',porVerificar:true},
- {codigo:'110.01',nombre:'Banco CUP · Chequera',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
- {codigo:'110.02',nombre:'Banco CUP · Tarjeta CUP',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
- {codigo:'110.03',nombre:'Banco USD · Tarjeta USD (equivalente CUP)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
- {codigo:'110.04',nombre:'Caja CUP',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
- {codigo:'120',nombre:'Cuentas por cobrar',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo',porVerificar:true},
- {codigo:'120.01',nombre:'Cuentas por cobrar · Clientes',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',analisis:'contraparte',auxiliar:'cliente',requiereAuxiliar:true,porVerificar:true},
- {codigo:'130',nombre:'Inventarios',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo',porVerificar:true},
- {codigo:'130.01',nombre:'Inventarios · Mercancías y productos',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',porVerificar:true},
- {codigo:'140',nombre:'Activos fijos tangibles',naturaleza:'deudora',nivel:2,admite:true,grupo:'activo',porVerificar:true},
- {codigo:'141',nombre:'Depreciación acumulada de activos fijos',naturaleza:'acreedora',nivel:2,admite:true,grupo:'activo',esContra:true,porVerificar:true},
- {codigo:'150',nombre:'Otros activos',naturaleza:'deudora',nivel:2,admite:true,grupo:'activo',porVerificar:true},
- {codigo:'2',nombre:'Pasivo',naturaleza:'acreedora',nivel:1,admite:false,grupo:'pasivo',porVerificar:true},
- {codigo:'210',nombre:'Cuentas por pagar',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo',porVerificar:true},
- {codigo:'210.01',nombre:'Cuentas por pagar · Proveedores',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',analisis:'contraparte',auxiliar:'proveedor',requiereAuxiliar:true,porVerificar:true},
- {codigo:'220',nombre:'Nóminas por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',auxiliar:'trabajador',requiereAuxiliar:false,porVerificar:true},
- {codigo:'221',nombre:'Provisión de vacaciones por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
- {codigo:'222',nombre:'Provisión de prestaciones a corto plazo (1,5 %)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
- {codigo:'223',nombre:'Retenciones por pagar a terceros',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
- {codigo:'230',nombre:'Obligaciones con el Presupuesto (ONAT)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
- {codigo:'240',nombre:'Préstamos por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
- {codigo:'250',nombre:'Otras cuentas por pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',porVerificar:true},
- {codigo:'251',nombre:'Dividendos por pagar a socios',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',porVerificar:true},
- {codigo:'3',nombre:'Patrimonio',naturaleza:'acreedora',nivel:1,admite:false,grupo:'patrimonio',porVerificar:true},
- {codigo:'310',nombre:'Capital',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
- {codigo:'320',nombre:'Reservas',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
- {codigo:'320.01',nombre:'Fondo de contingencia',naturaleza:'acreedora',nivel:3,admite:true,grupo:'patrimonio',porVerificar:true},
- {codigo:'330',nombre:'Utilidades retenidas',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
- {codigo:'335',nombre:'Extracciones de socios',naturaleza:'deudora',nivel:2,admite:true,grupo:'patrimonio',esContra:true,porVerificar:true},
- {codigo:'340',nombre:'Resultado del ejercicio',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',porVerificar:true},
- {codigo:'4',nombre:'Ingresos',naturaleza:'acreedora',nivel:1,admite:false,grupo:'ingreso',porVerificar:true},
- {codigo:'410',nombre:'Ventas e ingresos por servicios',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',porVerificar:true},
- {codigo:'420',nombre:'Otros ingresos',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',porVerificar:true},
- {codigo:'421',nombre:'Ingreso por diferencial cambiario',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',porVerificar:true},
- {codigo:'5',nombre:'Costos y gastos',naturaleza:'deudora',nivel:1,admite:false,grupo:'gasto',porVerificar:true},
- {codigo:'510',nombre:'Costo de ventas',naturaleza:'deudora',nivel:2,admite:true,grupo:'costo',porVerificar:true},
- {codigo:'520',nombre:'Gastos de operación',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'521',nombre:'Gastos de salarios',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'522',nombre:'Contribución a la seguridad social (gasto del empleador)',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'523',nombre:'Impuesto por la utilización de la fuerza de trabajo (gasto)',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'524',nombre:'Gasto por depreciación',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'525',nombre:'Gasto por provisión de vacaciones',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'530',nombre:'Gastos financieros',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'531',nombre:'Gasto por diferencial cambiario',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'540',nombre:'Otros gastos',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true},
- {codigo:'549',nombre:'Ajuste por redondeo',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',porVerificar:true}
+ {codigo:'100',nombre:'ACTIVO CORRIENTE',naturaleza:'deudora',nivel:1,admite:false,grupo:'activo'},
+ {codigo:'101',nombre:'Efectivo en Caja',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo'},
+ {codigo:'101-010',nombre:'Fondo para Pagos Menores (Caja Chica)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'101-020',nombre:'Fondos para Cambios',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'101-040',nombre:'Efectivo por Depositar en Banco',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'110',nombre:'Efectivo en Banco',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo'},
+ {codigo:'110-010',nombre:'Cuenta Corriente Operativa en CUP (MN)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'banco',requiereAuxiliar:false},
+ {codigo:'110-020',nombre:'Cuenta Corriente Operativa en Divisa / MLC',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'banco',requiereAuxiliar:false},
+ {codigo:'110-030',nombre:'Cuentas de Ahorro o Depósitos a Plazo',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'banco',requiereAuxiliar:false},
+ {codigo:'130',nombre:'Cuentas por Cobrar a Corto Plazo',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo'},
+ {codigo:'131-000',nombre:'Cuentas por Cobrar Comerciales (Clientes)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'cliente',requiereAuxiliar:true},
+ {codigo:'132-000',nombre:'Documentos por Cobrar (Letras, Pagarés)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'cliente',requiereAuxiliar:true},
+ {codigo:'135-000',nombre:'Cuentas por Cobrar Diversas (Deudores Varios)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'138-000',nombre:'Anticipos a Suministradores / Proveedores',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'proveedor',requiereAuxiliar:true},
+ {codigo:'139-000',nombre:'Adelantos y Préstamos a Trabajadores',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'trabajador',requiereAuxiliar:true},
+ {codigo:'180',nombre:'Inventarios',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo'},
+ {codigo:'181-000',nombre:'Materias Primas y Materiales',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'almacen',requiereAuxiliar:false},
+ {codigo:'182-000',nombre:'Combustibles y Lubricantes',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'almacen',requiereAuxiliar:false},
+ {codigo:'183-000',nombre:'Repuestos, Partes y Accesorios',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'almacen',requiereAuxiliar:false},
+ {codigo:'184-000',nombre:'Útiles, Herramientas y Ropa de Trabajo',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'almacen',requiereAuxiliar:false},
+ {codigo:'186-000',nombre:'Producción en Proceso',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'187-000',nombre:'Producción Terminada / Productos Terminados',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'almacen',requiereAuxiliar:false},
+ {codigo:'188-000',nombre:'Mercancías para la Venta (Comercializadoras)',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo',auxiliar:'almacen',requiereAuxiliar:false},
+ {codigo:'200',nombre:'ACTIVO NO CORRIENTE',naturaleza:'deudora',nivel:1,admite:false,grupo:'activo'},
+ {codigo:'240',nombre:'Activos Fijos Tangibles (AFT)',naturaleza:'deudora',nivel:2,admite:false,grupo:'activo'},
+ {codigo:'241-000',nombre:'Edificios y Construcciones',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'242-000',nombre:'Equipos de Transporte / Vehículos',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'243-000',nombre:'Maquinarias, Instalaciones y Equipos',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'244-000',nombre:'Equipos de Computación y Tecnológicos',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'245-000',nombre:'Muebles, Enseres y Herramientas Mayores',naturaleza:'deudora',nivel:3,admite:true,grupo:'activo'},
+ {codigo:'250',nombre:'Depreciación Acumulada de AFT',naturaleza:'acreedora',nivel:2,admite:false,grupo:'activo',esContra:true},
+ {codigo:'251-000',nombre:'Depreciación Acumulada de Edificios',naturaleza:'acreedora',nivel:3,admite:true,grupo:'activo',esContra:true},
+ {codigo:'252-000',nombre:'Depreciación Acumulada de Transporte',naturaleza:'acreedora',nivel:3,admite:true,grupo:'activo',esContra:true},
+ {codigo:'253-000',nombre:'Depreciación Acumulada de Maquinaria y Equipos',naturaleza:'acreedora',nivel:3,admite:true,grupo:'activo',esContra:true},
+ {codigo:'300',nombre:'PASIVO CORRIENTE',naturaleza:'acreedora',nivel:1,admite:false,grupo:'pasivo'},
+ {codigo:'310',nombre:'Cuentas por Pagar a Corto Plazo',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo'},
+ {codigo:'311-000',nombre:'Cuentas por Pagar a Proveedores',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'proveedor',requiereAuxiliar:true},
+ {codigo:'312-000',nombre:'Documentos por Pagar',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'proveedor',requiereAuxiliar:true},
+ {codigo:'315-000',nombre:'Cuentas por Pagar Diversas',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'proveedor',requiereAuxiliar:true},
+ {codigo:'316-000',nombre:'Dividendos / Utilidades por Pagar a Socios',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'socio',requiereAuxiliar:false},
+ {codigo:'318-000',nombre:'Cobros Anticipados de Clientes (Corto Plazo)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'cliente',requiereAuxiliar:true},
+ {codigo:'330',nombre:'Obligaciones con el Trabajo y la Seguridad Social (Nómina)',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo'},
+ {codigo:'331-000',nombre:'Nómina por Pagar (Sueldos y Salarios Líquidos)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'trabajador',requiereAuxiliar:false},
+ {codigo:'332-000',nombre:'Retenciones de Nómina por Pagar (Embargos, Cuotas Sindicales)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'trabajador',requiereAuxiliar:false},
+ {codigo:'333-000',nombre:'Contribución a la Seguridad Social por Pagar (Aporte Patronal 14%)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'334-000',nombre:'Impuesto sobre la Fuerza de Trabajo por Pagar',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'340',nombre:'Obligaciones Fiscales con el Presupuesto (ONAT)',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo'},
+ {codigo:'341-000',nombre:'Impuesto sobre las Ventas / Servicios por Pagar',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'342-000',nombre:'Impuesto sobre las Utilidades por Pagar',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'343-000',nombre:'Contribución Territorial por Pagar (1%)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'345-000',nombre:'Impuesto sobre Ingresos Personales (Retenido en Nómina)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'trabajador',requiereAuxiliar:true},
+ {codigo:'400',nombre:'PASIVO NO CORRIENTE',naturaleza:'acreedora',nivel:1,admite:false,grupo:'pasivo'},
+ {codigo:'410',nombre:'Préstamos Bancarios a Largo Plazo',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',auxiliar:'banco',requiereAuxiliar:true},
+ {codigo:'440',nombre:'Ingresos Diferidos y Pasivos No Corrientes Diversos',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo'},
+ {codigo:'440-010',nombre:'Ingresos Diferidos por Ventas/Servicios a Largo Plazo',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'440-020',nombre:'Subvenciones y Donaciones de Capital por Amortizar',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'440-030',nombre:'Provisiones a Largo Plazo para Contingencias',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
+ {codigo:'500',nombre:'PATRIMONIO',naturaleza:'acreedora',nivel:1,admite:false,grupo:'patrimonio'},
+ {codigo:'501-000',nombre:'Capital Social / Aportes de Socios o Dueños',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio',auxiliar:'socio',requiereAuxiliar:false},
+ {codigo:'505-000',nombre:'Reservas Obligatorias y Voluntarias',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'},
+ {codigo:'510-000',nombre:'Utilidades Retenidas / Acumuladas de Ejercicios Anteriores',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'},
+ {codigo:'520-000',nombre:'Utilidad o Pérdida del Ejercicio Actual (Resultado Neto)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'},
+ {codigo:'600',nombre:'GASTOS DE PRODUCCIÓN Y OPERACIÓN (Elementos de Gastos)',naturaleza:'deudora',nivel:1,admite:false,grupo:'gasto'},
+ {codigo:'610',nombre:'Gastos por Elementos Primarios (Desglose por Centro de Costo)',naturaleza:'deudora',nivel:2,admite:false,grupo:'gasto'},
+ {codigo:'611-000',nombre:'Gastos de Materias Primas y Materiales Directos',naturaleza:'deudora',nivel:3,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'612-000',nombre:'Gastos de Combustibles, Energía y Fuerza',naturaleza:'deudora',nivel:3,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'613-000',nombre:'Depreciación y Amortización de Activos Fijos',naturaleza:'deudora',nivel:3,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'614-000',nombre:'Gastos de Salarios y Remuneraciones (Nómina Bruta)',naturaleza:'deudora',nivel:3,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'615-000',nombre:'Gastos de Seguridad Social (Patronal)',naturaleza:'deudora',nivel:3,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'616-000',nombre:'Gastos de Servicios Comprados a Terceros',naturaleza:'deudora',nivel:3,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'695-000',nombre:'Costo de Ventas',naturaleza:'deudora',nivel:2,admite:true,grupo:'costo'},
+ {codigo:'700',nombre:'GASTOS DE PERÍODO (Comerciales, Administración y Financieros)',naturaleza:'deudora',nivel:1,admite:false,grupo:'gasto'},
+ {codigo:'701-000',nombre:'Gastos de Distribución y Ventas',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'705-000',nombre:'Gastos de Administración y Gestión',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
+ {codigo:'710-000',nombre:'Gastos Financieros (Comisiones Bancarias, Intereses, Pérdidas Cambiarias)',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto'},
+ {codigo:'720-000',nombre:'Gastos No Operativos / Pérdidas Extraordinarias',naturaleza:'deudora',nivel:2,admite:true,grupo:'gasto'},
+ {codigo:'800',nombre:'INGRESOS',naturaleza:'acreedora',nivel:1,admite:false,grupo:'ingreso'},
+ {codigo:'801-000',nombre:'Ingresos por Venta de Mercancías y Productos',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',auxiliar:'cliente',requiereAuxiliar:false},
+ {codigo:'802-000',nombre:'Ingresos por Prestación de Servicios y Gastronomía',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso',auxiliar:'cliente',requiereAuxiliar:false},
+ {codigo:'805-000',nombre:'Ingresos Financieros (Intereses ganados, Utilidades cambiarias)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso'},
+ {codigo:'810-000',nombre:'Otros Ingresos Diversos / Ganancias Extraordinarias',naturaleza:'acreedora',nivel:2,admite:true,grupo:'ingreso'},
+ {codigo:'900',nombre:'CUENTAS DE CIERRE Y REGULACIÓN',naturaleza:'mixta',nivel:1,admite:false,grupo:'cierre'},
+ {codigo:'901-000',nombre:'Cuenta de Cierre: Pérdidas y Ganancias (Resumen de Rentas)',naturaleza:'mixta',nivel:2,admite:true,grupo:'cierre'},
+ {codigo:'905-000',nombre:'Liquidación del Resultado del Ejercicio Económico',naturaleza:'mixta',nivel:2,admite:true,grupo:'cierre'}
 ];}
-function ctaPlantillasDef(){return {banco:{chequera:'110.01',tarjeta_cup:'110.02',tarjeta_usd:'110.03'},ventas:'410',otrosIngresos:'420',cxc:'120.01',cxp:'210.01',inventarios:'130.01',costoVentas:'510',gastoOperacion:'520',salarios:'521',segSocial:'522',fuerzaGasto:'523',gastoProvVac:'525',provVacaciones:'221',provPrestaciones:'222',retencionesPorPagar:'223',nominasPorPagar:'220',onatCargo:'230',depreciacionGasto:'524',depreciacionAcum:'141',extracciones:'335',fondoContingencia:'320.01',dividendosPorPagar:'251',difPos:'421',difNeg:'531',bancoNomina:'110.01',resultado:'340',utilRetenidas:'330',redondeo:'549',caja:'110.04',arqueoFaltante:'540',arqueoSobrante:'420'};}
+/* PLANTILLAS sobre el clasificador nuevo (ronda 8). Decisiones:
+   - Bancos POR MONEDA: chequera y tarjeta CUP → 110-010 (operativa
+     CUP); tarjeta USD → 110-020 (Divisa/MLC). La separación chequera /
+     tarjeta la sigue llevando la app en sus saldos por cuenta
+     financiera; en el mayor son la misma cuenta del clasificador.
+   - ventas → 801-000 (mercancías y productos); un negocio de servicios
+     la apunta a 802-000 en Plantillas.
+   - inventarios → 188-000 (mercancías para la venta); producción la
+     apunta a 181-000. El costo de ventas → 695-000 (la agregada).
+   - gastoOperacion → 705-000 (administración y gestión, el gasto
+     operativo genérico); distribución y ventas sería 701-000.
+   - El gasto del IUFT va a 615-000 junto a la CSS patronal: ambas son
+     cargas sociales del empleador sobre la nómina y el clasificador
+     no trae otra cuenta de cargas patronales; se distinguen por el
+     análisis y por su cuenta por pagar (334-000 vs 333-000).
+   - Provisión de vacaciones: gasto dentro de 614-000 y pasivo dentro
+     de 331-000, ambos con análisis «Provisión de vacaciones».
+   - La CSS por pagar (333-000) concentra, con análisis: 12,5 % al
+     Presupuesto, provisión 1,5 % de prestaciones, Contribución
+     Especial retenida a los trabajadores y los subsidios que se pagan
+     a cargo de ese fondo. El IIP retenido va a su 345-000 y las
+     retenciones a terceros (embargos, créditos, sindicato) a 332-000.
+   - onatCargo (pago ONAT genérico del importador/movimientos) →
+     341-000 por defecto; el negocio lo apunta al tributo que pague
+     habitualmente (342-000 utilidades, 343-000 territorial…).
+   - depreciacionAcum → 253-000 (maquinaria y equipos, el AFT típico
+     de estos negocios); edificios → 251-000, transporte → 252-000.
+   - extracciones → 135-000 (el socio como deudor en Cuentas por
+     Cobrar Diversas, hasta que la distribución se formalice contra
+     utilidades); el fondo de contingencia → 505-000 (reservas: el uso
+     del fondo carga la reserva, como hacía la antigua 320.01).
+   - Cierre: regularización contra 901-000, liquidación por 905-000,
+     resultado neto a 520-000 y de ahí a utilidades retenidas 510-000.
+   - Redondeo: según el signo — pérdida a 710-000, ganancia a 810-000
+     (la antigua cuenta 549 desaparece). */
+function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'316-000',difPos:'805-000',difNeg:'710-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
 function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],bandeja:[],estadosBanco:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqNota:0,seqArqueo:0};}
 function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
 /* Naturaleza como DATO del plan: si una cuenta no la trae (planes viejos o
@@ -4218,7 +4317,18 @@ function ctaAuxiliarDe(c){if(!c)return 'ninguno';if(c.auxiliar)return c.auxiliar
 /* Jerarquía del plan: B es hija de A si B = A + '.…' o si A es la clase
    (un dígito) y B empieza por ella. Ej.: 110.01 hija de 110 y de 1;
    141 NO es hija de 140. */
-function ctaEsHijaDe(codHija,codPadre){if(!codHija||!codPadre||codHija===codPadre)return false;if(codHija.indexOf(codPadre+'.')===0)return true;if(codPadre.length===1&&codHija.charAt(0)===codPadre)return true;return false;}
+function ctaEsHijaDe(codHija,codPadre){if(!codHija||!codPadre||codHija===codPadre)return false;
+ if(codHija.indexOf(codPadre+'.')===0)return true;
+ /* Clasificador con guion (ronda 8): XXX-YYY es hija de su cuenta base
+    (110-010 de 110; 440-010 de 440), de su decena (131-000 de 130;
+    181-000 de 180; 695-000 NO es hija de 610: su decena es 690), de su
+    centena/clase (110-010 de 100) y, si YYY≠000, de su subcuenta
+    XXX-000 (análisis de usuario bajo la subcuenta). Una cuenta de 3
+    dígitos (410, 110) es hija de su centena (400, 100). */
+ const m=/^(\d{3})-(\d{3})$/.exec(codHija);
+ if(m){const b=+m[1];if(codPadre===m[1])return true;if(m[2]!=='000'&&codPadre===m[1]+'-000')return true;if(codPadre===String(Math.floor(b/10)*10))return true;if(codPadre===String(Math.floor(b/100)*100))return true;return false;}
+ if(/^\d{3}$/.test(codHija)){if(codPadre===String(Math.floor(+codHija/100)*100))return true;if(/^\d{3}$/.test(codPadre))return false;}
+ if(codPadre.length===1&&codHija.charAt(0)===codPadre)return true;return false;}
 function ctaTieneHijas(conta,cod){return (conta.plan||[]).some(c=>ctaEsHijaDe(c.codigo,cod));}
 /* es_movimiento DERIVADO: una cuenta con hijas nunca recibe asientos
    (se asienta en el nivel más bajo); además respeta la marca admite. */
@@ -4337,22 +4447,28 @@ function ctaDiario(conta,f){f=f||{};ctaAsegurarNumeracion(conta);const ORDEN={Ap
    silencio dentro de otra línea. */
 function ctaLineaRedondeo(conta,lineas){let d=0,h=0;for(const l of (lineas||[])){d+=Number(l.debe)||0;h+=Number(l.haber)||0;}
  const dif=ctaR2(d-h);if(dif===0)return null;if(Math.abs(dif)>0.01)return null;
- const P=conta.plantillas||ctaPlantillasDef();const cod=P.redondeo||'549';if(!ctaCuenta(conta,cod))return null;
+ /* Ronda 8: la cuenta única de redondeo desaparece del clasificador;
+    el ajuste va según su SIGNO: si falta Haber (dif>0) es una ganancia
+    → 810-000; si falta Debe, una pérdida → 710-000. */
+ const P=conta.plantillas||ctaPlantillasDef();const cod=dif>0?(P.redondeoIngreso||'810-000'):(P.redondeoGasto||'710-000');if(!ctaCuenta(conta,cod))return null;
  return {cuenta:cod,debe:dif<0?ctaR2(-dif):0,haber:dif>0?dif:0,analisis:'Ajuste por redondeo',centro:'',redondeo:true};}
 function ctaResultados(conta,f){f=Object.assign({},f||{},{excluirCierre:true});const m=ctaMayor(conta,f);let ing=0,gas=0;const detI=[],detG=[];
  for(const c of (conta.plan||[])){const e=m[c.codigo];if(!e)continue;if(e.grupo==='ingreso'){const v=ctaR2(e.haber-e.debe);if(v!==0){detI.push({codigo:e.codigo,nombre:e.nombre,importe:v});ing=ctaR2(ing+v);}}else if(e.grupo==='gasto'||e.grupo==='costo'){const v=ctaR2(e.debe-e.haber);if(v!==0){detG.push({codigo:e.codigo,nombre:e.nombre,importe:v});gas=ctaR2(gas+v);}}}
  return {ingresos:ing,gastos:gas,resultado:ctaR2(ing-gas),detIngresos:detI,detGastos:detG};}
 function ctaSituacion(conta,f){const m=ctaMayor(conta,f);let act=0,pas=0,pat=0,resPend=0;
- /* Activo: suma del saldo firmado (deudor positivo); la contra-cuenta 141 tiene saldo firmado negativo y resta sola.
-    Reclasificación (ronda 4): un saldo deudor en una cuenta de Pasivo (ej. saldo a favor en la 230 por pagos
-    anticipados a la ONAT) se presenta en el Activo, y un saldo acreedor en una cuenta de Activo (salvo la
-    contra-cuenta 141) se presenta en el Pasivo — así ningún total sale con signo imposible. */
+ /* Activo: suma del saldo firmado (deudor positivo); las cuentas
+    REGULADORAS (esContra: depreciación acumulada 25x-000) tienen saldo
+    firmado negativo y restan solas. Reclasificación (ronda 4): un saldo
+    deudor en una cuenta de Pasivo (ej. saldo a favor en la 341-000 por
+    pagos anticipados a la ONAT) se presenta en el Activo, y un saldo
+    acreedor en una cuenta de Activo (salvo las reguladoras) se presenta
+    en el Pasivo — así ningún total sale con signo imposible. */
  for(const c of (conta.plan||[])){const e=m[c.codigo];if(!e)continue;
-  if(e.grupo==='activo'){if(e.saldoFirmado<0&&c.codigo!=='141')pas=ctaR2(pas-e.saldoFirmado);else act=ctaR2(act+e.saldoFirmado);}
+  if(e.grupo==='activo'){if(e.saldoFirmado<0&&!c.esContra)pas=ctaR2(pas-e.saldoFirmado);else act=ctaR2(act+e.saldoFirmado);}
   else if(e.grupo==='pasivo'){if(e.saldoFirmado>0)act=ctaR2(act+e.saldoFirmado);else pas=ctaR2(pas-e.saldoFirmado);}
   else if(e.grupo==='patrimonio')pat=ctaR2(pat-e.saldoFirmado);
   else if(e.grupo==='ingreso'||e.grupo==='gasto'||e.grupo==='costo')resPend=ctaR2(resPend-e.saldoFirmado);}
- /* resPend = resultado aún no trasladado: tras el cierre anual las cuentas de ingreso/gasto quedan en 0 y el resultado ya vive en patrimonio (330/340), así que no se duplica. */
+ /* resPend = resultado aún no trasladado: tras el cierre anual las cuentas de ingreso/gasto quedan en 0 y el resultado ya vive en patrimonio (510-000/520-000), así que no se duplica. */
  const patrimonio=ctaR2(pat+resPend);
  return {activo:act,pasivo:pas,patrimonioCuentas:pat,resultadoPendiente:resPend,patrimonio:patrimonio,cuadrado:Math.abs(act-ctaR2(pas+patrimonio))<0.005};}
 function ctaMontoCUP(mov,tasaFallback){const m=Number(mov&&mov.monto)||0;if(mov&&mov.cuenta==='tarjeta_usd'){const t=Number(mov.tasaCambio)>0?Number(mov.tasaCambio):(Number(tasaFallback)>0?Number(tasaFallback):1);return ctaR2(m*t);}return ctaR2(m);}
@@ -4378,7 +4494,11 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
  if(clas==='transferencia'){
    if(!mov.cuentaDestino)return pend('Transferencia sin cuenta destino/origen registrada');
    const dest=ctaBancoDe(conta,mov.cuentaDestino);if(!dest||falta(dest))return pend('La cuenta destino de la transferencia no tiene cuenta contable en las plantillas');
-   if(dest===banco)return pend('Transferencia entre la misma cuenta contable');
+   if(mov.cuentaDestino===mov.cuenta)return pend('Transferencia entre la misma cuenta financiera: no mueve saldo');
+   /* Ronda 8: chequera y tarjeta CUP comparten la cuenta del mayor
+      (110-010, clasificador por moneda): una transferencia entre ellas
+      SÍ se asienta — Debe y Haber a la misma cuenta, efecto neto cero —
+      para dejar traza del movimiento. Ya no queda pendiente. */
    const entra=mov.tipo==='ingreso';
    const l1=linUSD(entra?banco:dest),l2=linUSD(entra?dest:banco);l1.debe=cup;l1.haber=0;l2.debe=0;l2.haber=cup;
    return {clave,asientos:[{fecha:mov.fecha,concepto:'Transferencia entre cuentas · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l1,l2]}]};}
@@ -4387,18 +4507,18 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.extracciones,debe:cup,haber:0,centro},l]}]};}
  if(clas==='contingencia'){
    /* Uso del Fondo de contingencia: sale dinero del banco contra la
-      reserva (patrimonio 320.01) — NUNCA contra resultados: no es gasto. */
+      reserva (patrimonio 505-000) — NUNCA contra resultados: no es gasto. */
    if(falta(P.fondoContingencia))return pend('Falta la cuenta del fondo de contingencia en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Uso del fondo de contingencia · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.fondoContingencia,debe:cup,haber:0,centro},l]}]};}
  if(clas==='utilidades'){
    /* Pago de utilidades/dividendos a socios: contra Dividendos por
-      pagar (pasivo 251) — distribución de patrimonio, NUNCA gasto. */
+      pagar (pasivo 316-000) — distribución de patrimonio, NUNCA gasto. */
    if(falta(P.dividendosPorPagar))return pend('Falta la cuenta de dividendos por pagar en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de utilidades a socios · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.dividendosPorPagar,debe:cup,haber:0,centro},l]}]};}
  if(clas==='salario'){
-   /* Pago bancario de salarios: cancela Nóminas por pagar (220), igual
-      que el evento «pago» de la nómina; el gasto ya se devengó con la
-      nómina (521/522/523/525), así que aquí NO se duplica. */
+   /* Pago bancario de salarios: cancela Nómina por pagar (331-000),
+      igual que el evento «pago» de la nómina; el gasto ya se devengó
+      con la nómina (614-000/615-000), así que aquí NO se duplica. */
    if(falta(P.nominasPorPagar))return pend('Falta la cuenta de nóminas por pagar en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de salario · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.nominasPorPagar,debe:cup,haber:0,centro},l]}]};}
  if(mov.tipo==='ingreso'){
@@ -4466,7 +4586,7 @@ function ctaReconstruir(conta,eventos){
  const claves=new Set((conta.asientos||[]).map(a=>a.fuenteKey).filter(Boolean));
  const ordenados=(eventos||[]).slice().sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
  /* Ronda 5: si el período tiene movimientos clasificados «Salario», ELLOS
-    son el pago bancario real de la nómina (Dr 220 / Cr banco del
+    son el pago bancario real de la nómina (Dr 331-000 / Cr banco del
     movimiento): el asiento de pago sintético del evento de nómina se
     omite para no pagar dos veces la misma nómina. El devengo no cambia. */
  const periodosSalarioMov=new Set((eventos||[]).filter(e=>e&&e.tipo==='mov'&&e.mov&&(e.mov.clasificacion||'')==='salario').map(e=>e.periodo));
@@ -4492,25 +4612,27 @@ function ctaReconstruir(conta,eventos){
      registrar(ctaAsientoDocumento(conta,doc),doc.numero);}
    else if(ev.tipo==='nomina'){const t=ev.tot||{};const claveD='nomina-devengo:'+ev.periodo,claveP='nomina-pago:'+ev.periodo;const P=Object.assign({},ctaPlantillasDef(),conta.plantillas||{});
      if((Number(t.bruto)||0)>0){
-       /* Composición VERIFICADA (Ley 113 y Gaceta Oficial GOC-2024-O5, 16-01-2024): el devengo carga el salario bruto,
-          la Contribución a la Seguridad Social del empleador (14 %: 12,5 % al Presupuesto + 1,5 % aprovisionado para
-          prestaciones a corto plazo) y el IUFT (5 %); abona el neto a Nóminas por pagar, a la ONAT por tributo
-          (IUFT + CSS 12,5 % + Contrib. especial retenida + IIP retenido), al fondo del 1,5 %, a la provisión de
-          vacaciones y a las retenciones a terceros. Los subsidios se cargan al fondo de prestaciones a corto plazo. */
+       /* Composición VERIFICADA (Ley 113 y Gaceta Oficial GOC-2024-O5, 16-01-2024): el devengo carga el salario bruto
+          (614-000), las cargas sociales patronales (615-000: CSS del empleador 14 % e IUFT 5 %) y la provisión de
+          vacaciones (gasto en 614-000 con su análisis); abona el neto a Nómina por pagar (331-000) y CADA tributo a
+          SU cuenta del clasificador: IUFT → 334-000; CSS por pagar → 333-000 (con análisis: 12,5 % al Presupuesto,
+          provisión 1,5 % de prestaciones y Contribución especial retenida a los trabajadores); IIP retenido →
+          345-000; provisión de vacaciones → 331-000 con su análisis; retenciones a terceros → 332-000. Los
+          subsidios se pagan a cargo de la CSS: se cargan a la 333-000 con su análisis. */
        const ssEmp=ctaR2(t.ssEmp);const ssPpto=(t.ssPresupuesto!=null&&t.ssPresupuesto!=='')?ctaR2(t.ssPresupuesto):ctaR2(ssEmp*12.5/14);const ssProv=(t.ssProvision!=null&&t.ssProvision!=='')?ctaR2(t.ssProvision):ctaR2(ssEmp-ssPpto);
        const fuerza=ctaR2(t.fuerza),retSS=ctaR2(t.segTrab),retIIP=ctaR2(t.iip),pv=ctaR2(t.provisionVac),sub=ctaR2(t.subsidios),ded=ctaR2(t.deducciones);
        const L=[{cuenta:P.salarios,debe:ctaR2(t.bruto),haber:0}];
        if(ssEmp)L.push({cuenta:P.segSocial,debe:ssEmp,haber:0});
        if(fuerza)L.push({cuenta:P.fuerzaGasto,debe:fuerza,haber:0});
-       if(pv)L.push({cuenta:P.gastoProvVac,debe:pv,haber:0});
-       if(sub)L.push({cuenta:P.provPrestaciones,debe:sub,haber:0});
+       if(pv)L.push({cuenta:P.gastoProvVac,debe:pv,haber:0,analisis:'Provisión de vacaciones'});
+       if(sub)L.push({cuenta:P.cssPagar,debe:sub,haber:0,analisis:'Subsidios a cargo de la Seguridad Social'});
        L.push({cuenta:P.nominasPorPagar,debe:0,haber:ctaR2(t.neto)});
-       if(fuerza)L.push({cuenta:P.onatCargo,debe:0,haber:fuerza,analisis:'Imp. utilización de la fuerza de trabajo'});
-       if(ssPpto)L.push({cuenta:P.onatCargo,debe:0,haber:ssPpto,analisis:'Contrib. a la seguridad social (12,5 % al Presupuesto)'});
-       if(retSS)L.push({cuenta:P.onatCargo,debe:0,haber:retSS,analisis:'Contrib. especial a la seguridad social (retenida)'});
-       if(retIIP)L.push({cuenta:P.onatCargo,debe:0,haber:retIIP,analisis:'Impuesto s/ ingresos personales (retenido)'});
-       if(ssProv)L.push({cuenta:P.provPrestaciones,debe:0,haber:ssProv});
-       if(pv)L.push({cuenta:P.provVacaciones,debe:0,haber:pv});
+       if(fuerza)L.push({cuenta:P.iuftPagar,debe:0,haber:fuerza,analisis:'Imp. utilización de la fuerza de trabajo'});
+       if(ssPpto)L.push({cuenta:P.cssPagar,debe:0,haber:ssPpto,analisis:'Contrib. a la seguridad social (12,5 % al Presupuesto)'});
+       if(retSS)L.push({cuenta:P.cssPagar,debe:0,haber:retSS,analisis:'Contrib. especial a la seguridad social (retenida)'});
+       if(retIIP)L.push({cuenta:P.iipRetenido,debe:0,haber:retIIP,analisis:'Impuesto s/ ingresos personales (retenido)'});
+       if(ssProv)L.push({cuenta:P.cssPagar,debe:0,haber:ssProv,analisis:'Provisión de prestaciones a corto plazo (1,5 %)'});
+       if(pv)L.push({cuenta:P.provVacaciones,debe:0,haber:pv,analisis:'Provisión de vacaciones'});
        if(ded)L.push({cuenta:P.retencionesPorPagar,debe:0,haber:ded});
        registrar({clave:claveD,asientos:[{fecha:ev.fecha,concepto:'Nómina devengada · '+ev.periodo,origen:'auto',fuenteKey:claveD,lineas:L}]},'Nómina '+ev.periodo);
        if(!periodosSalarioMov.has(ev.periodo))registrar({clave:claveP,asientos:[{fecha:ev.fecha,concepto:'Pago de nómina · '+ev.periodo,origen:'auto',fuenteKey:claveP,lineas:[{cuenta:P.nominasPorPagar,debe:ctaR2(t.neto),haber:0},{cuenta:P.bancoNomina,debe:0,haber:ctaR2(t.neto)}]}]},'Pago nómina '+ev.periodo);}}}
@@ -4559,8 +4681,18 @@ function ctaCierreAnual(conta,anio){
    for(const d of res.detGastos)a2.lineas.push({cuenta:d.codigo,debe:0,haber:d.importe});
    const r2=ctaAgregarAsiento(conta,a2);if(!r2.ok)return {ok:false,motivo:r2.motivo};ids.push(r2.asiento.id);}
  const neto=res.resultado;
- if(Math.abs(neto)>0.005){const a3=neto>0?{fecha:fecha,concepto:'Traslado del resultado del ejercicio · '+anio,origen:'cierre',fuenteKey:'cierre:'+anio+':traslado',lineas:[{cuenta:P.resultado,debe:neto,haber:0},{cuenta:P.utilRetenidas,debe:0,haber:neto}]}:{fecha:fecha,concepto:'Traslado del resultado del ejercicio · '+anio,origen:'cierre',fuenteKey:'cierre:'+anio+':traslado',lineas:[{cuenta:P.utilRetenidas,debe:-neto,haber:0},{cuenta:P.resultado,debe:0,haber:-neto}]};
-   const r3=ctaAgregarAsiento(conta,a3);if(!r3.ok)return {ok:false,motivo:r3.motivo};ids.push(r3.asiento.id);}
+ if(Math.abs(neto)>0.005){const N=Math.abs(neto);const LQ=P.liquidacion||'905-000',RE=P.resultadoEjercicio||'520-000';
+   /* Ronda 8: el cierre recorre el clasificador — la regularización
+      deja el resultado en 901-000 (Pérdidas y Ganancias), la
+      LIQUIDACIÓN (905-000) lo traslada a 520-000 (resultado neto del
+      ejercicio) y de ahí pasa a utilidades retenidas 510-000. Tres
+      comprobantes de cierre, cada uno con su fuenteKey; 901, 905 y
+      520 terminan en cero y el resultado vive en la 510-000. */
+   const pasos=[[P.resultado,LQ,'cierre:'+anio+':traslado','Traslado a la liquidación del resultado · '+anio],[LQ,RE,'cierre:'+anio+':liquidacion','Liquidación del resultado del ejercicio · '+anio],[RE,P.utilRetenidas,'cierre:'+anio+':retenidas','Resultado neto a utilidades retenidas · '+anio]];
+   for(const ps of pasos){const c1=ps[0],c2=ps[1];
+     const lin=neto>0?[{cuenta:c1,debe:N,haber:0},{cuenta:c2,debe:0,haber:N}]:[{cuenta:c2,debe:N,haber:0},{cuenta:c1,debe:0,haber:N}];
+     const rr=ctaAgregarAsiento(conta,{fecha:fecha,concepto:ps[3],origen:'cierre',fuenteKey:ps[2],lineas:lin});
+     if(!rr.ok)return {ok:false,motivo:rr.motivo};ids.push(rr.asiento.id);}}
  const sit=ctaSituacion(conta,{hasta:fecha});const m=ctaMayor(conta,{hasta:fecha});
  const saldos=[];for(const c of (conta.plan||[])){if(c.grupo==='ingreso'||c.grupo==='gasto'||c.grupo==='costo')continue;const e=m[c.codigo];if(e&&e.saldoFirmado!==0)saldos.push({cuenta:c.codigo,nombre:c.nombre,saldoFirmado:e.saldoFirmado});}
  const apertura={anio:Number(anio)+1,fecha:(Number(anio)+1)+'-01-01',situacion:{activo:sit.activo,pasivo:sit.pasivo,patrimonio:sit.patrimonio},saldos:saldos};
@@ -4684,6 +4816,90 @@ function ctaProgramadorPagos(conta,fechaHoy){const hoyF=fechaHoy||'';const items
  const tot={vencida:0,semana:0,futura:0,total:0};
  for(const it of items){tot[it.semaforo]=ctaR2(tot[it.semaforo]+it.pendiente);tot.total=ctaR2(tot.total+it.pendiente);}
  return {items:items,totales:tot};}
+/* ===== MIGRACIÓN AL CLASIFICADOR DEL DUEÑO (ronda 8) =====
+   Al cargar un negocio cuyo plan sea el VIEJO (rondas 3-7), se aplica
+   el mapa viejo→nuevo UNA sola vez: se recodifican las líneas de los
+   asientos ya generados, las plantillas personalizadas y cualquier
+   estructura que guarde códigos (documentos, reglas aprendidas,
+   arqueos, saldos de apertura), y el plan se reconstruye con la
+   semilla del clasificador. IDEMPOTENTE (bandera migClasificador +
+   detección por contenido: sin códigos viejos, no hay nada que migrar)
+   y SIN cambiar saldos: cada línea conserva su importe; en los mapas
+   varios-a-uno (110.01+110.02 → 110-010) el saldo de la destino es la
+   suma de las fuentes, y el Balance de Comprobación cuadra igual.
+   COLISIÓN 410: en el plan viejo 410 era «Ventas» y en el nuevo es
+   «Préstamos Bancarios a Largo Plazo»; como la migración remapea
+   líneas y reconstruye el plan en la misma pasada atómica y luego
+   levanta la bandera, ningún saldo puede remapearse dos veces.
+   Cuentas viejas SIN equivalente: se conservan con su código, marcadas
+   sinClasificar — NUNCA se borra una cuenta, tenga saldo o no; las
+   clases y rubros viejos (1, 2, 110, 120…) se absorben en la
+   estructura nueva porque ninguna línea vive en ellos. */
+const CTA_MAPA_CUENTAS={'110.01':'110-010','110.02':'110-010','110.03':'110-020','110.04':'101-010','120.01':'131-000','130.01':'188-000','140':'243-000','141':'253-000','210.01':'311-000','220':'331-000','221':'331-000','222':'333-000','223':'332-000','240':'410','250':'315-000','251':'316-000','310':'501-000','320':'505-000','320.01':'505-000','330':'510-000','335':'135-000','340':'901-000','410':'801-000','420':'810-000','421':'805-000','510':'695-000','520':'705-000','521':'614-000','522':'615-000','523':'615-000','524':'613-000','525':'614-000','530':'710-000','531':'710-000','540':'720-000'};
+/* Mapa para códigos SUELTOS (plantillas, reglas, documentos, arqueos,
+   aperturas): la 230 genérica va a 341-000 y la 549 a 710-000. En las
+   LÍNEAS de asiento, 230 y 549 se resuelven por línea (abajo). */
+const CTA_MAPA_SIMPLE=Object.assign({},CTA_MAPA_CUENTAS,{'230':'341-000','549':'710-000'});
+/* Detección de un plan VIEJO: SOLO códigos que existen en el plan
+   viejo y NO en el clasificador. Ojo: 110, 130, 240, 250, 310, 330,
+   340 y 410 existen en AMBOS planes con significados distintos (la
+   410 vieja era Ventas; la nueva, Préstamos LP) — por eso no sirven
+   para detectar; un plan viejo siempre trae códigos con punto, las
+   clases de un dígito o cuentas como la 230/549 que el clasificador
+   no tiene. */
+const CTA_SOLO_VIEJOS=new Set(['1','2','3','4','5','110.01','110.02','110.03','110.04','120','120.01','130.01','140','141','150','210','210.01','220','221','222','223','230','251','320','320.01','335','420','421','510','520','521','522','523','524','525','530','531','540','549']);
+/* Hogar de UNA línea según su cuenta vieja y su análisis:
+   - La antigua 230 (toda la ONAT en una sola cuenta) se reparte por el
+     análisis que el propio devengo ya escribía: fuerza de trabajo →
+     334-000; ingresos personales → 345-000; seguridad social (12,5 %
+     al Presupuesto, Contribución especial retenida y provisión 1,5 %)
+     → 333-000; sin análisis reconocible (pagos ONAT genéricos) →
+     341-000.
+   - La antigua 549 (redondeo en una sola cuenta) se reparte por el
+     LADO: al Haber era ganancia → 810-000; al Debe, pérdida → 710-000. */
+function ctaMapaLinea(l){const cod=l&&l.cuenta;if(!cod)return cod;
+ if(cod==='230'){const a=String((l&&l.analisis)||'');
+  if(/fuerza de trabajo/i.test(a))return '334-000';
+  if(/ingresos personales/i.test(a))return '345-000';
+  if(/seguridad social/i.test(a))return '333-000';
+  return '341-000';}
+ if(cod==='549')return (Number(l.haber)||0)>0?'810-000':'710-000';
+ return CTA_MAPA_CUENTAS[cod]||cod;}
+function ctaMigrarClasificador(conta){
+ if(!conta)return {migrado:false,motivo:'sin documento'};
+ if(conta.migClasificador)return {migrado:false,motivo:'ya aplicada'};
+ const plan=conta.plan||[];
+ const hayViejo=plan.some(c=>CTA_SOLO_VIEJOS.has(c.codigo))||(conta.asientos||[]).some(a=>(a.lineas||[]).some(l=>CTA_SOLO_VIEJOS.has(l.cuenta)));
+ if(!hayViejo){conta.migClasificador=true;return {migrado:false,yaNuevo:true};}
+ let nLin=0;
+ for(const a of (conta.asientos||[]))for(const l of (a.lineas||[])){const n=ctaMapaLinea(l);if(n!==l.cuenta){l.cuenta=n;nLin++;}}
+ /* Plantillas: remapear valores, retirar las claves que desaparecen
+    (provPrestaciones, redondeo) y completar las nuevas desde los
+    defectos SOLO donde falten (lo personalizado del dueño manda). */
+ const def=ctaPlantillasDef();const pl=conta.plantillas||(conta.plantillas={});
+ if(pl.banco)for(const k in pl.banco){const n=CTA_MAPA_SIMPLE[pl.banco[k]];if(n)pl.banco[k]=n;}
+ for(const k in pl){if(k==='banco')continue;const n=CTA_MAPA_SIMPLE[pl[k]];if(n)pl[k]=n;}
+ delete pl.provPrestaciones;delete pl.redondeo;
+ for(const k in def){if(k==='banco'){pl.banco=pl.banco||{};for(const bk in def.banco)if(pl.banco[bk]==null)pl.banco[bk]=def.banco[bk];}else if(pl[k]==null)pl[k]=def[k];}
+ /* Estructuras que guardan códigos sueltos */
+ for(const d of (conta.documentos||[])){if(d.cuentaCargo&&CTA_MAPA_SIMPLE[d.cuentaCargo])d.cuentaCargo=CTA_MAPA_SIMPLE[d.cuentaCargo];}
+ for(const r of (conta.reglas||[])){if(r.cuentaContable&&CTA_MAPA_SIMPLE[r.cuentaContable])r.cuentaContable=CTA_MAPA_SIMPLE[r.cuentaContable];}
+ for(const q of (conta.arqueos||[])){if(q.cuenta&&CTA_MAPA_SIMPLE[q.cuenta])q.cuenta=CTA_MAPA_SIMPLE[q.cuenta];}
+ for(const ap of (conta.aperturas||[]))for(const sd of (ap.saldos||[])){if(sd.cuenta&&CTA_MAPA_SIMPLE[sd.cuenta])sd.cuenta=CTA_MAPA_SIMPLE[sd.cuenta];}
+ /* Plan nuevo = semilla del clasificador; del viejo solo sobreviven
+    las cuentas sin equivalente, marcadas sinClasificar. */
+ const nuevas=ctaPlanSemilla();const codNuevas=new Set(nuevas.map(c=>c.codigo));
+ const descartables=new Set(['1','2','3','4','5','110','120','130','210','320']);
+ const conservadas=[];const sinClasificar=[];
+ for(const c of plan){const cod=c.codigo;
+  if(codNuevas.has(cod))continue;
+  if(CTA_MAPA_SIMPLE[cod])continue;
+  if(descartables.has(cod))continue;
+  conservadas.push(Object.assign({},c,{sinClasificar:true}));sinClasificar.push(cod);}
+ conta.plan=nuevas.concat(conservadas);
+ conta.migClasificador=true;
+ conta.migracionR8={fecha:'2026-10-24',lineasRecodificadas:nLin,sinClasificar:sinClasificar};
+ return {migrado:true,lineas:nLin,sinClasificar:sinClasificar};}
 /* ===== FIN CONTA-CORE ===== */
 
         /* ===== CONTABILIDAD · CAPA DE APLICACIÓN ===== */
@@ -4695,7 +4911,7 @@ function ctaProgramadorPagos(conta,fechaHoy){const hoyF=fechaHoy||'';const items
                cuenta no los define (lo que el dueño haya editado manda). */
             const _seed={}; base.plan.forEach(x=>{ _seed[x.codigo]=x; }); c.plan.forEach(x=>{ const s=_seed[x.codigo]; if(s){ if(x.auxiliar===undefined&&s.auxiliar!==undefined) x.auxiliar=s.auxiliar; if(x.requiereAuxiliar===undefined&&s.requiereAuxiliar!==undefined) x.requiereAuxiliar=s.requiereAuxiliar; } });
             if(!c.seqComp||typeof c.seqComp!=='object'||Array.isArray(c.seqComp)) c.seqComp={};
-            c.plantillas=Object.assign(base.plantillas,d.plantillas||{}); c.plantillas.banco=Object.assign(base.plantillas.banco,(d.plantillas||{}).banco||{}); ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','bandeja','estadosBanco','notas','arqueos'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); return c; }catch(e){ return base; } }
+            c.plantillas=Object.assign(base.plantillas,d.plantillas||{}); c.plantillas.banco=Object.assign(base.plantillas.banco,(d.plantillas||{}).banco||{}); ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','bandeja','estadosBanco','notas','arqueos'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
         function saveConta(d){ Store.setItem(getContaKey(), JSON.stringify(d)); }
         function contaEventos(clonar){ const ev=[]; const cp=m=>clonar?JSON.parse(JSON.stringify(m)):m;
             for(const h of getHistorial()){ if(Array.isArray(h.movimientos)) for(const m of h.movimientos) ev.push({tipo:'mov',periodo:h.mes,mov:cp(m),fecha:m.fecha,tasa:Number(h.tasa)||tasaVista()}); }
@@ -4767,7 +4983,7 @@ function ctaProgramadorPagos(conta,fechaHoy){const hoyF=fechaHoy||'';const items
             const conteoTxt=(document.getElementById('contaArqConteo')||{}).value; const conteo=(conteoTxt==null||conteoTxt==='')?null:Number(conteoTxt);
             const r=ctaArqueo(c,{cuenta:cod,fecha:fecha,conteo:conteo,conto:(document.getElementById('contaArqConto')||{}).value||'',reviso:(document.getElementById('contaArqReviso')||{}).value||''});
             if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll();
-            const a=r.arqueo; alert(a.diferencia===0?('✅ Arqueo cuadrado: el conteo coincide con el saldo según libros ('+moneda(a.saldoLibros)+'). Sin asiento de ajuste.'):('✅ Arqueo registrado con '+(a.diferencia<0?'FALTANTE':'SOBRANTE')+' de '+moneda(Math.abs(a.diferencia))+'. Se generó el asiento de ajuste contra '+(a.diferencia<0?(c.plantillas.arqueoFaltante||'540'):(c.plantillas.arqueoSobrante||'420'))+'. El documento del arqueo está abajo, listo para imprimir y firmar.')); }
+            const a=r.arqueo; alert(a.diferencia===0?('✅ Arqueo cuadrado: el conteo coincide con el saldo según libros ('+moneda(a.saldoLibros)+'). Sin asiento de ajuste.'):('✅ Arqueo registrado con '+(a.diferencia<0?'FALTANTE':'SOBRANTE')+' de '+moneda(Math.abs(a.diferencia))+'. Se generó el asiento de ajuste contra '+(a.diferencia<0?(c.plantillas.arqueoFaltante||'720-000'):(c.plantillas.arqueoSobrante||'810-000'))+'. El documento del arqueo está abajo, listo para imprimir y firmar.')); }
         function contaEmitirNotaBtn(){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; } const c=getConta(); if(!c.activa){ alert('Primero activa la contabilidad en esta pestaña.'); return; }
             const docId=(document.getElementById('contaNotaDoc')||{}).value||''; if(!docId){ alert('Elige el documento del submayor.'); return; }
             const tipo=(document.getElementById('contaNotaTipo')||{}).value||'credito'; const imp=Number((document.getElementById('contaNotaImporte')||{}).value)||0;
@@ -4926,11 +5142,12 @@ function ctaProgramadorPagos(conta,fechaHoy){const hoyF=fechaHoy||'';const items
         function renderConta(){ const root=document.getElementById('pane-conta'); if(!root) return; const c=getConta();
             const chk=document.getElementById('contaActiva'); if(chk) chk.checked=!!c.activa;
             const aviso=document.getElementById('contaAvisoPend'); if(aviso){ const n=(c.bandeja||[]).length; aviso.innerHTML=n?`<span class="badge bg-danger">● ${n} pendiente(s) en rojo — NO incluidos en los estados hasta clasificarlos</span>`:'<span class="badge bg-success">Sin pendientes en rojo</span>'; }
+            if(window.__contaMigR8){ const mr=window.__contaMigR8; window.__contaMigR8=null; if(aviso){ aviso.innerHTML+=' <span class="badge bg-info text-dark">🔄 Plan actualizado al Clasificador Maestro: '+mr.lineas+' línea(s) de asientos recodificadas — los saldos no cambiaron.'+((mr.sinClasificar&&mr.sinClasificar.length)?(' Cuentas sin equivalente, conservadas y marcadas: '+mr.sinClasificar.join(', ')+'.'):'')+'</span>'; } }
             const prev=c.activa?contaPreview():null; const pv=document.getElementById('contaPreviewTxt'); if(pv) pv.textContent=c.activa?(`Conteo previo: «Generar contabilidad» crearía ${prev.creados} asiento(s) nuevo(s); quedarían ${prev.pendientes.length} pendiente(s) en la bandeja.`):'Activa la contabilidad para que los estados de cuenta importados se contabilicen solos.';
             const pb=document.getElementById('contaPlanBody'); if(pb) pb.innerHTML=c.plan.map(x=>{ const mov=ctaEsMovimiento(c,x.codigo); const aux=ctaAuxiliarDe(x); return `<tr><td class="fiscal-code">${esc(x.codigo)}</td><td>${esc(x.nombre)}</td><td>${esc(ctaNaturalezaDe(x))}</td><td>${x.nivel}</td><td>${mov?'Sí':(ctaTieneHijas(c,x.codigo)?'<span class="text-secondary">No · tiene subcuentas</span>':'No')}</td><td>${aux==='ninguno'?'—':esc(aux)+(x.requiereAuxiliar?' <span class="badge bg-danger">obligatorio</span>':'')}</td><td>${esc(x.grupo)}</td><td>${x.porVerificar?'<span class="badge bg-warning text-dark">por verificar</span>':''}</td></tr>`; }).join('');
             const pl=document.getElementById('contaPlantillasBox'); if(pl){ const opts=sel=>c.plan.filter(x=>ctaEsMovimiento(c,x.codigo)).map(x=>`<option value="${esc(x.codigo)}" ${x.codigo===sel?'selected':''}>${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('');
                 const fila=(label,key,val)=>`<div class="col-md-4"><label class="form-label mb-1 small">${label}</label><select class="form-select form-select-sm" data-conta-plant="${key}">${opts(val)}</select></div>`;
-                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('Provisión prestaciones corto plazo','provPrestaciones',c.plantillas.provPrestaciones)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Obligaciones ONAT (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Fondo de contingencia','fondoContingencia',c.plantillas.fondoContingencia)+fila('Dividendos por pagar a socios','dividendosPorPagar',c.plantillas.dividendosPorPagar)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio','resultado',c.plantillas.resultado)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+fila('Ajuste por redondeo (editor)','redondeo',c.plantillas.redondeo)+fila('Caja (arqueo)','caja',c.plantillas.caja)+fila('Arqueo · faltante (gasto/pérdida)','arqueoFaltante',c.plantillas.arqueoFaltante)+fila('Arqueo · sobrante (ingreso)','arqueoSobrante',c.plantillas.arqueoSobrante)+'</div>'; }
+                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('CSS por pagar','cssPagar',c.plantillas.cssPagar)+fila('IUFT por pagar','iuftPagar',c.plantillas.iuftPagar)+fila('IIP retenido por pagar','iipRetenido',c.plantillas.iipRetenido)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Pago ONAT genérico (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Fondo de contingencia','fondoContingencia',c.plantillas.fondoContingencia)+fila('Dividendos por pagar a socios','dividendosPorPagar',c.plantillas.dividendosPorPagar)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio (901)','resultado',c.plantillas.resultado)+fila('Liquidación del resultado (905)','liquidacion',c.plantillas.liquidacion)+fila('Resultado neto del ejercicio (520)','resultadoEjercicio',c.plantillas.resultadoEjercicio)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+fila('Redondeo · pérdida (gasto)','redondeoGasto',c.plantillas.redondeoGasto)+fila('Redondeo · ganancia (ingreso)','redondeoIngreso',c.plantillas.redondeoIngreso)+fila('Caja (arqueo)','caja',c.plantillas.caja)+fila('Arqueo · faltante (gasto/pérdida)','arqueoFaltante',c.plantillas.arqueoFaltante)+fila('Arqueo · sobrante (ingreso)','arqueoSobrante',c.plantillas.arqueoSobrante)+'</div>'; }
             const ab=document.getElementById('contaAsientosBody'); if(ab){ const anulados=new Set(c.asientos.filter(a=>a.anulaA).map(a=>a.anulaA)); const estBadge=a=>{ const e=a.estado||'asentado'; if(e==='anulado'||anulados.has(a.id)) return ' <span class="badge bg-danger">anulado</span>'; if(e==='borrador') return ' <span class="badge bg-secondary">borrador</span>'; if(e==='confirmado') return ' <span class="badge bg-info text-dark">confirmado</span>'; return ' <span class="badge bg-success">asentado</span>'; };
                 ab.innerHTML=c.asientos.slice(-80).reverse().map(a=>{ const tot=a.lineas.reduce((s,l)=>s+(Number(l.debe)||0),0); const num=a.numeroComp!=null?a.numeroComp:a.numero; const tipo=a.tipo||''; const esAnulado=(a.estado==='anulado')||anulados.has(a.id);
                 return `<tr><td class="text-nowrap"><span class="badge bg-soft-secondary">${esc(tipo)}</span> Nº ${num}<div class="small text-secondary">${esc(a.periodo||'')}</div></td><td class="text-nowrap">${esc(a.fecha)}</td><td>${esc(a.concepto)}${a.anulaA?' <span class="badge bg-secondary">contraasiento</span>':''}${estBadge(a)}</td><td>${esc(a.origen)}</td><td class="text-end">${moneda(tot)}</td><td class="text-end">${moneda(tot)}</td><td class="text-nowrap">${(a.estado==='borrador'||a.estado==='confirmado')?`<button type="button" class="btn btn-sm btn-success me-1" onclick="contaAsentar('${a.id}')">Asentar</button>`:''}${!a.anulaA&&!esAnulado&&a.estado!=='borrador'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="contaAnular('${a.id}')">Anular</button>`:''}</td></tr>`; }).join('')||'<tr><td colspan="7" class="text-center text-muted">Sin asientos todavía.</td></tr>'; }
@@ -6626,13 +6843,13 @@ function ctaProgramadorPagos(conta,fechaHoy){const hoyF=fechaHoy||'';const items
             add(P.segSocial, tot.ssEmp, 0, 'Contribución a la Seguridad Social (empleador)');
             add(P.fuerzaGasto, tot.fuerza, 0, 'Impuesto por la Utilización de la Fuerza de Trabajo');
             add(P.gastoProvVac, tot.provisionVac, 0, 'Provisión de vacaciones');
-            add(P.provPrestaciones, tot.subsidios, 0, 'Subsidios a cargo del fondo de prestaciones');
+            add(P.cssPagar, tot.subsidios, 0, 'Subsidios a cargo de la Seguridad Social');
             add(P.nominasPorPagar, 0, tot.neto, 'Nóminas por pagar');
-            add(P.onatCargo, 0, tot.fuerza, 'Imp. utilización de la fuerza de trabajo');
-            add(P.onatCargo, 0, ssPpto, 'Contrib. a la seguridad social (12,5 % al Presupuesto)');
-            add(P.onatCargo, 0, tot.segTrab, 'Contrib. especial a la seguridad social (retenida)');
-            add(P.onatCargo, 0, tot.iip, 'Impuesto s/ ingresos personales (retenido)');
-            add(P.provPrestaciones, 0, ssProv, 'Provisión de prestaciones a corto plazo (1,5 %)');
+            add(P.iuftPagar, 0, tot.fuerza, 'Imp. utilización de la fuerza de trabajo');
+            add(P.cssPagar, 0, ssPpto, 'Contrib. a la seguridad social (12,5 % al Presupuesto)');
+            add(P.cssPagar, 0, tot.segTrab, 'Contrib. especial a la seguridad social (retenida)');
+            add(P.iipRetenido, 0, tot.iip, 'Impuesto s/ ingresos personales (retenido)');
+            add(P.cssPagar, 0, ssProv, 'Provisión de prestaciones a corto plazo (1,5 %)');
             add(P.provVacaciones, 0, tot.provisionVac, 'Provisión de vacaciones');
             add(P.retencionesPorPagar, 0, tot.deducciones, 'Retenciones por pagar a terceros');
             const sd = lin.reduce((a, l) => a + l.debe, 0), sh = lin.reduce((a, l) => a + l.haber, 0);
