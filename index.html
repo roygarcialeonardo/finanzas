@@ -1403,7 +1403,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Nueva contraparte</label><input id="contaCpNombre" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo</label><select id="contaCpTipo" class="form-select form-select-sm"><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="ambos">Ambos</option></select></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddContraparte()">Crear contraparte</button></div></div>
             <div class="row g-2 align-items-end mt-2"><div class="col-md-2"><label class="form-label mb-1 small">Documento</label><select id="contaDocTipo" class="form-select form-select-sm"><option value="cxc">CxC (venta a crédito)</option><option value="cxp">CxP (compra/obligación)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Contraparte</label><select id="contaDocCp" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Nº / concepto</label><input id="contaDocNumero" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaDocFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vencimiento</label><input id="contaDocVenc" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaDocImporte" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Producto (inventario)</label><select id="contaDocProducto" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cant.</label><input id="contaDocCantidad" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-check small"><input type="checkbox" id="contaDocInv" class="form-check-input"> Es compra de inventario</label><br><label class="form-check small"><input type="checkbox" id="contaDocSaldoIni" class="form-check-input"> Saldo inicial (ya está en la apertura, sin asiento nuevo)</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddDocumento()">Guardar documento</button></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank me-2"></i>Conciliación bancaria</h6><p class="small text-secondary">Se alimenta sola de los estados de cuenta que importas: al importar, el saldo final según banco y las operaciones con sus referencias quedan guardados aquí. La conciliación cruza libros contra banco por referencia y lista las partidas conciliatorias; queda «Conciliada» solo si la diferencia es 0 o queda explicada por esas partidas.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta financiera</label><select id="contaConcCuenta" class="form-select form-select-sm"></select></div><div class="col-md-3"><label class="form-label mb-1 small">Período</label><select id="contaConcPeriodo" class="form-select form-select-sm"></select></div><div class="col-md-6"><span class="small text-secondary">Saldo según libros = la cadena de saldos de la app en ese período (saldo inicial + movimientos). Saldo según banco = el del estado importado.</span></div></div><div id="contaConcBox"></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaConcDocBox','Conciliación bancaria')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div><div id="contaConcDocBox" class="border rounded p-3 mt-2"></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-calendar-check me-2"></i>Programador de pagos · Cuentas por Pagar por vencimiento</h6><p class="small text-secondary">Sale del submayor de CxP, sin duplicar datos. «Pagar» crea el movimiento bancario y su asiento en un paso, imputando el pago al documento.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Pagar desde la cuenta</label><select id="contaProgCuenta" class="form-select form-select-sm"></select></div><div class="col-md-9"><span class="small text-secondary">El pago se registra con fecha de hoy en el mes en curso, por el saldo pendiente completo del documento.</span></div></div><div id="contaProgBox"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-calendar-check me-2"></i>Programador de pagos · Cuentas por Pagar por vencimiento</h6><p class="small text-secondary">Sale del submayor de CxP, sin duplicar datos. «Pagar» crea el movimiento bancario y su asiento en un paso, imputando el pago al documento.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Pagar desde la cuenta</label><select id="contaProgCuenta" class="form-select form-select-sm"></select></div><div class="col-md-9"><span class="small text-secondary">El pago se registra con fecha de hoy en el mes en curso, por el saldo pendiente completo del documento.</span></div></div><div id="contaProgBox"></div><div id="docProgBox" class="d-none"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-file-earmark-diff me-2"></i>Notas de crédito y débito (CxC / CxP)</h6><p class="small text-secondary">Ajustan el saldo del documento elegido y el de su cuenta control con asiento automático, y se reflejan en la antigüedad del submayor. Una nota de crédito nunca deja el documento en negativo.</p><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label mb-1 small">Documento del submayor</label><select id="contaNotaDoc" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo de nota</label><select id="contaNotaTipo" class="form-select form-select-sm"><option value="credito">Nota de crédito</option><option value="debito">Nota de débito</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaNotaImporte" type="number" step="0.01" min="0" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaNotaFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Motivo</label><input id="contaNotaMotivo" class="form-control form-control-sm" placeholder="Devolución, rebaja…"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-primary" onclick="contaEmitirNotaBtn()">Emitir nota</button></div></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Nº</th><th>Tipo</th><th>Documento</th><th>Motivo</th><th>Fecha</th><th class="text-end">Importe</th></tr></thead><tbody id="contaNotasBox"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-cash-stack me-2"></i>Arqueo de caja y cuentas de efectivo</h6><p class="small text-secondary">El saldo según libros sale solo del mayor contable; el único dato manual es el conteo físico. Si hay diferencia se genera el asiento de ajuste (faltante a gasto/pérdida, sobrante a otros ingresos) y queda el documento con sus firmas.</p><div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta a arquear</label><select id="contaArqCuenta" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaArqFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Conteo físico</label><input id="contaArqConteo" type="number" step="0.01" min="0" class="form-control form-control-sm" placeholder="0.00"></div><div class="col-md-2"><label class="form-label mb-1 small">Contó</label><input id="contaArqConto" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Revisó</label><input id="contaArqReviso" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-primary" onclick="contaArqueoBtn()">Arquear</button></div></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaArqueoDocBox','Documento de arqueo')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div><div id="contaArqueoDocBox" class="border rounded p-3 mt-2"></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Cuenta</th><th class="text-end">Según libros</th><th class="text-end">Conteo</th><th class="text-end">Diferencia</th><th>Contó</th><th>Revisó</th></tr></thead><tbody id="contaArqueosBox"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Inventario integrado (costo promedio ponderado)</h6><div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr><th>Código</th><th>Producto</th><th class="text-end">Existencia</th><th class="text-end">Costo promedio</th><th class="text-end">Valoración</th></tr></thead><tbody id="contaInvBody"></tbody></table></div>
@@ -1522,6 +1522,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div id="mjConsignacionBox" class="small"></div>
                 <div class="small text-secondary mt-3">Trabajo sin conexión: lo garantiza el blindaje de la ronda 10 (copia local restaurable + reintento de guardado + aviso «sin guardar»). No se promete sincronización nueva entre dispositivos.</div>
             </div>
+            <div id="docGestionBox" class="d-none"></div>
         </div>
 
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
@@ -1544,6 +1545,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="small text-secondary mb-3">Esto es TU control interno como gestor: no forma parte de los libros de ningún cliente.</div>
                 <div id="gestorCobros"><div class="text-secondary small">Sin datos todavía.</div></div>
             </div>
+            <div id="docGestorBox" class="d-none"></div>
         </div>
 
         <!-- TASAS BCC -->
@@ -9224,6 +9226,703 @@ function mjPermisos(rol,modulo){ const M={
             });
             docOficialImprimirEn('docCierreBox', 'Balance de Apertura · ' + (ap.anio != null ? ap.anio : ''), html);
         }
+        /* ===== DOCUMENTOS DE GESTIÓN+ Y GESTOR (Grupo C2): Programador
+           de pagos, Motor de tributos, Calendario de vencimientos (los
+           dos paneles), Alertas de bancarización, Expediente de
+           fiscalización, Ficha KYC, Presupuesto vs real, Flujo
+           proyectado, Indicadores, Orden de producción, IPV por turno,
+           Consignación, Útiles por custodio y Panel del gestor. Solo
+           plantillas y botones: ningún cálculo nuevo; cada documento se
+           alimenta de la MISMA función que pinta su pantalla
+           (ctaProgramadorPagos, mjMotorTributos, mjCalendarioDeberes,
+           gCalendarioItems, mjAlertasEfectivo + mjRegistroControl,
+           mjExpedienteFiscalizacion, mjKYCValidar/mjRiesgoCliente/
+           mjSenalesAlerta, mjPresupuestoVsReal, mjFlujoProyectado,
+           mjIndicadores, mjIPVTurno, mjConsignacionLiquidacion,
+           mjUtilesResumen, gResumenPeriodo/gEstadoNegocio/
+           gCobroEstado). Lo que la app no guarda va en blanco o «—». */
+        function docC2Pares(pares) {
+            let filas = '';
+            for (let i = 0; i < pares.length; i += 2) {
+                const a = pares[i], b = pares[i + 1];
+                filas += `<tr><td><b>${esc(a[0])}:</b> ${a[1] == null ? '' : a[1]}</td><td>${b ? `<b>${esc(b[0])}:</b> ${b[1] == null ? '' : b[1]}` : ''}</td></tr>`;
+            }
+            return `<table class="docof-campos"><tbody>${filas}</tbody></table>`;
+        }
+        function docC2Fecha(f) { return esc(sc406FechaDMY(f) || f || ''); }
+        /* --- Programador de pagos (plantilla 11): mismos items y
+           totales que pinta renderConta en #contaProgBox. La plantilla
+           pide Forma de pago y Fecha pagado: la app no los guarda por
+           documento CxP (el pago se hace desde el propio programador
+           y queda como movimiento), así que van «—» / en blanco. */
+        function docProgramadorPrint() {
+            const c = getConta();
+            const p = ctaProgramadorPagos(c, hoy());
+            const semTxt = s => s === 'vencida' ? 'Vencida' : (s === 'semana' ? 'Esta semana' : 'Futura');
+            const prio = s => s === 'vencida' ? 'Alta' : (s === 'semana' ? 'Media' : 'Normal');
+            const filas = p.items.map(it => [
+                docC2Fecha(it.vencimiento), esc(it.contraparte),
+                esc(((it.numero || '') + (it.concepto ? ' · ' + it.concepto : '')).trim()),
+                docOficialNum(it.pendiente), esc(prio(it.semaforo)), '—', esc(semTxt(it.semaforo)), ''
+            ]);
+            const tabla = docOficialTabla(
+                ['Fecha de vencimiento', 'Acreedor / Obligación', 'Concepto', { t: 'Importe', n: true }, 'Prioridad', { t: 'Forma de pago', c: true }, { t: 'Estado', c: true }, { t: 'Fecha pagado', c: true }],
+                filas,
+                [{ c: ['', '', esc('TOTALES'), docOficialNum(p.totales.total), '', '', '', ''], cls: 'docof-total' }]
+            );
+            const resumen = docOficialTabla(
+                ['Estado', { t: 'Importe', n: true }],
+                [[esc('Vencidas'), docOficialNum(p.totales.vencida)], [esc('Esta semana'), docOficialNum(p.totales.semana)], [esc('Futuras'), docOficialNum(p.totales.futura)]]
+            );
+            const cuerpo = tabla
+                + '<div class="docof-sec">RESUMEN POR ESTADO</div>' + resumen
+                + (p.items.length ? '' : '<p class="docof-txt">Sin cuentas por pagar pendientes: todo está saldado o aún no hay documentos CxP con saldo.</p>');
+            const html = docOficialHTML({
+                titulo: 'PROGRAMADOR DE PAGOS',
+                subtitulo: 'Calendario de compromisos financieros por vencer.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Responsable', '—'],
+                    ['Mes / Período', esc(periodoNominaActual())],
+                    ['Fecha de actualización', esc(docOficialHoy())]
+                ],
+                cuerpo: cuerpo
+            });
+            docOficialImprimirEn('docProgBox', 'Programador de pagos · ' + periodoNominaActual(), html);
+        }
+        /* --- Motor de tributos (plantilla 14): EXACTAMENTE la misma
+           llamada que hace mjRenderCumplimiento para #mjMotorBox.
+           «Pagado» no se enlaza por tributo en el motor (los pagos
+           ONAT viven en los movimientos): va «—» y Pendiente = Cuota. */
+        function docMotorTributosPrint() {
+            const docA = mjDocActualComoGestor();
+            const per = periodoNominaActual();
+            const res = gResumenPeriodo(docA, per), nom = gNominaTot(docA, per);
+            const anio = new Date().getFullYear();
+            const creadoAnio = Number(String((docA.conta && docA.conta._info && docA.conta._info.creado) || '').slice(0, 4)) || anio;
+            const motor = mjMotorTributos({ tipo: getEntityType() === 'mipyme' ? 'mipyme' : 'tcp', periodo: per, ingresos: res.ingresos, brutoNomina: nom.bruto, utilidadTrimestre: null, exentoTerritorial: (anio - creadoAnio) < 2, cfg: gestorOnatCfg() });
+            const hecho = {
+                '341-000': 'Ingresos por ventas y servicios del período',
+                '334-000': 'Bruto de la nómina del período',
+                '333-000': 'Bruto de la nómina del período',
+                '343-000': 'Ingresos del período',
+                '342-000': 'Utilidad del trimestre',
+                '345-000': 'Ingresos del período menos el exento (3,260.00)'
+            };
+            const filas = motor.items.map(i => [
+                esc(i.concepto), esc(hecho[i.cuenta] || 'Base del período'),
+                docOficialNum(i.base), docOficialNum(i.tasa), docOficialNum(i.importe), '—', docOficialNum(i.importe)
+            ]);
+            const tabla = docOficialTabla(
+                ['Tributo / Tasa', 'Hecho imponible', { t: 'Base', n: true }, { t: 'Tipo (%)', n: true }, { t: 'Cuota', n: true }, { t: 'Pagado', n: true }, { t: 'Pendiente', n: true }],
+                filas,
+                [{ c: [esc('TOTALES'), '', '', '', docOficialNum(motor.total), '', docOficialNum(motor.total)], cls: 'docof-total' }]
+            );
+            const html = docOficialHTML({
+                titulo: 'MOTOR DE TRIBUTOS',
+                subtitulo: 'Hoja de cálculo de impuestos y tasas.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['NIT', esc(docOficialNIT() || '—')],
+                    ['Período', esc(per)],
+                    ['Fecha de cálculo', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla + (motor.items.length ? '' : '<p class="docof-txt">Sin base en este período.</p>'),
+                pie: 'Los tipos impositivos deben tomarse de la legislación vigente.'
+            });
+            docOficialImprimirEn('docGestionBox', 'Motor de tributos · ' + per, html);
+        }
+        /* --- Calendario de vencimientos de Gestión+ (plantilla 15):
+           la lista COMPLETA del año de mjCalendarioDeberes (la pantalla
+           solo muestra los próximos 6). Responsable, alerta anticipada
+           y cumplimiento no se guardan para estos deberes de plantilla:
+           van «—». */
+        function docCalendarioPrint() {
+            const anio = new Date().getFullYear();
+            const tipo = getEntityType() === 'mipyme' ? 'mipyme' : 'tcp';
+            const deberes = mjCalendarioDeberes(tipo, anio, {});
+            const periodicidad = d => /Cierre trimestral/.test(d.concepto || '') ? 'Trimestral' : (d.tipo === 'pago' ? 'Mensual' : 'Anual');
+            const filas = deberes.map(d => [
+                esc(d.concepto + (d.bonificacion ? ' (' + d.bonificacion + ')' : '')),
+                esc('ONAT'), docC2Fecha(d.fecha), esc(periodicidad(d)), '—', '—', '—'
+            ]);
+            const tabla = docOficialTabla(
+                ['Obligación', 'Organismo', { t: 'Fecha límite', c: true }, 'Periodicidad', 'Responsable', { t: 'Alerta (días antes)', c: true }, { t: 'Cumplido (Sí/No)', c: true }],
+                filas
+            );
+            const html = docOficialHTML({
+                titulo: 'CALENDARIO DE VENCIMIENTOS',
+                subtitulo: 'Alertas de plazos fiscales, pagos y obligaciones.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['NIT', esc(docOficialNIT() || '—')],
+                    ['Año', esc(String(anio))],
+                    ['Actualizado', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla
+            });
+            docOficialImprimirEn('docGestionBox', 'Calendario de vencimientos · ' + anio, html);
+        }
+        /* --- Calendario de vencimientos del Gestor (plantilla 15):
+           los mismos items y los mismos filtros (mes / negocio /
+           estado) que renderGestorCalendario pinta en #gestorCalendario.
+           Periodicidad solo si la obligación la trae; la alerta se
+           expresa como días restantes del estado calculado. */
+        function docGestorCalendarioPrint() {
+            if (!GDOCS) { alert('Los datos del Gestor aún se están cargando.'); return; }
+            const hoyI = gHoyISOFecha(), cfg = gestorOnatCfg();
+            let rows = gCalendarioItems(GDOCS, hoyI, cfg).slice();
+            const mesInp = document.getElementById('gestorCalMes'), negSel = document.getElementById('gestorCalNeg'), estSel = document.getElementById('gestorCalEstado');
+            const mes = mesInp ? mesInp.value : '', neg = negSel ? negSel.value : '', est = estSel ? estSel.value : '';
+            if (mes) rows = rows.filter(x => String(x.obligacion.vence || '').slice(0, 7) === mes);
+            if (neg) rows = rows.filter(x => x.negocio === neg);
+            if (est === 'vencida') rows = rows.filter(x => x.estado.vencida);
+            else if (est) rows = rows.filter(x => !x.estado.vencida && x.estado.key === est);
+            let sumImp = 0, sumPag = 0;
+            const filas = rows.map(x => {
+                if (x.estado.importe != null) sumImp += Number(x.estado.importe) || 0;
+                sumPag += Number(x.estado.pagado) || 0;
+                return [
+                    esc((x.obligacion.concepto || 'Tributo') + (x.obligacion.codigo ? ' (' + x.obligacion.codigo + ')' : '')),
+                    esc('ONAT'), docC2Fecha(x.obligacion.vence),
+                    esc(x.obligacion.frecuencia || x.obligacion.frec || '—'),
+                    esc(x.negocio),
+                    esc(x.estado.diasVence != null && x.estado.diasVence >= 0 ? x.estado.diasVence + ' día(s)' : '—'),
+                    esc((x.estado.key === 'paid' ? 'Sí' : 'No') + (x.estado.vencida ? ' · vencida' : '')),
+                    x.estado.importe == null ? '—' : docOficialNum(x.estado.importe),
+                    docOficialNum(x.estado.pagado)
+                ];
+            });
+            const tabla = docOficialTabla(
+                ['Obligación', 'Organismo', { t: 'Fecha límite', c: true }, 'Periodicidad', 'Responsable', { t: 'Alerta (días antes)', c: true }, { t: 'Cumplido (Sí/No)', c: true }, { t: 'Importe', n: true }, { t: 'Pagado', n: true }],
+                filas,
+                [{ c: [esc('TOTALES'), '', '', '', '', '', '', docOficialNum(sumImp), docOficialNum(sumPag)], cls: 'docof-total' }]
+            );
+            const html = docOficialHTML({
+                titulo: 'CALENDARIO DE VENCIMIENTOS',
+                subtitulo: 'Alertas de plazos fiscales, pagos y obligaciones — todos los negocios del Gestor.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Gestor', esc(getCurrentUser())],
+                    ['Período', esc(mes || 'Todos')],
+                    ['Actualizado', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla + (rows.length ? '' : '<p class="docof-txt">No hay obligaciones para los filtros elegidos.</p>'),
+                pie: 'El total de Importe suma solo las obligaciones con importe determinado.'
+            });
+            docOficialImprimirEn('docGestorBox', 'Calendario de vencimientos del Gestor', html);
+        }
+        /* --- Alertas de bancarización (plantilla 16): indicadores del
+           Registro Control (mjRegistroControl, Res. 272/2024) y del
+           límite de efectivo por operación (mjAlertasEfectivo,
+           Res. 111/2023 BCC) + el detalle de operaciones bloqueadas,
+           igual que #mjEfectivoBox. La contraparte no se guarda en el
+           movimiento: va «—»; la justificación es el motivo calculado. */
+        function docBancarizacionPrint() {
+            const anio = new Date().getFullYear();
+            const movs = allMovimientos();
+            const reg = mjRegistroControl(movs, anio);
+            const alertas = mjAlertasEfectivo(movs);
+            let maxEf = 0;
+            for (const m of movs) {
+                if (!m) continue;
+                const canal = m.canal || ((m.cuenta === 'caja') ? 'efectivo' : 'bancario');
+                if (canal !== 'efectivo') continue;
+                const cup = (typeof ctaMontoCUP === 'function') ? ctaMontoCUP(m, Number(m.tasaCambio) || 0) : (Number(m.monto) || 0);
+                if (cup > maxEf) maxEf = cup;
+            }
+            maxEf = docC1R2(maxEf);
+            const limOp = 5000;
+            const semReg = reg.supera ? 'Rojo' : (reg.alerta80 ? 'Amarillo' : 'Verde');
+            const semMax = maxEf > limOp ? 'Rojo' : (maxEf > limOp * 0.8 ? 'Amarillo' : 'Verde');
+            const tablaInd = docOficialTabla(
+                ['Indicador', { t: 'Límite normativo', n: true }, { t: 'Valor actual', n: true }, { t: '% del límite', n: true }, { t: 'Semáforo', c: true }, 'Acción correctiva'],
+                [
+                    [esc('Ingresos del año frente al umbral del Registro Control (Res. 272/2024)'), docOficialNum(reg.umbral), docOficialNum(reg.ingresos), esc(docC1R2(reg.pct) + ' %'), esc(semReg), esc(reg.supera ? 'Pasar a contabilidad completa (NCIF)' : (reg.alerta80 ? 'Vigilar: cerca del umbral del 80 %' : 'Sin acción'))],
+                    [esc('Mayor operación en efectivo frente al límite por operación (Res. 111/2023 BCC)'), docOficialNum(limOp), docOficialNum(maxEf), esc(docC1R2(limOp > 0 ? maxEf / limOp * 100 : 0) + ' %'), esc(semMax), esc(alertas.length ? 'Canalizar por la cuenta fiscal/corriente' : 'Sin acción')],
+                    [esc('Operaciones en efectivo por encima del límite (conteo)'), esc('0 permitidas'), esc(String(alertas.length)), '—', esc(alertas.length ? 'Rojo' : 'Verde'), esc(alertas.length ? 'Revisar y bancarizar esas operaciones' : 'Sin acción')]
+                ]
+            );
+            let totAlertas = 0;
+            const filasDet = alertas.map(a => { totAlertas = docC1R2(totAlertas + (Number(a.monto) || 0)); return [docC2Fecha(a.fecha), '—', docOficialNum(a.monto), esc(a.motivo || '')]; });
+            const tablaDet = docOficialTabla(
+                ['Fecha', 'Contraparte', { t: 'Importe', n: true }, 'Justificación'],
+                filasDet,
+                [{ c: ['', esc('TOTALES'), docOficialNum(totAlertas), ''], cls: 'docof-total' }]
+            );
+            const cuerpo = tablaInd
+                + '<div class="docof-sec">OPERACIONES EN EFECTIVO POR ENCIMA DEL LÍMITE</div>'
+                + (alertas.length ? tablaDet : '<p class="docof-txt">Sin operaciones en efectivo por encima del límite.</p>');
+            const html = docOficialHTML({
+                titulo: 'ALERTAS DE BANCARIZACIÓN',
+                subtitulo: 'Control de límites de efectivo e indicadores de digitalización.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['NIT', esc(docOficialNIT() || '—')],
+                    ['Período', esc('Año ' + anio)],
+                    ['Responsable', '—']
+                ],
+                cuerpo: cuerpo,
+                pie: 'Anote el límite según la regulación vigente del BCC. Límite aplicado por la app: 5,000.00 CUP por operación entre actores económicos.'
+            });
+            docOficialImprimirEn('docGestionBox', 'Alertas de bancarización · ' + anio, html);
+        }
+        /* --- Expediente de fiscalización (plantilla 17): el índice
+           MJ_EXPEDIENTE_DEF con presente/faltante de
+           mjExpedienteFiscalizacion, igual que los botones de
+           #mjExpedienteBox. Organismo, expediente y folios no se
+           guardan en la app: van «—». */
+        function docExpedientePrint() {
+            const c = getConta();
+            const g = mjGestionDe(c);
+            const ex = mjExpedienteFiscalizacion(g.expediente || {});
+            const filas = ex.filas.map((f, i) => [
+                esc(String(i + 1)), esc(f.nombre), f.vence ? docC2Fecha(f.vence) : '—', '—',
+                esc(f.presente ? 'Sí' : 'No'), esc(f.presente ? '' : 'Faltante')
+            ]);
+            const tabla = docOficialTabla(
+                [{ t: 'No.', c: true }, 'Documento', 'Fecha', { t: 'Folios', c: true }, { t: 'Entregado (Sí/No)', c: true }, 'Observaciones'],
+                filas
+            );
+            const cuerpo = tabla
+                + '<div class="docof-neto"><span>DOCUMENTOS PRESENTES</span><span>' + ex.presentes + ' de ' + ex.total + ' (' + docOficialNum(ex.pct) + ' %)</span></div>';
+            const html = docOficialHTML({
+                titulo: 'EXPEDIENTE DE FISCALIZACIÓN',
+                subtitulo: 'Legajo documental ante inspección o auditoría.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['NIT', esc(docOficialNIT() || '—')],
+                    ['Expediente No.', '—'],
+                    ['Fecha de apertura', '—'],
+                    ['Organismo actuante (ONAT / Contraloría)', '—'],
+                    ['Período fiscalizado', '—']
+                ],
+                cuerpo: cuerpo,
+                pie: esc(ex.nota || '')
+            });
+            docOficialImprimirEn('docGestionBox', 'Expediente de fiscalización', html);
+        }
+        /* --- Ficha KYC (plantilla 18): una ficha por cliente del
+           Gestor, con los datos REALES de gestor.kyc y la evaluación
+           de mjKYCValidar / mjRiesgoCliente / mjSenalesAlerta (la
+           misma de #mjKycBox). La ficha no guarda nacionalidad,
+           dirección, teléfono, origen de fondos ni ingresos
+           estimados: van «—», sin inventar. */
+        function docKYCPrint() {
+            if (!GDOCS) { alert('Los datos del Gestor aún se están cargando.'); return; }
+            const d = mjGestorDoc();
+            const nombres = Object.keys(GDOCS).sort((a, b) => a.localeCompare(b, 'es'));
+            if (!nombres.length) { alert('Todavía no hay clientes en el Gestor.'); return; }
+            const bloques = nombres.map((n, idx) => {
+                const ficha = (d.kyc || {})[n] || {};
+                const val = mjKYCValidar(ficha);
+                const sen = mjSenalesAlerta(GDOCS[n], ficha);
+                const riesgo = mjRiesgoCliente(ficha, sen);
+                const siNo = v => v ? 'Sí' : 'No';
+                const sec1 = docC2Pares([
+                    ['Nombre completo / Razón social', esc(n)],
+                    ['CI / NIT', esc(ficha.identificacion || '—')],
+                    ['Fecha de nacimiento / constitución', '—'],
+                    ['Nacionalidad', '—'],
+                    ['Dirección', '—'],
+                    ['Teléfono / Correo', '—']
+                ]);
+                const sec2 = docC2Pares([
+                    ['Actividad económica', esc(ficha.actividad || '—')],
+                    ['Beneficiario final', esc(ficha.beneficiarioFinal || '—')],
+                    ['Origen de los fondos', '—'],
+                    ['Ingresos mensuales estimados', '—'],
+                    ['Propósito de la relación comercial', '—'],
+                    ['Verificación de identidad', esc(ficha.verificadoEn || '—')],
+                    ['Debida diligencia (antes del servicio)', esc(ficha.diligenciaEn || '—')],
+                    ['Inicio del servicio', esc(ficha.inicioServicio || '—')]
+                ]);
+                const sec3 = docOficialTabla(
+                    ['Aspecto', 'Resultado'],
+                    [
+                        [esc('Cliente PEP'), esc('—')],
+                        [esc('Nivel de riesgo'), esc(riesgo.nivel + ' (' + riesgo.puntos + ' puntos · revisión ' + riesgo.revision + ')')],
+                        [esc('Documentos verificados'), esc(val.completa ? 'Ficha completa' : 'Faltan: ' + val.faltantes.join(', '))],
+                        [esc('Opera intensamente en efectivo'), esc(siNo(ficha.efectivoIntenso))],
+                        [esc('Se niega o evade aportar información'), esc(siNo(ficha.negativaInformacion))],
+                        [esc('En lista de exclusión / abstención'), esc(siNo(ficha.enListaExclusion || (d.excluidos || []).some(x => x.nombre === n)))],
+                        [esc('Conservar la ficha hasta'), esc(ficha.conservarHasta || mjConservarHasta(new Date().getFullYear()))]
+                    ]
+                );
+                const senHtml = sen.length
+                    ? '<div class="docof-sec">SEÑALES DE ALERTA</div>' + sen.map(s => '<p class="docof-txt">⚠ ' + esc(s.descripcion) + '</p>').join('')
+                    : '<div class="docof-sec">SEÑALES DE ALERTA</div><p class="docof-txt">Sin señales de alerta.</p>';
+                const motHtml = riesgo.motivos && riesgo.motivos.length ? '<p class="docof-txt">Motivos del nivel de riesgo: ' + esc(riesgo.motivos.join('; ')) + '.</p>' : '';
+                const cuerpo = '<div class="docof-sec">1. IDENTIFICACIÓN</div>' + sec1
+                    + '<div class="docof-sec">2. ACTIVIDAD Y ORIGEN DE FONDOS</div>' + sec2
+                    + '<div class="docof-sec">3. EVALUACIÓN DE RIESGO</div>' + sec3 + motHtml + senHtml;
+                return docOficialHTML({
+                    titulo: 'FICHA KYC (CONOZCA A SU CLIENTE)',
+                    subtitulo: 'Formulario de debida diligencia de clientes · ' + esc(n),
+                    campos: [
+                        ['Entidad', esc(docOficialNegocio())],
+                        ['Oficial responsable', esc(getCurrentUser())],
+                        ['Ficha No.', esc('KYC-' + (idx + 1))],
+                        ['Fecha', esc(docOficialHoy())]
+                    ],
+                    cuerpo: cuerpo,
+                    firmas: ['Cliente', 'Oficial de cumplimiento']
+                });
+            });
+            docOficialImprimirEn('docGestorBox', 'Fichas KYC del Gestor', bloques.join('<div style="page-break-before:always"></div>'));
+        }
+        /* --- Presupuesto vs real (plantilla 19): mjPresupuestoVsReal
+           del año en curso, igual que #mjPresupuestoBox. El % de
+           ejecución es real/plan (presentación); la causa de la
+           desviación no se guarda: va «—». */
+        function docPresupuestoPrint() {
+            const c = getConta();
+            const g = mjGestionDe(c);
+            const anio = new Date().getFullYear();
+            const vs = mjPresupuestoVsReal(c, g.presupuestos, anio);
+            const nombreCta = cod => { const cu = (c.plan || []).find(x => x.codigo === cod); return cu ? cu.nombre : ''; };
+            const filas = vs.filas.map(f => [
+                esc(f.cuenta + (nombreCta(f.cuenta) ? ' · ' + nombreCta(f.cuenta) : '') + (f.centro ? ' · ' + f.centro : '')),
+                docOficialNum(f.plan), docOficialNum(f.real), docOficialNum(f.desviacion),
+                esc(f.plan !== 0 ? docC1R2(f.real / Math.abs(f.plan) * 100) + ' %' : '—'), '—'
+            ]);
+            const tabla = docOficialTabla(
+                ['Partida', { t: 'Presupuesto', n: true }, { t: 'Real', n: true }, { t: 'Desviación', n: true }, { t: '% ejecución', n: true }, 'Causa de la desviación'],
+                filas,
+                [{ c: [esc('TOTALES'), docOficialNum(vs.totalPlan), docOficialNum(vs.totalReal), docOficialNum(docC1R2(vs.totalReal - vs.totalPlan)), '', ''], cls: 'docof-total' }]
+            );
+            const html = docOficialHTML({
+                titulo: 'PRESUPUESTO VS REAL',
+                subtitulo: 'Ejecución financiera frente a lo planificado.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Área', '—'],
+                    ['Período', esc('Año ' + anio)],
+                    ['Fecha', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla + (vs.filas.length ? '' : '<p class="docof-txt">Sin presupuesto registrado.</p>')
+            });
+            docOficialImprimirEn('docGestionBox', 'Presupuesto vs real · ' + anio, html);
+        }
+        /* --- Flujo proyectado (plantilla 20): la app proyecta por
+           SEMANAS (mjFlujoProyectado, 8 semanas desde CxC/CxP y
+           créditos, igual que #mjFlujoProyBox); las columnas de la
+           plantilla se adaptan a S1…S8 con su fecha de inicio. */
+        function docFlujoProyectadoPrint() {
+            const c = getConta();
+            const ind = mjIndicadores(c, null, '');
+            const fl = mjFlujoProyectado(c, { semanas: 8, fechaInicio: hoy(), saldoInicial: ind.cajaBanco });
+            if (!fl.ok) { alert('⚠️ ' + (fl.motivo || 'No se pudo proyectar el flujo.')); return; }
+            const cols = ['Concepto'].concat(fl.semanas.map(s => ({ t: 'S' + s.semana + ' · ' + (sc406FechaDMY(s.desde) || s.desde), n: true }))).concat([{ t: 'Total', n: true }]);
+            const totCob = docC1R2(fl.semanas.reduce((s, x) => s + x.cobros, 0));
+            const totPag = docC1R2(fl.semanas.reduce((s, x) => s + x.pagos, 0));
+            const filaSaldo = [esc('Saldo')].concat(fl.semanas.map(s => docOficialNum(s.saldo))).concat([docOficialNum(fl.semanas[fl.semanas.length - 1].saldo)]);
+            const tabla = docOficialTabla(cols, [
+                [esc('Cobros (CxC y vencidos)')].concat(fl.semanas.map(s => docOficialNum(s.cobros))).concat([docOficialNum(totCob)]),
+                [esc('Pagos (CxP, créditos y vencidos)')].concat(fl.semanas.map(s => docOficialNum(s.pagos))).concat([docOficialNum(totPag)]),
+                { c: filaSaldo, cls: 'docof-subtotal' }
+            ]);
+            const cuerpo = tabla
+                + '<div class="docof-neto"><span>SALDO FINAL DE CAJA (proyectado)</span><span>' + docOficialNum(fl.semanas[fl.semanas.length - 1].saldo) + '</span></div>';
+            const html = docOficialHTML({
+                titulo: 'FLUJO PROYECTADO',
+                subtitulo: 'Flujo de caja estimado a mediano plazo (por semanas).',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Moneda', esc('CUP')],
+                    ['Horizonte', esc('8 semanas')],
+                    ['Fecha de elaboración', esc(docOficialHoy())],
+                    ['Saldo inicial (caja y bancos)', docOficialNum(ind.cajaBanco)]
+                ],
+                cuerpo: cuerpo,
+                pie: fl.hayAlerta ? 'Hay semanas con saldo proyectado negativo: revisar cobros y pagos.' : ''
+            });
+            docOficialImprimirEn('docGestionBox', 'Flujo proyectado · 8 semanas', html);
+        }
+        /* --- Indicadores KPI (plantilla 21): mjIndicadores, igual que
+           #mjIndicadoresBox. La app no guarda metas por indicador:
+           Meta, % de cumplimiento, Tendencia y Responsable van «—». */
+        function docIndicadoresPrint() {
+            const c = getConta();
+            const ind = mjIndicadores(c, mjDocActualComoGestor(), periodoNominaActual());
+            const pct = v => v == null ? '—' : docC1R2(v) + ' %';
+            const num = v => v == null ? '—' : docOficialNum(v);
+            const filas = [
+                [esc('Ventas acumuladas'), esc('Σ |saldo| cuentas 801-000 + 802-000 del mayor'), '—', docOficialNum(ind.ventas), '—', '—', '—'],
+                [esc('Margen bruto'), esc('(Ventas − Costo de ventas) / Ventas × 100'), '—', esc(pct(ind.margenBrutoPct)), '—', '—', '—'],
+                [esc('Margen neto'), esc('Resultado / Ventas × 100'), '—', esc(pct(ind.margenNetoPct)), '—', '—', '—'],
+                [esc('Liquidez (caja y bancos)'), esc('Saldos 101-010 + 110-010 + 110-020'), '—', docOficialNum(ind.cajaBanco), '—', '—', '—'],
+                [esc('Cuentas por cobrar vencidas'), esc('Submayor CxC fuera de «Al día»'), '—', docOficialNum(ind.cxcVencidas), '—', '—', '—'],
+                [esc('Cuentas por pagar vencidas'), esc('Submayor CxP fuera de «Al día»'), '—', docOficialNum(ind.cxpVencidas), '—', '—', '—'],
+                [esc('Tributos por pagar'), esc('Σ saldos 341/342/343/333/334/345-000'), '—', docOficialNum(ind.tributosPorPagar), '—', '—', '—'],
+                [esc('Liquidez corriente'), esc('Activo / Pasivo (Estado de Situación)'), '—', esc(num(ind.liquidezCorriente)), '—', '—', '—'],
+                [esc('Rotación de inventario'), esc('Costo de ventas / Inventarios'), '—', esc(num(ind.rotacionInventario)), '—', '—', '—']
+            ];
+            const tabla = docOficialTabla(
+                ['Indicador', 'Fórmula', 'Meta', { t: 'Real', n: true }, { t: '% cumplimiento', c: true }, 'Tendencia', 'Responsable'],
+                filas
+            );
+            const html = docOficialHTML({
+                titulo: 'INDICADORES (KPI)',
+                subtitulo: 'Cuadro de mando de indicadores financieros y operativos.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Área', '—'],
+                    ['Período', esc(periodoNominaActual())],
+                    ['Fecha', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla
+            });
+            docOficialImprimirEn('docGestionBox', 'Indicadores KPI · ' + periodoNominaActual(), html);
+        }
+        /* --- Orden de producción (plantilla 22): una orden por
+           documento, desde g.ordenes (la misma lista de #mjOrdenesBox).
+           La orden guardada NO conserva el detalle por insumo (solo
+           costoInsumos agregado al crearla): la tabla de insumos va
+           con filas agregadas (insumos / mano de obra / otros) y
+           cantidades «—»; taller, turno, responsable y merma no se
+           guardan: «—». */
+        function docOrdenProduccionPrint() {
+            const c = getConta();
+            const g = mjGestionDe(c);
+            const ords = g.ordenes || [];
+            if (!ords.length) { alert('No hay órdenes de producción registradas.'); return; }
+            const bloques = ords.map(o => {
+                const filasIns = [];
+                if (Number(o.costoInsumos) > 0) filasIns.push([esc('Insumos y materiales (salidas de inventario de la orden)'), '—', '', '', '', docOficialNum(o.costoInsumos)]);
+                if (Number(o.manoObra) > 0) filasIns.push([esc('Mano de obra directa'), '—', '', '', '', docOficialNum(o.manoObra)]);
+                if (Number(o.otrosCostos) > 0) filasIns.push([esc('Otros costos'), '—', '', '', '', docOficialNum(o.otrosCostos)]);
+                if (!filasIns.length) filasIns.push([esc('Sin costos registrados'), '—', '', '', '', docOficialNum(0)]);
+                const tablaIns = docOficialTabla(
+                    ['Insumo', 'UM', { t: 'Cant. norma', n: true }, { t: 'Cant. real', n: true }, { t: 'Costo unit.', n: true }, { t: 'Importe', n: true }],
+                    filasIns,
+                    [{ c: [esc('TOTAL INSUMOS Y COSTOS'), '', '', '', '', docOficialNum(o.costoTotal)], cls: 'docof-total' }]
+                );
+                const resultado = docC2Pares([
+                    ['Cantidad producida', esc(String(o.unidades != null ? o.unidades : '') + (o.estado === 'terminada' ? '' : ' (planificada · orden ' + (o.estado || '') + ')'))],
+                    ['Costo unitario', docOficialNum(o.costoUnitario)],
+                    ['Merma / Desperdicio', '—'],
+                    ['Observaciones', esc('Estado de la orden: ' + (o.estado || ''))]
+                ]);
+                const cuerpo = '<div class="docof-sec">INSUMOS Y COSTOS</div>' + tablaIns
+                    + '<div class="docof-sec">RESULTADO</div>' + resultado;
+                return docOficialHTML({
+                    titulo: 'ORDEN DE PRODUCCIÓN',
+                    subtitulo: 'Control de fabricación, ensamblaje o transformación.',
+                    campos: [
+                        ['Entidad', esc(docOficialNegocio())],
+                        ['Taller / Área', '—'],
+                        ['Turno', '—'],
+                        ['Fecha de emisión', esc(docOficialHoy())],
+                        ['Orden No.', esc(o.numero || o.id || '')],
+                        ['Producto a elaborar', esc(o.producto || '')],
+                        ['Cantidad planificada', esc(String(o.unidades != null ? o.unidades : ''))],
+                        ['Fecha de inicio', docC2Fecha(o.fecha)],
+                        ['Fecha de terminación', '—'],
+                        ['Responsable', '—']
+                    ],
+                    cuerpo: cuerpo,
+                    firmas: ['Jefe de producción', 'Almacén', 'Calidad']
+                });
+            });
+            docOficialImprimirEn('docGestionBox', 'Órdenes de producción', bloques.join('<div style="page-break-before:always"></div>'));
+        }
+        /* --- IPV por turno (plantilla 23): mjIPVTurno con la fecha y
+           el cajero de los inputs de pantalla, igual que mjIPVUI.
+           Disponible = Inv. inicial + Entradas (presentación). Los
+           productos no guardan precio de venta en la app: Precio e
+           Importe van «—». Las mermas ya están descontadas del
+           inventario final y se avisan en el pie. */
+        function docIPVPrint() {
+            const c = getConta();
+            const fecha = (document.getElementById('mjIpvFecha') || {}).value || hoy();
+            const cajero = (document.getElementById('mjIpvCajero') || {}).value || '';
+            const ipv = mjIPVTurno(c, { fecha: fecha, cajero: cajero });
+            let tA = 0, tE = 0, tD = 0, tF = 0, tV = 0, tM = 0;
+            const filas = ipv.filas.map(f => {
+                const disp = docC1R2(f.apertura + f.entradas);
+                tA = docC1R2(tA + f.apertura); tE = docC1R2(tE + f.entradas); tD = docC1R2(tD + disp); tF = docC1R2(tF + f.saldo); tV = docC1R2(tV + f.ventas); tM = docC1R2(tM + (Number(f.mermas) || 0));
+                return [esc(f.nombre), '—', docOficialNum(f.apertura), docOficialNum(f.entradas), docOficialNum(disp), docOficialNum(f.saldo), docOficialNum(f.ventas), '—', '—'];
+            });
+            const tabla = docOficialTabla(
+                ['Producto', 'UM', { t: 'Inv. inicial', n: true }, { t: 'Entradas', n: true }, { t: 'Disponible', n: true }, { t: 'Inv. final', n: true }, { t: 'Vendido', n: true }, { t: 'Precio', n: true }, { t: 'Importe', n: true }],
+                filas,
+                [{ c: [esc('TOTALES'), '', docOficialNum(tA), docOficialNum(tE), docOficialNum(tD), docOficialNum(tF), docOficialNum(tV), '', ''], cls: 'docof-total' }]
+            );
+            const html = docOficialHTML({
+                titulo: 'IPV POR TURNO',
+                subtitulo: 'Inventario de productos vendidos por turno.',
+                campos: [
+                    ['Unidad / Establecimiento', esc(docOficialNegocio())],
+                    ['Turno', docC2Fecha(fecha)],
+                    ['Dependiente', esc(cajero || '—')],
+                    ['Fecha', esc(docOficialHoy())]
+                ],
+                cuerpo: tabla + (ipv.filas.length ? '' : '<p class="docof-txt">Sin movimientos de inventario ese día.</p>'),
+                firmas: ['Dependiente', 'Administrador', 'Contador'],
+                pie: esc(ipv.nota || '') + (tM > 0 ? ' Mermas del turno: ' + docOficialNum(tM) + ' unidades (ya descontadas del inventario final).' : '')
+            });
+            docOficialImprimirEn('docGestionBox', 'IPV por turno · ' + fecha, html);
+        }
+        /* --- Consignación (plantilla 24): eventos reales de
+           g.consignacion (entregas) y g.consignacionVentas (ventas)
+           por dueño, con saldo corrido por dueño y el importe a
+           liquidar de mjConsignacionLiquidacion (igual que
+           #mjConsignacionBox). Producto, documento y devoluciones no
+           se guardan: «—». */
+        function docConsignacionPrint() {
+            const c = getConta();
+            const g = mjGestionDe(c);
+            const liq = mjConsignacionLiquidacion(g.consignacion, g.consignacionVentas);
+            if (!liq.porDueno.length) { alert('Sin movimientos de consignación.'); return; }
+            const filas = [];
+            let totEnt = 0, totVen = 0, totLiq = 0;
+            liq.porDueno.forEach(d => {
+                const eventos = [];
+                (g.consignacion || []).filter(x => (x.dueno || 'Sin dueño') === d.dueno).forEach(x => eventos.push({ fecha: x.fecha || '', tipo: 'entrega', cantidad: Number(x.cantidad) || 0, precio: 0 }));
+                (g.consignacionVentas || []).filter(x => (x.dueno || 'Sin dueño') === d.dueno).forEach(x => eventos.push({ fecha: x.fecha || '', tipo: 'venta', cantidad: Number(x.cantidad) || 0, precio: Number(x.precio) || 0 }));
+                eventos.sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+                let saldo = 0;
+                eventos.forEach(ev => {
+                    if (ev.tipo === 'entrega') { saldo = docC1R2(saldo + ev.cantidad); filas.push([docC2Fecha(ev.fecha), '—', '—', docOficialNum(ev.cantidad), '', '—', docOficialNum(saldo), '—', '']); }
+                    else { saldo = docC1R2(saldo - ev.cantidad); filas.push([docC2Fecha(ev.fecha), '—', '—', '', docOficialNum(ev.cantidad), '—', docOficialNum(saldo), docOficialNum(ev.precio), docOficialNum(docC1R2(ev.cantidad * ev.precio))]); }
+                });
+                filas.push({ c: [esc('Subtotal · ' + d.dueno), '', '', docOficialNum(d.recibido), docOficialNum(d.vendido), '', docOficialNum(saldo), '', docOficialNum(d.liquidar)], cls: 'docof-subtotal' });
+                totEnt = docC1R2(totEnt + d.recibido); totVen = docC1R2(totVen + d.vendido); totLiq = docC1R2(totLiq + d.liquidar);
+            });
+            const tabla = docOficialTabla(
+                ['Fecha', 'Documento', 'Producto', { t: 'Cant. entregada', n: true }, { t: 'Cant. vendida', n: true }, { t: 'Cant. devuelta', n: true }, { t: 'Saldo', n: true }, { t: 'Precio', n: true }, { t: 'Importe liquidado', n: true }],
+                filas,
+                [{ c: [esc('TOTALES'), '', '', docOficialNum(totEnt), docOficialNum(totVen), '', '', '', docOficialNum(totLiq)], cls: 'docof-total' }]
+            );
+            const html = docOficialHTML({
+                titulo: 'CONSIGNACIÓN',
+                subtitulo: 'Control de mercancías entregadas o recibidas en consignación.',
+                campos: [
+                    ['Consignante', esc(liq.porDueno.map(d => d.dueno).join(', '))],
+                    ['Consignatario', esc(docOficialNegocio())],
+                    ['Contrato No.', '—'],
+                    ['Período', esc(periodoNominaActual())]
+                ],
+                cuerpo: tabla,
+                firmas: ['Consignante', 'Consignatario', 'Contabilidad'],
+                pie: esc(liq.nota || '')
+            });
+            docOficialImprimirEn('docGestionBox', 'Consignación · ' + periodoNominaActual(), html);
+        }
+        /* --- Útiles por custodio (plantilla 25): una ficha por
+           custodio desde g.utiles (igual que #mjUtilesBox y
+           mjUtilesResumen). Cada registro es UN útil (cantidad 1);
+           UM y fecha de devolución no se guardan: «—». CI y área se
+           toman de la ficha del trabajador de RRHH si el nombre
+           coincide. */
+        function docUtilesPrint() {
+            const c = getConta();
+            const g = mjGestionDe(c);
+            const utiles = (g.utiles || []).filter(u => u && u.estado !== 'baja');
+            if (!utiles.length) { alert('No hay útiles y herramientas registrados.'); return; }
+            const resumen = mjUtilesResumen(g.utiles);
+            const valorPor = {};
+            resumen.forEach(r => { valorPor[r.custodio] = r.valor; });
+            const trabs = (getRRHH() || {}).trabajadores || [];
+            const custodios = [];
+            utiles.forEach(u => { const cu = u.custodio || 'Sin custodio'; if (custodios.indexOf(cu) < 0) custodios.push(cu); });
+            const bloques = custodios.map(cu => {
+                const lista = utiles.filter(u => (u.custodio || 'Sin custodio') === cu);
+                const filas = lista.map(u => [
+                    esc(u.id || ''), esc(u.nombre || ''), '—', docOficialNum(1), docC2Fecha(u.fecha), esc(u.estado || ''), docOficialNum(u.valor), '', '—'
+                ]);
+                const tabla = docOficialTabla(
+                    ['Código', 'Descripción del útil', 'UM', { t: 'Cant.', n: true }, 'Fecha de entrega', 'Estado', { t: 'Valor', n: true }, 'Firma del custodio', { t: 'Fecha de devolución', c: true }],
+                    filas,
+                    [{ c: [esc('TOTALES'), '', '', docOficialNum(lista.length), '', '', docOficialNum(valorPor[cu] || 0), '', ''], cls: 'docof-total' }]
+                );
+                const trab = trabs.find(t => t && t.nombre === cu) || {};
+                return docOficialHTML({
+                    titulo: 'ÚTILES POR CUSTODIO',
+                    subtitulo: 'Registro de herramientas y medios asignados a trabajadores.',
+                    campos: [
+                        ['Entidad', esc(docOficialNegocio())],
+                        ['Custodio', esc(cu)],
+                        ['CI', esc(trab.ci || '—')],
+                        ['Área', esc(trab.centroCosto || '—')]
+                    ],
+                    cuerpo: tabla
+                });
+            });
+            docOficialImprimirEn('docGestionBox', 'Útiles por custodio', bloques.join('<div style="page-break-before:always"></div>'));
+        }
+        /* --- Panel del gestor (plantilla 26): resumen por cliente con
+           gResumenPeriodo de cada negocio (liquidez = saldo total de
+           sus cuentas; ventas/gastos/utilidad del período en curso),
+           CxC/CxP pendientes desde los documentos de cada negocio
+           (ctaPendienteDoc, la misma función de los submayores),
+           alertas del semáforo gEstadoNegocio y el cobro del gestor
+           (gCobroEstado, igual que #gestorCobros). Decisiones y
+           acuerdos no se registran en la app: nota al pie. */
+        function docPanelGestorPrint() {
+            if (!GDOCS) { alert('Los datos del Gestor aún se están cargando.'); return; }
+            const hoyI = gHoyISOFecha(), cfg = gestorOnatCfg(), per = periodoNominaActual(), hoyYM = gestorHoyYM();
+            const nombres = Object.keys(GDOCS).sort((a, b) => a.localeCompare(b, 'es'));
+            const cobrosData = getCobrosGestor();
+            let tLiq = 0, tCxC = 0, tCxP = 0, tVen = 0, tGas = 0, tUti = 0, tPend = 0;
+            const filasRes = nombres.map(n => {
+                const doc = GDOCS[n];
+                const r = gResumenPeriodo(doc, per);
+                const cd = doc.conta || {};
+                let cxc = 0, cxp = 0;
+                (cd.documentos || []).forEach(dd => {
+                    if (!dd) return;
+                    const pend = ctaPendienteDoc(cd, dd);
+                    if (pend > 0.005) { if (dd.tipo === 'cxc') cxc = docC1R2(cxc + pend); else if (dd.tipo === 'cxp') cxp = docC1R2(cxp + pend); }
+                });
+                tLiq = docC1R2(tLiq + r.saldoTotal); tCxC = docC1R2(tCxC + cxc); tCxP = docC1R2(tCxP + cxp);
+                tVen = docC1R2(tVen + r.ingresos); tGas = docC1R2(tGas + r.gastos); tUti = docC1R2(tUti + r.utilidad);
+                return [esc(n), docOficialNum(r.saldoTotal), docOficialNum(cxc), docOficialNum(cxp), docOficialNum(r.ingresos), docOficialNum(r.gastos), docOficialNum(r.utilidad)];
+            });
+            const tablaRes = docOficialTabla(
+                ['Cliente', { t: 'Liquidez (caja y bancos)', n: true }, { t: 'Cuentas por cobrar', n: true }, { t: 'Cuentas por pagar', n: true }, { t: 'Ventas del mes', n: true }, { t: 'Gastos del mes', n: true }, { t: 'Utilidad del mes', n: true }],
+                filasRes,
+                [{ c: [esc('TOTALES'), docOficialNum(tLiq), docOficialNum(tCxC), docOficialNum(tCxP), docOficialNum(tVen), docOficialNum(tGas), docOficialNum(tUti)], cls: 'docof-total' }]
+            );
+            const filasAl = [];
+            nombres.forEach(n => {
+                const e = gEstadoNegocio(GDOCS[n], hoyI, cfg);
+                if (e.semaforo === 'verde') return;
+                filasAl.push([esc(n), esc(e.motivos.join(' · ')), e.proxima ? docC2Fecha(e.proxima.obligacion.vence) : '—', esc(e.semaforo === 'rojo' ? 'Crítica' : 'Atención')]);
+            });
+            const tablaAl = docOficialTabla(
+                ['Negocio', 'Alertas críticas', { t: 'Fecha límite', c: true }, 'Estado'],
+                filasAl.length ? filasAl : [[esc('Sin alertas críticas'), '', '', '']]
+            );
+            const filasCob = nombres.map(n => {
+                const e = gCobroEstado((cobrosData.cobros || {})[n], hoyYM);
+                tPend = docC1R2(tPend + e.pendiente);
+                return [esc(n), docOficialNum(e.tarifa), docOficialNum(e.esperado), docOficialNum(e.pagado), docOficialNum(e.pendiente)];
+            });
+            const tablaCob = docOficialTabla(
+                ['Cliente', { t: 'Tarifa mensual', n: true }, { t: 'Esperado', n: true }, { t: 'Pagado', n: true }, { t: 'Pendiente', n: true }],
+                filasCob,
+                [{ c: [esc('TOTAL PENDIENTE DE COBRO'), '', '', '', docOficialNum(tPend)], cls: 'docof-total' }]
+            );
+            const cuerpo = '<div class="docof-sec">RESUMEN POR CLIENTE · ' + esc(per.toUpperCase()) + '</div>' + tablaRes
+                + '<div class="docof-sec">ALERTAS CRÍTICAS</div>' + tablaAl
+                + '<div class="docof-sec">COBRO DE MIS SERVICIOS COMO GESTOR</div>' + tablaCob;
+            const html = docOficialHTML({
+                titulo: 'PANEL DEL GESTOR',
+                subtitulo: 'Resumen ejecutivo para la toma de decisiones.',
+                campos: [
+                    ['Entidad', esc(docOficialNegocio())],
+                    ['Gestor', esc(getCurrentUser())],
+                    ['Período', esc(per)],
+                    ['Fecha', esc(docOficialHoy())]
+                ],
+                cuerpo: cuerpo,
+                firmas: ['Gestor', 'Dirección'],
+                pie: 'Decisiones / Acuerdos: la app no registra acuerdos ni responsables de seguimiento; esa sección de la plantilla queda sin datos.'
+            });
+            docOficialImprimirEn('docGestorBox', 'Panel del gestor · ' + per, html);
+        }
         /* ===== MODELO SC-4-06 (formato oficial tipo Versat): NOMINA y PRE-NOMINA =====
            Solo cambia la PLANTILLA de impresión: todos los importes salen del
            motor de nómina de siempre (calcLineaNominaExt /
@@ -9818,6 +10517,38 @@ function mjPermisos(rol,modulo){ const M={
                 else if(how==='after') el.insertAdjacentHTML('afterend',btnC1);
                 else if(how==='prepend') el.insertAdjacentHTML('afterbegin',btnC1);
             };
+            /* Documentos de Gestión+ y Gestor (Grupo C2): mismo patrón —
+               botón propio con data-doc-c2 y guarda anti-duplicado que,
+               para how='before'/'after' (botón HERMANO del ancla), mira
+               también al padre. Cada botón genera su documento oficial
+               en la caja oculta de su panel (docProgBox / docGestionBox
+               / docGestorBox) en lugar del volcado crudo. */
+            const putC2=(sel,clave,fnName,how)=>{
+                const el=document.querySelector(sel);
+                if(!el) return;
+                if(el.querySelector('[data-doc-c2="'+clave+'"]')) return;
+                if((how==='after'||how==='before')&&el.parentElement&&el.parentElement.querySelector('[data-doc-c2="'+clave+'"]')) return;
+                const btnC2=`<button type="button" class="btn btn-sm btn-outline-secondary" data-doc-c2="${clave}" onclick="${fnName}()"><i class="bi bi-printer me-1"></i>PDF</button>`;
+                if(how==='append') el.insertAdjacentHTML('beforeend',btnC2);
+                else if(how==='after') el.insertAdjacentHTML('afterend',btnC2);
+                else if(how==='before') el.insertAdjacentHTML('beforebegin',btnC2);
+                else if(how==='prepend') el.insertAdjacentHTML('afterbegin',btnC2);
+            };
+            putC2('#contaProgBox','programador','docProgramadorPrint','before');
+            putC2('#mjMotorBox','motor-tributos','docMotorTributosPrint','before');
+            putC2('#mjEfectivoBox','bancarizacion','docBancarizacionPrint','before');
+            putC2('#mjCalendarioBox','calendario','docCalendarioPrint','before');
+            putC2('#mjExpedienteBox','expediente','docExpedientePrint','before');
+            putC2('#mjKycBox','kyc','docKYCPrint','before');
+            putC2('#mjIndicadoresBox','indicadores','docIndicadoresPrint','before');
+            putC2('#mjFlujoProyBox','flujo-proyectado','docFlujoProyectadoPrint','before');
+            putC2('#mjPresupuestoBox','presupuesto','docPresupuestoPrint','before');
+            putC2('#mjUtilesBox','utiles','docUtilesPrint','before');
+            putC2('#mjOrdenesBox','orden-produccion','docOrdenProduccionPrint','before');
+            putC2('#mjIpvBox','ipv','docIPVPrint','before');
+            putC2('#mjConsignacionBox','consignacion','docConsignacionPrint','before');
+            putC2('#pane-gestor .module-hero','panel-gestor','docPanelGestorPrint','append');
+            putC2('#gestorCalendario','gestor-calendario','docGestorCalendarioPrint','before');
             putC1('#btnGuardarNomina','nomina-submayores','docNominaSubmayoresPrint','after');
             putC1('#triAnio','trimestres','docTrimestresPrint','after');
             put('#vectorEstadoBadge','pane-fiscal','after');
@@ -10218,7 +10949,10 @@ function mjPermisos(rol,modulo){ const M={
          'mjContratoCrearUI','mjUtilCrearUI','mjTraspasoUI','mjOrdenTerminarUI','mjOrdenCrearUI','mjCreditoDevengoUI',
          'mjCreditoCrearUI','mjSaldoDivisaUI','mjRevalAmpliaUI','mjConsignacionRecibirUI','mjConsignacionVentaUI',
          'guardarParamsFiscalesNomina','docCuentaPrint','docQRPrint',
-         'docResumenPrint','docNominaSubmayoresPrint','docTrimestresPrint','docOnatPrint','docCierreAnualPrint','docBalanceAperturaPrint'
+         'docResumenPrint','docNominaSubmayoresPrint','docTrimestresPrint','docOnatPrint','docCierreAnualPrint','docBalanceAperturaPrint',
+         'docProgramadorPrint','docMotorTributosPrint','docCalendarioPrint','docGestorCalendarioPrint','docBancarizacionPrint',
+         'docExpedientePrint','docKYCPrint','docPresupuestoPrint','docFlujoProyectadoPrint','docIndicadoresPrint',
+         'docOrdenProduccionPrint','docIPVPrint','docConsignacionPrint','docUtilesPrint','docPanelGestorPrint'
         ].forEach(function(n){ try { var f = eval(n); if (typeof f === 'function') window[n] = f; } catch(e) {} });
         // Ganchos de prueba (node) para el módulo DJ
         window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
