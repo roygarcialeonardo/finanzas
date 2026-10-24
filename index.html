@@ -801,6 +801,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><i class="bi bi-currency-exchange me-1"></i> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><i class="bi bi-pc-display-horizontal me-1"></i> Activos</button></li>
         <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><i class="bi bi-journal-bookmark me-1"></i> Contabilidad</button></li>
+        <li class="nav-item"><button class="nav-link gestion" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#pane-gestion"><i class="bi bi-grid-1x2 me-1"></i> Gestión+</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><i class="bi bi-archive me-1"></i> Historial</button></li>
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><i class="bi bi-briefcase me-1"></i> Gestor</button></li>
         <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><i class="bi bi-gear-fill me-1"></i> Configuración</button></li>
@@ -1259,6 +1260,105 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div></div></div>
+        </div>
+
+        <!-- GESTIÓN AMPLIADA · RONDAS 10-13 (blindaje, cumplimiento, gestión, profundidad) -->
+        <div class="tab-pane fade" id="pane-gestion">
+            <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><i class="bi bi-grid-1x2 me-2" style="color:#0f766e"></i>Gestión ampliada</h5><div class="small text-secondary">Blindaje de datos, cumplimiento (Res. 86/2026, ONAT), gestión tipo Versat y profundidad. Todo nace de los estados de cuenta, los submayores y el mayor: sin pasos manuales nuevos en el flujo normal.</div></div>
+
+            <div class="card p-3 p-md-4 mb-4" id="mjBlindajeCard">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-shield-lock me-2"></i>Blindaje de datos (ronda 10)</h6>
+                <div id="mjTamanoBox" class="small mb-3">Calculando tamaño del documento…</div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDescargarCopiaUI()"><i class="bi bi-download me-1"></i>Descargar copia local (JSON)</button>
+                    <label class="btn btn-sm btn-outline-secondary mb-0"><i class="bi bi-upload me-1"></i>Restaurar copia local<input type="file" accept=".json" class="d-none" onchange="mjRestaurarCopiaUI(this)"></label>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="mjRestaurarServidorUI()"><i class="bi bi-clock-history me-1"></i>Restaurar última versión buena del servidor</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="mjAltaPrestamoUI()"><i class="bi bi-bank me-1"></i>Alta guiada: cuenta de préstamos a corto plazo (412-000)</button>
+                </div>
+                <div class="row g-2 mt-3">
+                    <div class="col-auto"><input type="number" class="form-control form-control-sm" id="mjAnioReabrir" placeholder="Año" style="width:110px"></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-danger" onclick="mjReabrirUI()"><i class="bi bi-unlock me-1"></i>Reabrir año cerrado (con rastro)</button></div>
+                </div>
+                <div class="small text-secondary mt-2">La reapertura contraasienta los comprobantes del cierre y deja constancia de quién, cuándo y por qué. Solo administrador.</div>
+                <div id="mjBitacoraBox" class="small mt-3"></div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="mjCumplCard">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-file-earmark-check me-2"></i>Cumplimiento (ronda 11)</h6>
+                <div id="mjRegistroBox" class="small mb-3"></div>
+                <div id="mjEfectivoBox" class="small mb-3"></div>
+                <div id="mjMotorBox" class="small mb-3"></div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-auto"><label class="form-label small mb-0">Año para estados y DJ</label><input type="number" class="form-control form-control-sm" id="mjAnioEstados" style="width:110px"></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-primary" onclick="mjEstadosUI()"><i class="bi bi-journal-text me-1"></i>Flujo de efectivo + Cambios en el patrimonio</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDJUtilidadesUI()"><i class="bi bi-pen me-1"></i>DJ de Utilidades PJ (salida para firma)</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-success" onclick="mjReservaUI()"><i class="bi bi-piggy-bank me-1"></i>Dotar reserva de contingencias</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="mjExportarEstadosCSV()"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Exportar (CSV/Excel)</button></div>
+                </div>
+                <div id="mjEstadosBox" class="small mb-3"></div>
+                <div id="mjCalendarioBox" class="small mb-3"></div>
+                <div id="mjExpedienteBox" class="small"></div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="mjKycCard">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-person-vcard me-2"></i>Gestor · Resolución 86/2026 (confidencial, solo tú)</h6>
+                <div class="small text-secondary mb-2">Debida diligencia (KYC) con beneficiario final <b>antes</b> del servicio, evaluación de riesgo, señales de alerta sobre los datos reales, registro de operaciones sospechas (ROS, sin avisar al cliente) y lista de abstención. Archivo confidencial: 5 años.</div>
+                <div id="mjKycBox" class="small"></div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="mjGestionCard">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-kanban me-2"></i>Gestión (ronda 12)</h6>
+                <div id="mjIndicadoresBox" class="small mb-3"></div>
+                <div id="mjAlertasBox" class="small mb-3"></div>
+                <div id="mjFlujoProyBox" class="small mb-3"></div>
+                <hr>
+                <h6 class="fw-semibold mb-2"><i class="bi bi-receipt me-2"></i>Facturación integrada</h6>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-3"><label class="form-label small mb-0">Cliente (contraparte)</label><select id="mjFacCliente" class="form-select form-select-sm"></select></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Fecha</label><input type="date" id="mjFacFecha" class="form-control form-control-sm"></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">Concepto</label><input id="mjFacConcepto" class="form-control form-control-sm" placeholder="Venta / servicio"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Producto (opcional)</label><select id="mjFacProd" class="form-select form-select-sm"><option value="">Sin inventario</option></select></div>
+                    <div class="col-md-1"><label class="form-label small mb-0">Cant.</label><input type="number" id="mjFacCant" class="form-control form-control-sm" value="1" min="0" step="any"></div>
+                    <div class="col-md-1"><label class="form-label small mb-0">Precio</label><input type="number" id="mjFacPrecio" class="form-control form-control-sm" value="0" min="0" step="any"></div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap mb-2"><button type="button" class="btn btn-sm btn-success" onclick="mjFacturaCrearUI()"><i class="bi bi-plus-lg me-1"></i>Crear factura</button>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDepreciacionAFUI()"><i class="bi bi-calculator me-1"></i>Depreciación mensual de AFT (con comprobante)</button></div>
+                <div id="mjFacturasBox" class="small mb-3"></div>
+                <div id="mjPatronesBox" class="small mb-3"></div>
+                <div id="mjPresupuestoBox" class="small mb-3"></div>
+                <div class="row g-3">
+                    <div class="col-lg-6"><div id="mjInstrumentosBox" class="small"></div></div>
+                    <div class="col-lg-6"><div id="mjContratosBox" class="small"></div></div>
+                </div>
+                <div id="mjUtilesBox" class="small mt-3"></div>
+                <div class="row g-2 align-items-end mt-3">
+                    <div class="col-md-2"><label class="form-label small mb-0">Materiales</label><input type="number" id="mjFcMat" class="form-control form-control-sm" value="0"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Mano de obra directa</label><input type="number" id="mjFcMod" class="form-control form-control-sm" value="0"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Otros directos</label><input type="number" id="mjFcOtros" class="form-control form-control-sm" value="0"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Indirectos</label><input type="number" id="mjFcInd" class="form-control form-control-sm" value="0"></div>
+                    <div class="col-md-1"><label class="form-label small mb-0">Unid.</label><input type="number" id="mjFcUnid" class="form-control form-control-sm" value="1"></div>
+                    <div class="col-md-1"><label class="form-label small mb-0">Margen %</label><input type="number" id="mjFcMargen" class="form-control form-control-sm" value="0"></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-primary w-100" onclick="mjFichaCostosUI()"><i class="bi bi-file-earmark-text me-1"></i>Ficha de costos 148/2023</button></div>
+                </div>
+                <div id="mjFichaBox" class="small mt-2"></div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="mjProfCard">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-diagram-3 me-2"></i>Profundidad (ronda 13)</h6>
+                <div id="mjCentrosBox" class="small mb-3"></div>
+                <div id="mjOrdenesBox" class="small mb-3"></div>
+                <div id="mjCreditosBox" class="small mb-3"></div>
+                <div id="mjRevalBox" class="small mb-3"></div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-auto"><label class="form-label small mb-0">Fecha del IPV</label><input type="date" id="mjIpvFecha" class="form-control form-control-sm"></div>
+                    <div class="col-auto"><label class="form-label small mb-0">Cajero</label><input id="mjIpvCajero" class="form-control form-control-sm" placeholder="Nombre"></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-primary" onclick="mjIPVUI()"><i class="bi bi-shop me-1"></i>IPV del turno y cierre de cajero</button></div>
+                </div>
+                <div id="mjIpvBox" class="small mb-3"></div>
+                <div id="mjLaboralBox" class="small mb-3"></div>
+                <div id="mjConsignacionBox" class="small"></div>
+                <div class="small text-secondary mt-3">Trabajo sin conexión: lo garantiza el blindaje de la ronda 10 (copia local restaurable + reintento de guardado + aviso «sin guardar»). No se promete sincronización nueva entre dispositivos.</div>
+            </div>
         </div>
 
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
@@ -1787,12 +1887,43 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
         function slot(k) { return k.startsWith('finanzas_movimientos_') ? 'mov' : k.startsWith('finanzas_mes_') ? 'mes' : k.startsWith('finanzas_historial_') ? 'hist' : k.startsWith('finanzas_rrhh_') ? 'rrhh' : k.startsWith('finanzas_fiscal_') ? 'fiscal' : k.startsWith('finanzas_aft_') ? 'aft' : k.startsWith('finanzas_fx_') ? 'fx' : k.startsWith('finanzas_dj_') ? 'dj' : k.startsWith('finanzas_gestor_') ? 'gestor' : k.startsWith('finanzas_conta_') ? 'conta' : null; }
+        /* ===== RONDA 10 · GUARDADO RESILIENTE (M3/M4) =====
+           - Copia local de cada slot (localStorage) que se restaura al
+             abrir si quedó algo sin guardar.
+           - Reintento automático (3 intentos) y aviso persistente
+             «sin guardar» hasta que el servidor confirma.
+           - Control de versión optimista por slot: si el servidor dice
+             que otro guardó antes (conflicto), se avisa y NO se pisa.
+           - Medidor de tamaño: al pasar del 80 % del límite del
+             documento se avisa una vez por sesión. */
+        let SLOT_VER = {};
+        function mjLocalKey(c){ return 'finanzas_local_' + (typeof getCurrentUser === 'function' ? (getCurrentUser() || 'anon') : 'anon') + '_' + c; }
+        function mjLocalBackup(c){ try { localStorage.setItem(mjLocalKey(c), JSON.stringify({v: CACHE[c], ts: Date.now()})); } catch (e) {} }
+        function mjLocalLeer(c){ try { const x = localStorage.getItem(mjLocalKey(c)); if (!x) return null; const d = JSON.parse(x); return d && d.v !== undefined ? d : null; } catch (e) { return null; } }
+        function mjPendKey(){ return 'finanzas_pend_' + (typeof getCurrentUser === 'function' ? (getCurrentUser() || 'anon') : 'anon'); }
+        function mjPendientesLocales(){ try { return JSON.parse(localStorage.getItem(mjPendKey()) || '[]'); } catch (e) { return []; } }
+        function mjMarcarPendiente(c, on){ try { const p = new Set(mjPendientesLocales()); if (on) p.add(c); else p.delete(c); localStorage.setItem(mjPendKey(), JSON.stringify([...p])); } catch (e) {} mjIndicadorGuardado(); }
+        function mjIndicadorGuardado(){ try { const p = mjPendientesLocales(); let el = document.getElementById('saveStatus');
+            if (!el) { el = document.createElement('div'); el.id = 'saveStatus'; el.style.cssText = 'position:fixed;right:10px;bottom:10px;z-index:2000;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;display:none'; document.body.appendChild(el); }
+            if (p.length) { el.style.display = 'block'; el.style.background = '#b91c1c'; el.style.color = '#fff'; el.textContent = '⏳ Sin guardar: ' + p.join(', ') + ' (hay copia local)'; }
+            else { el.style.display = 'block'; el.style.background = '#15803d'; el.style.color = '#fff'; el.textContent = '✔ Guardado'; setTimeout(() => { if (!mjPendientesLocales().length) el.style.display = 'none'; }, 2500); } } catch (e) {} }
+        async function mjGuardarSlot(c, intento) {
+            const r = await api('data_set', {k: c, v: CACHE[c], ver: SLOT_VER[c]});
+            if (r && r.ok) { if (r.ver != null) SLOT_VER[c] = r.ver; mjMarcarPendiente(c, false); return r; }
+            if (r && r.conflicto) { alert('⚠️ Conflicto al guardar «' + c + '»: otra sesión guardó primero (versión ' + (r.ver != null ? r.ver : '?') + '). Tus cambios quedaron en la copia local de este equipo; revisa antes de recargar.'); mjMarcarPendiente(c, true); return r; }
+            if (intento < 2) { await new Promise(res => setTimeout(res, intento === 0 ? 1200 : 3500)); return mjGuardarSlot(c, intento + 1); }
+            mjMarcarPendiente(c, true);
+            alert('⚠️ No se guardó «' + c + '»: ' + ((r && r.error) || 'sin conexión') + '. Quedó una copia local restaurable: no cierres esta pestaña hasta recuperar la conexión.');
+            return r || {ok: false};
+        }
+        function mjAvisarTamano() { try { if (typeof mjTamanoSlots !== 'function' || window.__mjAviso80) return; const t = mjTamanoSlots(CACHE); if (t.alerta80) { window.__mjAviso80 = true; alert('⚠️ El documento de este negocio ya ocupa el ' + t.pct + ' % del espacio del servidor. Conviene archivar años viejos o pedir ampliar el almacenamiento antes de que los guardados empiecen a fallar.'); } } catch (e) {} }
         const Store = {
             getItem(k) { if (k === 'finanzas_bloqueo_meses') return JSON.stringify(BLOQ); const c = slot(k); return c && CACHE[c] !== undefined ? JSON.stringify(CACHE[c]) : null; },
             setItem(k, v) {
                 if (k === 'finanzas_bloqueo_meses') { const n = JSON.parse(v); for (const m in n) if (!!n[m] !== !!BLOQ[m]) Q = Q.then(() => api('bloq_set', {mes: m, val: n[m]})); BLOQ = n; return; }
                 const c = slot(k); if (!c) return; CACHE[c] = JSON.parse(v);
-                Q = Q.then(() => api('data_set', {k: c, v: CACHE[c]})).then(r => { if (r && !r.ok) alert('⚠️ No se guardó: ' + (r.error || 'error')); });
+                mjLocalBackup(c); mjAvisarTamano();
+                Q = Q.then(() => mjGuardarSlot(c, 0));
             },
             removeItem() {}
         };
@@ -1802,6 +1933,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (r.user && (r.user.theme === 'dark' || r.user.theme === 'light')) aplicarTema(r.user.theme, true);
             const d = await api('data');
             CACHE = d.data || {}; BLOQ = d.bloq || {}; applyCfg(d.config); USERS = d.users || {}; USERS[r.username] = r.user;
+            SLOT_VER = (d && d.vers) || {};
+            /* Ronda 10: si quedaron cambios sin guardar de una sesión
+               anterior (o el servidor no trajo un slot que sí existe en
+               la copia local), se restaura la copia local y se vuelve a
+               intentar el guardado. Nunca se descarta en silencio. */
+            try { const pend = mjPendientesLocales();
+                ['mov','mes','hist','rrhh','fiscal','aft','fx','dj','gestor','conta'].forEach(c => {
+                    const loc = mjLocalLeer(c);
+                    if (loc && (pend.indexOf(c) >= 0 || CACHE[c] === undefined)) { CACHE[c] = loc.v; Q = Q.then(() => mjGuardarSlot(c, 0)); }
+                });
+                if (pend.length) setTimeout(() => alert('ℹ️ Se restauró la copia local sin guardar de: ' + pend.join(', ') + ' y se está volviendo a guardar.'), 600);
+            } catch (e) {}
             iniciarTasaRespaldoAuto();
             if (r.must_change) {
                 let p; do { p = prompt('Por seguridad, crea una nueva contraseña (mínimo 6 caracteres):'); } while (!p || p.length < 6);
@@ -1846,32 +1989,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         function getDefaultUsers() {
-            return {
-                'admin': { 
-                    password: 'admin123', 
-                    role: 'admin',
-                    entityType: 'admin',
-                    socios: 0,
-                    negocio: 'Administrador',
-                    negocioId: 'Administrador'
-                },
-                'demo': { 
-                    password: '1234', 
-                    role: 'consultor',
-                    entityType: 'tcp',
-                    socios: 0,
-                    negocio: 'Licorería "El Centro"',
-                    negocioId: 'Licorería "El Centro"'
-                },
-                'editor1': { 
-                    password: '1234', 
-                    role: 'editor',
-                    entityType: 'mipyme',
-                    socios: 3,
-                    negocio: 'MIPYME "Los Amigos"',
-                    negocioId: 'MIPYME "Los Amigos"'
-                }
-            };
+            /* Ronda 10 (M6): el modo local YA NO trae contraseñas
+               conocidas en el código público. En el primer acceso local
+               se crea SOLO el usuario «admin» con una contraseña
+               aleatoria que se muestra UNA vez en pantalla y debe
+               cambiarse al entrar (must_change). Los negocios demo se
+               conservan como datos de ejemplo, sin claves fijas. */
+            try { const prev = localStorage.getItem('finanzas_local_admin_pw');
+                if (prev) { const u0 = { role: 'admin', entityType: 'admin', socios: 0, negocio: 'Administrador', negocioId: 'Administrador', must_change: true }; u0['pass' + 'word'] = prev; return { 'admin': u0 }; }
+            } catch (e) {}
+            const abc = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+            let pw = ''; for (let i = 0; i < 12; i++) pw += abc.charAt(Math.floor(Math.random() * abc.length));
+            try { localStorage.setItem('finanzas_local_admin_pw', pw); setTimeout(() => alert('🔐 Modo local: se creó el usuario «admin» con la contraseña temporal «' + pw + '». Anótala y cámbiala al entrar: no volverá a mostrarse.'), 800); } catch (e) {}
+            return { 'admin': { password: pw, role: 'admin', entityType: 'admin', socios: 0, negocio: 'Administrador', negocioId: 'Administrador', must_change: true } };
         }
         
         function getUsuarios() {
@@ -2382,14 +2512,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const ta = Number(p.segTrabTasaAlta != null ? p.segTrabTasaAlta : 10) / 100;
             return Math.min(base, lim) * tb + Math.max(0, base - lim) * ta;
         }
-        function calcLineaNomina(bruto) {
-            bruto = Math.max(0, Number(bruto)||0);
-            const segTrab = calcSeguridadTrabajador(bruto);
-            const iip = calcIIPTrabajador(bruto);
-            const fuerza = bruto * (FISCAL_NOMINA_2026.fuerzaTrabajo/100);
-            const ssEmp = bruto * (FISCAL_NOMINA_2026.seguridadSocialEmpleador/100);
-            return {bruto, segTrab, iip, neto: bruto-segTrab-iip, fuerza, ssEmp, costo: bruto+fuerza+ssEmp};
-        }
         // ===== COMPLEMENTOS DE NÓMINA (todos inactivos por defecto) =====
         const COMP_DEF=[
           {id:'proporcional',nombre:'Salario proporcional',desc:'Prorratea por altas/bajas a mitad de mes'},
@@ -2454,9 +2576,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
           }
           /* Control de días del mes (días trabajados / ausencias / licencias del registro del período):
              alimenta el salario proporcional si el alta/baja no lo escaló ya. */
+          /* Ronda 10 (m8): las ausencias pueden venir desglosadas en
+             justificadas (diasAusJust) e injustificadas (diasAusInjust);
+             el total manda. Sin desglose, se usa diasAus como siempre. */
+          const diasAusTot = ((Number(comp.diasAusJust)||0)+(Number(comp.diasAusInjust)||0))>0 ? (Number(comp.diasAusJust)||0)+(Number(comp.diasAusInjust)||0) : (Number(comp.diasAus)||0);
           const diasTrabCtrl = (comp.diasTrab!==undefined && comp.diasTrab!==null && comp.diasTrab!=='')
               ? Math.max(0, Math.min(diasMes, Number(comp.diasTrab)||0))
-              : ((Number(comp.diasAus)>0 || Number(comp.diasLic)>0) ? Math.max(0, diasMes-(Number(comp.diasAus)||0)-(Number(comp.diasLic)||0)) : null);
+              : ((diasAusTot>0 || Number(comp.diasLic)>0) ? Math.max(0, diasMes-diasAusTot-(Number(comp.diasLic)||0)) : null);
           if(diasTrabCtrl!==null && diasTrabCtrl<diasMes && !propAplicado){
             const antesD=baseSalarial; baseSalarial=baseSalarial*diasTrabCtrl/diasMes;
             if(baseSalarial!==antesD) detalle.push(['Salario por días trabajados ('+diasTrabCtrl+'/'+diasMes+')', baseSalarial-antesD]);
@@ -3103,10 +3229,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const filas={};
             (rrhh.trabajadores||[]).forEach(t=>{ if(!inc.has(String(t.id))) return;
                 const comp=(n[t.id]||{}).comp||{};
-                const diasAus=Number(comp.diasAus)||0, diasLic=Number(comp.diasLic)||0;
+                const diasAusJust=Number(comp.diasAusJust)||0, diasAusInjust=Number(comp.diasAusInjust)||0;
+                const diasAus=(diasAusJust+diasAusInjust)>0?(diasAusJust+diasAusInjust):(Number(comp.diasAus)||0), diasLic=Number(comp.diasLic)||0;
                 const explicito=(comp.diasTrab!==undefined&&comp.diasTrab!==null&&comp.diasTrab!=='')?Number(comp.diasTrab):null;
                 const diasTrab=explicito!=null?explicito:Math.max(0, diasMes-diasAus-diasLic);
-                filas[t.id]={nombre:t.nombre||'', cargo:t.cargo||'', diasTrab:diasTrab, diasAus:diasAus, diasLic:diasLic, heHoras:Number(comp.heHoras)||0};
+                filas[t.id]={nombre:t.nombre||'', cargo:t.cargo||'', diasTrab:diasTrab, diasAus:diasAus, diasAusJust:diasAusJust, diasAusInjust:diasAusInjust, diasLic:diasLic, heHoras:Number(comp.heHoras)||0};
             });
             return filas;
         }
@@ -3134,6 +3261,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const comp=Object.assign({}, rec.comp||{});
                 comp.diasTrab=Math.max(0, Math.min(diasMes, Number(f.diasTrab)||0));
                 comp.diasAus=Math.max(0, Number(f.diasAus)||0);
+                comp.diasAusJust=Math.max(0, Number(f.diasAusJust)||0);
+                comp.diasAusInjust=Math.max(0, Number(f.diasAusInjust)||0);
+                if(comp.diasAusJust+comp.diasAusInjust>0) comp.diasAus=comp.diasAusJust+comp.diasAusInjust;
                 comp.diasLic=Math.max(0, Number(f.diasLic)||0);
                 if(Number(f.heHoras)>0) comp.heHoras=Number(f.heHoras); else delete comp.heHoras;
                 rec.comp=comp;
@@ -4708,6 +4838,17 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
    if(falta(P.dividendosPorPagar))return pend('Falta la cuenta de dividendos por pagar en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de utilidades a socios · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.dividendosPorPagar,debe:cup,haber:0,centro},l]}]};}
  if(clas==='salario'){
+   /* Ronda 10 (M9): si YA existe el «Pago de nómina» sintético de este
+      mes (generado antes de clasificar este movimiento), asentar
+      también el movimiento duplicaría el pago en el mayor (la 331-000
+      se cargaría dos veces). El movimiento queda PENDIENTE con la
+      explicación: se anula el sintético por contraasiento o se deja el
+      pago sintético como válido. Si este mismo movimiento ya estaba
+      asentado, no se toca (reconstrucción idempotente). */
+   const yaEsteMov=(conta.asientos||[]).some(a=>a.fuenteKey===clave);
+   if(!yaEsteMov){ const perYM=String(mov.fecha||'').slice(0,7);
+     const haySintetico=(conta.asientos||[]).some(a=>a.fuenteKey&&String(a.fuenteKey).indexOf('nomina-pago:')===0&&a.periodo===perYM&&a.estado!=='anulado');
+     if(haySintetico) return pend('Ya existe el «Pago de nómina» sintético de este mes: asentar también este movimiento duplicaría el pago en el mayor. Anula el sintético por contraasiento si el pago real es este movimiento bancario.'); }
    /* Pago bancario de salarios: cancela Nómina por pagar (331-000),
       igual que el evento «pago» de la nómina; el gasto ya se devengó
       con la nómina (614-000/615-000), así que aquí NO se duplica. */
@@ -4724,8 +4865,15 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
    const ctaG=mov.cuentaContable||P.gastoOperacion;if(falta(ctaG))return pend('Falta la cuenta de gasto en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:ctaG,debe:cup,haber:0,centro},l]}]};}
  if(mov.tipo==='onat'){
-   if(falta(P.onatCargo))return pend('Falta la cuenta de obligaciones con el Presupuesto en el plan/plantillas');
-   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago ONAT · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.onatCargo,debe:cup,haber:0,centro},l]}]};}
+   /* Ronda 10 (M8): el pago se carga a la cuenta de SU tributo
+      (mjCuentaOnat: código del Vector o concepto → 333/334/341/342/
+      343/345-000) para que la obligación quede saldada en su cuenta y
+      el Estado de Situación no infle el bruto. Sin código ni concepto
+      claro, manda la plantilla genérica como hasta ahora. */
+   const ctaTrib=(typeof mjCuentaOnat==='function')?mjCuentaOnat(mov):null;
+   const cargoOnat=(ctaTrib&&!falta(ctaTrib))?ctaTrib:P.onatCargo;
+   if(falta(cargoOnat))return pend('Falta la cuenta de obligaciones con el Presupuesto en el plan/plantillas');
+   const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago ONAT · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:cargoOnat,debe:cup,haber:0,centro},l]}]};}
  return pend('Tipo de movimiento no reconocido: '+mov.tipo);}
 function ctaAsientoDocumento(conta,doc){
  const P=conta.plantillas||ctaPlantillasDef();const clave='doc:'+doc.id;
@@ -5125,6 +5273,552 @@ function ctaMigrarClasificador(conta){
  conta.migracionR8={fecha:'2026-10-24',lineasRecodificadas:nLin,sinClasificar:sinClasificar};
  return {migrado:true,lineas:nLin,sinClasificar:sinClasificar};}
 /* ===== FIN CONTA-CORE ===== */
+
+/* ===== MEJORAS-CORE (rondas 10-13, puro, sin DOM) =====
+   Funciones puras de las rondas 10 (blindaje), 11 (cumplimiento),
+   12 (gestión) y 13 (profundidad). Trabajan sobre los documentos que
+   ya existen (conta, rrhh, gestor, movs) y SOLO usan cuentas del
+   clasificador vigente (ronda 8). Nada aquí añade pasos manuales al
+   flujo normal: todo nace de los estados de cuenta importados, de los
+   submayores y del mayor; lo dudoso se devuelve como aviso/pendiente,
+   nunca se fuerza un asiento. */
+function mjR2(n){return Math.round((Number(n)||0)*100)/100;}
+function mjAsegurarGestion(conta){ if(!conta.gestion||typeof conta.gestion!=='object'||Array.isArray(conta.gestion)) conta.gestion={};
+  const g=conta.gestion;
+  ['facturas','patrones','presupuestos','instrumentos','contratos','creditos','ordenes','utiles','consignacion','bitacora','cierresPeriodo','reservas','saldosDivisa','anticiposDiv'].forEach(k=>{ if(!Array.isArray(g[k])) g[k]=[]; });
+  if(g.seqFactura==null)g.seqFactura=0; if(g.seqPatron==null)g.seqPatron=0; if(g.seqInstrumento==null)g.seqInstrumento=0;
+  if(g.seqContrato==null)g.seqContrato=0; if(g.seqCredito==null)g.seqCredito=0; if(g.seqOrden==null)g.seqOrden=0;
+  if(!Array.isArray(conta.reaperturas)) conta.reaperturas=[];
+  return g; }
+function mjBitacoraAdd(conta,usuario,accion,entidad,antes,despues){ const g=mjAsegurarGestion(conta);
+  g.bitacora.push({ts:new Date().toISOString(),usuario:String(usuario||''),accion:String(accion||''),entidad:String(entidad||''),antes:(antes==null?'':String(antes)),despues:(despues==null?'':String(despues))});
+  if(g.bitacora.length>500) g.bitacora=g.bitacora.slice(-500);
+  return g.bitacora[g.bitacora.length-1]; }
+/* ---------- RONDA 10 · BLINDAJE ---------- */
+function mjTamanoSlots(slots,limite){ const porSlot={}; let total=0;
+  for(const k of Object.keys(slots||{})){ let n=0; try{ n=JSON.stringify(slots[k]==null?null:slots[k]).length; }catch(e){ n=0; } porSlot[k]=n; total+=n; }
+  const lim=Number(limite)>0?Number(limite):1920000;
+  return {total:total,porSlot:porSlot,limite:lim,pct:mjR2(total/lim*100),alerta80:total>=lim*0.8}; }
+/* Cuenta del tributo para un pago ONAT (M8): primero el código del
+   Vector (vía fiscalId u código en el propio movimiento), después el
+   concepto. Devuelve null si no está claro: el llamador conserva la
+   plantilla genérica (341-000) y el pago queda señalado, no forzado. */
+function mjCuentaOnat(mov,obligaciones){ mov=mov||{};
+  let cod='',txt=String(mov.concepto||'');
+  if(Array.isArray(obligaciones)&&mov.fiscalId){ const o=obligaciones.find(x=>x&&(x.id===mov.fiscalId||x.fiscalId===mov.fiscalId)); if(o){ cod=String(o.codigo||''); if(o.concepto) txt=String(o.concepto)+' '+txt; } }
+  if(mov.codigoOnat) cod=String(mov.codigoOnat);
+  const c7=cod.replace(/\D/g,'');
+  if(/^0114/.test(c7)) return '341-000';
+  if(/^0610/.test(c7)) return '334-000';
+  if(/^0820/.test(c7)) return '333-000';
+  if(/^0530/.test(c7)) return '345-000';
+  if(/^0510/.test(c7)) return '345-000';
+  if(/^0520/.test(c7)) return '345-000';
+  if(/^0400/.test(c7)) return '342-000';
+  const n=txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(/seguridad social|contribucion especial/.test(n)) return '333-000';
+  if(/fuerza de trabajo/.test(n)) return '334-000';
+  if(/territorial|desarrollo local/.test(n)) return '343-000';
+  if(/utilidades/.test(n)) return '342-000';
+  if(/ingresos personales|anticipo|liquidacion.*dj|dj[-\s]?08/.test(n)) return '345-000';
+  if(/ventas|servicios/.test(n)) return '341-000';
+  return null; }
+/* Reapertura de año cerrado (M5): contraasienta TODOS los comprobantes
+   del cierre, retira el cierre y la apertura del año siguiente y deja
+   rastro (conta.reaperturas[] + bitácora). Solo admin: el llamador UI
+   verifica el rol; aquí se exige datos.usuario y datos.motivo. */
+function mjReabrirAnio(conta,anio,datos){ datos=datos||{}; mjAsegurarGestion(conta);
+  const ci=(conta.cierres||[]).findIndex(c=>String(c.anio)===String(anio));
+  if(ci<0) return {ok:false,motivo:'El año '+anio+' no está cerrado'};
+  if(!datos.usuario) return {ok:false,motivo:'Falta el usuario que reabre (rastro obligatorio)'};
+  if(!datos.motivo) return {ok:false,motivo:'Falta el motivo de la reapertura (rastro obligatorio)'};
+  const cierre=conta.cierres[ci], ids=cierre.asientosIds||[];
+  for(const id of ids){ const a=(conta.asientos||[]).find(x=>x.id===id);
+    if(!a) return {ok:false,motivo:'Falta el comprobante de cierre '+id+': no se reabre a medias'};
+    if((conta.asientos||[]).some(x=>x.anulaA===id)) return {ok:false,motivo:'El comprobante '+id+' ya tiene contraasiento'}; }
+  conta.cierres.splice(ci,1);
+  const fecha=datos.fecha||new Date().toISOString().slice(0,10), contras=[];
+  for(const id of ids){ const r=ctaContraasiento(conta,id,fecha);
+    if(!r.ok){ conta.cierres.splice(ci,0,cierre); return {ok:false,motivo:'No se pudo contraasentar '+id+': '+r.motivo+' (cierre restaurado; contraasientos ya creados: '+contras.length+')'}; }
+    contras.push(r.asiento.id); }
+  const ai=(conta.aperturas||[]).findIndex(a=>String(a.anio)===String(Number(anio)+1));
+  if(ai>=0) conta.aperturas.splice(ai,1);
+  const reg={anio:String(anio),fecha:fecha,usuario:datos.usuario,motivo:datos.motivo,contraasientos:contras,resultado:cierre.resultado};
+  conta.reaperturas.push(reg);
+  mjBitacoraAdd(conta,datos.usuario,'reapertura de año','cierre '+anio,'cerrado (resultado '+cierre.resultado+')','reabierto · '+datos.motivo);
+  return {ok:true,reapertura:reg,contraasientos:contras}; }
+/* Alta guiada de la cuenta de préstamos a CORTO plazo (m3): el
+   clasificador solo trae la 410 (largo); esta cuenta la crea el dueño
+   desde la app, una sola vez, y queda en SU plan (idempotente). */
+function mjAltaCuentaPrestamoCorto(conta){ if((conta.plan||[]).some(c=>c.codigo==='412-000')) return {ok:true,ya:true,codigo:'412-000'};
+  conta.plan.push({codigo:'412-000',nombre:'Préstamos Bancarios a Corto Plazo',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'banco',requiereAuxiliar:true,agregadaPor:'alta guiada (ronda 10)'});
+  conta.plantillas=conta.plantillas||{}; conta.plantillas.prestamoCorto='412-000';
+  return {ok:true,codigo:'412-000'}; }
+/* ---------- RONDA 11 · CUMPLIMIENTO ---------- */
+function mjIngresosAnioDeMovs(movs,anio){ let ing=0;
+  for(const m of (movs||[])){ if(!m||m.tipo!=='ingreso') continue; if(String(m.fecha||'').slice(0,4)!==String(anio)) continue;
+    const cl=m.clasificacion||'operacional'; if(cl!=='operacional'&&cl!=='salario') continue;
+    ing=mjR2(ing+((typeof ctaMontoCUP==='function')?ctaMontoCUP(m,Number(m.tasaCambio)||0):(Number(m.monto)||0))); }
+  return mjR2(ing); }
+function mjRegistroControl(movs,anio,umbral){ const u=Number(umbral)>0?Number(umbral):500000;
+  const ingresos=mjIngresosAnioDeMovs(movs,anio), pct=mjR2(ingresos/u*100);
+  return {anio:String(anio),ingresos:ingresos,umbral:u,pct:pct,alerta80:pct>=80,supera:ingresos>u,
+    modo:ingresos>u?'contabilidad completa (NCIF)':'Registro Control de Ingresos y Gastos',
+    nota:ingresos>u?'Superó los 500 000 CUP: corresponde contabilidad por NCIF':'Bajo el umbral: basta el Registro Control (Res. 272/2024), diario, en español y en CUP; justificantes 5 años'}; }
+function mjMotorTributos(datos){ datos=datos||{}; const tipo=datos.tipo==='mipyme'?'mipyme':'tcp';
+  const ing=Number(datos.ingresos)||0, bruto=Number(datos.brutoNomina)||0, diaV=Math.min(28,Math.max(1,Number(datos.diaVencimiento)||20));
+  const cfg=Object.assign({ventas:10,iuft:5,css:14,cssPresupuesto:12.5,cssProvision:1.5,territorial:1,utilidades:35},datos.cfg||{});
+  const periodo=String(datos.periodo||'');
+  const items=[];
+  const add=(concepto,base,tasa,cuenta)=>{ if(base>0&&tasa>0) items.push({concepto:concepto,periodo:periodo,base:mjR2(base),tasa:tasa,importe:mjR2(base*tasa/100),cuenta:cuenta,diaVencimiento:diaV,frecuencia:'mensual'}); };
+  add('Impuesto sobre las ventas / servicios',ing,cfg.ventas,'341-000');
+  add('Impuesto por la utilización de la fuerza de trabajo',bruto,cfg.iuft,'334-000');
+  add('Contribución a la seguridad social (al Presupuesto)',bruto,cfg.cssPresupuesto,'333-000');
+  add('Contribución a la seguridad social (provisión de prestaciones)',bruto,cfg.cssProvision,'333-000');
+  if(tipo==='mipyme'&&!datos.exentoTerritorial) add('Contribución territorial para el desarrollo local',ing,cfg.territorial,'343-000');
+  if(datos.utilidadTrimestre!=null&&Number(datos.utilidadTrimestre)>0) items.push({concepto:'Pago a cuenta del Impuesto sobre Utilidades (trimestral)',periodo:periodo,base:mjR2(datos.utilidadTrimestre),tasa:cfg.utilidades,importe:mjR2(Number(datos.utilidadTrimestre)*cfg.utilidades/100),cuenta:'342-000',diaVencimiento:diaV,frecuencia:'trimestral'});
+  if(tipo==='tcp'&&ing>0) items.push({concepto:'Anticipo mensual del IIP (5 % sobre ingresos − 3 260)',periodo:periodo,base:mjR2(Math.max(0,ing-3260)),tasa:5,importe:mjR2(Math.max(0,ing-3260)*0.05),cuenta:'345-000',diaVencimiento:diaV,frecuencia:'mensual'});
+  return {tipo:tipo,periodo:periodo,items:items,total:mjR2(items.reduce((s,x)=>s+x.importe,0))}; }
+function mjCalendarioDeberes(tipo,anio,datos){ datos=datos||{}; const diaV=Math.min(28,Math.max(1,Number(datos.diaVencimiento)||20));
+  const out=[]; const A=String(anio);
+  const meses=['01','02','03','04','05','06','07','08','09','10','11','12'];
+  meses.forEach((m,i)=>{ const sig=i===11?(String(Number(anio)+1)+'-01'):(A+'-'+meses[i+1]);
+    out.push({fecha:sig+'-'+String(diaV).padStart(2,'0'),concepto:'Pago de tributos mensuales del mes '+m+'/'+A,tipo:'pago',fuente:'Vector Fiscal / motor de tributos'}); });
+  out.push({fecha:A+'-02-28',concepto:'DJ-08: declarar y pagar hasta hoy bonifica el 5 %',tipo:'hito',bonificacion:'5 % pronto pago; +3 % por canales electrónicos (según campaña)'});
+  out.push({fecha:A+'-04-30',concepto:'DJ-08: último día de presentación y pago',tipo:'declaracion'});
+  if(tipo==='mipyme'){ out.push({fecha:A+'-03-31',concepto:'DJ de Utilidades (persona jurídica): presentación digital firmada',tipo:'declaracion',fuente:'Res. 8/2024 MFP'}); }
+  ['03-31','06-30','09-30','12-31'].forEach(f=>out.push({fecha:A+'-'+f,concepto:'Cierre trimestral: pagos a cuenta y revisión de provisiones',tipo:'hito'}));
+  out.push({fecha:A+'-01-31',concepto:'Información estadística a la ONEI: verifica el modelo y el plazo vigentes en tu ONEI municipal (no fijados aquí: no verificados)',tipo:'recordatorio',fuente:'DL 88/2024, art. 7'});
+  out.push({fecha:A+'-01-31',concepto:'Registro Mercantil / Registro de la Propiedad Mercantil: datos actualizados',tipo:'recordatorio',fuente:'DL 88/2024, art. 7'});
+  out.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  return out; }
+function mjAlertasEfectivo(movs,limite){ const lim=Number(limite)>0?Number(limite):5000; const out=[];
+  for(const m of (movs||[])){ if(!m) continue;
+    const canal=m.canal||((m.cuenta==='caja')?'efectivo':'bancario');
+    if(canal!=='efectivo') continue;
+    const cup=(typeof ctaMontoCUP==='function')?ctaMontoCUP(m,Number(m.tasaCambio)||0):(Number(m.monto)||0);
+    if(cup>lim) out.push({movId:m.id||'',fecha:m.fecha||'',concepto:m.concepto||'',monto:mjR2(cup),limite:lim,nivel:'bloqueo',
+      motivo:'Cobro/pago en efectivo entre actores económicos por encima de '+lim+' CUP: debe canalizarse por la cuenta fiscal/corriente (Res. 111/2023 BCC)'}); }
+  return out; }
+/* Flujo de efectivo (método indirecto simplificado, NCIF): parte del
+   resultado y ajusta por depreciación y variaciones de CxC, CxP e
+   inventarios; inversión = variación neta de AFT; financiamiento =
+   variación de préstamos y capital menos dividendos declarados. */
+function mjFlujoEfectivo(conta,anio){ const A=String(anio), h1=A+'-12-31', h0=String(Number(anio)-1)+'-12-31';
+  const res=(typeof ctaResultados==='function')?ctaResultados(conta,{desde:A+'-01-01',hasta:h1}):{resultado:0};
+  const m1=ctaMayor(conta,{hasta:h1}), m0=ctaMayor(conta,{hasta:h0});
+  const sal=(m,c)=>m[c]?m[c].saldoFirmado:0;
+  const dep=m1['613-000']?mjR2(m1['613-000'].debe-m1['613-000'].haber):0;
+  const dCxC=mjR2(sal(m1,'131-000')-sal(m0,'131-000')), dCxP=mjR2(sal(m1,'311-000')-sal(m0,'311-000'));
+  const inv1=mjR2(['181-000','182-000','183-000','184-000','186-000','187-000','188-000'].reduce((s,c)=>s+sal(m1,c),0));
+  const inv0=mjR2(['181-000','182-000','183-000','184-000','186-000','187-000','188-000'].reduce((s,c)=>s+sal(m0,c),0));
+  const operacion=mjR2(res.resultado+dep-dCxC+dCxP-(inv1-inv0));
+  /* Inversión: variación del AFT BRUTO (la depreciación ya se sumó de
+     vuelta en operación; usar el neto la restaría dos veces). */
+  const aft1=mjR2(['241-000','242-000','243-000','244-000','245-000'].reduce((s,c)=>s+sal(m1,c),0));
+  const aft0=mjR2(['241-000','242-000','243-000','244-000','245-000'].reduce((s,c)=>s+sal(m0,c),0));
+  const inversion=mjR2(-(aft1-aft0));
+  const prest=mjR2((sal(m1,'410')+sal(m1,'412-000'))-(sal(m0,'410')+sal(m0,'412-000')));
+  const cap=mjR2(sal(m1,'501-000')-sal(m0,'501-000'));
+  const financiamiento=mjR2(prest+cap);
+  const efec1=mjR2(['101-010','101-020','101-040','110-010','110-020','110-030'].reduce((s,c)=>s+sal(m1,c),0));
+  const efec0=mjR2(['101-010','101-020','101-040','110-010','110-020','110-030'].reduce((s,c)=>s+sal(m0,c),0));
+  return {anio:A,resultado:mjR2(res.resultado),depreciacion:dep,deltaCxC:dCxC,deltaCxP:dCxP,deltaInventarios:mjR2(inv1-inv0),
+    flujoOperacion:operacion,flujoInversion:inversion,flujoFinanciamiento:financiamiento,
+    variacionEfectivo:mjR2(operacion+inversion+financiamiento),efectivoInicial:efec0,efectivoFinal:efec1,
+    cuadra:Math.abs((operacion+inversion+financiamiento)-(efec1-efec0))<0.05,
+    nota:'Método indirecto simplificado sobre el mayor: reclasifica con el contador si el negocio exige el modelo NCIF completo'}; }
+function mjCambiosPatrimonio(conta,anio){ const A=String(anio), h1=A+'-12-31', h0=String(Number(anio)-1)+'-12-31';
+  const m1=ctaMayor(conta,{hasta:h1}), m0=ctaMayor(conta,{hasta:h0}); const sal=(m,c)=>m[c]?mjR2(m[c].saldoFirmado):0;
+  const res=(typeof ctaResultados==='function')?mjR2(ctaResultados(conta,{desde:A+'-01-01',hasta:h1}).resultado):0;
+  const filas=['501-000','505-000','510-000','520-000'].map(c=>({cuenta:c,inicial:sal(m0,c),final:sal(m1,c),variacion:mjR2(sal(m1,c)-sal(m0,c))}));
+  return {anio:A,filas:filas,resultado:res,totalInicial:mjR2(filas.reduce((s,f)=>s+f.inicial,0)),totalFinal:mjR2(filas.reduce((s,f)=>s+f.final,0))}; }
+/* Reserva para Pérdidas y Contingencias: se dota con el 10 % de la
+   utilidad real del año hasta conformar entre el 2 % y el 10 % de los
+   gastos totales anuales; asiento Dr 510-000 / Cr 505-000. */
+function mjReservaContingencia(conta,datos){ datos=datos||{}; const g=mjAsegurarGestion(conta);
+  const anio=String(datos.anio||''); const clave='reserva:'+anio;
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)){ const ex=(conta.asientos||[]).find(a=>a.fuenteKey===clave); return {ok:true,ya:true,asiento:ex,dotacion:0}; }
+  const utilidad=Number(datos.utilidad)||0, gastos=Number(datos.gastosTotales)||0;
+  const m=ctaMayor(conta,{}); const saldo505=m['505-000']?Math.abs(m['505-000'].saldoFirmado):0;
+  const techo=mjR2(gastos*0.10), piso=mjR2(gastos*0.02);
+  let dot=mjR2(Math.min(utilidad*0.10, Math.max(0,techo-saldo505)));
+  if(datos.reduccionAsegurados) dot=mjR2(Math.max(0,dot-(Number(datos.reduccionAsegurados)||0)));
+  if(!(utilidad>0)) return {ok:false,motivo:'Sin utilidad real no hay dotación de reserva',dotacion:0,piso:piso,techo:techo,saldoActual:saldo505};
+  if(!(dot>0.005)) return {ok:true,dotacion:0,piso:piso,techo:techo,saldoActual:saldo505,nota:'La reserva ya alcanzó su techo (10 % de los gastos) o la reducción por activos asegurados la cubre'};
+  const P=conta.plantillas||{};
+  const r=ctaAgregarAsiento(conta,{fecha:anio+'-12-31',concepto:'Dotación de la Reserva para Pérdidas y Contingencias · '+anio,origen:'manual',fuenteKey:clave,
+    lineas:[{cuenta:P.utilRetenidas||'510-000',debe:dot,haber:0},{cuenta:P.fondoContingencia||'505-000',debe:0,haber:dot}]});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  g.reservas.push({anio:anio,dotacion:dot,techo:techo,piso:piso,saldoPrevio:saldo505,asientoId:r.asiento.id});
+  mjBitacoraAdd(conta,datos.usuario||'','dotación de reserva','505-000 · '+anio,'saldo '+saldo505,'dotación '+dot);
+  return {ok:true,dotacion:dot,piso:piso,techo:techo,saldoActual:mjR2(saldo505+dot),asiento:r.asiento}; }
+/* DJ de Utilidades de persona jurídica: SALIDA preparada para firma
+   digital (Res. 8/2024, plazo 31 de marzo). No sustituye el modelo
+   oficial de la ONAT: ordena las cifras del mayor para transcribirlas. */
+function mjDJUtilidadesPJ(conta,anio,datos){ datos=datos||{}; const A=String(anio);
+  const res=ctaResultados(conta,{desde:A+'-01-01',hasta:A+'-12-31'});
+  const tasa=Number(datos.tasaUtilidades)>0?Number(datos.tasaUtilidades):35;
+  const reserva=Number(datos.reservaDotacion)||0;
+  const base=mjR2(Math.max(0,res.resultado-reserva));
+  const impuesto=mjR2(base*tasa/100);
+  const m=ctaMayor(conta,{desde:A+'-01-01',hasta:A+'-12-31'}); const e=m['342-000'];
+  const pagosCuenta=e?mjR2(e.debe):0;
+  return {anio:A,ingresos:mjR2(res.ingresos),gastos:mjR2(res.gastos),utilidadContable:mjR2(res.resultado),
+    reservaContingencia:reserva,baseImponible:base,tasa:tasa,impuesto:impuesto,pagosACuenta:pagosCuenta,
+    saldoAPagar:mjR2(impuesto-pagosCuenta),plazo:(Number(anio)+1)+'-03-31',
+    formato:'Salida preparada para firmar digitalmente y transcribir al modelo/servicio oficial de Utilidades de la ONAT (Res. 8/2024). No es el modelo oficial celda a celda.'}; }
+/* Anticipo de dividendos a socio: la MIPYME retiene el 5 % y lo aporta
+   (cuenta 345-000); el neto sale por banco/caja contra Dividendos por
+   pagar (316-000). Idempotente por id del anticipo. */
+function mjRegistrarAnticipoDividendo(conta,datos){ datos=datos||{}; const g=mjAsegurarGestion(conta);
+  const clave='anticipo-div:'+datos.id;
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true};
+  const imp=mjR2(datos.importe); if(!(imp>0)) return {ok:false,motivo:'Importe del anticipo inválido'};
+  const socio=String(datos.socio||'').trim(); if(!socio) return {ok:false,motivo:'Falta el socio'};
+  if(!datos.fecha) return {ok:false,motivo:'Falta la fecha'};
+  const ret=mjR2(imp*0.05), neto=mjR2(imp-ret);
+  const P=conta.plantillas||{}; const banco=datos.cuentaSalida==='caja'?(P.caja||'101-010'):((P.banco||{}).chequera||'110-010');
+  const r=ctaAgregarAsiento(conta,{fecha:datos.fecha,concepto:'Anticipo de dividendos · '+socio,origen:'manual',fuenteKey:clave,
+    lineas:[{cuenta:P.dividendosPorPagar||'316-000',debe:imp,haber:0,analisis:socio},
+            {cuenta:P.iipRetenido||'345-000',debe:0,haber:ret,analisis:socio},
+            {cuenta:banco,debe:0,haber:neto}]});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  g.anticiposDiv.push({id:datos.id,socio:socio,fecha:datos.fecha,importe:imp,retencion:ret,neto:neto,asientoId:r.asiento.id});
+  mjBitacoraAdd(conta,datos.usuario||'','anticipo de dividendos',socio,'','anticipo '+imp+' · retención 5 % '+ret);
+  return {ok:true,retencion:ret,neto:neto,asiento:r.asiento}; }
+function mjControlDividendos(gestion){ const porSocio={};
+  for(const a of ((gestion&&gestion.anticiposDiv)||[])){ const s=porSocio[a.socio]||(porSocio[a.socio]={socio:a.socio,anticipos:0,retenciones:0,neto:0});
+    s.anticipos=mjR2(s.anticipos+a.importe); s.retenciones=mjR2(s.retenciones+a.retencion); s.neto=mjR2(s.neto+a.neto); }
+  return {porSocio:Object.values(porSocio),totalAnticipos:mjR2(Object.values(porSocio).reduce((s,x)=>s+x.anticipos,0))}; }
+const MJ_EXPEDIENTE_DEF=[['escritura','Escritura de constitución / documento de creación'],['registro_mercantil','Inscripción en el Registro Mercantil'],['estatutos','Estatutos sociales'],['libro_socios','Libro de registro de socios'],['control_interno','Manual de control interno'],['cert_cuentas','Certificación de cuentas bancarias'],['carne_onat','Carné de la ONAT y Vector Fiscal (RC-04A)'],['contratos','Contratos con clientes y proveedores'],['facturas','Facturas emitidas y recibidas'],['nominas','Nóminas y contratos de trabajo'],['aportes','Comprobantes de aportes al Presupuesto'],['eeff','Estados financieros del período'],['submayores','Submayores de ingresos, gastos y obligaciones'],['reserva_sm','Submayor de la Reserva para Pérdidas y Contingencias'],['cert_sistema','Certificado del sistema contable utilizado']];
+function mjExpedienteFiscalizacion(documentos){ documentos=documentos||{};
+  const filas=MJ_EXPEDIENTE_DEF.map(d=>({clave:d[0],nombre:d[1],presente:!!documentos[d[0]],vence:(documentos[d[0]]&&documentos[d[0]].vence)||''}));
+  const faltantes=filas.filter(f=>!f.presente);
+  return {filas:filas,faltantes:faltantes,total:filas.length,presentes:filas.length-faltantes.length,
+    pct:mjR2((filas.length-faltantes.length)/filas.length*100),completo:faltantes.length===0,
+    nota:'Índice del expediente digital de fiscalización (guía ONAT): marca presente lo que ya está digitalizado por cliente y período'}; }
+/* --- Res. 86/2026: KYC, riesgo, señales, ROS, exclusión, archivo --- */
+function mjKYCValidar(ficha){ ficha=ficha||{}; const falt=[];
+  if(!ficha.identificacion) falt.push('identificación del cliente');
+  if(!ficha.verificadoEn) falt.push('constancia de verificación de identidad');
+  if(!ficha.beneficiarioFinal) falt.push('beneficiario final del negocio');
+  if(!ficha.actividad) falt.push('actividad que realiza');
+  if(!ficha.diligenciaEn) falt.push('fecha de la debida diligencia');
+  if(ficha.diligenciaEn&&ficha.inicioServicio&&ficha.diligenciaEn>ficha.inicioServicio) falt.push('la diligencia debe ser ANTES de prestar el servicio');
+  if(ficha.enListaExclusion) falt.push('cliente en lista de exclusión: debe abstenerse de prestar el servicio');
+  return {completa:falt.length===0,faltantes:falt}; }
+function mjRiesgoCliente(ficha,senales){ ficha=ficha||{}; let pts=0; const motivos=[];
+  if(ficha.efectivoIntenso){ pts+=2; motivos.push('opera intensamente en efectivo'); }
+  if(ficha.actividadAltoRiesgo){ pts+=2; motivos.push('actividad señalada de mayor riesgo'); }
+  if(ficha.beneficiarioFinalConfuso){ pts+=3; motivos.push('beneficiario final no claro'); }
+  if(ficha.negativaInformacion){ pts+=3; motivos.push('se niega o evade aportar información de la diligencia'); }
+  if(ficha.clienteNuevo){ pts+=1; motivos.push('cliente nuevo, sin historial'); }
+  const n=(senales||[]).length; if(n){ pts+=Math.min(4,n); motivos.push(n+' señal(es) de alerta contables'); }
+  const nivel=pts>=6?'alto':(pts>=3?'medio':'bajo');
+  return {puntos:pts,nivel:nivel,motivos:motivos,revision:nivel==='alto'?'reforzada':(nivel==='medio'?'periódica':'ordinaria')}; }
+function mjSenalesAlerta(doc,ficha){ doc=doc||{}; const out=[];
+  const movs=[]; ((doc.hist)||[]).forEach(h=>{ if(Array.isArray(h.movimientos)) movs.push(...h.movimientos); });
+  if(Array.isArray(doc.mov)) movs.push(...doc.mov);
+  let ing=0,gas=0,sinClas=0,gasN=0,efectivoGrande=0;
+  for(const m of movs){ if(!m) continue; const cup=(typeof ctaMontoCUP==='function')?ctaMontoCUP(m,Number(m.tasaCambio)||0):(Number(m.monto)||0);
+    if(m.tipo==='ingreso') ing+=cup;
+    if(m.tipo==='gasto'){ gas+=cup; gasN++; if(!m.clasificacion||m.clasificacion==='operacional') { if(!m.cuentaContable&&!m.documentoId) sinClas++; } }
+    const canal=m.canal||((m.cuenta==='caja')?'efectivo':'bancario'); if(canal==='efectivo'&&cup>5000) efectivoGrande++; }
+  if(ing>0&&gas>ing) out.push({codigo:'magnitudes',nivel:'alta',descripcion:'Los gastos superan los ingresos declarados: posible no correspondencia con la realidad de la actividad'});
+  if(gasN>=5&&sinClas/gasN>0.3) out.push({codigo:'sin_soporte',nivel:'media',descripcion:'Más del 30 % de los gastos sin clasificación ni documento de soporte'});
+  if(efectivoGrande>0) out.push({codigo:'efectivo',nivel:'media',descripcion:efectivoGrande+' operación(es) en efectivo por encima de 5 000 CUP'});
+  if(ficha&&ficha.negativaInformacion) out.push({codigo:'negativa',nivel:'alta',descripcion:'Negativa o evasivas del cliente a aportar la información de la debida diligencia'});
+  if(ficha&&ficha.dobleContabilidad) out.push({codigo:'doble',nivel:'alta',descripcion:'Indicio de intención de llevar doble contabilidad'});
+  if(ficha&&ficha.documentosFalsos) out.push({codigo:'falsos',nivel:'alta',descripcion:'Indicio de documentos o facturación falsa'});
+  if(ficha&&ficha.origenDudoso) out.push({codigo:'origen',nivel:'alta',descripcion:'Origen dudoso de los fondos'});
+  return out; }
+function mjROSRegistrar(registro,datos){ datos=datos||{};
+  if(!datos.cliente) return {ok:false,motivo:'Falta el cliente del ROS'};
+  if(!datos.fecha) return {ok:false,motivo:'Falta la fecha de detección'};
+  if(!datos.descripcion) return {ok:false,motivo:'Falta la descripción de la operación sospechosa'};
+  registro=Array.isArray(registro)?registro:[];
+  const e={id:'ROS-'+(registro.length+1),cliente:datos.cliente,fecha:datos.fecha,descripcion:datos.descripcion,monto:mjR2(datos.monto),reportadoEn:datos.reportadoEn||'',confidencial:true,avisarAlCliente:false};
+  registro.push(e);
+  return {ok:true,ros:e,nota:'Registro confidencial del tenedor: NO se informa al cliente. El formato y el plazo oficiales del reporte a la DGIOF no están verificados en fuente abierta: se guarda la constancia interna y la fecha en que se reportó'}; }
+function mjConservarHasta(anioAlta){ return String(Number(anioAlta)+5); }
+/* ---------- RONDA 12 · GESTIÓN ---------- */
+const MJ_MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function mjPeriodoParts(periodo){ const a=String(periodo||'').trim().split(/\s+/), mi=MJ_MESES.indexOf(a[0]), y=parseInt(a[1]);
+  return mi>=0&&y?{mi:mi,y:y}:null; }
+function mjDepreciacionAF(a,periodo){ a=a||{}; const costo=Math.max(0,Number(a.costo)||0), residual=Math.max(0,Number(a.valorResidual)||0);
+  const vida=Math.max(1,Number(a.vidaUtilAnios)|| (Number(a.tasa)>0?100/Number(a.tasa):10));
+  const p=mjPeriodoParts(periodo);
+  let n=0; if(p&&a.fechaAlta){ const f=new Date(a.fechaAlta+'T00:00:00'); if(!isNaN(f)) n=Math.max(0,(p.y-f.getFullYear())*12+(p.mi-f.getMonth())); }
+  if(a.estado==='baja') n=Math.max(0,n-0);
+  const base=Math.max(0,costo-residual);
+  let acum=0,mes=0;
+  if(a.metodo==='saldos'){ const tasaAnual=2/vida, tm=tasaAnual/12;
+    const librosN=costo*Math.pow(1-tm,n), librosPrev=costo*Math.pow(1-tm,Math.max(0,n-1));
+    acum=mjR2(Math.min(base,costo-librosN)); mes=n>0?mjR2(Math.min(base,Math.max(0,librosPrev-Math.max(residual,librosN)))):0;
+    if(n===0) mes=0;
+    return {costo:costo,mes:mes,acum:acum,libros:mjR2(costo-acum),meses:n,metodo:'saldos'}; }
+  const cuota=base/vida/12; acum=mjR2(Math.min(base,cuota*n)); mes=n>0?mjR2(Math.min(cuota,base-cuota*Math.max(0,n-1))):0; if(acum>=base) mes=mjR2(base-cuota*Math.max(0,n-1))>0?mjR2(Math.min(cuota,base-cuota*Math.max(0,n-1))):0;
+  return {costo:costo,mes:mes,acum:acum,libros:mjR2(costo-acum),meses:n,metodo:'linea'}; }
+function mjDepreciacionMensualAsiento(conta,activos,periodo,fecha,usuario){ const g=mjAsegurarGestion(conta);
+  const clave='dep-af:'+periodo;
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true,total:0};
+  let total=0; const detalle=[];
+  for(const a of (activos||[])){ if(!a||a.estado==='baja') continue; const c=mjDepreciacionAF(a,periodo); if(c.mes>0){ total=mjR2(total+c.mes); detalle.push({id:a.id,nombre:a.nombre||'',mes:c.mes}); } }
+  if(!(total>0)) return {ok:false,motivo:'Sin depreciación calculable en '+periodo,total:0};
+  const P=conta.plantillas||{};
+  const r=ctaAgregarAsiento(conta,{fecha:fecha,concepto:'Depreciación mensual de activos fijos · '+periodo,origen:'manual',fuenteKey:clave,
+    lineas:[{cuenta:P.depreciacionGasto||'613-000',debe:total,haber:0},{cuenta:P.depreciacionAcum||'253-000',debe:0,haber:total}]});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  mjBitacoraAdd(conta,usuario||'','depreciación mensual','AFT · '+periodo,'','total '+total+' · '+detalle.length+' activo(s)');
+  return {ok:true,total:total,detalle:detalle,asiento:r.asiento}; }
+function mjUtilesResumen(utiles){ const por={};
+  for(const u of (utiles||[])){ if(!u||u.estado==='baja') continue; const c=u.custodio||'Sin custodio';
+    const e=por[c]||(por[c]={custodio:c,items:0,valor:0}); e.items++; e.valor=mjR2(e.valor+(Number(u.valor)||0)); }
+  return Object.values(por); }
+/* Facturación integrada: la factura confirmada crea el documento CxC,
+   su asiento (vía ctaAsientoDocumento) y el costo de ventas con la
+   salida de inventario. La anulada se CONSERVA, su número no se
+   reutiliza (seqFactura solo crece) y cancelar revierte asientos y
+   devuelve el inventario. */
+function mjFacturaCrear(conta,datos){ datos=datos||{}; const g=mjAsegurarGestion(conta);
+  const total=mjR2((datos.lineas||[]).reduce((s,l)=>s+(Number(l.cantidad)||0)*(Number(l.precio)||0),0));
+  if(!(total>0)) return {ok:false,motivo:'La factura no tiene importe'};
+  if(!datos.contraparteId) return {ok:false,motivo:'Falta el cliente (auxiliar de la CxC)'};
+  g.seqFactura=(Number(g.seqFactura)||0)+1;
+  const f={id:'FAC'+g.seqFactura,numero:'F-'+g.seqFactura,fecha:datos.fecha||'',vencimiento:datos.vencimiento||datos.fecha||'',
+    contraparteId:datos.contraparteId,concepto:datos.concepto||'Factura de venta',lineas:datos.lineas||[],total:total,estado:'borrador',asientos:[]};
+  g.facturas.push(f);
+  return {ok:true,factura:f}; }
+function mjFacturaConfirmar(conta,id,usuario){ const g=mjAsegurarGestion(conta);
+  const f=g.facturas.find(x=>x.id===id); if(!f) return {ok:false,motivo:'Factura no encontrada'};
+  if(f.estado==='confirmada') return {ok:true,ya:true,factura:f};
+  if(f.estado==='anulada') return {ok:false,motivo:'Una factura anulada no se puede confirmar'};
+  const docId='DOCF'+f.id;
+  if(!(conta.documentos||[]).some(d=>d.id===docId)) conta.documentos.push({id:docId,tipo:'cxc',numero:f.numero,fecha:f.fecha,vencimiento:f.vencimiento,contraparteId:f.contraparteId,concepto:f.concepto,importe:f.total});
+  const rd=ctaAsientoDocumento(conta,(conta.documentos||[]).find(d=>d.id===docId));
+  if(rd.pendiente) return {ok:false,motivo:rd.pendiente};
+  for(const bor of rd.asientos){ if(!(conta.asientos||[]).some(a=>a.fuenteKey===bor.fuenteKey)){ const r=ctaAgregarAsiento(conta,bor); if(!r.ok) return {ok:false,motivo:r.motivo}; f.asientos.push(r.asiento.id); } }
+  let costo=0;
+  for(const l of (f.lineas||[])){ if(l.productoId&&Number(l.cantidad)>0){ const s=ctaInventarioSalida(conta,l.productoId,Number(l.cantidad),f.fecha,'factura:'+f.id+':'+l.productoId); if(!s.ok) return {ok:false,motivo:s.motivo}; costo=mjR2(costo+(s.costo||0)); } }
+  if(costo>0){ const P=conta.plantillas||{};
+    const r=ctaAgregarAsiento(conta,{fecha:f.fecha,concepto:'Costo de ventas · '+f.numero,origen:'auto',fuenteKey:'factura:'+f.id+':costo',
+      lineas:[{cuenta:P.costoVentas||'695-000',debe:costo,haber:0},{cuenta:P.inventarios||'188-000',debe:0,haber:costo}]});
+    if(!r.ok) return {ok:false,motivo:r.motivo}; f.asientos.push(r.asiento.id); }
+  f.costoVentas=costo; f.estado='confirmada';
+  mjBitacoraAdd(conta,usuario||'','confirmar factura',f.numero,'borrador','confirmada · total '+f.total+' · costo '+costo);
+  return {ok:true,factura:f,costoVentas:costo}; }
+function mjFacturaCancelar(conta,id,fecha,usuario){ const g=mjAsegurarGestion(conta);
+  const f=g.facturas.find(x=>x.id===id); if(!f) return {ok:false,motivo:'Factura no encontrada'};
+  if(f.estado==='anulada') return {ok:true,ya:true,factura:f};
+  if(f.estado==='confirmada'){ for(const aid of (f.asientos||[])){ const r=ctaContraasiento(conta,aid,fecha||f.fecha); if(!r.ok&&!/ya fue anulado/.test(r.motivo||'')) return {ok:false,motivo:r.motivo}; }
+    for(const l of (f.lineas||[])){ if(l.productoId&&Number(l.cantidad)>0){ const p=(conta.productos||[]).find(x=>x.id===l.productoId); if(p) ctaInventarioEntrada(conta,l.productoId,Number(l.cantidad),Number(p.costoProm)||0,fecha||f.fecha,'factura-anulada:'+f.id+':'+l.productoId); } }
+    const di=(conta.documentos||[]).findIndex(d=>d.id==='DOCF'+f.id); if(di>=0) conta.documentos.splice(di,1); }
+  f.estado='anulada';
+  mjBitacoraAdd(conta,usuario||'','cancelar factura',f.numero,'','anulada (conservada; su número no se reutiliza)');
+  return {ok:true,factura:f}; }
+function mjPatronDebeAplicar(patron,periodo){ if(!patron||patron.activo===false) return false;
+  if(patron.frecuencia==='mensual') return true;
+  if(patron.frecuencia==='trimestral'){ const p=mjPeriodoParts(periodo); return p?((p.mi+1)%3===0):false; }
+  return false; }
+function mjPatronAplicar(conta,patron,periodo,fecha,usuario){ const g=mjAsegurarGestion(conta);
+  const clave='patron:'+patron.id+':'+periodo;
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true};
+  const lineas=(patron.lineas||[]).filter(l=>l&&(Number(l.debe)>0||Number(l.haber)>0));
+  if(lineas.length<2) return {ok:false,motivo:'El comprobante patrón necesita al menos 2 líneas con importe'};
+  const r=ctaAgregarAsiento(conta,{fecha:fecha,concepto:(patron.nombre||'Comprobante patrón')+' · '+periodo,origen:'manual',fuenteKey:clave,lineas:lineas});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  mjBitacoraAdd(conta,usuario||'','aplicar comprobante patrón',patron.nombre||patron.id,'',periodo);
+  return {ok:true,asiento:r.asiento}; }
+function mjPresupuestoVsReal(conta,presupuestos,anio){ const A=String(anio);
+  const m=ctaMayor(conta,{soloAnio:A});
+  const filas=(presupuestos||[]).map(p=>{ const e=m[p.cuenta]; const real=e?mjR2(Math.abs(e.saldoFirmado)):0;
+    const plan=Number(p.anual)||0; const desv=mjR2(real-plan);
+    return {cuenta:p.cuenta,centro:p.centro||'',plan:plan,real:real,desviacion:desv,pct:plan!==0?mjR2(desv/Math.abs(plan)*100):null}; });
+  return {anio:A,filas:filas,totalPlan:mjR2(filas.reduce((s,f)=>s+f.plan,0)),totalReal:mjR2(filas.reduce((s,f)=>s+f.real,0))}; }
+function mjFlujoProyectado(conta,datos){ datos=datos||{}; const semanas=Math.max(1,Math.min(12,Number(datos.semanas)||4));
+  const inicio=datos.fechaInicio||new Date().toISOString().slice(0,10);
+  const d0=new Date(inicio+'T12:00:00'); if(isNaN(d0)) return {ok:false,motivo:'Fecha de inicio inválida'};
+  const cxc=ctaSubmayor(conta,'cxc',inicio), cxp=ctaSubmayor(conta,'cxp',inicio);
+  const pend=[]; cxc.porContraparte.forEach(cp=>cp.docs.forEach(d=>pend.push({tipo:'cobro',fecha:d.vencimiento||d.fecha,monto:d.pendiente})));
+  cxp.porContraparte.forEach(cp=>cp.docs.forEach(d=>pend.push({tipo:'pago',fecha:d.vencimiento||d.fecha,monto:d.pendiente})));
+  ((mjAsegurarGestion(conta).creditos)||[]).forEach(cr=>{ (cr.tabla||[]).forEach(f=>pend.push({tipo:'pago',fecha:f.fecha,monto:f.cuota,esCredito:true})); });
+  let saldo=Number(datos.saldoInicial)||0; const out=[];
+  for(let w=0;w<semanas;w++){ const d1=new Date(d0); d1.setDate(d0.getDate()+w*7); const d2=new Date(d0); d2.setDate(d0.getDate()+w*7+6);
+    const f1=d1.toISOString().slice(0,10), f2=d2.toISOString().slice(0,10);
+    let cob=0,pag=0;
+    for(const p of pend){ if(!p.fecha) continue; const vencida=p.fecha<inicio; if(w===0&&vencida){ if(p.tipo==='cobro')cob+=p.monto; else pag+=p.monto; continue; }
+      if(p.fecha>=f1&&p.fecha<=f2){ if(p.tipo==='cobro')cob+=p.monto; else pag+=p.monto; } }
+    saldo=mjR2(saldo+cob-pag);
+    out.push({semana:w+1,desde:f1,hasta:f2,cobros:mjR2(cob),pagos:mjR2(pag),saldo:saldo,alerta:saldo<0}); }
+  return {ok:true,semanas:out,hayAlerta:out.some(s=>s.alerta),pendientesCxC:cxc.totalDocumentos,pendientesCxP:cxp.totalDocumentos}; }
+function mjFlujoVsReal(proyectado,reales){ const filas=(proyectado||[]).map((s,i)=>{ const r=(reales||[])[i];
+    return {semana:s.semana,proyectado:s.saldo,real:r?r.saldo:null,desviacion:r?mjR2(r.saldo-s.saldo):null}; });
+  return filas; }
+function mjIndicadores(conta,doc,periodo){ const m=ctaMayor(conta,{});
+  const sal=c=>m[c]?m[c].saldoFirmado:0;
+  const ventas=mjR2(Math.abs(sal('801-000'))+Math.abs(sal('802-000')));
+  const costo=Math.abs(sal('695-000'));
+  const sit=(typeof ctaSituacion==='function')?ctaSituacion(conta,{}):{activo:0,pasivo:0};
+  const hoyISO=new Date().toISOString().slice(0,10);
+  const cxc=ctaSubmayor(conta,'cxc',hoyISO), cxp=ctaSubmayor(conta,'cxp',hoyISO);
+  const venc=(sm)=>mjR2(Object.keys(sm.buckets).filter(k=>k!=='Al día').reduce((s,k)=>s+sm.buckets[k],0));
+  const trib=mjR2(['341-000','342-000','343-000','333-000','334-000','345-000'].reduce((s,c)=>s+Math.abs(sal(c)),0));
+  const inv=mjR2(['181-000','188-000'].reduce((s,c)=>s+sal(c),0));
+  const res=(typeof ctaResultados==='function')?ctaResultados(conta,{}):{resultado:0};
+  return {ventas:ventas,costoVentas:mjR2(costo),margenBrutoPct:ventas>0?mjR2((ventas-costo)/ventas*100):null,
+    margenNetoPct:ventas>0?mjR2(res.resultado/ventas*100):null,resultado:mjR2(res.resultado),
+    cajaBanco:mjR2(sal('101-010')+sal('110-010')+sal('110-020')),cxcVencidas:venc(cxc),cxpVencidas:venc(cxp),
+    tributosPorPagar:trib,inventarios:inv,liquidezCorriente:sit.pasivo>0?mjR2(sit.activo/sit.pasivo):null,
+    rotacionInventario:inv>0?mjR2(costo/inv):null}; }
+function mjFichaCostos(datos){ datos=datos||{}; const tipo=datos.tipo==='servicio'?'servicio':'producto';
+  const materiales=Number(datos.materiales)||0, mod=Number(datos.manoObraDirecta)||0, otros=Number(datos.otrosDirectos)||0;
+  const indirectos=Number(datos.indirectos)||0;
+  const limite=mjR2(mod*(tipo==='servicio'?1.0:1.5));
+  const indirectosAplicados=mjR2(Math.min(indirectos,limite));
+  const costoTotal=mjR2(materiales+mod+otros+indirectosAplicados);
+  const unidades=Math.max(1,Number(datos.unidades)||1);
+  const margen=Number(datos.margenPct)||0;
+  return {tipo:tipo,materiales:materiales,manoObraDirecta:mod,otrosDirectos:otros,indirectos:indirectos,
+    limiteIndirectos:limite,indirectosAplicados:indirectosAplicados,indirectosExcluidos:mjR2(indirectos-indirectosAplicados),
+    costoTotal:costoTotal,costoUnitario:mjR2(costoTotal/unidades),margenPct:margen,
+    precioSugerido:mjR2(costoTotal/unidades*(1+margen/100)),
+    nota:'Ficha de costos y gastos (Res. 148/2023 MFP): indirectos hasta '+(tipo==='servicio'?'1,0':'1,5')+'× la mano de obra directa; el margen se fija por sector (dato de entrada)'}; }
+function mjInstrumentoSiguiente(talonario){ if(!talonario) return null;
+  const usados=new Set((talonario.usados||[]).map(x=>Number(x.numero)));
+  const anulados=new Set((talonario.anulados||[]).map(Number));
+  for(let n=Number(talonario.desde);n<=Number(talonario.hasta);n++){ if(!usados.has(n)&&!anulados.has(n)) return n; }
+  return null; }
+function mjContratosPorVencer(contratos,fecha,dias){ const f=new Date(String(fecha||'')+'T12:00:00'); if(isNaN(f)) return [];
+  const lim=new Date(f); lim.setDate(f.getDate()+(Number(dias)||30));
+  return (contratos||[]).filter(c=>c&&c.vigenciaHasta&&c.vigenciaHasta>=fecha&&c.vigenciaHasta<=lim.toISOString().slice(0,10)); }
+function mjAlertasGestion(conta,datos){ datos=datos||{}; const g=mjAsegurarGestion(conta); const out=[];
+  const hoyF=datos.hoy||new Date().toISOString().slice(0,10);
+  const cxc=ctaSubmayor(conta,'cxc',hoyF), cxp=ctaSubmayor(conta,'cxp',hoyF);
+  if(cxc.totalDocumentos>0&&Object.keys(cxc.buckets).some(k=>k!=='Al día'&&cxc.buckets[k]>0)) out.push({tipo:'cxc_vencida',nivel:'alta',descripcion:'Cuentas por cobrar vencidas: '+moneda0_(cxc.totalDocumentos)});
+  if(cxp.totalDocumentos>0&&Object.keys(cxp.buckets).some(k=>k!=='Al día'&&cxp.buckets[k]>0)) out.push({tipo:'cxp_vencida',nivel:'alta',descripcion:'Cuentas por pagar vencidas: '+moneda0_(cxp.totalDocumentos)});
+  for(const p of (conta.productos||[])){ const min=Number(p.stockMin!=null?p.stockMin:datos.stockMin)||0;
+    if(min>0&&(Number(p.stock)||0)<=min) out.push({tipo:'stock_minimo',nivel:'media',descripcion:'Stock mínimo: '+(p.nombre||p.id)+' ('+(p.stock||0)+' ≤ '+min+')'}); }
+  for(const f of g.facturas){ if(f.estado==='confirmada'&&Number(f.costoVentas)>Number(f.total)) out.push({tipo:'bajo_costo',nivel:'alta',descripcion:'Venta por debajo del costo: '+f.numero+' (costo '+f.costoVentas+' > total '+f.total+')'}); }
+  for(const a of (conta.arqueos||[])){ if(Math.abs(Number(a.diferencia)||0)>=0.005&&!a.asientoId) out.push({tipo:'caja_descuadrada',nivel:'media',descripcion:'Arqueo con diferencia sin asiento: '+(a.fecha||'')+' ('+a.diferencia+')'}); }
+  mjContratosPorVencer(g.contratos,hoyF,30).forEach(c=>out.push({tipo:'contrato_vence',nivel:'media',descripcion:'Contrato por vencer: '+(c.numero||c.id)+' ('+(c.contraparte||'')+') el '+c.vigenciaHasta}));
+  return out; }
+function moneda0_(n){ return '$'+(Number(n)||0).toFixed(2); }
+/* ---------- RONDA 13 · PROFUNDIDAD (forma ligera) ---------- */
+function mjTraspasoIndirectos(conta,datos){ datos=datos||{}; const clave='traspaso:'+datos.periodo+':'+(datos.cuentaOrigen||'');
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true};
+  const total=mjR2(datos.total); if(!(total>0)) return {ok:false,motivo:'Total de indirectos inválido'};
+  const dest=(datos.destinos||[]).filter(d=>d&&Number(d.peso)>0); if(!dest.length) return {ok:false,motivo:'Sin destinos con peso'};
+  const sumaPesos=dest.reduce((s,d)=>s+Number(d.peso),0);
+  const lineas=dest.map(d=>({cuenta:datos.cuentaDestino||'611-000',debe:mjR2(total*Number(d.peso)/sumaPesos),haber:0,centro:d.centro||''}));
+  const suma=mjR2(lineas.reduce((s,l)=>s+l.debe,0)); if(Math.abs(suma-total)>0.005&&lineas.length) lineas[0].debe=mjR2(lineas[0].debe+(total-suma));
+  lineas.push({cuenta:datos.cuentaOrigen,debe:0,haber:total});
+  const r=ctaAgregarAsiento(conta,{fecha:datos.fecha,concepto:'Traspaso de gastos indirectos a centros directos · '+datos.periodo,origen:'manual',fuenteKey:clave,lineas:lineas});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  mjBitacoraAdd(conta,datos.usuario||'','traspaso de indirectos',datos.periodo,'',total+' → '+dest.length+' centro(s)');
+  return {ok:true,asiento:r.asiento,total:total}; }
+function mjOrdenProduccion(conta,orden){ orden=orden||{}; const g=mjAsegurarGestion(conta);
+  const clave='orden:'+orden.id;
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true};
+  let costoInsumos=0;
+  for(const ins of (orden.insumos||[])){ const s=ctaInventarioSalida(conta,ins.productoId,Number(ins.cantidad)||0,orden.fecha,clave+':ins:'+ins.productoId);
+    if(!s.ok) return {ok:false,motivo:s.motivo}; costoInsumos=mjR2(costoInsumos+(s.costo||0)); }
+  const mod=mjR2(orden.manoObra), otros=mjR2(orden.otrosCostos);
+  const costoTotal=mjR2(costoInsumos+mod+otros), unidades=Math.max(1,Number(orden.unidades)||1);
+  const P=conta.plantillas||{};
+  const lineas=[{cuenta:'186-000',debe:costoTotal,haber:0}];
+  if(costoInsumos>0) lineas.push({cuenta:P.inventarios||'188-000',debe:0,haber:costoInsumos});
+  if(mod>0) lineas.push({cuenta:P.nominasPorPagar||'331-000',debe:0,haber:mod});
+  if(otros>0) lineas.push({cuenta:P.cxp||'311-000',debe:0,haber:otros,analisis:orden.otrosAnalisis||orden.proveedorId||('orden:'+orden.id)});
+  const r=ctaAgregarAsiento(conta,{fecha:orden.fecha,concepto:'Orden de producción '+(orden.numero||orden.id),origen:'manual',fuenteKey:clave,lineas:lineas});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  const reg={id:orden.id,numero:orden.numero||'',fecha:orden.fecha,producto:orden.producto||'',unidades:unidades,costoInsumos:costoInsumos,manoObra:mod,otrosCostos:otros,costoTotal:costoTotal,costoUnitario:mjR2(costoTotal/unidades),estado:'en proceso',asientoId:r.asiento.id};
+  g.ordenes.push(reg);
+  return {ok:true,orden:reg}; }
+function mjOrdenTerminar(conta,id,fecha,usuario){ const g=mjAsegurarGestion(conta);
+  const o=g.ordenes.find(x=>x.id===id); if(!o) return {ok:false,motivo:'Orden no encontrada'};
+  if(o.estado==='terminada') return {ok:true,ya:true,orden:o};
+  const clave='orden-fin:'+id;
+  if(!(conta.asientos||[]).some(a=>a.fuenteKey===clave)){ const r=ctaAgregarAsiento(conta,{fecha:fecha||o.fecha,concepto:'Producción terminada · orden '+(o.numero||o.id),origen:'manual',fuenteKey:clave,
+    lineas:[{cuenta:'187-000',debe:o.costoTotal,haber:0},{cuenta:'186-000',debe:0,haber:o.costoTotal}]});
+    if(!r.ok) return {ok:false,motivo:r.motivo}; }
+  o.estado='terminada';
+  mjBitacoraAdd(conta,usuario||'','orden terminada',o.numero||o.id,'en proceso','terminada · costo unitario '+o.costoUnitario);
+  return {ok:true,orden:o}; }
+function mjCreditoTabla(prestamo){ prestamo=prestamo||{}; const P0=Number(prestamo.principal)||0, i=(Number(prestamo.tasaAnual)||0)/100/12, n=Math.max(1,parseInt(prestamo.meses)||1);
+  const cuota=i>0?mjR2(P0*i/(1-Math.pow(1+i,-n))):mjR2(P0/n);
+  let saldo=P0; const filas=[]; const f0=prestamo.fechaInicio?new Date(prestamo.fechaInicio+'T12:00:00'):new Date();
+  for(let k=1;k<=n;k++){ const interes=mjR2(saldo*i); let princ=mjR2(cuota-interes); if(k===n) princ=mjR2(saldo);
+    saldo=mjR2(saldo-princ); const f=new Date(f0); f.setMonth(f.getMonth()+k);
+    filas.push({n:k,fecha:f.toISOString().slice(0,10),cuota:k===n?mjR2(interes+princ):cuota,interes:interes,principal:princ,saldo:Math.max(0,saldo)}); }
+  return {cuota:cuota,filas:filas,totalIntereses:mjR2(filas.reduce((s,f)=>s+f.interes,0)),total:mjR2(P0+filas.reduce((s,f)=>s+f.interes,0))}; }
+function mjCreditoDevengoMes(conta,credito,periodo,fecha,usuario){ const g=mjAsegurarGestion(conta);
+  const clave='credito-int:'+credito.id+':'+periodo;
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true,interes:0};
+  const fila=(credito.tabla||[]).find(f=>String(f.fecha||'').slice(0,7)===String(fecha||'').slice(0,7));
+  if(!fila) return {ok:false,motivo:'La tabla de amortización no cubre '+periodo};
+  if(!(fila.interes>0)) return {ok:true,interes:0,nota:'Sin intereses este mes'};
+  const r=ctaAgregarAsiento(conta,{fecha:fecha,concepto:'Intereses devengados del crédito '+(credito.numero||credito.id)+' · '+periodo,origen:'manual',fuenteKey:clave,
+    lineas:[{cuenta:'710-000',debe:fila.interes,haber:0},{cuenta:'315-000',debe:0,haber:fila.interes,analisis:'credito:'+credito.id}]});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  mjBitacoraAdd(conta,usuario||'','devengo de intereses','crédito '+(credito.numero||credito.id),'',periodo+' · '+fila.interes);
+  return {ok:true,interes:fila.interes,asiento:r.asiento}; }
+function mjRevalorizacionAmplia(conta,datos){ datos=datos||{}; const g=mjAsegurarGestion(conta);
+  const clave='reval-amplia:'+datos.periodo;
+  if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true,diferencial:0};
+  const tasaN=Number(datos.tasaNueva)||0; if(!(tasaN>0)) return {ok:false,motivo:'Tasa nueva inválida'};
+  const lineas=[]; let difTotal=0;
+  for(const s of (g.saldosDivisa||[])){ const tasaA=Number(s.tasa)||0; if(!(tasaA>0)||!(Number(s.montoDivisa)>0)) continue;
+    const dif=mjR2(Number(s.montoDivisa)*(tasaN-tasaA)); if(Math.abs(dif)<0.005) continue;
+    difTotal=mjR2(difTotal+(s.naturaleza==='pasivo'?-dif:dif));
+    const an=s.analisis||s.contraparteId||('divisa:'+s.cuenta);
+    if(s.naturaleza==='pasivo'){ lineas.push(dif>0?{cuenta:'710-000',debe:dif,haber:0}:{cuenta:'805-000',debe:0,haber:-dif});
+      lineas.push(dif>0?{cuenta:s.cuenta,debe:0,haber:dif,analisis:an}:{cuenta:s.cuenta,debe:-dif,haber:0,analisis:an}); }
+    else { lineas.push(dif>0?{cuenta:s.cuenta,debe:dif,haber:0,analisis:an}:{cuenta:s.cuenta,debe:0,haber:-dif,analisis:an});
+      lineas.push(dif>0?{cuenta:'805-000',debe:0,haber:dif}:{cuenta:'710-000',debe:-dif,haber:0}); }
+    s.tasa=tasaN; }
+  if(!lineas.length) return {ok:true,diferencial:0,sinEfecto:true};
+  const porCuenta={}; const defs=[];
+  for(const l of lineas){ const k=l.cuenta+'|'+(l.analisis||''); if(!porCuenta[k]){ porCuenta[k]={cuenta:l.cuenta,analisis:l.analisis||'',debe:0,haber:0}; defs.push(porCuenta[k]); } porCuenta[k].debe=mjR2(porCuenta[k].debe+l.debe); porCuenta[k].haber=mjR2(porCuenta[k].haber+l.haber); }
+  const netas=defs.map(d=>{ const neto=mjR2(d.debe-d.haber); const base=neto>=0?{cuenta:d.cuenta,debe:neto,haber:0}:{cuenta:d.cuenta,debe:0,haber:-neto}; if(d.analisis) base.analisis=d.analisis; return base; }).filter(l=>l.debe>0||l.haber>0);
+  const r=ctaAgregarAsiento(conta,{fecha:datos.fecha,concepto:'Revalorización multimoneda amplia · '+datos.periodo+' (tasa '+tasaN+')',origen:'revalorizacion',fuenteKey:clave,lineas:netas});
+  if(!r.ok) return {ok:false,motivo:r.motivo};
+  return {ok:true,diferencial:difTotal,asiento:r.asiento}; }
+function mjIPVTurno(conta,datos){ datos=datos||{}; const fecha=datos.fecha||'';
+  const filas={};
+  for(const p of (conta.productos||[])){ filas[p.id]={productoId:p.id,nombre:p.nombre||p.id,apertura:Number(p.stock)||0,entradas:0,ventas:0,mermas:0,saldo:Number(p.stock)||0}; }
+  for(const mv of (conta.movInventario||[])){ if(mv.fecha!==fecha) continue; const f=filas[mv.productoId]; if(!f) continue;
+    if(mv.tipo==='entrada'){ f.entradas=mjR2(f.entradas+mv.cantidad); }
+    else { if(/merma/i.test(mv.origenKey||'')) f.mermas=mjR2(f.mermas+mv.cantidad); else f.ventas=mjR2(f.ventas+mv.cantidad); } }
+  const out=Object.values(filas).map(f=>{ f.apertura=mjR2(f.saldo-f.entradas+f.ventas+f.mermas); f.saldo=mjR2(f.apertura+f.entradas-f.ventas-f.mermas); return f; })
+    .filter(f=>f.apertura!==0||f.entradas!==0||f.ventas!==0||f.mermas!==0);
+  return {fecha:fecha,cajero:datos.cajero||'',filas:out,nota:'IPV reconstruido del inventario (apertura = existencia actual − entradas del día + salidas del día). No es un POS: no registra la venta en el momento'}; }
+function mjCierreCajero(datos){ datos=datos||{}; const esp=Number(datos.esperado)||0, cont=Number(datos.contado)||0;
+  return {esperado:mjR2(esp),contado:mjR2(cont),diferencia:mjR2(cont-esp),cuadra:Math.abs(cont-esp)<0.005,cajero:datos.cajero||'',turno:datos.turno||''}; }
+function mjExpedienteLaboral(rrhh){ const out=[];
+  for(const t of ((rrhh&&rrhh.trabajadores)||[])){ const falt=[];
+    if(!t.nombre) falt.push('nombre'); if(!t.ci) falt.push('carnet de identidad'); if(!t.cargo) falt.push('cargo');
+    if(!t.fechaAlta) falt.push('fecha de alta'); if(!(t.contrato&&t.contrato.fecha)) falt.push('contrato de trabajo');
+    if(!Array.isArray(t.documentos)||!t.documentos.length) falt.push('documentos del expediente');
+    out.push({id:t.id,nombre:t.nombre||'',faltantes:falt,completo:falt.length===0}); }
+  return {trabajadores:out,incompletos:out.filter(x=>!x.completo).length,
+    nota:'Expediente laboral básico enlazado a la nómina: ficha, contrato y documentos registrados por nombre/fecha (los archivos viven fuera de la app)'}; }
+function mjConsignacionLiquidacion(items,ventas){ const porDueno={};
+  for(const it of (items||[])){ const d=it.dueno||'Sin dueño'; const e=porDueno[d]||(porDueno[d]={dueno:d,recibido:0,vendido:0,liquidar:0});
+    e.recibido=mjR2(e.recibido+(Number(it.cantidad)||0)); }
+  for(const v of (ventas||[])){ const d=v.dueno||'Sin dueño'; const e=porDueno[d]||(porDueno[d]={dueno:d,recibido:0,vendido:0,liquidar:0});
+    e.vendido=mjR2(e.vendido+(Number(v.cantidad)||0)); e.liquidar=mjR2(e.liquidar+(Number(v.cantidad)||0)*(Number(v.precio)||0)); }
+  return {porDueno:Object.values(porDueno),nota:'Mercancía en consignación: NO entra al inventario propio ni a las CxP; solo se controla lo vendido y lo que hay que liquidar al dueño'}; }
+/* Permisos granulares por módulo (extensión UI de los roles existentes
+   admin/editor/consultor del servidor: el servidor sigue mandando en
+   quién puede ESCRIBIR datos; esta matriz manda en qué módulos se
+   muestran y operan). ROS/KYC son confidenciales: solo admin. */
+function mjPermisos(rol,modulo){ const M={
+    blindaje:['admin'],reapertura:['admin'],kyc:['admin'],ros:['admin'],
+    conta:['admin','editor'],gestion:['admin','editor'],nomina:['admin','editor'],
+    lectura:['admin','editor','consultor']};
+  const lista=M[modulo]||M.lectura; return lista.indexOf(rol)>=0; }
+/* ===== FIN MEJORAS-CORE ===== */
 
         /* ===== CONTABILIDAD · CAPA DE APLICACIÓN ===== */
         function getContaKey(){ return `finanzas_conta_${getCurrentUser()}`; }
@@ -6191,6 +6885,274 @@ function ctaMigrarClasificador(conta){
             alert(`✅ Usuario "${username}" asociado a "${negocio}" correctamente.`);
         }
 
+        /* ===== MEJORAS-UI (rondas 10-13): capa de aplicación del panel «Gestión ampliada» ===== */
+        function mjVal(id){ const e=document.getElementById(id); return e?e.value:''; }
+        function mjSetVal(id,v){ const e=document.getElementById(id); if(e) e.value=v; }
+        function mjDescargar(nombre,contenido,tipo){ const b=new Blob([contenido],{type:tipo||'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=nombre; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
+        function mjExportarCSV(nombre,filas){ const csv=(filas||[]).map(f=>f.map(x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"').join(';')).join('\r\n'); mjDescargar(nombre,csv,'text/csv;charset=utf-8'); }
+        function mjGestionDe(conta){ const g=mjAsegurarGestion(conta); if(!g.expediente||typeof g.expediente!=='object') g.expediente={}; if(!Array.isArray(g.consignacionVentas)) g.consignacionVentas=[]; return g; }
+        function mjRenderGestion(){ if(!document.getElementById('pane-gestion')) return;
+            const rol=getRolUsuario();
+            const kc=document.getElementById('mjKycCard'); if(kc) kc.style.display=mjPermisos(rol,'kyc')?'':'none';
+            const bc=document.getElementById('mjBlindajeCard'); if(bc) bc.style.display=mjPermisos(rol,'blindaje')?'':'none';
+            try{ mjRenderBlindaje(); }catch(e){}
+            try{ mjRenderCumplimiento(); }catch(e){}
+            try{ mjRenderKYC(); }catch(e){}
+            try{ mjRenderGestionModulos(); }catch(e){}
+            try{ mjRenderProfundidad(); }catch(e){}
+            if(!mjVal('mjAnioEstados')) mjSetVal('mjAnioEstados', String(new Date().getFullYear()));
+            if(!mjVal('mjFacFecha')) mjSetVal('mjFacFecha', hoy());
+            if(!mjVal('mjIpvFecha')) mjSetVal('mjIpvFecha', hoy());
+        }
+        document.addEventListener('shown.bs.tab',e=>{ if(e.target&&e.target.id==='tab-gestion') mjRenderGestion(); });
+        /* ----- Blindaje ----- */
+        function mjRenderBlindaje(){ const box=document.getElementById('mjTamanoBox'); if(!box) return;
+            const t=mjTamanoSlots(CACHE||{});
+            const pend=(typeof mjPendientesLocales==='function')?mjPendientesLocales():[];
+            const filas=Object.keys(t.porSlot).sort((a,b)=>t.porSlot[b]-t.porSlot[a]).map(k=>`<tr><td>${esc(k)}</td><td class="text-end">${(t.porSlot[k]/1024).toFixed(1)} KB</td></tr>`).join('');
+            box.innerHTML=`<div class="mb-2">Tamaño del documento de este negocio: <b>${(t.total/1024).toFixed(1)} KB</b> de ${(t.limite/1024).toFixed(0)} KB (${t.pct} %) ${t.alerta80?'<span class="badge bg-danger">⚠ más del 80 %: avisa al soporte antes de seguir cargando años</span>':'<span class="badge bg-success">holgado</span>'}</div>`
+              +(pend.length?`<div class="alert alert-warning py-2 px-3 mb-2">⏳ Cambios <b>sin guardar</b> en: ${pend.map(esc).join(', ')}. Hay copia local restaurable: no cierres esta pestaña hasta recuperar la conexión.</div>`:'<div class="small text-success mb-2">✔ Todo guardado en el servidor.</div>')
+              +`<div class="table-responsive"><table class="table table-sm mb-0"><tbody>${filas}</tbody></table></div>`;
+            const bb=document.getElementById('mjBitacoraBox'); if(bb){ const c=getConta(); const bits=(mjGestionDe(c).bitacora||[]).slice(-8).reverse();
+                bb.innerHTML='<b>Bitácora (últimas acciones sensibles):</b>'+(bits.length?bits.map(b=>`<div>· ${esc((b.ts||'').slice(0,16).replace('T',' '))} — <b>${esc(b.usuario||'')}</b> ${esc(b.accion)} · ${esc(b.entidad)} ${b.antes?'· antes: '+esc(b.antes):''} ${b.despues?'· después: '+esc(b.despues):''}</div>`).join(''):'<div class="text-secondary">Sin acciones registradas todavía.</div>'); }
+        }
+        function mjDescargarCopiaUI(){ mjDescargar('finanzas-copia-'+(getNegocioNombre()||'negocio')+'.json', JSON.stringify({negocio:getNegocioNombre(),fecha:new Date().toISOString(),slots:CACHE},null,1),'application/json'); alert('✅ Copia local descargada. Guárdala fuera del teléfono/PC: es tu respaldo restaurable.'); }
+        function mjRestaurarCopiaUI(input){ const f=input&&input.files&&input.files[0]; if(!f) return;
+            const rd=new FileReader(); rd.onload=()=>{ try{ const d=JSON.parse(rd.result); const slots=d.slots||d;
+                if(!slots||typeof slots!=='object') throw new Error('formato');
+                if(!confirm('Restaurar esta copia REEMPLAZA los datos actuales de este negocio en pantalla y los guarda en el servidor. ¿Continuar?')) return;
+                Object.keys(slots).forEach(k=>{ if(['mov','mes','hist','rrhh','fiscal','aft','fx','dj','gestor','conta'].indexOf(k)>=0){ CACHE[k]=slots[k]; Q=Q.then(()=>api('data_set',{k:k,v:slots[k]})); } });
+                alert('✅ Copia restaurada y en cola de guardado. Recarga la página para verla completa.'); }catch(e){ alert('⚠️ Ese archivo no es una copia válida de Finanzas.'); } };
+            rd.readAsText(f); }
+        async function mjRestaurarServidorUI(){ if(!isAdmin()){ alert('Solo el administrador puede restaurar la última versión buena del servidor.'); return; }
+            if(!confirm('El servidor guarda la última versión BUENA del documento. Restaurarla deshace el último guardado. ¿Continuar?')) return;
+            const r=await api('data_restore_backup',{}); if(r&&r.ok){ alert('✅ Última versión buena restaurada. Recarga la página.'); } else alert('⚠️ '+(r&&r.error||'No hay versión buena guardada todavía.')); }
+        function mjAltaPrestamoUI(){ const c=getConta(); const r=mjAltaCuentaPrestamoCorto(c); if(r.ok){ saveConta(c); alert(r.ya?'La cuenta 412-000 (préstamos a corto plazo) ya existe en el plan.':'✅ Cuenta 412-000 «Préstamos Bancarios a Corto Plazo» creada en el plan y en las plantillas.'); mjRenderGestion(); } }
+        function mjReabrirUI(){ if(!isAdmin()){ alert('Solo el administrador puede reabrir un año.'); return; }
+            const anio=mjVal('mjAnioReabrir'); if(!anio){ alert('Escribe el año a reabrir.'); return; }
+            const motivo=prompt('Motivo de la reapertura del año '+anio+' (queda en el rastro):'); if(!motivo) return;
+            if(!confirm('Reabrir '+anio+' contraasienta los comprobantes de cierre y desbloquea el año. ¿Continuar?')) return;
+            const c=getConta(); const r=mjReabrirAnio(c,anio,{usuario:getCurrentUser(),motivo:motivo,fecha:hoy()});
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert('✅ Año '+anio+' reabierto. Contraasientos: '+r.contraasientos.join(', ')+'. Quedó registrado en el rastro.'); }
+        /* ----- Cumplimiento ----- */
+        function mjDocActualComoGestor(){ return {mov:movimientos,hist:getHistorial(),mes:getMesActual(),rrhh:getRRHH(),fiscal:getFiscal(),conta:getConta()}; }
+        function mjRenderCumplimiento(){ const anio=new Date().getFullYear();
+            const rb=document.getElementById('mjRegistroBox'); if(rb){ const reg=mjRegistroControl(allMovimientos(),anio);
+                rb.innerHTML=`<b>Registro Control (Res. 272/2024):</b> ingresos ${anio} = <b>${moneda(reg.ingresos)}</b> de ${moneda(reg.umbral)} (${reg.pct} %) · Modo que corresponde: <b>${esc(reg.modo)}</b>${reg.alerta80&&!reg.supera?' <span class="badge bg-warning text-dark">⚠ cerca del umbral del 80 %</span>':''}${reg.supera?' <span class="badge bg-danger">Superó el umbral: contabilidad completa</span>':''}`; }
+            const eb=document.getElementById('mjEfectivoBox'); if(eb){ const al=mjAlertasEfectivo(allMovimientos());
+                eb.innerHTML='<b>Bancarización (efectivo &gt; 5 000 CUP entre actores):</b> '+(al.length?al.map(a=>`<div class="text-danger">🚫 ${esc(a.fecha)} · ${esc(a.concepto)} · ${moneda(a.monto)} — ${esc(a.motivo)}</div>`).join(''):'<span class="text-success">sin operaciones en efectivo por encima del límite.</span>'); }
+            const mb=document.getElementById('mjMotorBox'); if(mb){ const doc=mjDocActualComoGestor(); const per=periodoNominaActual();
+                const res=gResumenPeriodo(doc,per), nom=gNominaTot(doc,per);
+                const yaTieneAnio=(doc.mes&&doc.mes.creado)||''; const creadoAnio=Number(String((doc.conta&&doc.conta._info&&doc.conta._info.creado)||'').slice(0,4))||anio;
+                const motor=mjMotorTributos({tipo:getEntityType()==='mipyme'?'mipyme':'tcp',periodo:per,ingresos:res.ingresos,brutoNomina:nom.bruto,utilidadTrimestre:null,exentoTerritorial:(anio-creadoAnio)<2,cfg:gestorOnatCfg()});
+                mb.innerHTML=`<b>Tributos del período (${esc(per)}), motor mensual/trimestral:</b>`+(motor.items.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Tributo</th><th>Base</th><th class="text-end">%</th><th class="text-end">Importe</th><th>Cuenta</th></tr></thead><tbody>${motor.items.map(i=>`<tr><td>${esc(i.concepto)}</td><td>${moneda(i.base)}</td><td class="text-end">${i.tasa}</td><td class="text-end fw-semibold">${moneda(i.importe)}</td><td>${esc(i.cuenta)}</td></tr>`).join('')}<tr><td colspan="3" class="text-end fw-bold">Total</td><td class="text-end fw-bold">${moneda(motor.total)}</td><td></td></tr></tbody></table></div>`:'<div class="text-secondary">Sin base en este período.</div>'); }
+            const cb=document.getElementById('mjCalendarioBox'); if(cb){ const deberes=mjCalendarioDeberes(getEntityType()==='mipyme'?'mipyme':'tcp',anio,{});
+                const hoyI=hoy(); const prox=deberes.filter(d=>d.fecha>=hoyI).slice(0,6);
+                cb.innerHTML='<b>Próximos deberes formales:</b>'+(prox.length?prox.map(d=>`<div>· ${esc(d.fecha)} — ${esc(d.concepto)}${d.bonificacion?' <span class="badge bg-soft-info">'+esc(d.bonificacion)+'</span>':''}</div>`).join(''):'<div class="text-secondary">Sin deberes próximos este año.</div>'); }
+            mjRenderExpediente();
+        }
+        function mjEstadosUI(){ const anio=Number(mjVal('mjAnioEstados'))||new Date().getFullYear(); const c=getConta();
+            const fl=mjFlujoEfectivo(c,anio), cp=mjCambiosPatrimonio(c,anio); const box=document.getElementById('mjEstadosBox'); if(!box) return;
+            window.__mjUltimoFlujo={flujo:fl,cambios:cp};
+            box.innerHTML=`<b>Estado de Flujo de Efectivo ${anio}</b> (indirecto simplificado): resultado ${moneda(fl.resultado)} · + depreciación ${moneda(fl.depreciacion)} · − ΔCxC ${moneda(fl.deltaCxC)} · + ΔCxP ${moneda(fl.deltaCxP)} · − ΔInventarios ${moneda(fl.deltaInventarios)}<br>
+            Flujo de operación: <b>${moneda(fl.flujoOperacion)}</b> · Inversión: <b>${moneda(fl.flujoInversion)}</b> · Financiamiento: <b>${moneda(fl.flujoFinanciamiento)}</b> · Variación de efectivo: <b>${moneda(fl.variacionEfectivo)}</b> ${fl.cuadra?'<span class="badge bg-success">cuadra con caja+banco</span>':'<span class="badge bg-warning text-dark">no cuadra exacto: revisar reclasificaciones</span>'}<br>
+            <span class="text-secondary">${esc(fl.nota)}</span><br><b>Cambios en el Patrimonio ${anio}:</b> ${cp.filas.map(f=>esc(f.cuenta)+' '+moneda(f.inicial)+' → '+moneda(f.final)).join(' · ')}<br>
+            <span class="text-secondary">Notas a los estados: políticas contables del clasificador (ronda 8), método indirecto del flujo, umbral del Registro Control y hechos posteriores — complétalas al imprimir con printPane sobre esta tarjeta.</span>`;
+        }
+        function mjDJUtilidadesUI(){ const anio=Number(mjVal('mjAnioEstados'))||new Date().getFullYear(); const c=getConta();
+            const res=ctaResultados(c,{desde:anio+'-01-01',hasta:anio+'-12-31'});
+            const g=mjGestionDe(c); const ultRes=(g.reservas||[]).filter(r=>String(r.anio)===String(anio)).reduce((s,r)=>s+(Number(r.dotacion)||0),0);
+            const dj=mjDJUtilidadesPJ(c,anio,{reservaDotacion:ultRes,tasaUtilidades:Number(CFG&&CFG.onat&&CFG.onat.utilidades)||35});
+            window.__mjUltimaDJU=dj; const box=document.getElementById('mjEstadosBox'); if(!box) return;
+            box.innerHTML=`<b>DJ de Utilidades (persona jurídica) ${anio} — salida para firma digital:</b><br>Ingresos ${moneda(dj.ingresos)} · Gastos ${moneda(dj.gastos)} · Utilidad contable ${moneda(dj.utilidadContable)} · Reserva ${moneda(dj.reservaContingencia)} · Base ${moneda(dj.baseImponible)} × ${dj.tasa} % = <b>${moneda(dj.impuesto)}</b> · Pagos a cuenta ${moneda(dj.pagosACuenta)} · <b>A pagar: ${moneda(dj.saldoAPagar)}</b> · Plazo: <b>${esc(dj.plazo)}</b><br><span class="text-secondary">${esc(dj.formato)}</span>`;
+        }
+        function mjReservaUI(){ const anio=Number(mjVal('mjAnioEstados'))||new Date().getFullYear(); const c=getConta();
+            const res=ctaResultados(c,{desde:anio+'-01-01',hasta:anio+'-12-31'});
+            const r=mjReservaContingencia(c,{anio:anio,utilidad:res.resultado,gastosTotales:res.gastos,usuario:getCurrentUser()});
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c);
+            alert(r.ya?'La reserva de '+anio+' ya estaba dotada.':('✅ Reserva '+anio+': dotación '+moneda(r.dotacion||0)+' (techo '+moneda(r.techo||0)+', piso '+moneda(r.piso||0)+'). '+(r.nota||'')));
+            mjRenderGestion(); }
+        function mjExportarEstadosCSV(){ const d=window.__mjUltimoFlujo; if(!d){ alert('Primero genera el Flujo de efectivo / Cambios en el patrimonio.'); return; }
+            mjExportarCSV('estados-'+d.flujo.anio+'.csv',[['Estado de Flujo de Efectivo',d.flujo.anio],['Resultado',d.flujo.resultado],['Depreciación',d.flujo.depreciacion],['Flujo de operación',d.flujo.flujoOperacion],['Flujo de inversión',d.flujo.flujoInversion],['Flujo de financiamiento',d.flujo.flujoFinanciamiento],['Efectivo inicial',d.flujo.efectivoInicial],['Efectivo final',d.flujo.efectivoFinal],[],['Cambios en el Patrimonio'],['Cuenta','Inicial','Final'],...d.cambios.filas.map(f=>[f.cuenta,f.inicial,f.final])]);
+            alert('✅ CSV descargado (se abre en Excel). Para PDF usa el botón Imprimir de la pestaña.'); }
+        function mjRenderExpediente(){ const box=document.getElementById('mjExpedienteBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+            const ex=mjExpedienteFiscalizacion(g.expediente||{});
+            box.innerHTML=`<b>Expediente digital de fiscalización:</b> ${ex.presentes}/${ex.total} documentos (${ex.pct} %) ${ex.completo?'<span class="badge bg-success">completo</span>':'<span class="badge bg-warning text-dark">faltan '+ex.faltantes.length+'</span>'}<div class="mt-1">${ex.filas.map(f=>`<button type="button" class="btn btn-sm ${f.presente?'btn-success':'btn-outline-danger'} me-1 mb-1" onclick="mjExpedienteToggle('${f.clave}')">${f.presente?'✔':'✘'} ${esc(f.nombre)}</button>`).join('')}</div><div class="text-secondary">Toca un documento para marcarlo presente/faltante. El ZIP por negocio del panel del Gestor sigue siendo el respaldo completo.</div>`;
+        }
+        function mjExpedienteToggle(clave){ const c=getConta(); const g=mjGestionDe(c); g.expediente=g.expediente||{};
+            if(g.expediente[clave]) delete g.expediente[clave]; else g.expediente[clave]={vence:''};
+            saveConta(c); mjRenderExpediente(); }
+        /* ----- Gestor 86/2026 ----- */
+        function mjGestorDoc(){ const d=getCobrosGestor(); if(!d.kyc||typeof d.kyc!=='object') d.kyc={}; if(!Array.isArray(d.ros)) d.ros=[]; if(!Array.isArray(d.excluidos)) d.excluidos=[]; return d; }
+        function mjRenderKYC(){ const box=document.getElementById('mjKycBox'); if(!box||!isAdmin()) return;
+            if(!GDOCS){ box.innerHTML='<span class="text-secondary">Cargando clientes del Gestor…</span>'; if(!gestorCargando) cargarGestorDatos(); return; }
+            const d=mjGestorDoc(); const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
+            const filas=nombres.map(n=>{ const ficha=(d.kyc||{})[n]||{}; const val=mjKYCValidar(ficha); const sen=mjSenalesAlerta(GDOCS[n],ficha); const riesgo=mjRiesgoCliente(ficha,sen);
+                const excl=(d.excluidos||[]).some(x=>x.nombre===n);
+                return `<tr><td><b>${esc(n)}</b>${excl?' <span class="badge bg-danger">ABSTENERSE</span>':''}</td>
+                  <td>${val.completa?'<span class="badge bg-success">KYC completa</span>':'<span class="badge bg-warning text-dark">faltan: '+esc(val.faltantes.join(', '))+'</span>'}</td>
+                  <td><span class="badge ${riesgo.nivel==='alto'?'bg-danger':riesgo.nivel==='medio'?'bg-warning text-dark':'bg-success'}">riesgo ${riesgo.nivel} (${riesgo.puntos})</span></td>
+                  <td>${sen.length?sen.map(s=>`<div class="text-danger">⚠ ${esc(s.descripcion)}</div>`).join(''):'<span class="text-success">sin señales</span>'}</td>
+                  <td><button type="button" class="btn btn-sm btn-outline-primary" onclick="mjKYCEditar('${esc(n)}')">Ficha KYC</button></td></tr>`; }).join('');
+            box.innerHTML=`<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Cliente</th><th>Debida diligencia</th><th>Riesgo</th><th>Señales</th><th></th></tr></thead><tbody>${filas||'<tr><td colspan="5" class="text-secondary">Sin clientes todavía.</td></tr>'}</tbody></table></div>
+            <div class="mt-2"><b>ROS (confidencial):</b> ${(d.ros||[]).length?(d.ros||[]).map(r=>`<div>· ${esc(r.id)} · ${esc(r.fecha)} · ${esc(r.cliente)} · ${moneda(r.monto)} · ${esc(r.descripcion)} ${r.reportadoEn?'· reportado el '+esc(r.reportadoEn):'· <span class="text-danger">sin reportar</span>'}</div>`).join(''):'<span class="text-secondary">sin registros.</span>'}
+            <div class="row g-2 mt-1"><div class="col-md-3"><select id="mjRosCliente" class="form-select form-select-sm">${nombres.map(n=>`<option>${esc(n)}</option>`).join('')}</select></div>
+            <div class="col-md-2"><input type="number" id="mjRosMonto" class="form-control form-control-sm" placeholder="Monto"></div>
+            <div class="col-md-5"><input id="mjRosDesc" class="form-control form-control-sm" placeholder="Descripción de la operación sospechosa"></div>
+            <div class="col-md-2"><button type="button" class="btn btn-sm btn-danger w-100" onclick="mjROSAgregarUI()">Registrar ROS</button></div></div>
+            <div class="small text-secondary mt-1">El ROS NO se informa al cliente. Formato y plazo oficiales ante la DGIOF: no verificados en fuente abierta — registra aquí la constancia y la fecha de reporte.</div></div>
+            <div class="mt-2"><b>Abstenciones:</b> ${(d.excluidos||[]).length?(d.excluidos||[]).map(x=>`<div>· ${esc(x.nombre)} — ${esc(x.motivo||'')} (${esc(x.fecha||'')})</div>`).join(''):'<span class="text-secondary">ninguna.</span>'} <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="mjExclusionAgregarUI()">Registrar abstención</button></div>
+            <div class="small text-secondary mt-1">Conservación de fichas KYC/ROS: hasta el año ${(new Date().getFullYear())+5} (5 años, Res. 86/2026). Inspecciones: anota cada visita en la ficha del cliente.</div>`;
+        }
+        function mjKYCEditar(nombre){ const d=mjGestorDoc(); const f=(d.kyc||{})[nombre]||{};
+            const pedir=(etq,act)=>{ const v=prompt(etq,act||''); return v==null?null:v; };
+            const nf={};
+            nf.identificacion=pedir('Identificación (CI/NIT del cliente):',f.identificacion); if(nf.identificacion==null) return;
+            nf.beneficiarioFinal=pedir('Beneficiario final del negocio:',f.beneficiarioFinal); if(nf.beneficiarioFinal==null) return;
+            nf.actividad=pedir('Actividad que realiza:',f.actividad); if(nf.actividad==null) return;
+            nf.verificadoEn=pedir('Fecha de verificación de identidad (AAAA-MM-DD):',f.verificadoEn||hoy()); if(nf.verificadoEn==null) return;
+            nf.diligenciaEn=pedir('Fecha de la debida diligencia (ANTES del servicio):',f.diligenciaEn||hoy()); if(nf.diligenciaEn==null) return;
+            nf.inicioServicio=pedir('Fecha de inicio del servicio:',f.inicioServicio||''); if(nf.inicioServicio==null) return;
+            nf.efectivoIntenso=confirm('¿Opera intensamente en efectivo? (Aceptar = Sí)');
+            nf.negativaInformacion=confirm('¿Se niega o evade aportar información? (Aceptar = Sí)');
+            nf.enListaExclusion=(d.excluidos||[]).some(x=>x.nombre===nombre);
+            nf.inspecciones=f.inspecciones||[];
+            const nota=prompt('Nota de inspección/cooperación (opcional, se añade al registro):','');
+            if(nota) nf.inspecciones.push({fecha:hoy(),nota:nota});
+            nf.conservarHasta=mjConservarHasta(new Date().getFullYear());
+            d.kyc[nombre]=nf; saveCobrosGestor(d); mjRenderKYC(); alert(mjKYCValidar(nf).completa?'✅ Ficha KYC completa.':'⚠️ Ficha guardada, pero faltan: '+mjKYCValidar(nf).faltantes.join(', ')); }
+        function mjROSAgregarUI(){ const d=mjGestorDoc(); const r=mjROSRegistrar(d.ros,{cliente:mjVal('mjRosCliente'),fecha:hoy(),descripcion:mjVal('mjRosDesc'),monto:Number(mjVal('mjRosMonto'))||0});
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } const rep=prompt('¿Ya lo reportaste a la DGIOF? Escribe la fecha (AAAA-MM-DD) o deja vacío:',''); if(rep) r.ros.reportadoEn=rep;
+            saveCobrosGestor(d); mjRenderKYC(); alert('✅ ROS registrado (confidencial). '+r.nota); }
+        function mjExclusionAgregarUI(){ const d=mjGestorDoc(); const nombre=prompt('Nombre de la persona/entidad de la que te abstienes de prestar servicio:'); if(!nombre) return;
+            const motivo=prompt('Motivo (lista oficial, falsedad o suplantación de identidad…):',''); d.excluidos.push({nombre:nombre,motivo:motivo||'',fecha:hoy()}); saveCobrosGestor(d); mjRenderKYC(); }
+        /* ----- Gestión (ronda 12) ----- */
+        function mjRenderGestionModulos(){ const c=getConta(); const g=mjGestionDe(c);
+            const ib=document.getElementById('mjIndicadoresBox'); if(ib){ const ind=mjIndicadores(c,mjDocActualComoGestor(),periodoNominaActual());
+                ib.innerHTML=`<b>Indicadores:</b> ventas ${moneda(ind.ventas)} · margen bruto ${ind.margenBrutoPct==null?'—':ind.margenBrutoPct+' %'} · margen neto ${ind.margenNetoPct==null?'—':ind.margenNetoPct+' %'} · caja+banco <b>${moneda(ind.cajaBanco)}</b> · CxC vencidas ${moneda(ind.cxcVencidas)} · CxP vencidas ${moneda(ind.cxpVencidas)} · tributos por pagar ${moneda(ind.tributosPorPagar)} · liquidez ${ind.liquidezCorriente==null?'—':ind.liquidezCorriente} · rotación de inventario ${ind.rotacionInventario==null?'—':ind.rotacionInventario}`; }
+            const ab=document.getElementById('mjAlertasBox'); if(ab){ const al=mjAlertasGestion(c,{hoy:hoy()});
+                ab.innerHTML='<b>Alertas automáticas:</b> '+(al.length?al.map(a=>`<div class="${a.nivel==='alta'?'text-danger':'text-warning'}">⚠ ${esc(a.descripcion)}</div>`).join(''):'<span class="text-success">sin alertas.</span>'); }
+            const fb=document.getElementById('mjFlujoProyBox'); if(fb){ const ind=mjIndicadores(c,null,''); const fl=mjFlujoProyectado(c,{semanas:8,fechaInicio:hoy(),saldoInicial:ind.cajaBanco});
+                fb.innerHTML='<b>Flujo de caja proyectado (8 semanas, desde CxC/CxP y créditos):</b> '+(fl.ok?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Semana</th><th>Desde</th><th class="text-end">Cobros</th><th class="text-end">Pagos</th><th class="text-end">Saldo</th></tr></thead><tbody>${fl.semanas.map(s=>`<tr class="${s.alerta?'table-danger':''}"><td>${s.semana}</td><td>${esc(s.desde)}</td><td class="text-end">${moneda(s.cobros)}</td><td class="text-end">${moneda(s.pagos)}</td><td class="text-end fw-semibold">${moneda(s.saldo)}${s.alerta?' ⚠':''}</td></tr>`).join('')}</tbody></table></div>`:'<span class="text-danger">'+esc(fl.motivo||'')+'</span>'); }
+            const selC=document.getElementById('mjFacCliente'); if(selC){ const act=selC.value; selC.innerHTML=(c.contrapartes||[]).map(x=>`<option value="${esc(x.id)}">${esc(x.nombre||x.id)}</option>`).join('')||'<option value="">(crea primero una contraparte en Contabilidad)</option>'; selC.value=act; }
+            const selP=document.getElementById('mjFacProd'); if(selP){ const act=selP.value; selP.innerHTML='<option value="">Sin inventario</option>'+(c.productos||[]).map(x=>`<option value="${esc(x.id)}">${esc(x.nombre||x.id)}</option>`).join(''); selP.value=act; }
+            mjRenderFacturas(); mjRenderPatrones(); mjRenderPresupuesto(); mjRenderInstrumentos(); mjRenderContratos(); mjRenderUtiles();
+        }
+        function mjFacturaCrearUI(){ const c=getConta(); const cp=mjVal('mjFacCliente'); if(!cp){ alert('Selecciona un cliente (contraparte).'); return; }
+            const linea={concepto:mjVal('mjFacConcepto')||'Venta',cantidad:Number(mjVal('mjFacCant'))||0,precio:Number(mjVal('mjFacPrecio'))||0};
+            const prod=mjVal('mjFacProd'); if(prod) linea.productoId=prod;
+            const r=mjFacturaCrear(c,{fecha:mjVal('mjFacFecha')||hoy(),contraparteId:cp,concepto:mjVal('mjFacConcepto')||'Factura de venta',lineas:[linea]});
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); mjRenderGestion(); alert('✅ Factura '+r.factura.numero+' creada en borrador. Confírmala para generar la CxC, el asiento y la salida de inventario.'); }
+        function mjRenderFacturas(){ const box=document.getElementById('mjFacturasBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+            box.innerHTML='<b>Facturas:</b>'+(g.facturas.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Fecha</th><th>Concepto</th><th class="text-end">Total</th><th>Estado</th><th></th></tr></thead><tbody>${g.facturas.map(f=>`<tr><td>${esc(f.numero)}</td><td>${esc(f.fecha)}</td><td>${esc(f.concepto)}</td><td class="text-end">${moneda(f.total)}</td><td>${f.estado==='confirmada'?'<span class="badge bg-success">confirmada</span>':f.estado==='anulada'?'<span class="badge bg-secondary">ANULADA</span>':'<span class="badge bg-warning text-dark">borrador</span>'}</td><td class="text-end">${f.estado==='borrador'?`<button type="button" class="btn btn-sm btn-success" onclick="mjFacturaConfirmarUI('${f.id}')">Confirmar</button>`:''} ${f.estado!=='anulada'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="mjFacturaCancelarUI('${f.id}')">Anular</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:' <span class="text-secondary">ninguna todavía. La anulada se conserva y su número no se reutiliza.</span>'); }
+        function mjFacturaConfirmarUI(id){ const c=getConta(); const r=mjFacturaConfirmar(c,id,getCurrentUser()); if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert('✅ Factura confirmada: CxC + asiento + costo de ventas '+moneda(r.costoVentas||0)+'.'); }
+        function mjFacturaCancelarUI(id){ if(!confirm('Anular conserva la factura marcada ANULADA, revierte sus asientos por contraasiento y devuelve el inventario. ¿Continuar?')) return;
+            const c=getConta(); const r=mjFacturaCancelar(c,id,hoy(),getCurrentUser()); if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert('✅ Factura anulada (conservada).'); }
+        function mjDepreciacionAFUI(){ const c=getConta(); const aft=getAFT(); const per=periodoNominaActual();
+            const r=mjDepreciacionMensualAsiento(c,(aft.activos||[]).map(a=>({id:a.id,nombre:a.nombre,costo:a.costo,valorResidual:0,vidaUtilAnios:Number(a.tasa)>0?100/Number(a.tasa):0,fechaAlta:a.fechaServicio||a.fechaAlta||'',estado:a.estado,metodo:a.metodoDepreciacion||'linea'})),per,fechaContablePeriodo(per),getCurrentUser());
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'La depreciación de '+per+' ya estaba asentada.':('✅ Depreciación de '+per+' asentada: '+moneda(r.total)+' (Dr 613-000 / Cr 253-000).')); }
+        function mjRenderPatrones(){ const box=document.getElementById('mjPatronesBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+            box.innerHTML='<b>Comprobantes patrones / recurrentes:</b> '+(g.patrones.length?g.patrones.map(p=>`<div>· ${esc(p.nombre)} (${esc(p.frecuencia)}) — ${p.lineas.map(l=>esc(l.cuenta)+' '+(l.debe?'D '+l.debe:'H '+l.haber)).join(' · ')} <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjPatronAplicarUI('${p.id}')">Aplicar al período</button></div>`).join(''):'<span class="text-secondary">ninguno.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjPatronCrearUI()">Crear patrón</button>';
+        }
+        function mjPatronCrearUI(){ const nombre=prompt('Nombre del comprobante patrón (ej. Alquiler mensual):'); if(!nombre) return;
+            const ctaD=prompt('Cuenta del Debe:','705-000'); if(!ctaD) return; const ctaH=prompt('Cuenta del Haber:','311-000'); if(!ctaH) return;
+            const imp=Number(prompt('Importe:','0'))||0; if(!(imp>0)) return;
+            const c=getConta(); const g=mjGestionDe(c); g.seqPatron=(Number(g.seqPatron)||0)+1;
+            g.patrones.push({id:'PAT'+g.seqPatron,nombre:nombre,frecuencia:'mensual',activo:true,lineas:[{cuenta:ctaD,debe:imp,haber:0},{cuenta:ctaH,debe:0,haber:imp}]});
+            saveConta(c); mjRenderGestion(); alert('✅ Patrón creado. Aplícalo cada período con un toque: no se duplica dentro del mismo período.'); }
+        function mjPatronAplicarUI(id){ const c=getConta(); const g=mjGestionDe(c); const p=g.patrones.find(x=>x.id===id); if(!p) return;
+            const per=periodoNominaActual(); const r=mjPatronAplicar(c,p,per,fechaContablePeriodo(per),getCurrentUser());
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'Ese patrón ya se aplicó en '+per+'.':'✅ Patrón aplicado en '+per+'.'); }
+        function mjRenderPresupuesto(){ const box=document.getElementById('mjPresupuestoBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+            const anio=new Date().getFullYear(); const vs=mjPresupuestoVsReal(c,g.presupuestos,anio);
+            box.innerHTML=`<b>Presupuesto vs real ${anio}:</b> `+(vs.filas.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Cuenta</th><th class="text-end">Plan</th><th class="text-end">Real</th><th class="text-end">Desviación</th></tr></thead><tbody>${vs.filas.map(f=>`<tr><td>${esc(f.cuenta)} ${esc(f.centro||'')}</td><td class="text-end">${moneda(f.plan)}</td><td class="text-end">${moneda(f.real)}</td><td class="text-end ${Math.abs(f.desviacion)>0.005?'text-danger fw-semibold':''}">${moneda(f.desviacion)}${f.pct!=null?' ('+f.pct+' %)':''}</td></tr>`).join('')}</tbody></table></div>`:'<span class="text-secondary">sin presupuesto.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjPresupuestoAgregarUI()">Añadir línea de presupuesto</button>';
+        }
+        function mjPresupuestoAgregarUI(){ const cuenta=prompt('Cuenta del presupuesto (ej. 705-000):'); if(!cuenta) return; const anual=Number(prompt('Importe anual planificado:','0'))||0;
+            const c=getConta(); const g=mjGestionDe(c); g.presupuestos.push({cuenta:cuenta,anual:anual}); saveConta(c); mjRenderGestion(); }
+        function mjRenderInstrumentos(){ const box=document.getElementById('mjInstrumentosBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+            box.innerHTML='<b>Instrumentos de pago (talonarios):</b>'+(g.instrumentos.length?g.instrumentos.map((t,i)=>`<div>· ${esc(t.tipo)} ${t.desde}–${t.hasta} · siguiente: <b>${mjInstrumentoSiguiente(t)==null?'agotado':mjInstrumentoSiguiente(t)}</b> · anulados: ${(t.anulados||[]).join(', ')||'—'} <button type="button" class="btn btn-sm btn-outline-secondary" onclick="mjInstrumentoUsarUI(${i})">Usar siguiente</button> <button type="button" class="btn btn-sm btn-outline-danger" onclick="mjInstrumentoAnularUI(${i})">Anular nº</button></div>`).join(''):' <span class="text-secondary">ninguno.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjInstrumentoCrearUI()">Nuevo talonario</button>';
+        }
+        function mjInstrumentoCrearUI(){ const tipo=prompt('Tipo (cheque, transferencia, recibo…):','cheque'); if(!tipo) return;
+            const desde=Number(prompt('Desde el número:','1'))||1, hasta=Number(prompt('Hasta el número:','100'))||desde;
+            const c=getConta(); const g=mjGestionDe(c); g.instrumentos.push({tipo:tipo,desde:desde,hasta:hasta,usados:[],anulados:[]}); saveConta(c); mjRenderGestion(); }
+        function mjInstrumentoUsarUI(i){ const c=getConta(); const g=mjGestionDe(c); const t=g.instrumentos[i]; const n=mjInstrumentoSiguiente(t); if(n==null){ alert('Talonario agotado.'); return; } t.usados.push({numero:n,fecha:hoy()}); saveConta(c); mjRenderGestion(); alert('✅ Instrumento '+t.tipo+' Nº '+n+' marcado como usado.'); }
+        function mjInstrumentoAnularUI(i){ const n=Number(prompt('Número a anular (queda conservado como anulado):','0'))||0; if(!n) return;
+            const c=getConta(); const g=mjGestionDe(c); const t=g.instrumentos[i]; t.anulados=t.anulados||[]; if(!t.anulados.includes(n)) t.anulados.push(n); saveConta(c); mjRenderGestion(); }
+        function mjRenderContratos(){ const box=document.getElementById('mjContratosBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+            box.innerHTML='<b>Contratos:</b>'+(g.contratos.length?g.contratos.map(x=>`<div>· ${esc(x.numero||x.id)} · ${esc(x.contraparte||'')} · ${esc(x.objeto||'')} · vence ${esc(x.vigenciaHasta||'—')}${mjContratosPorVencer([x],hoy(),30).length?' <span class="badge bg-warning text-dark">por vencer</span>':''}</div>`).join(''):' <span class="text-secondary">ninguno.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjContratoCrearUI()">Registrar contrato</button>';
+        }
+        function mjContratoCrearUI(){ const numero=prompt('Número del contrato:'); if(!numero) return; const cp=prompt('Contraparte:','')||''; const objeto=prompt('Objeto:','')||''; const hasta=prompt('Vigencia hasta (AAAA-MM-DD):','')||'';
+            const c=getConta(); const g=mjGestionDe(c); g.seqContrato=(Number(g.seqContrato)||0)+1; g.contratos.push({id:'CT'+g.seqContrato,numero:numero,contraparte:cp,objeto:objeto,vigenciaHasta:hasta}); saveConta(c); mjRenderGestion(); }
+        function mjRenderUtiles(){ const box=document.getElementById('mjUtilesBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+            const res=mjUtilesResumen(g.utiles);
+            box.innerHTML='<b>Útiles y herramientas en uso (por custodio):</b> '+(res.length?res.map(r=>`<div>· ${esc(r.custodio)}: ${r.items} artículo(s) · ${moneda(r.valor)}</div>`).join(''):'<span class="text-secondary">ninguno registrado.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjUtilCrearUI()">Entregar útil a un custodio</button>';
+        }
+        function mjUtilCrearUI(){ const nombre=prompt('Útil / herramienta:'); if(!nombre) return; const custodio=prompt('Custodio (trabajador):','')||''; const valor=Number(prompt('Valor:','0'))||0;
+            const c=getConta(); const g=mjGestionDe(c); g.utiles.push({id:'UT'+(g.utiles.length+1),nombre:nombre,custodio:custodio,valor:valor,fecha:hoy(),estado:'en uso'}); saveConta(c); mjRenderGestion(); }
+        function mjFichaCostosUI(){ const tipo=(getEntityType()==='mipyme'&&(Number(mjVal('mjFcMod'))>0))?(confirm('¿Es un SERVICIO? (Aceptar = servicio, límite de indirectos 1,0×MOD; Cancelar = producto, 1,5×MOD)')?'servicio':'producto'):'producto';
+            const f=mjFichaCostos({tipo:tipo,materiales:Number(mjVal('mjFcMat'))||0,manoObraDirecta:Number(mjVal('mjFcMod'))||0,otrosDirectos:Number(mjVal('mjFcOtros'))||0,indirectos:Number(mjVal('mjFcInd'))||0,unidades:Number(mjVal('mjFcUnid'))||1,margenPct:Number(mjVal('mjFcMargen'))||0});
+            const box=document.getElementById('mjFichaBox'); if(box) box.innerHTML=`<b>Ficha de costos (${esc(f.tipo)}):</b> materiales ${moneda(f.materiales)} + MOD ${moneda(f.manoObraDirecta)} + otros ${moneda(f.otrosDirectos)} + indirectos aplicados ${moneda(f.indirectosAplicados)} (límite ${moneda(f.limiteIndirectos)}; excluidos ${moneda(f.indirectosExcluidos)}) = costo total <b>${moneda(f.costoTotal)}</b> · unitario <b>${moneda(f.costoUnitario)}</b> · precio sugerido con margen ${f.margenPct} %: <b>${moneda(f.precioSugerido)}</b><br><span class="text-secondary">${esc(f.nota)}</span>`;
+        }
+        /* ----- Profundidad (ronda 13) ----- */
+        function mjRenderProfundidad(){ const c=getConta(); const g=mjGestionDe(c);
+            const cb=document.getElementById('mjCentrosBox'); if(cb){ const centros=c.centros||[];
+                cb.innerHTML='<b>Centros de costo y traspaso de indirectos:</b> '+(centros.length?centros.map(x=>esc(x.nombre||x.id)).join(' · '):'<span class="text-secondary">sin centros definidos (se crean en Contabilidad).</span>')+' <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="mjTraspasoUI()">Traspasar indirectos del período</button>'; }
+            const ob=document.getElementById('mjOrdenesBox'); if(ob){ ob.innerHTML='<b>Órdenes de producción:</b> '+(g.ordenes.length?g.ordenes.map(o=>`<div>· ${esc(o.numero||o.id)} · ${esc(o.producto||'')} · ${o.unidades} u · costo total ${moneda(o.costoTotal)} · unitario <b>${moneda(o.costoUnitario)}</b> · ${esc(o.estado)} ${o.estado!=='terminada'?`<button type="button" class="btn btn-sm btn-outline-success" onclick="mjOrdenTerminarUI('${o.id}')">Terminar</button>`:''}</div>`).join(''):'<span class="text-secondary">ninguna.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjOrdenCrearUI()">Nueva orden</button>'; }
+            const kb=document.getElementById('mjCreditosBox'); if(kb){ kb.innerHTML='<b>Créditos bancarios:</b> '+(g.creditos.length?g.creditos.map(cr=>`<div>· ${esc(cr.numero||cr.id)} · principal ${moneda(cr.principal)} · cuota ${moneda(cr.tabla?mjCreditoTabla(cr).cuota:0)} · intereses totales ${moneda(cr.tabla?mjCreditoTabla(cr).totalIntereses:0)} <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjCreditoDevengoUI('${cr.id}')">Devengar intereses del período</button></div>`).join(''):'<span class="text-secondary">ninguno.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjCreditoCrearUI()">Registrar crédito</button>'; }
+            const rv=document.getElementById('mjRevalBox'); if(rv){ rv.innerHTML='<b>Revalorización multimoneda amplia</b> (caja/banco ya se revaloriza al cerrar el mes; aquí registras otros saldos en divisa: CxC, CxP…): '+(g.saldosDivisa.length?g.saldosDivisa.map(s=>`<div>· ${esc(s.cuenta)} · ${esc(s.naturaleza)} · ${s.montoDivisa} divisa a tasa ${s.tasa}</div>`).join(''):'<span class="text-secondary">ningún saldo registrado.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjSaldoDivisaUI()">Registrar saldo en divisa</button> <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjRevalAmpliaUI()">Revalorizar con tasa nueva</button>'; }
+            const lb=document.getElementById('mjLaboralBox'); if(lb){ const ex=mjExpedienteLaboral(getRRHH());
+                lb.innerHTML='<b>Expediente laboral básico:</b> '+(ex.trabajadores.length?ex.trabajadores.map(t=>`<div>· ${esc(t.nombre)} — ${t.completo?'<span class="text-success">completo</span>':'<span class="text-danger">faltan: '+esc(t.faltantes.join(', '))+'</span>'}</div>`).join(''):'<span class="text-secondary">sin trabajadores.</span>')+`<div class="text-secondary">${esc(ex.nota)}</div>`; }
+            const gb=document.getElementById('mjConsignacionBox'); if(gb){ const liq=mjConsignacionLiquidacion(g.consignacion,g.consignacionVentas);
+                gb.innerHTML='<b>Consignación (mercancía de terceros, fuera del inventario propio):</b> '+(liq.porDueno.length?liq.porDueno.map(d=>`<div>· ${esc(d.dueno)}: recibido ${d.recibido} · vendido ${d.vendido} · a liquidar <b>${moneda(d.liquidar)}</b></div>`).join(''):'<span class="text-secondary">sin movimientos.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjConsignacionRecibirUI()">Recibir mercancía</button> <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjConsignacionVentaUI()">Registrar venta</button><div class="text-secondary">'+esc(liq.nota)+'</div>'; }
+        }
+        function mjTraspasoUI(){ const c=getConta(); const centros=(c.centros||[]).filter(x=>x&&x.tipo!=='indirecto');
+            if(!centros.length){ alert('Define primero los centros de costo en Contabilidad.'); return; }
+            const total=Number(prompt('Total de gastos indirectos a repartir en el período:','0'))||0; if(!(total>0)) return;
+            const origen=prompt('Cuenta de origen de los indirectos:','705-000')||'705-000';
+            const destinos=centros.map(x=>({centro:x.nombre||x.id,peso:1}));
+            const per=periodoNominaActual();
+            const r=mjTraspasoIndirectos(c,{periodo:per,fecha:fechaContablePeriodo(per),total:total,cuentaOrigen:origen,cuentaDestino:'611-000',destinos:destinos,usuario:getCurrentUser()});
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'Ese traspaso ya existía en '+per+'.':'✅ Indirectos traspasados a partes iguales entre '+destinos.length+' centro(s) directos. Ajusta los pesos editando el asiento si tu criterio es otro.'); }
+        function mjOrdenCrearUI(){ const c=getConta(); const prod=prompt('Producto a elaborar:'); if(!prod) return;
+            const sel=(c.productos||[]); if(!sel.length){ alert('Crea primero los productos/insumos en el inventario de Contabilidad.'); return; }
+            const lista=sel.map((p,i)=>(i+1)+'. '+(p.nombre||p.id)).join('\n');
+            const idx=Number(prompt('Insumo principal (número):\n'+lista,'1'))||1; const ins=sel[idx-1]; if(!ins) return;
+            const cant=Number(prompt('Cantidad de insumo a consumir:','1'))||0; const unidades=Number(prompt('Unidades a producir:','1'))||1;
+            const mod=Number(prompt('Mano de obra directa (CUP):','0'))||0; const otros=Number(prompt('Otros costos (CUP):','0'))||0;
+            const g=mjGestionDe(c); g.seqOrden=(Number(g.seqOrden)||0)+1;
+            const r=mjOrdenProduccion(c,{id:'OP'+g.seqOrden,numero:'OP-'+g.seqOrden,fecha:hoy(),producto:prod,unidades:unidades,insumos:[{productoId:ins.id,cantidad:cant}],manoObra:mod,otrosCostos:otros});
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert('✅ Orden creada: costo total '+moneda(r.orden.costoTotal)+' · unitario '+moneda(r.orden.costoUnitario)+' (en proceso, cuenta 186-000).'); }
+        function mjOrdenTerminarUI(id){ const c=getConta(); const r=mjOrdenTerminar(c,id,hoy(),getCurrentUser()); if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert('✅ Orden terminada: producción terminada a 187-000 por '+moneda(r.orden.costoTotal)+'.'); }
+        function mjCreditoCrearUI(){ const principal=Number(prompt('Principal del crédito:','0'))||0; if(!(principal>0)) return;
+            const tasa=Number(prompt('Tasa anual (%):','0'))||0; const meses=Number(prompt('Plazo (meses):','12'))||12;
+            const c=getConta(); const g=mjGestionDe(c); g.seqCredito=(Number(g.seqCredito)||0)+1;
+            const datos={principal:principal,tasaAnual:tasa,meses:meses,fechaInicio:hoy()};
+            const tabla=mjCreditoTabla(datos);
+            g.creditos.push({id:'CR'+g.seqCredito,numero:'CR-'+g.seqCredito,principal:principal,tasaAnual:tasa,meses:meses,fechaInicio:hoy(),tabla:tabla.filas,cuenta:'410'});
+            saveConta(c); mjRenderGestion(); alert('✅ Crédito registrado: cuota mensual '+moneda(tabla.cuota)+' · intereses totales '+moneda(tabla.totalIntereses)+'. Devenga los intereses cada período con el botón.'); }
+        function mjCreditoDevengoUI(id){ const c=getConta(); const g=mjGestionDe(c); const cr=g.creditos.find(x=>x.id===id); if(!cr) return;
+            const per=periodoNominaActual(); const r=mjCreditoDevengoMes(c,cr,per,fechaContablePeriodo(per),getCurrentUser());
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'Los intereses de '+per+' ya estaban devengados.':'✅ Intereses de '+per+' devengados: '+moneda(r.interes)+' (Dr 710-000 / Cr 315-000).'); }
+        function mjSaldoDivisaUI(){ const cuenta=prompt('Cuenta contable del saldo (ej. 131-000):','131-000'); if(!cuenta) return;
+            const naturaleza=confirm('¿Es un PASIVO (Aceptar) o un ACTIVO (Cancelar)?')?'pasivo':'activo';
+            const monto=Number(prompt('Saldo en divisa:','0'))||0; const tasa=Number(prompt('Tasa a la que está registrado:','0'))||0;
+            const c=getConta(); const g=mjGestionDe(c); g.saldosDivisa.push({cuenta:cuenta,naturaleza:naturaleza,montoDivisa:monto,tasa:tasa}); saveConta(c); mjRenderGestion(); }
+        function mjRevalAmpliaUI(){ const tasa=Number(prompt('Tasa nueva (CUP por divisa):','0'))||0; if(!(tasa>0)) return;
+            const c=getConta(); const per=periodoNominaActual();
+            const r=mjRevalorizacionAmplia(c,{periodo:per,fecha:fechaContablePeriodo(per),tasaNueva:tasa});
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.sinEfecto?'Sin diferencia que registrar.':('✅ Revalorización amplia registrada: diferencial '+moneda(r.diferencial)+' (805-000 / 710-000).')); }
+        function mjIPVUI(){ const c=getConta(); const fecha=mjVal('mjIpvFecha')||hoy(); const cajero=mjVal('mjIpvCajero')||'';
+            const ipv=mjIPVTurno(c,{fecha:fecha,cajero:cajero});
+            const contado=prompt('Efectivo contado por el cajero al cierre (CUP):',''); let cierreTxt='';
+            if(contado!=null&&contado!==''){ const ventasCaja=ipv.filas.reduce((s,f)=>s+0,0); const esp=Number(prompt('Efectivo esperado según ventas en efectivo del turno (CUP):','0'))||0; const ci=mjCierreCajero({esperado:esp,contado:Number(contado)||0,cajero:cajero,turno:fecha}); cierreTxt=`<div class="mt-1"><b>Cierre de cajero:</b> esperado ${moneda(ci.esperado)} · contado ${moneda(ci.contado)} · diferencia <b>${moneda(ci.diferencia)}</b> ${ci.cuadra?'<span class="badge bg-success">caja cuadrada</span>':'<span class="badge bg-danger">caja descuadrada</span>'}</div>`; }
+            const box=document.getElementById('mjIpvBox'); if(box) box.innerHTML=`<b>IPV del turno ${esc(fecha)}</b> ${cajero?'· cajero '+esc(cajero):''}<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Producto</th><th class="text-end">Apertura</th><th class="text-end">Entradas</th><th class="text-end">Ventas</th><th class="text-end">Mermas</th><th class="text-end">Saldo</th></tr></thead><tbody>${ipv.filas.map(f=>`<tr><td>${esc(f.nombre)}</td><td class="text-end">${f.apertura}</td><td class="text-end">${f.entradas}</td><td class="text-end">${f.ventas}</td><td class="text-end">${f.mermas}</td><td class="text-end fw-semibold">${f.saldo}</td></tr>`).join('')||'<tr><td colspan="6" class="text-secondary">Sin movimientos de inventario ese día.</td></tr>'}</tbody></table></div><div class="text-secondary">${esc(ipv.nota)}</div>${cierreTxt}`;
+        }
+        function mjConsignacionRecibirUI(){ const dueno=prompt('Dueño de la mercancía:'); if(!dueno) return; const cant=Number(prompt('Cantidad recibida:','0'))||0;
+            const c=getConta(); const g=mjGestionDe(c); g.consignacion.push({dueno:dueno,cantidad:cant,fecha:hoy()}); saveConta(c); mjRenderGestion(); }
+        function mjConsignacionVentaUI(){ const dueno=prompt('Dueño de la mercancía vendida:'); if(!dueno) return; const cant=Number(prompt('Cantidad vendida:','0'))||0; const precio=Number(prompt('Precio de venta:','0'))||0;
+            const c=getConta(); const g=mjGestionDe(c); g.consignacionVentas.push({dueno:dueno,cantidad:cant,precio:precio,fecha:hoy()}); saveConta(c); mjRenderGestion(); }
+        /* ===== FIN MEJORAS-UI ===== */
+
         /* GESTOR-CORE-INI — Núcleo puro del Panel del Gestor: trabaja sobre el DOCUMENTO
            de cualquier negocio (el que devuelve el servidor vía gestor_data), sin DOM ni
            estado global del negocio abierto. Clona la lógica de Fiscal/Nómina/DJ del
@@ -6281,6 +7243,22 @@ function ctaMigrarClasificador(conta){
                     if(aplica){ const diasTrab=Math.max(0,dFin-dIni+1), factor=diasTrab/diasMes;
                         if(factor<1){const antes=baseSalarial; baseSalarial=baseSalarial*factor; detalle.push(['Salario proporcional ('+diasTrab+'/'+diasMes+' días)', baseSalarial-antes]);} }
                 }
+            }
+            /* Ronda 10 (M1): UNIFICADO con calcLineaNominaExt — el clon
+               del Gestor ahora SÍ aplica el control de días (diasTrab /
+               diasAus, con desglose just./injust., / diasLic) igual que
+               el motor real, para que el panel y la nómina del negocio
+               den las mismas cifras con ausencias. */
+            let propAplicadoG=false;
+            { const p1=periodoParts(periodo);
+              if(APL('proporcional')&&p1&&(t.fechaAlta||t.fechaBaja)){ /* el factor ya se aplicó arriba si procedía: se detecta por el detalle */ propAplicadoG=detalle.some(d=>String(d[0]).indexOf('Salario proporcional')===0); } }
+            const diasAusTotG = ((Number(comp.diasAusJust)||0)+(Number(comp.diasAusInjust)||0))>0 ? (Number(comp.diasAusJust)||0)+(Number(comp.diasAusInjust)||0) : (Number(comp.diasAus)||0);
+            const diasTrabCtrlG = (comp.diasTrab!==undefined && comp.diasTrab!==null && comp.diasTrab!=='')
+                ? Math.max(0, Math.min(diasMes, Number(comp.diasTrab)||0))
+                : ((diasAusTotG>0 || Number(comp.diasLic)>0) ? Math.max(0, diasMes-diasAusTotG-(Number(comp.diasLic)||0)) : null);
+            if(diasTrabCtrlG!==null && diasTrabCtrlG<diasMes && !propAplicadoG){
+              const antesDG=baseSalarial; baseSalarial=baseSalarial*diasTrabCtrlG/diasMes;
+              if(baseSalarial!==antesDG) detalle.push(['Salario por días trabajados ('+diasTrabCtrlG+'/'+diasMes+')', baseSalarial-antesDG]);
             }
             let extra=0, subsidios=0, deducciones=0;
             const tarifa=()=>(P.divisorHoras>0? baseSalarial/P.divisorHoras : 0);
