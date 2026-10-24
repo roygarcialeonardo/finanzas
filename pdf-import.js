@@ -261,7 +261,10 @@ async function lineasDePagina(pdf, n) {
     }).filter(function (s) { return s.length > 0; });
 }
 
-/* Cierra una fila abierta y devuelve la operación (o null si está incompleta) */
+/* Cierra una fila abierta y devuelve la operación (o null si está incompleta).
+   El formato 2 trae además el saldo corrido tras la operación (grupo 3 de
+   RE_FIN): se conserva como op.saldo — es la base del «saldo según banco»
+   de la conciliación (ronda 7). */
 function cerrarBuf(buf) {
     var m = RE_FIN.exec(buf.obs);
     if (!m) return null;
@@ -270,14 +273,25 @@ function cerrarBuf(buf) {
         refC: buf.refC, refO: buf.refO,
         concepto: limpiarConcepto(buf.obs.slice(0, m.index)),
         monto: Math.abs(parseFloat(m[1].replace(/,/g, ''))),
-        tipo: m[2] === 'Cr' ? 'ingreso' : 'gasto'
+        tipo: m[2] === 'Cr' ? 'ingreso' : 'gasto',
+        saldo: (m[3] !== undefined && m[3] !== '') ? parseFloat(m[3].replace(/,/g, '')) : null
     };
 }
 
+/* 'DD/MM/YYYY' -> 'YYYY-MM-DD' (para el rango del estado) */
+function fechaISOdeDMY(t) {
+    var p = String(t || '').split('/');
+    if (p.length !== 3) return '';
+    return p[2] + '-' + p[1].padStart(2, '0') + '-' + p[0].padStart(2, '0');
+}
+
 /* Parsea líneas a operaciones. `buf` permite continuar una fila abierta
-   que viene de la página anterior. Devuelve {ops, resto}. */
+   que viene de la página anterior. Devuelve {ops, resto, saldoLinea}.
+   saldoLinea: último importe de una línea «Saldo Contable/Disponible»
+   (formato 1, que no trae saldo corrido por operación) — candidato a
+   saldo final según banco si no hay saldo corrido (ronda 7). */
 function parsearLineas(lineas, buf) {
-    var ops = [];
+    var ops = [], saldoLinea = null;
     lineas.forEach(function (line) {
         var ms = RE_INICIO.exec(line);
         if (ms) {                                   /* inicio de fila primero */
@@ -287,6 +301,10 @@ function parsearLineas(lineas, buf) {
             return;
         }
         if (RE_OMITIR.test(line)) {                 /* cabeceras, saldos, pies */
+            if (/^Saldo (Contable|Disponible)\b/.test(line)) {
+                var msl = /(-?[\d,]+\.\d{2})\s*$/.exec(line);
+                if (msl) saldoLinea = parseFloat(msl[1].replace(/,/g, ''));
+            }
             if (buf) { var p2 = cerrarBuf(buf); if (p2) ops.push(p2); buf = null; }
             return;
         }
@@ -295,12 +313,12 @@ function parsearLineas(lineas, buf) {
             if (RE_FIN.test(line)) { var p3 = cerrarBuf(buf); if (p3) ops.push(p3); buf = null; }
         }
     });
-    return { ops: ops, resto: buf };
+    return { ops: ops, resto: buf, saldoLinea: saldoLinea };
 }
 
 async function parsearPdf(arrayBuffer, nombreArchivo, onProgreso) {
     var pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    var ops = [], buf = null, cuenta = '', periodo = '', textoLen = 0;
+    var ops = [], buf = null, cuenta = '', periodo = '', textoLen = 0, desde = '', hasta = '', saldoLinea = null;
     for (var n = 1; n <= pdf.numPages; n++) {
         var lineas = await lineasDePagina(pdf, n);
         textoLen += lineas.join(' ').length;
@@ -310,14 +328,21 @@ async function parsearPdf(arrayBuffer, nombreArchivo, onProgreso) {
             var mc = RE_CUENTA.exec(txt);
             if (mc) cuenta = mc[1];
             var mp = RE_PERIODO.exec(txt);
-            if (mp) periodo = mp[1] + ' al ' + mp[2];
+            if (mp) { periodo = mp[1] + ' al ' + mp[2]; desde = fechaISOdeDMY(mp[1]); hasta = fechaISOdeDMY(mp[2]); }
         }
         var r = parsearLineas(lineas, buf);
         ops = ops.concat(r.ops);
         buf = r.resto;
+        if (r.saldoLinea != null) saldoLinea = r.saldoLinea;
     }
     if (buf) { var op = cerrarBuf(buf); if (op) ops.push(op); }
-    return { nombre: nombreArchivo, cuenta: cuenta, periodo: periodo, ops: ops, textoLen: textoLen };
+    /* Saldo final SEGÚN BANCO del estado (ronda 7, para la conciliación):
+       manda el saldo corrido de la ÚLTIMA operación del documento; si el
+       formato no lo trae, la última línea «Saldo Contable/Disponible». */
+    var saldoBancoFin = null;
+    for (var i = 0; i < ops.length; i++) { if (ops[i].saldo != null) saldoBancoFin = ops[i].saldo; }
+    if (saldoBancoFin == null) saldoBancoFin = saldoLinea;
+    return { nombre: nombreArchivo, cuenta: cuenta, periodo: periodo, desde: desde, hasta: hasta, saldoBancoFin: saldoBancoFin, ops: ops, textoLen: textoLen };
 }
 
 /* ---------------- Deduplicación ---------------- */
@@ -373,6 +398,7 @@ function inyectarBotonesPdf() {
 
 /* ---------------- Procesamiento de archivos ---------------- */
 var ultimoLote = [];
+var ultimosInfos = [];
 
 async function procesarArchivos(e) {
     var files = Array.prototype.slice.call(e.target.files || []);
@@ -449,6 +475,7 @@ function destinoDe(op) {
 }
 
 function mostrarVistaPrevia(ops, infos) {
+    ultimosInfos = infos || [];
     var existentes = clavesExistentes();
     var vistos = {};
     var filas = ops.map(function (op) {
@@ -733,6 +760,29 @@ function importarLote(cuenta) {
     }
     api.renderAll();
 
+    /* Conciliación (ronda 7): cada estado importado se registra con su
+       saldo final según banco y sus operaciones referenciadas, para que
+       la conciliación de la pestaña Contabilidad se alimente sola de
+       esta misma importación, sin pasos nuevos. Se registran TODAS las
+       operaciones del estado (también las duplicadas: el banco las
+       trae igual), deduplicadas por estado en el núcleo. */
+    var concTxt = '';
+    try {
+        if (window.__contaRegistrarEstadoBanco && ultimosInfos.length) {
+            var nReg = 0;
+            ultimosInfos.forEach(function (info) {
+                var rr = window.__contaRegistrarEstadoBanco({
+                    cuenta: cuenta, archivo: info.nombre, periodoTexto: info.periodo,
+                    desde: info.desde || '', hasta: info.hasta || '',
+                    saldoBancoFin: (info.saldoBancoFin == null ? null : info.saldoBancoFin),
+                    ops: (info.ops || []).map(function (op) { return { refC: op.refC, refO: op.refO, fecha: op.fecha, concepto: op.concepto, monto: op.monto, tipo: op.tipo }; })
+                });
+                if (rr && rr.ok && !rr.duplicado) nReg++;
+            });
+            if (nReg) concTxt = '\nConciliación: ' + nReg + ' estado(s) de cuenta guardado(s) con su saldo según banco (pestaña Contabilidad).';
+        }
+    } catch (e) { /* la importación ya quedó guardada; el estado puede reimportarse para registrarlo */ }
+
     var contaTxt = '';
     try {
         if (window.__contaTrasImportar) {
@@ -752,7 +802,7 @@ function importarLote(cuenta) {
         }
     });
     var extraClasif = (cT || cO || cQ) ? '\nClasificadas: ' + cT + ' transferencias entre cuentas, ' + cO + ' pagos ONAT, ' + cQ + ' con marca QR.' : '';
-    alert('✅ Importadas ' + n + ' operaciones del estado de cuenta.\n' + detalle + extraClasif + contaTxt);
+    alert('✅ Importadas ' + n + ' operaciones del estado de cuenta.\n' + detalle + extraClasif + contaTxt + concTxt);
 }
 
 /* ---------------- Arranque ---------------- */
@@ -767,6 +817,7 @@ window.__pdfImportTest = {
     parsearLineas: parsearLineas,
     limpiarConcepto: limpiarConcepto,
     unirLinea: unirLinea,
+    fechaISOdeDMY: fechaISOdeDMY,
     mesDeFecha: mesDeFecha,
     clasificarOperacion: clasificarOperacion,
     extraerCodigosConcepto: extraerCodigosConcepto,
