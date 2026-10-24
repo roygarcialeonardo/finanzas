@@ -734,17 +734,29 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         #subNavRail .subnav-list{display:flex;flex-direction:column;gap:.12rem}
         #subNavRail .subnav-item{
           border:0;background:transparent;text-align:left;width:100%;cursor:pointer;
-          padding:.45rem .55rem;border-radius:.6rem;font-size:.86rem;font-weight:600;
+          padding:.6rem .85rem;border-radius:.6rem;font-size:.95rem;font-weight:600;
           color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
         }
         #subNavRail .subnav-item:hover{background:rgba(31,58,107,.06);color:var(--ink)}
         #subNavRail .subnav-item.on{background:var(--ink);color:#fff}
         html[data-theme="dark"] #subNavRail .subnav-item.on{background:#17685e;color:#fff}
         .subsec-flash{animation:subsecFlash 1.4s ease}
+        /* Al elegir un submenú solo se muestra ESA sección (pedido de
+           Leonardo): el resto se oculta para que la pantalla no sea pesada. */
+        .subsec-oculta{display:none!important}
+        #subNavRail .subnav-item.subnav-todo{font-weight:800;color:var(--ink)}
+        html[data-theme="dark"] #subNavRail .subnav-item.subnav-todo{color:#e7f2ef}
         @keyframes subsecFlash{0%{box-shadow:0 0 0 3px var(--brand)}100%{box-shadow:none}}
         @media (min-width: 992px){
+          /* El submenú va a la DERECHA de la página (pedido de Leonardo,
+             2026-10-24), del mismo tamaño que el menú principal de la
+             izquierda. Orden en la fila: menú · contenido · submenú.
+             Los textos largos se cortan con «…» y al pasar el ratón se
+             muestra el texto completo (atributo title en cada botón). */
+          .app-layout #cuentasTabs{order:1}
+          .app-layout #cuentasTabsContent{order:2}
           #subNavRail{
-            flex:0 0 205px;width:205px;position:sticky;top:1rem;margin-bottom:0;
+            order:3;flex:0 0 218px;width:218px;position:sticky;top:1rem;margin-bottom:0;
             max-height:calc(100vh - 2rem);overflow-y:auto;
           }
         }
@@ -8836,20 +8848,32 @@ function mjPermisos(rol,modulo){ const M={
   }
   function construir(pane){
     var rail=document.getElementById('subNavRail');
-    if(!rail) return;
+    if(!rail||!pane) return;
+    // Al (re)construir se levanta cualquier filtro anterior de este panel
+    pane.querySelectorAll('.subsec-oculta').forEach(function(x){x.classList.remove('subsec-oculta');});
     var secs=seccionesDe(pane);
     var list=rail.querySelector('.subnav-list');
     list.innerHTML='';
     if(secs.length<2){ rail.style.display='none'; return; }
     rail.style.display='';
+    function marcar(btn){ list.querySelectorAll('.subnav-item').forEach(function(x){x.classList.remove('on');}); if(btn) btn.classList.add('on'); }
+    // «Ver todo»: muestra el panel completo, como estaba antes
+    var bt=document.createElement('button');
+    bt.type='button'; bt.className='subnav-item subnav-todo on'; bt.textContent='👁 Ver todo'; bt.title='Mostrar todas las secciones de este menú';
+    bt.addEventListener('click',function(){
+      secs.forEach(function(s){ s.el.classList.remove('subsec-oculta'); });
+      marcar(bt);
+    });
+    list.appendChild(bt);
     secs.forEach(function(s,idx){
       if(!s.el.id) s.el.id='subsec-'+pane.id+'-'+idx;
       s.el.style.scrollMarginTop='1rem';
       var b=document.createElement('button');
       b.type='button'; b.className='subnav-item'; b.textContent=s.titulo; b.title=s.titulo;
       b.addEventListener('click',function(){
-        list.querySelectorAll('.subnav-item').forEach(function(x){x.classList.remove('on');});
-        b.classList.add('on');
+        // SOLO esta sección en pantalla; las demás se ocultan
+        secs.forEach(function(o){ o.el.classList.toggle('subsec-oculta', o!==s); });
+        marcar(b);
         s.el.scrollIntoView({behavior:'smooth',block:'start'});
         s.el.classList.remove('subsec-flash'); void s.el.offsetWidth; s.el.classList.add('subsec-flash');
       });
