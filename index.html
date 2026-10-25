@@ -962,7 +962,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><span class="icono-anim me-1" data-icono="doc"></span> DJ</button></li>
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><span class="icono-anim me-1" data-icono="intercambio"></span> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><span class="icono-anim me-1" data-icono="monitor"></span> Activos</button></li>
-        <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><span class="icono-anim me-1" data-icono="libro"></span> Contabilidad</button></li>
+        <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><span class="icono-anim me-1" data-icono="libro"></span> Contabilidad <span id="tabContaPend" class="badge bg-danger" style="display:none"></span></button></li>
         <li class="nav-item"><button class="nav-link gestion" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#pane-gestion"><span class="icono-anim me-1" data-icono="cuadricula"></span> Gestión+</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><span class="icono-anim me-1" data-icono="archivo"></span> Historial</button></li>
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><span class="icono-anim me-1" data-icono="maletin"></span> Gestor</button></li>
@@ -1407,11 +1407,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <!-- CONTABILIDAD · PARTIDA DOBLE -->
         <div class="tab-pane fade" id="pane-conta">
-            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="libro" style="color:#0f766e"></span>Contabilidad · Partida doble</h5><div class="small text-secondary">Se genera sola desde tus movimientos: el importador de estados de cuenta contabiliza automáticamente lo claro; lo dudoso queda en rojo en la bandeja hasta que lo clasifiques (y la decisión se aprende como regla del negocio). Los estados salen solo de los asientos.</div></div>
-            <div class="d-flex gap-2 flex-wrap align-items-center"><label class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" id="contaActiva"> Contabilidad activa</label><button type="button" class="btn btn-sm btn-success" onclick="contaGenerar()"><span class="icono-anim me-1" data-icono="ajustes"></span> Generar contabilidad</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaRevalBtn()"><span class="icono-anim me-1" data-icono="intercambio"></span> Revalorizar USD del mes</button></div></div>
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><i class="bi bi-journal-bookmark me-2" style="color:#0f766e"></i>Contabilidad · Partida doble</h5><div class="small text-secondary">Se genera sola desde tus movimientos: el importador de estados de cuenta contabiliza automáticamente lo claro; lo dudoso queda en rojo en la bandeja hasta que lo clasifiques (y la decisión se aprende como regla del negocio). Los estados salen solo de los asientos.</div></div>
+            <div class="d-flex gap-2 flex-wrap align-items-center"><label class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" id="contaActiva"> Contabilidad activa</label><button type="button" class="btn btn-sm btn-success" onclick="contaGenerar()"><i class="bi bi-gear-wide-connected me-1"></i> Generar contabilidad</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaRevalBtn()"><i class="bi bi-currency-exchange me-1"></i> Revalorizar USD del mes</button></div></div>
             <div class="mb-3 d-flex flex-wrap gap-2 align-items-center"><span id="contaAvisoPend"></span><span class="small text-secondary" id="contaPreviewTxt"></span></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2 text-danger" data-icono="alerta"></span>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="idea"></span>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
             <div class="row g-3 mb-3"><div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Situación Financiera</h6><div id="contaSituacionBox"></div></div></div>
             <div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Resultados</h6><div class="mb-2"><select id="contaResCentro" class="form-select form-select-sm" style="width:auto"><option value="">Todos los centros</option></select></div><div id="contaResultadosBox"></div></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Balance de Comprobación</h6><div class="row g-2 align-items-end mb-2"><div class="col-md-2"><label class="form-label mb-1 small">Desde</label><input id="contaBalDesde" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Hasta</label><input id="contaBalHasta" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vista</label><select id="contaBalVista" class="form-select form-select-sm"><option value="6">6 columnas</option><option value="4">4 columnas</option><option value="2">2 columnas</option></select></div><div class="col-md-6"><span class="small text-secondary">Saldos iniciales (antes del «desde»), movimientos del período y saldos finales, directos del mayor. Sin fechas = todo el histórico como movimientos.</span></div></div><div id="contaBalanceBox"></div></div>
@@ -1420,10 +1420,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Submayores · Cuentas por Cobrar y por Pagar (con antigüedad)</h6><div id="contaSubBox"></div>
             <div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Nueva contraparte</label><input id="contaCpNombre" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo</label><select id="contaCpTipo" class="form-select form-select-sm"><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="ambos">Ambos</option></select></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddContraparte()">Crear contraparte</button></div></div>
             <div class="row g-2 align-items-end mt-2"><div class="col-md-2"><label class="form-label mb-1 small">Documento</label><select id="contaDocTipo" class="form-select form-select-sm"><option value="cxc">CxC (venta a crédito)</option><option value="cxp">CxP (compra/obligación)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Contraparte</label><select id="contaDocCp" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Nº / concepto</label><input id="contaDocNumero" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaDocFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vencimiento</label><input id="contaDocVenc" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaDocImporte" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Producto (inventario)</label><select id="contaDocProducto" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cant.</label><input id="contaDocCantidad" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-check small"><input type="checkbox" id="contaDocInv" class="form-check-input"> Es compra de inventario</label><br><label class="form-check small"><input type="checkbox" id="contaDocSaldoIni" class="form-check-input"> Saldo inicial (ya está en la apertura, sin asiento nuevo)</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddDocumento()">Guardar documento</button></div></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="banco"></span>Conciliación bancaria</h6><p class="small text-secondary">Se alimenta sola de los estados de cuenta que importas: al importar, el saldo final según banco y las operaciones con sus referencias quedan guardados aquí. La conciliación cruza libros contra banco por referencia y lista las partidas conciliatorias; queda «Conciliada» solo si la diferencia es 0 o queda explicada por esas partidas.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta financiera</label><select id="contaConcCuenta" class="form-select form-select-sm"></select></div><div class="col-md-3"><label class="form-label mb-1 small">Período</label><select id="contaConcPeriodo" class="form-select form-select-sm"></select></div><div class="col-md-6"><span class="small text-secondary">Saldo según libros = la cadena de saldos de la app en ese período (saldo inicial + movimientos). Saldo según banco = el del estado importado.</span></div></div><div id="contaConcBox"></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaConcDocBox','Conciliación bancaria')"><span class="icono-anim me-1" data-icono="impresora"></span>PDF del documento</button></div><div id="contaConcDocBox" class="border rounded p-3 mt-2"></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="calendario-check"></span>Programador de pagos · Cuentas por Pagar por vencimiento</h6><p class="small text-secondary">Sale del submayor de CxP, sin duplicar datos. «Pagar» crea el movimiento bancario y su asiento en un paso, imputando el pago al documento.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Pagar desde la cuenta</label><select id="contaProgCuenta" class="form-select form-select-sm"></select></div><div class="col-md-9"><span class="small text-secondary">El pago se registra con fecha de hoy en el mes en curso, por el saldo pendiente completo del documento.</span></div></div><div id="contaProgBox"></div><div id="docProgBox" class="d-none"></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="doc"></span>Notas de crédito y débito (CxC / CxP)</h6><p class="small text-secondary">Ajustan el saldo del documento elegido y el de su cuenta control con asiento automático, y se reflejan en la antigüedad del submayor. Una nota de crédito nunca deja el documento en negativo.</p><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label mb-1 small">Documento del submayor</label><select id="contaNotaDoc" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo de nota</label><select id="contaNotaTipo" class="form-select form-select-sm"><option value="credito">Nota de crédito</option><option value="debito">Nota de débito</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaNotaImporte" type="number" step="0.01" min="0" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaNotaFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Motivo</label><input id="contaNotaMotivo" class="form-control form-control-sm" placeholder="Devolución, rebaja…"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-primary" onclick="contaEmitirNotaBtn()">Emitir nota</button></div></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Nº</th><th>Tipo</th><th>Documento</th><th>Motivo</th><th>Fecha</th><th class="text-end">Importe</th></tr></thead><tbody id="contaNotasBox"></tbody></table></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="billete"></span>Arqueo de caja y cuentas de efectivo</h6><p class="small text-secondary">El saldo según libros sale solo del mayor contable; el único dato manual es el conteo físico. Si hay diferencia se genera el asiento de ajuste (faltante a gasto/pérdida, sobrante a otros ingresos) y queda el documento con sus firmas.</p><div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta a arquear</label><select id="contaArqCuenta" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaArqFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Conteo físico</label><input id="contaArqConteo" type="number" step="0.01" min="0" class="form-control form-control-sm" placeholder="0.00"></div><div class="col-md-2"><label class="form-label mb-1 small">Contó</label><input id="contaArqConto" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Revisó</label><input id="contaArqReviso" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-primary" onclick="contaArqueoBtn()">Arquear</button></div></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaArqueoDocBox','Documento de arqueo')"><span class="icono-anim me-1" data-icono="impresora"></span>PDF del documento</button></div><div id="contaArqueoDocBox" class="border rounded p-3 mt-2"></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Cuenta</th><th class="text-end">Según libros</th><th class="text-end">Conteo</th><th class="text-end">Diferencia</th><th>Contó</th><th>Revisó</th></tr></thead><tbody id="contaArqueosBox"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank me-2"></i>Conciliación bancaria</h6><p class="small text-secondary">Se alimenta sola de los estados de cuenta que importas: al importar, el saldo final según banco y las operaciones con sus referencias quedan guardados aquí. La conciliación cruza libros contra banco por referencia y lista las partidas conciliatorias; queda «Conciliada» solo si la diferencia es 0 o queda explicada por esas partidas.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta financiera</label><select id="contaConcCuenta" class="form-select form-select-sm"></select></div><div class="col-md-3"><label class="form-label mb-1 small">Período</label><select id="contaConcPeriodo" class="form-select form-select-sm"></select></div><div class="col-md-6"><span class="small text-secondary">Saldo según libros = la cadena de saldos de la app en ese período (saldo inicial + movimientos). Saldo según banco = el del estado importado.</span></div></div><div id="contaConcBox"></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaConcDocBox','Conciliación bancaria')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div><div id="contaConcDocBox" class="border rounded p-3 mt-2"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-calendar-check me-2"></i>Programador de pagos · Cuentas por Pagar por vencimiento</h6><p class="small text-secondary">Sale del submayor de CxP, sin duplicar datos. «Pagar» crea el movimiento bancario y su asiento en un paso, imputando el pago al documento.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Pagar desde la cuenta</label><select id="contaProgCuenta" class="form-select form-select-sm"></select></div><div class="col-md-9"><span class="small text-secondary">El pago se registra con fecha de hoy en el mes en curso, por el saldo pendiente completo del documento.</span></div></div><div id="contaProgBox"></div><div id="docProgBox" class="d-none"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-file-earmark-diff me-2"></i>Notas de crédito y débito (CxC / CxP)</h6><p class="small text-secondary">Ajustan el saldo del documento elegido y el de su cuenta control con asiento automático, y se reflejan en la antigüedad del submayor. Una nota de crédito nunca deja el documento en negativo.</p><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label mb-1 small">Documento del submayor</label><select id="contaNotaDoc" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo de nota</label><select id="contaNotaTipo" class="form-select form-select-sm"><option value="credito">Nota de crédito</option><option value="debito">Nota de débito</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaNotaImporte" type="number" step="0.01" min="0" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaNotaFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Motivo</label><input id="contaNotaMotivo" class="form-control form-control-sm" placeholder="Devolución, rebaja…"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-primary" onclick="contaEmitirNotaBtn()">Emitir nota</button></div></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Nº</th><th>Tipo</th><th>Documento</th><th>Motivo</th><th>Fecha</th><th class="text-end">Importe</th></tr></thead><tbody id="contaNotasBox"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-cash-stack me-2"></i>Arqueo de caja y cuentas de efectivo</h6><p class="small text-secondary">El saldo según libros sale solo del mayor contable; el único dato manual es el conteo físico. Si hay diferencia se genera el asiento de ajuste (faltante a gasto/pérdida, sobrante a otros ingresos) y queda el documento con sus firmas.</p><div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta a arquear</label><select id="contaArqCuenta" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaArqFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Conteo físico</label><input id="contaArqConteo" type="number" step="0.01" min="0" class="form-control form-control-sm" placeholder="0.00"></div><div class="col-md-2"><label class="form-label mb-1 small">Contó</label><input id="contaArqConto" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Revisó</label><input id="contaArqReviso" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-primary" onclick="contaArqueoBtn()">Arquear</button></div></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaArqueoDocBox','Documento de arqueo')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div><div id="contaArqueoDocBox" class="border rounded p-3 mt-2"></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Cuenta</th><th class="text-end">Según libros</th><th class="text-end">Conteo</th><th class="text-end">Diferencia</th><th>Contó</th><th>Revisó</th></tr></thead><tbody id="contaArqueosBox"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Inventario integrado (costo promedio ponderado)</h6><div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr><th>Código</th><th>Producto</th><th class="text-end">Existencia</th><th class="text-end">Costo promedio</th><th class="text-end">Valoración</th></tr></thead><tbody id="contaInvBody"></tbody></table></div>
             <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaProdCodigo" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label mb-1 small">Nuevo producto</label><input id="contaProdNombre" class="form-control form-control-sm"></div><div class="col-md-1"><label class="form-label mb-1 small">Unidad</label><input id="contaProdUnidad" class="form-control form-control-sm" value="u"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddProducto()">Crear producto</button></div></div>
             <div class="row g-2 align-items-end mt-2"><div class="col-md-3"><label class="form-label mb-1 small">Producto</label><select id="contaInvProd" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cantidad</label><input id="contaInvCant" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Costo unitario (entradas)</label><input id="contaInvCosto" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Contrapartida entrada</label><select id="contaInvContra" class="form-select form-select-sm"><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option><option value="cxp">A crédito (CxP)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Proveedor (si es a crédito)</label><select id="contaInvCp" class="form-select form-select-sm"></select></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-success" onclick="contaInvEntrada()">Entrada</button></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-warning" onclick="contaInvSalida()">Salida</button></div></div></div>
@@ -1440,7 +1440,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaCtaCodigo" class="form-control form-control-sm" placeholder="110-040"></div><div class="col-md-3"><label class="form-label mb-1 small">Nombre</label><input id="contaCtaNombre" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Naturaleza</label><select id="contaCtaNat" class="form-select form-select-sm"><option value="deudora">Deudora</option><option value="acreedora">Acreedora</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Grupo</label><select id="contaCtaGrupo" class="form-select form-select-sm"><option value="activo">Activo</option><option value="pasivo">Pasivo</option><option value="patrimonio">Patrimonio</option><option value="ingreso">Ingreso</option><option value="costo">Costo</option><option value="gasto">Gasto</option><option value="cierre">Cierre</option></select></div><div class="col-md-1"><label class="form-label mb-1 small">Admite</label><select id="contaCtaAdmite" class="form-select form-select-sm"><option value="1">Sí</option><option value="0">No</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Auxiliar</label><select id="contaCtaAux" class="form-select form-select-sm"><option value="ninguno">Ninguno</option><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="trabajador">Trabajador</option><option value="socio">Socio</option><option value="banco">Banco</option><option value="almacen">Almacén / artículo</option><option value="centro">Centro de costo</option></select></div><div class="col-md-2"><label class="form-check small mt-3"><input type="checkbox" id="contaCtaAuxReq" class="form-check-input"> Auxiliar obligatorio</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCuenta()">Agregar cuenta</button></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><span class="icono-anim me-1" data-icono="candado"></span> Cerrar año contable</button></div><div class="col-md-7 d-flex justify-content-end gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docCierreAnualPrint()"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir cierre anual</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docBalanceAperturaPrint()"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir Balance de Apertura</button></div></div><div id="docCierreBox" class="d-none"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div><div class="col-md-7 d-flex justify-content-end gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docCierreAnualPrint()"><i class="bi bi-printer me-1"></i>Imprimir cierre anual</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docBalanceAperturaPrint()"><i class="bi bi-printer me-1"></i>Imprimir Balance de Apertura</button></div></div><div id="docCierreBox" class="d-none"></div></div>
         </div>
 
         <!-- GESTIÓN AMPLIADA · RONDAS 10-13 (blindaje, cumplimiento, gestión, profundidad) -->
@@ -2399,6 +2399,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="col-6"><label class="form-label" for="movCuentaDestino">Otra cuenta (solo transferencias)</label><select id="movCuentaDestino" class="form-select"><option value="">— Sin indicar —</option><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option></select></div>
 <div class="col-6"><label class="form-label" for="movDocumento">Documento CxC/CxP (contabilidad)</label><select id="movDocumento" class="form-select"><option value="">— Ninguno —</option></select></div>
 <div class="col-6"><label class="form-label" for="movCuentaContable">Cuenta contable (contabilidad)</label><select id="movCuentaContable" class="form-select"><option value="">— Automática según clasificación —</option></select></div>
+<div class="col-12"><label class="form-check small"><input type="checkbox" class="form-check-input" id="movGuardarRegla"> Recordar esta cuenta como regla para conceptos iguales (la próxima vez se clasificará sola)</label></div>
 <div class="col-12" id="fxMovWrap" style="display:none"><div id="fxMovBox"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label mb-1">Tasa contable (CUP / USD)</label><input id="movTasaUSD" type="number" min="0.0001" step="0.0001" class="form-control"></div><div class="col-4"><label class="form-label mb-1">Equivalente CUP</label><input id="movEquivCUP" class="form-control" readonly></div><div class="col-3 d-grid"><button type="button" class="btn btn-outline-primary" id="btnMovConsultarBCC"><span class="icono-anim" data-icono="descargar"></span> BCC</button></div><div class="col-12"><div class="small text-muted" id="movTasaFuente">Consulta BCC o escribe la tasa manualmente.</div></div></div></div></div>
 </div></div>
 <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarMov">Guardar</button></div>
@@ -5543,6 +5544,32 @@ function ctaContraasiento(conta,asientoId,fecha){
     en los dos sentidos (anulaA / anuladoPor). */
  if(r.ok){o.estado='anulado';o.anuladoPor=r.asiento.id;}
  return r;}
+/* ===== EDICIÓN DE UN MOVIMIENTO YA CONTABILIZADO (pedido de
+   Leonardo, 2026-10-25: «las que haces automáticamente tienes que
+   dejarme editarlas después si es necesario cambiar la cuenta») =====
+   Al guardar la ficha de un movimiento que YA tenía asiento
+   automático, la app llama aquí ANTES de regenerar: el asiento
+   anterior se ANULA por contraasiento (la filosofía de la app: el
+   original nunca se borra) y se le retira la fuenteKey para que la
+   reconstrucción lo regenere con la imputación nueva. Una anulación
+   MANUAL (contaAnular) no pasa por aquí: conserva su fuenteKey y la
+   reconstrucción la respeta (el asiento anulado a mano no resucita).
+   También se retira la aplicación de submayor de la clave vieja (la
+   regeneración la recrea) y el asiento de costo de inventario
+   asociado (fuenteKey + ':costo'); el stock ya movido NO se revierte
+   aquí. Si el año está cerrado, el contraasiento es rechazado por la
+   validación y la fuenteKey se conserva: la edición no toca la
+   contabilidad cerrada. Devuelve cuántos asientos se contraasentaron. */
+function ctaPrepararReasientoMov(conta,periodo,mov,fecha){
+ const clave=ctaClaveMov(periodo,mov);let n=0;
+ for(const a of (conta.asientos||[]).slice()){
+   if(a.fuenteKey!==clave&&a.fuenteKey!==clave+':costo')continue;
+   if(a.origen!=='auto'||a.estado==='anulado')continue;
+   const r=ctaContraasiento(conta,a.id,fecha||mov.fecha);
+   if(r.ok){a.fuenteKey=null;n++;}
+ }
+ conta.aplicaciones=(conta.aplicaciones||[]).filter(x=>x.fuenteKey!==clave);
+ return n;}
 function ctaLineasFiltradas(conta,f){f=f||{};const out=[];
  for(const a of (conta.asientos||[])){if(a.estado==='borrador')continue;if(f.desde&&a.fecha<f.desde)continue;if(f.hasta&&a.fecha>f.hasta)continue;if(f.soloAnio&&String(a.fecha).slice(0,4)!==String(f.soloAnio))continue;
   for(const l of a.lineas){if(f.cuenta&&l.cuenta!==f.cuenta)continue;if(f.centro&&l.centro!==f.centro)continue;if(f.excluirCierre&&a.origen==='cierre')continue;out.push({asiento:a,linea:l});}}
@@ -5623,6 +5650,70 @@ function ctaSituacion(conta,f){const m=ctaMayor(conta,f);let act=0,pas=0,pat=0,r
 function ctaMontoCUP(mov,tasaFallback){const m=Number(mov&&mov.monto)||0;if(mov&&mov.cuenta==='tarjeta_usd'){const t=Number(mov.tasaCambio)>0?Number(mov.tasaCambio):(Number(tasaFallback)>0?Number(tasaFallback):1);return ctaR2(m*t);}return ctaR2(m);}
 function ctaClaveMov(periodo,mov){return 'mov:'+periodo+'|'+mov.id+'|'+(mov.fecha||'')+'|'+(mov.monto||'')+'|'+(mov.tipo||'');}
 function ctaBancoDe(conta,cuentaKey){const p=conta.plantillas||ctaPlantillasDef();return (p.banco||{})[cuentaKey]||null;}
+/* ===== VENTAS POR CORREO ELECTRÓNICO → 801-000 (pedido de Leonardo,
+   2026-10-25) =====
+   Todo INGRESO bancario cuyo concepto traiga «CREDITO RECIBIDO POR
+   CORREO ELECTRONICO» es una venta cobrada: es el mismo criterio con
+   el que el importador pone la marca QR (regla 2b: concepto
+   normalizado sin acentos y también la variante sin espacios, por si
+   el PDF parte la frase: «ELECTRO NICO»). Se contabiliza SIEMPRE
+   contra la 801-000 «Ingresos por Venta de Mercancías y Productos»,
+   aunque la plantilla de ventas apunte a otra cuenta. La imputación
+   manual de Leonardo (mov.cuentaContable, puesta en la ficha o en la
+   bandeja) y las reglas aprendidas del negocio mandan sobre esta
+   regla: solo actúa cuando el movimiento no trae ninguna de las dos.
+   No actúa sobre transferencias (se asientan entre cuentas de banco),
+   ni sobre cobros de documentos/créditos/inventario (tienen su propia
+   contrapartida), ni sobre gastos: el «DEBITO RECIBIDO POR CORREO
+   ELECTRONICO» es la comisión del banco, no una venta. Al vivir aquí
+   (núcleo contable), la regla cubre los movimientos nuevos y los YA
+   importados cuando se regenera la contabilidad. */
+const CTA_VENTA_CORREO='801-000';
+function ctaEsVentaCorreo(mov){
+ if(!mov||mov.tipo!=='ingreso')return false;
+ if((mov.clasificacion||'operacional')!=='operacional')return false;
+ if(mov.documentoId||mov.aCredito||mov.ventaCredito||(mov.productoId&&mov.cantidad))return false;
+ const t=String(mov.concepto||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ return t.replace(/\s+/g,' ').indexOf('credito recibido por correo electronico')>=0||t.replace(/\s+/g,'').indexOf('creditorecibidoporcorreoelectronico')>=0;}
+/* ===== TRANSFERENCIAS ENTRE CUENTAS PROPIAS: EMPAREJADO DE PATAS
+   (pedido de Leonardo, 2026-10-25) =====
+   El estado de cuenta NO trae un campo «otra cuenta»: cada pata llega
+   como un movimiento suelto (egreso en la cuenta origen, ingreso en
+   la destino) y hasta ahora Leonardo tenía que indicar la otra cuenta
+   a mano en la bandeja para que se asentara. Dos patas son la MISMA
+   transferencia si comparten la referencia de origen (BANDEC pone la
+   misma refO en ambas; la pata de salida la lleva también como refC)
+   o si coinciden fecha, importe y tipo opuesto, estando las dos
+   clasificadas como transferencia y en cuentas distintas. Solo se
+   empareja si hay UNA ÚNICA candidata: con ambigüedad no se toca
+   nada (regla de Leonardo: lo que no está claro no se contabiliza
+   solo). Si la pareja es entre monedas distintas (una pata en
+   tarjeta_usd y la otra no) NO se empareja: haría falta el tipo de
+   cambio del día y la app no lo inventa; la pata queda pendiente con
+   su motivo específico (mov._parejaDivisa) hasta que Leonardo la
+   clasifique a mano. La imputación manual (cuentaDestino ya puesto)
+   nunca se toca. El asiento resultante es el de siempre por pata:
+   Dr cuenta del plan de la cuenta destino / Cr la de la origen según
+   el mapeo de plantillas (chequera y tarjeta CUP → 110-010; tarjeta
+   USD → 110-020), así que entre cuentas CUP el efecto neto en el
+   mayor es cero y queda la traza, sin duplicar saldos. */
+function ctaParejaTransferencia(movs,mov){
+ const cand=(movs||[]).filter(o=>{ if(!o||o===mov)return false;
+   if((o.clasificacion||'')!=='transferencia')return false;
+   if(!o.cuenta||o.cuenta===mov.cuenta)return false;
+   if(o.tipo===mov.tipo)return false;
+   if(o.cuentaDestino&&o.cuentaDestino!==mov.cuenta)return false;
+   const ro=mov.refOrigen||'',rc=mov.refCorriente||'',oro=o.refOrigen||'',orc=o.refCorriente||'';
+   if((ro&&(oro===ro||orc===ro))||(rc&&oro===rc))return true;
+   return o.fecha===mov.fecha&&Math.abs((Number(o.monto)||0)-(Number(mov.monto)||0))<0.005;});
+ return cand.length===1?cand[0]:null;}
+function ctaResolverTransferencias(movs){
+ let n=0;
+ for(const mov of (movs||[])){ if(!mov||(mov.clasificacion||'')!=='transferencia'||mov.cuentaDestino)continue;
+   const p=ctaParejaTransferencia(movs,mov); if(!p)continue;
+   if((mov.cuenta==='tarjeta_usd')!==(p.cuenta==='tarjeta_usd')){ mov._parejaDivisa=p.cuenta; continue; }
+   mov.cuentaDestino=p.cuenta; mov._viaPareja=true; n++; }
+ return n;}
 function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
  const P=conta.plantillas||ctaPlantillasDef();const cup=ctaMontoCUP(mov,tasaFallback);const centro=mov.centroCosto||'';const clave=ctaClaveMov(periodo,mov);
  const banco=ctaBancoDe(conta,mov.cuenta);
@@ -5684,7 +5775,12 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
  if(mov.tipo==='ingreso'){
    if(mov.documentoId){const doc=(conta.documentos||[]).find(d=>d.id===mov.documentoId);if(!doc)return pend('El documento vinculado ('+mov.documentoId+') no existe en los submayores');if(falta(P.cxc))return pend('Falta la cuenta de cuentas por cobrar');const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:'Cobro · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:P.cxc,debe:0,haber:cup,analisis:doc.contraparteId,centro}]}],aplicacion:{documentoId:doc.id,monto:cup,fecha:mov.fecha}};}
    if(mov.aCredito||mov.ventaCredito){if(falta(P.cxc)||falta(P.ventas))return pend('Falta la cuenta de cuentas por cobrar o de ventas');if(!mov.contraparteId)return pend('Venta a crédito sin contraparte: indica el cliente (auxiliar obligatorio de Cuentas por cobrar)');return {clave,asientos:[{fecha:mov.fecha,concepto:'Venta a crédito · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.cxc,debe:cup,haber:0,analisis:mov.contraparteId||'',centro},{cuenta:P.ventas,debe:0,haber:cup,centro}]}]};}
-   const ctaIng=mov.cuentaContable||P.ventas;if(falta(ctaIng))return pend('Falta la cuenta de ingresos en el plan/plantillas');
+   /* Ingreso llano: manda la imputación manual (cuentaContable);
+      sin ella, la venta por correo electrónico va SIEMPRE a la
+      801-000 (regla de Leonardo, ver ctaEsVentaCorreo); si la 801-000
+      no existiera en el plan, se cae a la plantilla de ventas. */
+   const ctaAuto801=(!mov.cuentaContable&&ctaEsVentaCorreo(mov)&&!falta(CTA_VENTA_CORREO))?CTA_VENTA_CORREO:null;
+   const ctaIng=mov.cuentaContable||ctaAuto801||P.ventas;if(falta(ctaIng))return pend('Falta la cuenta de ingresos en el plan/plantillas');
    const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:ctaIng,debe:0,haber:cup,centro}]}]};}
  if(mov.tipo==='gasto'){
    if(mov.documentoId){const doc=(conta.documentos||[]).find(d=>d.id===mov.documentoId);if(!doc)return pend('El documento vinculado ('+mov.documentoId+') no existe en los submayores');if(falta(P.cxp))return pend('Falta la cuenta de cuentas por pagar');const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.cxp,debe:cup,haber:0,analisis:doc.contraparteId,centro},l]}],aplicacion:{documentoId:doc.id,monto:cup,fecha:mov.fecha}};}
@@ -5733,7 +5829,10 @@ function ctaClasificarMov(conta,mov){
  if(mov.aftDepPeriodo||(mov.cuenta==='ajuste_contable'&&/deprecia/i.test(mov.concepto||'')))return {estado:'claro',via:'depreciación de activos fijos'};
  if(mov.cuenta==='ajuste_contable')return mov.cuentaContable?{estado:'claro',via:'ajuste clasificado'}:{estado:'pendiente',motivo:'Ajuste contable sin cuenta asignada: indica la cuenta del ajuste'};
  const clas=mov.clasificacion||'operacional';
- if(clas==='transferencia')return mov.cuentaDestino?{estado:'claro',via:'transferencia entre cuentas'}:{estado:'pendiente',motivo:'Transferencia entre cuentas propias: falta indicar la otra cuenta (origen/destino)'};
+ if(clas==='transferencia'){
+   if(mov.cuentaDestino)return {estado:'claro',via:mov._viaPareja?'transferencia entre cuentas propias (otra pata detectada en el estado de la cuenta destino)':'transferencia entre cuentas'};
+   if(mov._parejaDivisa)return {estado:'pendiente',motivo:'Transferencia entre monedas distintas (CUP ↔ USD): se detectó la otra pata en la cuenta «'+mov._parejaDivisa+'», pero no se contabiliza automáticamente porque haría falta el tipo de cambio del día y la app no lo inventa. Clasifícala a mano indicando la otra cuenta.'};
+   return {estado:'pendiente',motivo:'Transferencia entre cuentas propias: falta indicar la otra cuenta (origen/destino)'};}
  if(clas==='extraccion')return {estado:'claro',via:'extracción clasificada en la app'};
  if(clas==='contingencia')return {estado:'claro',via:'salida del fondo de contingencia (no es gasto)'};
  if(clas==='utilidades')return {estado:'claro',via:'pago de utilidades a socios (no es gasto)'};
@@ -5746,12 +5845,19 @@ function ctaClasificarMov(conta,mov){
  if(mov.productoId&&mov.cantidad)return {estado:'claro',via:'venta con salida de inventario'};
  if(mov.cuentaContable)return {estado:'claro',via:'clasificado por el usuario'};
  const rg=ctaReglaPara(conta,mov);if(rg)return {estado:'claro',via:'regla aprendida del negocio',regla:rg};
+ if(ctaEsVentaCorreo(mov))return {estado:'claro',via:'venta cobrada por correo electrónico → 801-000'};
  return {estado:'pendiente',motivo:'Naturaleza no clara: indica si es venta, costo, gasto u otra cuenta (puedes guardar la decisión como regla)'};}
 function ctaReconstruir(conta,eventos){
  ctaAsegurarNumeracion(conta);
  const res={creados:0,yaExistian:0,pendientes:[],asientosIds:[]};const bandeja=[];
  const claves=new Set((conta.asientos||[]).map(a=>a.fuenteKey).filter(Boolean));
  const ordenados=(eventos||[]).slice().sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
+ /* Transferencias importadas sin otra cuenta registrada: se
+    emparejan las dos patas ANTES de clasificar (ver
+    ctaResolverTransferencias). Cuando la generación no es una vista
+    previa clonada, el destino detectado muta el movimiento real y
+    queda guardado con él. */
+ ctaResolverTransferencias((eventos||[]).filter(e=>e&&e.tipo==='mov').map(e=>e.mov));
  /* Ronda 5: si el período tiene movimientos clasificados «Salario», ELLOS
     son el pago bancario real de la nómina (Dr 331-000 / Cr banco del
     movimiento): el asiento de pago sintético del evento de nómina se
@@ -6134,6 +6240,11 @@ function mjCuentaOnat(mov,obligaciones){ mov=mov||{};
   let cod='',txt=String(mov.concepto||'');
   if(Array.isArray(obligaciones)&&mov.fiscalId){ const o=obligaciones.find(x=>x&&(x.id===mov.fiscalId||x.fiscalId===mov.fiscalId)); if(o){ cod=String(o.codigo||''); if(o.concepto) txt=String(o.concepto)+' '+txt; } }
   if(mov.codigoOnat) cod=String(mov.codigoOnat);
+  /* El importador PDF guarda el código como aporteNumero/tributoCodigo
+     (así lo lee también el Vector: pagosObligacion). Sin esta línea, un
+     pago ONAT importado caía SIEMPRE a la plantilla genérica 341-000
+     aunque el estado trajera el código del tributo. */
+  else if(mov.aporteNumero||mov.tributoCodigo) cod=String(mov.aporteNumero||mov.tributoCodigo);
   const c7=cod.replace(/\D/g,'');
   if(/^0114/.test(c7)) return '341-000';
   if(/^0610/.test(c7)) return '334-000';
@@ -6668,7 +6779,15 @@ function mjPermisos(rol,modulo){ const M={
         function contaPreview(){ const c=getConta(); const clon=JSON.parse(JSON.stringify(c)); const r=ctaReconstruir(clon, contaEventos(true)); return {creados:r.creados, pendientes:r.pendientes, bandeja:clon.bandeja||[]}; }
         function contaGenerarSilencioso(){ const c=getConta(); if(!c.activa) return {omitido:true,razon:'inactiva'}; if(modoEdicionActivo) return {omitido:true,razon:'edicion'}; const r=ctaReconstruir(c, contaEventos(false)); saveConta(c); try{ saveMovimientos(movimientos); }catch(e){} return {creados:r.creados, pendientes:r.pendientes.length, ya:r.yaExistian}; }
         window.__contaTrasImportar=function(){ try{ return contaGenerarSilencioso(); }catch(e){ return {omitido:true,razon:'error'}; } };
-        window.__contaEvalImport=function(items){ try{ const c=getConta(); if(!c.activa||!Array.isArray(items)) return null; return items.map(it=>{ if(!it) return null; const mov={concepto:it.concepto,tipo:it.clase==='onat'?'onat':it.tipo,cuenta:it.cuenta,fecha:it.fecha,monto:it.monto,clasificacion:it.clasificacion||'operacional',sospechaOnat:!!it.sospechaOnat}; const r=ctaClasificarMov(c,mov); return {claro:r.estado==='claro',via:r.via||'',motivo:r.motivo||''}; }); }catch(e){ return null; } };
+        window.__contaEvalImport=function(items){ try{ const c=getConta(); if(!c.activa||!Array.isArray(items)) return null;
+            /* Para la vista previa, una transferencia sin otra cuenta se
+               contrasta con los movimientos YA guardados en la app: si
+               su otra pata ya está (se importó antes el estado de la
+               otra cuenta), se evalúa como lo hará la generación real. */
+            const existentes=[...movimientos]; for(const h of getHistorial()){ if(Array.isArray(h.movimientos)) existentes.push(...h.movimientos); }
+            return items.map(it=>{ if(!it) return null; const mov={concepto:it.concepto,tipo:it.clase==='onat'?'onat':it.tipo,cuenta:it.cuenta,fecha:it.fecha,monto:it.monto,clasificacion:it.clasificacion||'operacional',sospechaOnat:!!it.sospechaOnat,refCorriente:it.refCorriente||'',refOrigen:it.refOrigen||''};
+            if(mov.clasificacion==='transferencia'&&!mov.cuentaDestino){ const p=ctaParejaTransferencia(existentes,mov); if(p){ if((mov.cuenta==='tarjeta_usd')!==(p.cuenta==='tarjeta_usd')) mov._parejaDivisa=p.cuenta; else { mov.cuentaDestino=p.cuenta; mov._viaPareja=true; } } }
+            const r=ctaClasificarMov(c,mov); return {claro:r.estado==='claro',via:r.via||'',motivo:r.motivo||''}; }); }catch(e){ return null; } };
         /* ===== CRUCE SALARIO ↔ NÓMINA (ronda 5) =====
            Criterio exacto (documentado en CLASIF-BUILD-REPORT.md):
            - El mes de un pago de salario es el mes de su FECHA.
@@ -6781,13 +6900,12 @@ function mjPermisos(rol,modulo){ const M={
                       const periodoConc=selP?selP.value:'';
                       const etiqCuenta=r.cuenta==='chequera'?'Chequera':(r.cuenta==='tarjeta_cup'?'Tarjeta CUP':(r.cuenta==='tarjeta_usd'?'Tarjeta USD':r.cuenta));
                       const mayorConc=((c.plantillas&&c.plantillas.banco)||{})[r.cuenta]||'—';
-                      /* Datos bancarios guardados de la cuenta (capturados
-                         del encabezado del estado al importar): banco y
-                         sucursal, y el número de cuenta junto al nombre.
-                         Sin datos guardados se mantiene el «—» de antes. */
-                      const bancoConc=getDatosBancoCuenta(r.cuenta);
-                      const bancoSucConc=(bancoConc.banco||bancoConc.sucursal)?[bancoConc.banco||'',bancoConc.sucursal?('Suc. '+bancoConc.sucursal):''].filter(Boolean).join(' · '):'—';
-                      const cuentaBancConc=etiqCuenta+(bancoConc.numeroCuenta?(' · '+bancoConc.numeroCuenta):'')+(bancoConc.numeroTarjeta?(' · Tarjeta '+bancoConc.numeroTarjeta):'');
+                      /* Datos bancarios guardados de la cuenta (cabecera
+                         del estado importado o edición manual): si no
+                         hay ninguno, el modelo sale con «—», sin inventar. */
+                      const bancoConc=(typeof getDatosBancoCuenta==='function')?getDatosBancoCuenta(r.cuenta):{};
+                      const bancoTxtConc=bancoConc.banco?(esc(bancoConc.banco)+(bancoConc.sucursal?' · Suc. '+esc(bancoConc.sucursal):'')):'—';
+                      const ctaBancConc=esc(etiqCuenta)+(bancoConc.numeroCuenta?' · '+esc(bancoConc.numeroCuenta):'');
                       const tablaResumenConc=docOficialTabla([{t:'SALDO SEGÚN LIBRO CONTABLE',n:true},{t:'SALDO SEGÚN ESTADO BANCARIO',n:true}],[[docOficialNum(r.saldoLibros),r.saldoBanco==null?'—':docOficialNum(r.saldoBanco)]]);
                       const filasPart=[];
                       const sepPart=t=>({c:[esc(t),'','','',''],cls:'docof-subtotal'});
@@ -6812,9 +6930,9 @@ function mjPermisos(rol,modulo){ const M={
                         campos:[
                           ['Entidad',esc(docOficialNegocio())],
                           ['Período conciliado',esc(periodoConc)],
-                          ['Banco / Sucursal',esc(bancoSucConc)],
+                          ['Banco / Sucursal',bancoTxtConc],
                           ['Fecha de emisión',esc(docOficialHoy())],
-                          ['Cuenta bancaria',esc(cuentaBancConc)],
+                          ['Cuenta bancaria',ctaBancConc],
                           ['Cuenta mayor',esc(mayorConc)]
                         ],
                         cuerpo:`<div class="docof-sec">I. RESUMEN DE SALDOS AL CIERRE DEL PERÍODO</div>${tablaResumenConc}<div class="docof-sec">II. PARTIDAS EN TRÁNSITO Y PARTIDAS PENDIENTES DE CONCILIAR</div>${tablaPart}${cierreConc}`,
@@ -6972,6 +7090,9 @@ function mjPermisos(rol,modulo){ const M={
         function renderConta(){ const root=document.getElementById('pane-conta'); if(!root) return; const c=getConta();
             const chk=document.getElementById('contaActiva'); if(chk) chk.checked=!!c.activa;
             const aviso=document.getElementById('contaAvisoPend'); if(aviso){ const n=(c.bandeja||[]).length; aviso.innerHTML=n?`<span class="badge bg-danger">● ${n} pendiente(s) en rojo — NO incluidos en los estados hasta clasificarlos</span>`:'<span class="badge bg-success">Sin pendientes en rojo</span>'; }
+            /* Contador «Por clasificar» en la propia pestaña: lo único
+               que exige la atención de Leonardo se ve sin entrar. */
+            const tabP=document.getElementById('tabContaPend'); if(tabP){ const np=(c.bandeja||[]).length; tabP.style.display=np?'':'none'; tabP.textContent=np?('● '+np+' por clasificar'):''; }
             if(window.__contaMigR8){ const mr=window.__contaMigR8; window.__contaMigR8=null; if(aviso){ aviso.innerHTML+=' <span class="badge bg-info text-dark">🔄 Plan actualizado al Clasificador Maestro: '+mr.lineas+' línea(s) de asientos recodificadas — los saldos no cambiaron.'+((mr.sinClasificar&&mr.sinClasificar.length)?(' Cuentas sin equivalente, conservadas y marcadas: '+mr.sinClasificar.join(', ')+'.'):'')+'</span>'; } }
             const prev=c.activa?contaPreview():null; const pv=document.getElementById('contaPreviewTxt'); if(pv) pv.textContent=c.activa?(`Conteo previo: «Generar contabilidad» crearía ${prev.creados} asiento(s) nuevo(s); quedarían ${prev.pendientes.length} pendiente(s) en la bandeja.`):'Activa la contabilidad para que los estados de cuenta importados se contabilicen solos.';
             const pb=document.getElementById('contaPlanBody'); if(pb) pb.innerHTML=c.plan.map(x=>{ const mov=ctaEsMovimiento(c,x.codigo); const aux=ctaAuxiliarDe(x); return `<tr><td class="fiscal-code">${esc(x.codigo)}</td><td>${esc(x.nombre)}</td><td>${esc(ctaNaturalezaDe(x))}</td><td>${x.nivel}</td><td>${mov?'Sí':(ctaTieneHijas(c,x.codigo)?'<span class="text-secondary">No · tiene subcuentas</span>':'No')}</td><td>${aux==='ninguno'?'—':esc(aux)+(x.requiereAuxiliar?' <span class="badge bg-danger">obligatorio</span>':'')}</td><td>${esc(x.grupo)}</td><td>${x.porVerificar?'<span class="badge bg-warning text-dark">por verificar</span>':''}</td></tr>`; }).join('');
@@ -10991,6 +11112,7 @@ function mjPermisos(rol,modulo){ const M={
             $('movMonto').value = m ? m.monto : ''; $('movFecha').value = m ? m.fecha : hoy();
             $('movCuenta').value = cuenta; $('movClas').value = m ? (m.clasificacion || 'operacional') : 'operacional';
             try{ contaFillMovFields(m); }catch(e){}
+            try{ const _gr0=$('movGuardarRegla'); if(_gr0) _gr0.checked=false; }catch(e){}
             configurarCamposONAT(tipo,m);
             $('movTasaUSD').value = m && Number(m.tasaCambio)>0 ? Number(m.tasaCambio) : '';
             movTasaSource = m ? (m.tasaFuente||'Tasa guardada') : '';
@@ -11041,13 +11163,41 @@ function mjPermisos(rol,modulo){ const M={
             }
             if(pendingFiscalLink){d.fiscalId=pendingFiscalLink.id;d.tributoCodigo=pendingFiscalLink.codigo||d.tributoCodigo;d.fiscalPeriodo=pendingFiscalLink.periodo;}
             if(pendingSpecialMovement){Object.assign(d,pendingSpecialMovement);d.clasificacion=(pendingSpecialMovement.fondoOrigen==='contingencia')?'contingencia':(pendingSpecialMovement.fondoOrigen==='utilidades')?'utilidades':'extraccion';}
-            if (movEditId) Object.assign(movimientos.find(x => x.id === movEditId), d);
+            let _reasentado = 0;
+            if (movEditId) {
+                const _orig = movimientos.find(x => x.id === movEditId);
+                if (_orig) {
+                    /* Editar un movimiento YA contabilizado actualiza su
+                       asiento (pedido de Leonardo, 2026-10-25): se
+                       contraasienta el automático anterior — nunca se
+                       borra — y la generación lo rehace con la
+                       imputación nueva. La clave se calcula con los
+                       datos VIEJOS, antes de aplicar el cambio. */
+                    const _antes = JSON.parse(JSON.stringify(_orig));
+                    Object.assign(_orig, d);
+                    try {
+                        const _c0 = getConta();
+                        if (_c0 && _c0.activa) {
+                            _reasentado = ctaPrepararReasientoMov(_c0, periodoNominaActual(), _antes, hoy());
+                            if (_reasentado) saveConta(_c0);
+                            /* «Recordar como regla»: solo si él lo marca;
+                               nunca se impone. */
+                            const _gr = $('movGuardarRegla');
+                            if (_gr && _gr.checked && d.cuentaContable) { ctaGuardarRegla(_c0, _orig.concepto, d.cuentaContable); saveConta(_c0); }
+                        }
+                    } catch(e) {}
+                }
+            }
             else movimientos.push(Object.assign({id: nextId++, tipo: movTipo}, d));
             pendingFiscalLink=null; pendingSpecialMovement=null;
             // En modo edición de un mes cerrado los cambios van al historial con "Guardar",
             // no al slot del mes en curso: no se persiste aquí para no borrar sus movimientos.
             if(!modoEdicionActivo) saveMovimientos(movimientos);
-            renderAll(); movModal.hide(); alert('Movimiento guardado.');
+            let _regenTxt = '';
+            if (_reasentado) {
+                try { const _rg = contaGenerarSilencioso(); _regenTxt = `\nSu asiento anterior se anuló con un contraasiento y se generó de nuevo con la imputación actualizada (${(_rg && _rg.creados) || 0} asiento(s) nuevo(s)).`; } catch(e) {}
+            }
+            renderAll(); movModal.hide(); alert('Movimiento guardado.' + _regenTxt);
         });
 
         $('movAporteNumero').addEventListener('input', actualizarIdentificacionAporte);

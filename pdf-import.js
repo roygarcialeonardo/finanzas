@@ -48,6 +48,13 @@ function API() {
        EXCEPCIÓN (también 2026-10-24): si la clase final es
        «transferencia» (entre cuentas propias), la marca QR se quita:
        un traspaso propio no es un cobro por QR.
+   2c) CONTABILIZACIÓN DE ESAS VENTAS (2026-10-25): si además el
+       movimiento es un INGRESO de clase normal con esa frase, aquí se
+       levanta la bandera «ventaCorreo» (solo informativa para la
+       vista previa) y el NÚCLEO CONTABLE lo asienta contra la
+       801-000 «Ingresos por Venta de Mercancías y Productos»
+       (ctaEsVentaCorreo en el núcleo: también cubre los movimientos
+       ya importados al regenerar; la imputación manual manda).
    3) Pago de impuestos con el CÓDIGO del tributo en el concepto →
       «Pago de ONAT» vinculado a las obligaciones del Vector Fiscal;
       alimenta la Declaración Jurada (tributos por concepto).
@@ -153,8 +160,9 @@ function clasificarOperacion(op) {
        por si BANDEC parte una palabra de la frase entre dos líneas y
        unirLinea la deja separada («ELECTRO NICO»). */
     var tCol = t.replace(/\s+/g, ' ');
-    if (/credito recibido por correo electronico/.test(tCol) ||
-        tCol.replace(/ /g, '').indexOf('creditorecibidoporcorreoelectronico') >= 0) res.qr = true;
+    var esCorreo = /credito recibido por correo electronico/.test(tCol) ||
+        tCol.replace(/ /g, '').indexOf('creditorecibidoporcorreoelectronico') >= 0;
+    if (esCorreo) res.qr = true;
     var cods = extraerCodigosConcepto(op.concepto || '');
     for (var i = 0; i < cods.length; i++) {
         var r = resolverCodigoPdf(cods[i]);
@@ -192,6 +200,11 @@ function clasificarOperacion(op) {
             res.claseMov = 'salario';             /* SÍ es gasto; se cruza con la nómina */
         }
     }
+    /* Regla 2c (2026-10-25): bandera informativa para la vista previa.
+       Con la clase YA definitiva: solo ingresos normales con la frase
+       (las transferencias quedan fuera — se asientan entre bancos — y
+       los pagos ONAT ya salieron por su vía). La marca QR no cambia. */
+    res.ventaCorreo = !!(esCorreo && op.tipo === 'ingreso' && res.clase === 'normal');
     return res;
 }
 /* Corrección manual desde la vista previa (índice = fila de ultimoLote) */
@@ -594,7 +607,8 @@ function mostrarVistaPrevia(ops, infos) {
                 if (!(f.estado === 'nueva' && f.destino)) return null;
                 var cl = f.op._clasif || {};
                 return { concepto: f.op.concepto, tipo: f.op.tipo, cuenta: (typeof cuentaPreseleccionada !== 'undefined' ? cuentaPreseleccionada : 'chequera'), fecha: f.op.fecha, monto: f.op.monto,
-                    clasificacion: cl.claseMov || (cl.clase === 'transferencia' ? 'transferencia' : 'operacional'), clase: cl.clase || 'normal', sospechaOnat: !!cl.sospechaOnat };
+                    clasificacion: cl.claseMov || (cl.clase === 'transferencia' ? 'transferencia' : 'operacional'), clase: cl.clase || 'normal', sospechaOnat: !!cl.sospechaOnat,
+                    refCorriente: f.op.refC || '', refOrigen: f.op.refO || '' };
             });
             var rEval = window.__contaEvalImport(itemsEval);
             if (Array.isArray(rEval)) evalConta = rEval;
@@ -625,6 +639,7 @@ function mostrarVistaPrevia(ops, infos) {
     var nSalario = filas.filter(function (f) { return esNueva(f) && f.op._clasif.claseMov === 'salario'; }).length;
     var nOnat = filas.filter(function (f) { return esNueva(f) && f.op._clasif.clase === 'onat'; }).length;
     var nQR = filas.filter(function (f) { return esNueva(f) && f.op._clasif.qr; }).length;
+    var nVentasCorreo = filas.filter(function (f) { return esNueva(f) && f.op._clasif.ventaCorreo; }).length;
     var nSospecha = filas.filter(function (f) { return esNueva(f) && f.op._clasif.sospechaOnat && f.op._clasif.clase !== 'onat'; }).length;
 
     var nuevas = filas.filter(function (f) { return f.estado === 'nueva' && f.destino; }).length;
@@ -644,7 +659,8 @@ function mostrarVistaPrevia(ops, infos) {
     });
 
     var nombresCuenta = { chequera: 'Chequera', tarjeta_cup: 'Tarjeta CUP', tarjeta_usd: 'Tarjeta USD' };
-    var filasHtml = filas.map(function (f, idxFila) {
+    var filasCompactas = [];
+    var filasHtmlArr = filas.map(function (f, idxFila) {
         var op = f.op;
         var badge = op.tipo === 'ingreso'
             ? '<span class="badge bg-success">Ingreso</span>'
@@ -668,6 +684,7 @@ function mostrarVistaPrevia(ops, infos) {
                 else if (evS) notaMov = '<div class="small text-success">✓ Salario: coincide con la nómina del mes.</div>';
                 else notaMov = '<div class="small text-secondary">👷 Salario: se cruzará con la nómina del mes al importar.</div>';
             }
+            else if (c.ventaCorreo) notaMov = '<div class="small text-secondary">💰 Venta por correo electrónico: se contabilizará en la 801-000 Ingresos por Venta de Mercancías y Productos.</div>';
             ctrl = '<div class="d-flex flex-wrap gap-1 align-items-center mt-1">' +
                 '<select class="form-select form-select-sm" style="width:auto" title="Clasificación del movimiento" onchange="window.__pdfSetClase(' + idxFila + ',this.value)">' +
                 '<option value="normal"' + (selVal === 'normal' ? ' selected' : '') + '>Normal</option>' +
@@ -683,6 +700,7 @@ function mostrarVistaPrevia(ops, infos) {
                 notaMov;
         }
         var evF = evalConta ? evalConta[idxFila] : null;
+        filasCompactas.push('<tr><td class="text-nowrap">' + pdfEsc(fechaCorta(op.fecha)) + '</td><td title="' + concepto + '">' + corto + '</td><td class="text-end text-nowrap">$' + Number(op.monto).toFixed(2) + '</td><td class="small">' + (evF ? (evF.claro ? '<span class="text-success">✓ Automática: ' + pdfEsc(evF.via || 'regla clara') + '</span>' : '<span class="text-danger">● Pendiente de clasificar</span>') : (f.estado === 'duplicada' ? 'Duplicada (se omite)' : (f.destino ? 'Nueva' : 'Se omite'))) + '</td></tr>');
         var evSalF = evalSalario ? evalSalario[idxFila] : null;
         var rojoHtml = (evF && !evF.claro) ? '<div class="small text-danger fw-semibold">● En rojo: no se contabilizará hasta clasificarlo. ' + pdfEsc(evF.motivo || '') + ' Quedará en la bandeja «Por clasificar» de la pestaña Contabilidad.</div>' : '';
         var claroHtml = (evF && evF.claro) ? '<div class="small text-success">✓ Se contabilizará automáticamente (' + pdfEsc(evF.via || 'regla clara') + ').</div>' : '';
@@ -693,7 +711,31 @@ function mostrarVistaPrevia(ops, infos) {
             '<td>' + badge + '</td>' +
             '<td class="text-nowrap small">' + (f.destino ? pdfEsc(f.destino) : '—') + '</td>' +
             '<td>' + est + '</td></tr>';
-    }).join('');
+    });
+
+    /* Presentación pedida por Leonardo (2026-10-25): en la tabla
+       principal quedan SOLO las filas que necesitan su clasificación
+       (las rojas); las que el motor ya resolvió — y las duplicadas u
+       omitidas, que tampoco piden acción — van colapsadas en un
+       «detalles» encima, como resumen. Si la contabilidad no evalúa
+       (inactiva) o no hay rojas, la vista es la de siempre. */
+    var idxAccionables = filas.map(function (f, i) {
+        var ev = evalConta ? evalConta[i] : null;
+        return (f.estado === 'nueva' && f.destino && ev && !ev.claro) ? i : -1;
+    }).filter(function (i) { return i >= 0; });
+    var filasHtml, autoHtml = '';
+    if (evalConta && idxAccionables.length && idxAccionables.length < filas.length) {
+        var setAcc = {};
+        idxAccionables.forEach(function (i) { setAcc[i] = true; });
+        filasHtml = filasHtmlArr.filter(function (_, i) { return setAcc[i]; }).join('');
+        autoHtml = '<details class="mb-3"><summary class="small fw-semibold text-success">✓ ' + (filas.length - idxAccionables.length) + ' operación(es) ya resueltas por el motor o sin acción (duplicadas/omitidas) — tocar para ver</summary>' +
+            '<div class="table-responsive mt-2"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th><th>Resultado</th></tr></thead><tbody>' +
+            filasCompactas.filter(function (_, i) { return !setAcc[i]; }).join('') +
+            '</tbody></table></div></details>' +
+            '<div class="small fw-semibold text-danger mb-1">● ' + idxAccionables.length + ' necesitan tu clasificación — son las únicas que esperan por ti:</div>';
+    } else {
+        filasHtml = filasHtmlArr.join('');
+    }
 
     var html =
     '<div class="modal fade" id="pdfImportModal" tabindex="-1">' +
@@ -713,6 +755,7 @@ function mostrarVistaPrevia(ops, infos) {
               (nSalario ? '<span class="badge bg-secondary">' + nSalario + ' salario</span>' : '') +
               (nOnat ? '<span class="badge bg-dark">' + nOnat + ' pagos ONAT</span>' : '') +
               (nQR ? '<span class="badge bg-info">' + nQR + ' con QR</span>' : '') +
+              (nVentasCorreo ? '<span class="badge bg-success">' + nVentasCorreo + ' ventas a 801-000</span>' : '') +
               (nSospecha ? '<span class="badge bg-warning text-dark">⚠ ' + nSospecha + ' posible ONAT sin código</span>' : '') +
               (evalConta ? '<span class="badge bg-success">✓ ' + nContaClaros + ' se contabilizarán automáticamente</span>' : '') +
               (evalConta && nContaRojos ? '<span class="badge bg-danger">● ' + nContaRojos + ' en rojo: esperan clasificación</span>' : '') +
@@ -723,6 +766,7 @@ function mostrarVistaPrevia(ops, infos) {
                 }).join('') +
               '</select></span>' +
             '</div>' +
+            autoHtml +
             '<div class="table-responsive"><table class="table table-sm table-hover align-middle">' +
             '<thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th><th>Tipo</th><th>Mes destino</th><th>Estado</th></tr></thead>' +
             '<tbody>' + filasHtml + '</tbody></table></div>' +
