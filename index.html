@@ -7779,9 +7779,12 @@ function mjPermisos(rol,modulo){ const M={
                 const hayDevengo=(c.asientos||[]).some(a=>String(a.fuenteKey||'').indexOf('nomina-devengo:')===0);
                 if(!hayTrab&&!hayDevengo){ vacaciones='no-aplica'; retenciones='no-aplica'; }
                 else{ let dev=0, ded=0;
-                    for(const per of Object.keys(rrhh.nominas||{})){ const rec=rrhh.nominas[per]; if(!rec||!Array.isArray(rec.lineas)||!rec.lineas.length) continue;
-                        if(fechaContablePeriodo(per)>hastaC) continue;
-                        const tot=(obtenerNominaParaPeriodo(per)||{}).tot||{};
+                    /* Misma vía que nominaVacDatos (el submayor impreso)
+                       y que contaEventos (el devengo): el cálculo del
+                       período; un período cuenta si tiene líneas. */
+                    for(const per of Object.keys(rrhh.nominas||{})){ if(fechaContablePeriodo(per)>hastaC) continue;
+                        const calc=obtenerNominaParaPeriodo(per); if(!calc||!Array.isArray(calc.lineas)||!calc.lineas.length) continue;
+                        const tot=calc.tot||{};
                         dev=ctaR2(dev+(Number(tot.provisionVac)||0)); ded=ctaR2(ded+(Number(tot.deducciones)||0)); }
                     vacaciones=dev; retenciones=ded; } }catch(e){ vacaciones=null; retenciones=null; }
             return {hasta:rango?rango.hasta:'9999-12-31',bancos:Object.keys(porPlan).map(cod=>({cuenta:cod,submayor:porPlan[cod]})),aft:aft,vacaciones:vacaciones,retenciones:retenciones}; }
