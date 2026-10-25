@@ -866,22 +866,22 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <button type="button" class="btn btn-sm btn-light theme-toggle theme-toggle-login" aria-label="Cambiar tema" title="Cambiar tema"><i class="bi bi-moon-stars theme-icon"></i><span class="theme-label">Oscuro</span></button>
         <span id="connBadgeLogin" class="conn-badge conn-badge-login" title="Estado de la conexión con Google Sheets"><span id="connDotLogin" class="conn-dot conn-red"></span><span id="connTextLogin">Sin conexión</span></span>
         <div class="text-center mb-4">
-            <div class="house-wrap"><span class="house-ring"></span><span class="house-ring r2"></span><i class="bi bi-shop fs-1"></i></div>
+            <div class="house-wrap"><span class="house-ring"></span><span class="house-ring r2"></span><span class="icono-anim bucle bi-shop" data-icono="tienda" title="Finanzas"></span></div>
             <h4 class="mt-2 fw-bold" style="color: #0b1e3a;">Finanzas</h4>
             <p class="text-secondary small">Control financiero de tu negocio, claro y al día</p>
         </div>
         <form id="loginForm">
             <div class="mb-3 input-group-clean d-flex align-items-center">
-                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <span class="input-group-text"><span class="icono-anim" data-icono="usuario"></span></span>
                 <input type="text" class="form-control" id="userInput" placeholder="Usuario" required autocomplete="username">
             </div>
             <div class="mb-4 input-group-clean d-flex align-items-center">
-                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <span class="input-group-text"><span class="icono-anim" data-icono="candado"></span></span>
                 <input type="password" class="form-control" id="passInput" placeholder="Contraseña" required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn btn-primary-custom w-100 text-white">Ingresar <i class="bi bi-arrow-right-short ms-1"></i></button>
+            <button type="submit" class="btn btn-primary-custom w-100 text-white">Ingresar <span class="icono-anim ms-1" data-icono="flecha-der"></span></button>
             <div class="mt-3 text-center small text-secondary">
-                <i class="bi bi-info-circle"></i> Acceso solo para usuarios registrados
+                <span class="icono-anim" data-icono="info"></span> Acceso solo para usuarios registrados
             </div>
         </form>
     </div>
@@ -893,27 +893,27 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
     <div class="app-hero d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
         <div>
             <h4 class="fw-bold d-flex align-items-center gap-2" style="color: #0b1e3a;">
-                <i class="bi bi-graph-up-arrow" style="color: #1f3a6b;"></i> Panel Financiero
+                <span class="icono-anim bucle" data-icono="tendencia" style="color: #1f3a6b;"></span> Panel Financiero
                 <span id="connBadge" class="conn-badge" title="Estado de la conexión con Google Sheets"><span id="connDot" class="conn-dot conn-red"></span><span id="connText">Sin conexión</span></span>
             </h4>
             <span id="negocioNombreBadge" class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill">
-                <i class="bi bi-building me-1"></i> <span id="negocioNombreDisplay">Mi Negocio</span>
+                <span class="icono-anim me-1" data-icono="edificio"></span> <span id="negocioNombreDisplay">Mi Negocio</span>
             </span>
             <span id="userRoleBadge" class="badge badge-soft-info ms-2 px-3 py-2">👤 Usuario</span>
             <span id="userTypeBadge" class="badge badge-soft-secondary ms-2 px-3 py-2">📋 Tipo</span>
         </div>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-outline-custom theme-toggle" aria-label="Cambiar tema" title="Cambiar tema"><i class="bi bi-moon-stars theme-icon"></i><span class="theme-label">Oscuro</span></button>
-            <button class="btn btn-outline-custom" id="btnCalcularONAT"><i class="bi bi-calculator me-1"></i> ONAT</button>
-            <button class="btn btn-outline-custom" id="btnCerrarMes" style="background:#fce4ec;border-color:#ef4444;color:#a11f2e;"><i class="bi bi-lock me-1"></i> Cerrar Mes</button>
-            <button id="logoutBtn" class="btn btn-outline-custom"><i class="bi bi-box-arrow-right me-1"></i> Salir</button>
+            <button class="btn btn-outline-custom" id="btnCalcularONAT"><span class="icono-anim me-1" data-icono="calculadora"></span> ONAT</button>
+            <button class="btn btn-outline-custom" id="btnCerrarMes" style="background:#fce4ec;border-color:#ef4444;color:#a11f2e;"><span class="icono-anim me-1" data-icono="candado"></span> Cerrar Mes</button>
+            <button id="logoutBtn" class="btn btn-outline-custom"><span class="icono-anim me-1" data-icono="salir"></span> Salir</button>
         </div>
     </div>
 
     <!-- BARRA DE MES -->
     <div class="mes-contable-bar" id="mesContableBar">
         <div class="mes-titulo">
-            <i class="bi bi-calendar3 me-1"></i> Mes Contable:
+            <span class="icono-anim me-1" data-icono="calendario"></span> Mes Contable:
             <select id="selectorMes">
                 <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
                 <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
@@ -921,7 +921,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
             </select>
             <input type="number" id="selectorAnio" min="2020" max="2100">
-            <button class="btn btn-sm btn-primary" id="btnAplicarMes" style="border-radius:0.5rem;"><i class="bi bi-check"></i></button>
+            <button class="btn btn-sm btn-primary" id="btnAplicarMes" style="border-radius:0.5rem;"><span class="icono-anim" data-icono="check"></span></button>
         </div>
         <div class="mes-estado">
             <span class="badge bg-soft-secondary" id="mesContablePeriodo">Periodo</span>
@@ -932,42 +932,42 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <span id="mesBloqueadoBadge" class="badge bg-danger" style="display:none;">🚫 Bloqueado</span>
         </div>
         <div class="mes-acciones">
-            <button class="btn btn-sm btn-outline-secondary" id="btnVerMesActual" style="display:none;"><i class="bi bi-arrow-left"></i> Actual</button>
+            <button class="btn btn-sm btn-outline-secondary" id="btnVerMesActual" style="display:none;"><span class="icono-anim" data-icono="flecha-izq"></span> Actual</button>
         </div>
     </div>
 
     <!-- MODO EDICIÓN -->
     <div id="modoEdicionMes" class="modo-edicion-mes" style="display:none;">
         <div class="edicion-info">
-            <i class="bi bi-pencil-square fs-5"></i>
+            <span class="icono-anim fs-5" data-icono="lapiz"></span>
             <span><strong>Editando mes pasado:</strong> <span id="edicionMesNombre"></span></span>
             <span class="badge bg-warning">✏️ Edición activa</span>
         </div>
         <div>
-            <button class="btn btn-sm btn-success" id="btnGuardarEdicionMes"><i class="bi bi-check me-1"></i> Guardar</button>
-            <button class="btn btn-sm btn-secondary" id="btnCancelarEdicionMes"><i class="bi bi-x me-1"></i> Cancelar</button>
+            <button class="btn btn-sm btn-success" id="btnGuardarEdicionMes"><span class="icono-anim me-1" data-icono="check"></span> Guardar</button>
+            <button class="btn btn-sm btn-secondary" id="btnCancelarEdicionMes"><span class="icono-anim me-1" data-icono="equis"></span> Cancelar</button>
         </div>
     </div>
 
     <!-- NAVEGACIÓN LATERAL + CONTENIDO -->
     <div class="app-layout">
     <ul class="nav nav-tabs-custom" id="cuentasTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link resumen active" id="tab-resumen" data-bs-toggle="tab" data-bs-target="#pane-resumen"><i class="bi bi-speedometer2 me-1"></i> Resumen</button></li>
-        <li class="nav-item"><button class="nav-link chequera" id="tab-chequera" data-bs-toggle="tab" data-bs-target="#pane-chequera"><i class="bi bi-bank me-1"></i> Chequera</button></li>
-        <li class="nav-item"><button class="nav-link tarjeta_cup" id="tab-tarjeta_cup" data-bs-toggle="tab" data-bs-target="#pane-tarjeta_cup"><i class="bi bi-credit-card me-1"></i> CUP</button></li>
-        <li class="nav-item"><button class="nav-link tarjeta_usd" id="tab-tarjeta_usd" data-bs-toggle="tab" data-bs-target="#pane-tarjeta_usd"><i class="bi bi-currency-dollar me-1"></i> USD</button></li>
-        <li class="nav-item"><button class="nav-link nomina" id="tab-nomina" data-bs-toggle="tab" data-bs-target="#pane-nomina"><i class="bi bi-people me-1"></i> Nómina</button></li>
-        <li class="nav-item"><button class="nav-link utilidades" id="tab-utilidades" data-bs-toggle="tab" data-bs-target="#pane-utilidades"><i class="bi bi-bar-chart-line me-1"></i> Trimestres</button></li>
-        <li class="nav-item"><button class="nav-link fiscal" id="tab-fiscal" data-bs-toggle="tab" data-bs-target="#pane-fiscal"><i class="bi bi-file-earmark-check me-1"></i> Fiscal</button></li>
-        <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><i class="bi bi-file-earmark-text me-1"></i> DJ</button></li>
-        <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><i class="bi bi-currency-exchange me-1"></i> Tasas</button></li>
-        <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><i class="bi bi-pc-display-horizontal me-1"></i> Activos</button></li>
-        <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><i class="bi bi-journal-bookmark me-1"></i> Contabilidad</button></li>
-        <li class="nav-item"><button class="nav-link gestion" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#pane-gestion"><i class="bi bi-grid-1x2 me-1"></i> Gestión+</button></li>
-        <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><i class="bi bi-archive me-1"></i> Historial</button></li>
-        <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><i class="bi bi-briefcase me-1"></i> Gestor</button></li>
-        <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><i class="bi bi-gear-fill me-1"></i> Configuración</button></li>
-        <li class="nav-item"><button class="nav-link ayuda" id="tab-ayuda" data-bs-toggle="tab" data-bs-target="#pane-ayuda"><i class="bi bi-question-circle me-1"></i> Ayuda</button></li>
+        <li class="nav-item"><button class="nav-link resumen active" id="tab-resumen" data-bs-toggle="tab" data-bs-target="#pane-resumen"><span class="icono-anim me-1" data-icono="velocimetro"></span> Resumen</button></li>
+        <li class="nav-item"><button class="nav-link chequera" id="tab-chequera" data-bs-toggle="tab" data-bs-target="#pane-chequera"><span class="icono-anim me-1" data-icono="banco"></span> Chequera</button></li>
+        <li class="nav-item"><button class="nav-link tarjeta_cup" id="tab-tarjeta_cup" data-bs-toggle="tab" data-bs-target="#pane-tarjeta_cup"><span class="icono-anim me-1" data-icono="tarjeta"></span> CUP</button></li>
+        <li class="nav-item"><button class="nav-link tarjeta_usd" id="tab-tarjeta_usd" data-bs-toggle="tab" data-bs-target="#pane-tarjeta_usd"><span class="icono-anim me-1" data-icono="dolar"></span> USD</button></li>
+        <li class="nav-item"><button class="nav-link nomina" id="tab-nomina" data-bs-toggle="tab" data-bs-target="#pane-nomina"><span class="icono-anim me-1" data-icono="usuarios"></span> Nómina</button></li>
+        <li class="nav-item"><button class="nav-link utilidades" id="tab-utilidades" data-bs-toggle="tab" data-bs-target="#pane-utilidades"><span class="icono-anim me-1" data-icono="grafico"></span> Trimestres</button></li>
+        <li class="nav-item"><button class="nav-link fiscal" id="tab-fiscal" data-bs-toggle="tab" data-bs-target="#pane-fiscal"><span class="icono-anim me-1" data-icono="doc-check"></span> Fiscal</button></li>
+        <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><span class="icono-anim me-1" data-icono="doc"></span> DJ</button></li>
+        <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><span class="icono-anim me-1" data-icono="intercambio"></span> Tasas</button></li>
+        <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><span class="icono-anim me-1" data-icono="monitor"></span> Activos</button></li>
+        <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><span class="icono-anim me-1" data-icono="libro"></span> Contabilidad</button></li>
+        <li class="nav-item"><button class="nav-link gestion" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#pane-gestion"><span class="icono-anim me-1" data-icono="cuadricula"></span> Gestión+</button></li>
+        <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><span class="icono-anim me-1" data-icono="archivo"></span> Historial</button></li>
+        <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><span class="icono-anim me-1" data-icono="maletin"></span> Gestor</button></li>
+        <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><span class="icono-anim me-1" data-icono="ajustes"></span> Configuración</button></li>
+        <li class="nav-item"><button class="nav-link ayuda" id="tab-ayuda" data-bs-toggle="tab" data-bs-target="#pane-ayuda"><span class="icono-anim me-1" data-icono="ayuda"></span> Ayuda</button></li>
     </ul>
 
     <!-- CONTENIDO -->
@@ -982,7 +982,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div id="docResumenBox" class="d-none"></div>
             <div id="docOnatBox" class="d-none"></div>
             <div class="card p-3 p-md-4">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-table me-2"></i>Todos los movimientos</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tabla"></span>Todos los movimientos</h6>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="movimientosTable">
                         <thead><tr><th>Concepto</th><th>Tipo</th><th>Clasificación</th><th>Cuenta</th><th class="text-end">Monto</th><th class="text-center">Fecha</th></tr></thead>
@@ -996,16 +996,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-chequera">
             <div class="card p-3 p-md-4">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                    <h6 class="fw-semibold mb-0"><i class="bi bi-bank me-2" style="color:#1f3a6b;"></i>Chequera</h6>
+                    <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="banco" style="color:#1f3a6b;"></span>Chequera</h6>
                     <div class="d-flex flex-wrap gap-2" id="botonesChequera">
-                        <button class="btn btn-sm btn-success btn-ingreso-cuenta" data-cuenta="chequera"><i class="bi bi-plus-circle"></i> Ingreso</button>
-                        <button class="btn btn-sm btn-danger btn-gasto-cuenta" data-cuenta="chequera"><i class="bi bi-dash-circle"></i> Gasto</button>
-                        <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="chequera"><i class="bi bi-file-check"></i> ONAT</button>
+                        <button class="btn btn-sm btn-success btn-ingreso-cuenta" data-cuenta="chequera"><span class="icono-anim" data-icono="mas-circulo"></span> Ingreso</button>
+                        <button class="btn btn-sm btn-danger btn-gasto-cuenta" data-cuenta="chequera"><span class="icono-anim" data-icono="menos-circulo"></span> Gasto</button>
+                        <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="chequera"><span class="icono-anim" data-icono="doc-check"></span> ONAT</button>
                     </div>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                     <div class="small text-secondary" id="bancoInfo-chequera" style="display:none"></div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('chequera')" title="Completar o corregir los datos del banco de esta cuenta"><i class="bi bi-pencil-square me-1"></i>Datos del banco</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('chequera')" title="Completar o corregir los datos del banco de esta cuenta"><span class="icono-anim me-1" data-icono="lapiz"></span>Datos del banco</button>
                 </div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-chequera">$0.00</span></span>
@@ -1026,16 +1026,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-tarjeta_cup">
             <div class="card p-3 p-md-4">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                    <h6 class="fw-semibold mb-0"><i class="bi bi-credit-card me-2" style="color:#0b5e3a;"></i>Tarjeta CUP</h6>
+                    <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="tarjeta" style="color:#0b5e3a;"></span>Tarjeta CUP</h6>
                     <div class="d-flex flex-wrap gap-2" id="botonesCUP">
-                        <button class="btn btn-sm btn-success btn-ingreso-cuenta" data-cuenta="tarjeta_cup"><i class="bi bi-plus-circle"></i> Ingreso</button>
-                        <button class="btn btn-sm btn-danger btn-gasto-cuenta" data-cuenta="tarjeta_cup"><i class="bi bi-dash-circle"></i> Gasto</button>
-                        <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_cup"><i class="bi bi-file-check"></i> ONAT</button>
+                        <button class="btn btn-sm btn-success btn-ingreso-cuenta" data-cuenta="tarjeta_cup"><span class="icono-anim" data-icono="mas-circulo"></span> Ingreso</button>
+                        <button class="btn btn-sm btn-danger btn-gasto-cuenta" data-cuenta="tarjeta_cup"><span class="icono-anim" data-icono="menos-circulo"></span> Gasto</button>
+                        <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_cup"><span class="icono-anim" data-icono="doc-check"></span> ONAT</button>
                     </div>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                     <div class="small text-secondary" id="bancoInfo-tarjeta_cup" style="display:none"></div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('tarjeta_cup')" title="Completar o corregir los datos del banco de esta cuenta"><i class="bi bi-pencil-square me-1"></i>Datos del banco</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('tarjeta_cup')" title="Completar o corregir los datos del banco de esta cuenta"><span class="icono-anim me-1" data-icono="lapiz"></span>Datos del banco</button>
                 </div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_cup">$0.00</span></span>
@@ -1056,16 +1056,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-tarjeta_usd">
             <div class="card p-3 p-md-4">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                    <h6 class="fw-semibold mb-0"><i class="bi bi-currency-dollar me-2" style="color:#0e7490;"></i>Tarjeta USD</h6>
+                    <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="dolar" style="color:#0e7490;"></span>Tarjeta USD</h6>
                     <div class="d-flex flex-wrap gap-2" id="botonesUSD">
-                        <button class="btn btn-sm btn-success btn-ingreso-cuenta" data-cuenta="tarjeta_usd"><i class="bi bi-plus-circle"></i> Ingreso</button>
-                        <button class="btn btn-sm btn-danger btn-gasto-cuenta" data-cuenta="tarjeta_usd"><i class="bi bi-dash-circle"></i> Gasto</button>
-                        <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_usd"><i class="bi bi-file-check"></i> ONAT</button>
+                        <button class="btn btn-sm btn-success btn-ingreso-cuenta" data-cuenta="tarjeta_usd"><span class="icono-anim" data-icono="mas-circulo"></span> Ingreso</button>
+                        <button class="btn btn-sm btn-danger btn-gasto-cuenta" data-cuenta="tarjeta_usd"><span class="icono-anim" data-icono="menos-circulo"></span> Gasto</button>
+                        <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_usd"><span class="icono-anim" data-icono="doc-check"></span> ONAT</button>
                     </div>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                     <div class="small text-secondary" id="bancoInfo-tarjeta_usd" style="display:none"></div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('tarjeta_usd')" title="Completar o corregir los datos del banco de esta cuenta"><i class="bi bi-pencil-square me-1"></i>Datos del banco</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('tarjeta_usd')" title="Completar o corregir los datos del banco de esta cuenta"><span class="icono-anim me-1" data-icono="lapiz"></span>Datos del banco</button>
                 </div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_usd">$0.00 USD</span></span>
@@ -1088,14 +1088,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-nomina">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <div>
-                    <h5 class="fw-bold mb-1"><i class="bi bi-people-fill me-2" style="color:#0f766e"></i>Trabajadores y nómina</h5>
+                    <h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="usuarios" style="color:#0f766e"></span>Trabajadores y nómina</h5>
                     <div class="small text-secondary">La nómina se calcula según el tipo de negocio registrado: TCP o MIPYME.</div>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
                     <span class="badge bg-soft-info px-3 py-2" id="nominaTipoBadge">Tipo</span>
                     <span class="badge bg-soft-secondary px-3 py-2" id="nominaPeriodoBadge">Periodo</span>
-                    <button class="btn btn-sm btn-success" id="btnNuevoTrabajador"><i class="bi bi-person-plus me-1"></i> Trabajador</button>
-                    <button class="btn btn-sm btn-primary" id="btnGuardarNomina"><i class="bi bi-save me-1"></i> Guardar nómina</button>
+                    <button class="btn btn-sm btn-success" id="btnNuevoTrabajador"><span class="icono-anim me-1" data-icono="usuario-mas"></span> Trabajador</button>
+                    <button class="btn btn-sm btn-primary" id="btnGuardarNomina"><span class="icono-anim me-1" data-icono="guardar"></span> Guardar nómina</button>
                 </div>
             </div>
 
@@ -1110,7 +1110,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <div class="card p-3 p-md-4 mb-3" id="cardSelTrab">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                    <h6 class="fw-semibold mb-0"><i class="bi bi-check2-square me-2"></i>Trabajadores del mes <span id="selTrabPeriodo" class="text-muted fw-normal small"></span></h6>
+                    <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="check-cuadro"></span>Trabajadores del mes <span id="selTrabPeriodo" class="text-muted fw-normal small"></span></h6>
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-outline-secondary" id="btnSelTodos">Todos</button>
                         <button class="btn btn-sm btn-outline-secondary" id="btnSelNinguno">Ninguno</button>
@@ -1122,7 +1122,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <div class="card p-3 p-md-4 mb-3">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                    <h6 class="fw-semibold mb-0"><i class="bi bi-receipt me-2"></i>Nómina del mes</h6>
+                    <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="factura"></span>Nómina del mes</h6>
                     <small class="text-muted">Salario + otras remuneraciones forman la base mensual del trabajador.</small>
                 </div>
                 <div class="table-responsive">
@@ -1143,30 +1143,30 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3" id="cardCompParams" style="display:none;"></div>
             <div class="card p-3 p-md-4 mb-3" id="cardCompAnual" style="display:none;"></div>
             <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2"></i>Documentos de nómina</h6>
+                <h6 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="doc"></span>Documentos de nómina</h6>
                 <small class="text-muted d-block mb-2">Documentos profesionales con el membrete del negocio, listos para imprimir o guardar como PDF. Se generan con la <b>nómina guardada</b> del período mostrado (<span id="nominaDocsPeriodo"></span>).</small>
                 <div class="d-flex flex-wrap gap-2 mb-2">
-                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nominaDocCompleta()"><i class="bi bi-printer me-1"></i>Nómina de pagos completa</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocResumenContable()"><i class="bi bi-journal-text me-1"></i>Resumen para contabilidad</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocListadoPago()"><i class="bi bi-credit-card me-1"></i>Listado para pago por tarjeta</button>
+                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nominaDocCompleta()"><span class="icono-anim me-1" data-icono="impresora"></span>Nómina de pagos completa</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocResumenContable()"><span class="icono-anim me-1" data-icono="doc"></span>Resumen para contabilidad</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocListadoPago()"><span class="icono-anim me-1" data-icono="tarjeta"></span>Listado para pago por tarjeta</button>
                 </div>
                 <div class="row g-2">
-                    <div class="col-md-6"><label class="form-label mb-1 small">Talón de pago individual</label><div class="input-group input-group-sm"><select id="talonTrabSel" class="form-select"></select><button type="button" class="btn btn-outline-primary" onclick="nominaDocTalon()"><i class="bi bi-printer me-1"></i>Imprimir talón</button></div></div>
+                    <div class="col-md-6"><label class="form-label mb-1 small">Talón de pago individual</label><div class="input-group input-group-sm"><select id="talonTrabSel" class="form-select"></select><button type="button" class="btn btn-outline-primary" onclick="nominaDocTalon()"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir talón</button></div></div>
                     <div class="col-md-6"><label class="form-label mb-1 small">Certificado anual de ingresos y retenciones</label><div class="input-group input-group-sm"><select id="certAnioSel" class="form-select"></select><button type="button" class="btn btn-outline-primary" onclick="nominaDocCertificado()"><i class="bi bi-award me-1"></i>Imprimir certificados</button></div></div>
                 </div>
             </div>
             <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold mb-1"><i class="bi bi-calendar-check me-2"></i>Pre-nómina · Tarjeta de tiempo <span class="text-muted fw-normal small">(<span id="prenominaPeriodo"></span>)</span></h6>
+                <h6 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="calendario-check"></span>Pre-nómina · Tarjeta de tiempo <span class="text-muted fw-normal small">(<span id="prenominaPeriodo"></span>)</span></h6>
                 <small class="text-muted d-block mb-2">Documento previo del período: se <b>genera solo</b> desde los trabajadores del mes y el control de días de cada ficha (días trabajados, ausencias, licencias y horas extras). Revísala, ajústala si hace falta y <b>apruébala</b>: al aprobar, esos días alimentan la nómina del mes sin redigitar nada. Si no la usas, la nómina se calcula como siempre.</small>
                 <div class="d-flex flex-wrap gap-2 mb-2">
-                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nomPrenominaGenerarUI()"><i class="bi bi-magic me-1"></i>Generar desde el control de días</button>
-                    <button type="button" class="btn btn-sm btn-success" onclick="nomPrenominaAprobarUI()"><i class="bi bi-check2-circle me-1"></i>Aprobar y alimentar la nómina</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocPrenomina()"><i class="bi bi-printer me-1"></i>Imprimir pre-nómina</button>
+                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nomPrenominaGenerarUI()"><span class="icono-anim me-1" data-icono="idea"></span>Generar desde el control de días</button>
+                    <button type="button" class="btn btn-sm btn-success" onclick="nomPrenominaAprobarUI()"><span class="icono-anim me-1" data-icono="check-circulo"></span>Aprobar y alimentar la nómina</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocPrenomina()"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir pre-nómina</button>
                 </div>
                 <div id="prenominaBox"></div>
             </div>
             <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold mb-1"><i class="bi bi-cash-coin me-2"></i>Submayor de salarios por cobrar · Adelantos a trabajadores <span class="text-muted fw-normal small">(cuenta 139-000)</span></h6>
+                <h6 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="monedas"></span>Submayor de salarios por cobrar · Adelantos a trabajadores <span class="text-muted fw-normal small">(cuenta 139-000)</span></h6>
                 <small class="text-muted d-block mb-2">Cada adelanto o préstamo a un trabajador nace con su <b>asiento automático</b> (Debe 139-000 con el trabajador / Haber banco o caja) y se <b>descuenta solo en las nóminas siguientes</b>, hasta donde alcance el neto de cada mes: el saldo pendiente baja sin que tengas que acordarte de cobrarlo.</small>
                 <div class="row g-2 align-items-end mb-2">
                     <div class="col-md-3"><label class="form-label mb-1 small">Trabajador</label><select id="adTrabSel" class="form-select form-select-sm"></select></div>
@@ -1176,30 +1176,30 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-md-3"><label class="form-label mb-1 small">Concepto</label><input type="text" id="adConcepto" class="form-control form-control-sm" maxlength="80" placeholder="Adelanto de salario"></div>
                 </div>
                 <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nomAdelantoRegistrarUI()"><i class="bi bi-plus-circle me-1"></i>Registrar adelanto</button>
+                    <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="nomAdelantoRegistrarUI()"><span class="icono-anim me-1" data-icono="mas-circulo"></span>Registrar adelanto</button>
                     <small class="text-muted">Se empieza a descontar en la nómina del mes de su fecha.</small>
                 </div>
                 <div id="adelantosBox"></div>
             </div>
             <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold mb-2"><i class="bi bi-calendar-heart me-2"></i>Submayor de vacaciones</h6>
+                <h6 class="fw-bold mb-2"><span class="icono-anim me-2" data-icono="calendario"></span>Submayor de vacaciones</h6>
                 <div id="vacSubmayorBox"></div>
             </div>
             <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold mb-2"><i class="bi bi-diagram-3 me-2"></i>Costo laboral por centro de costo</h6>
+                <h6 class="fw-bold mb-2"><span class="icono-anim me-2" data-icono="nodos"></span>Costo laboral por centro de costo</h6>
                 <div id="costoCentrosBox"></div>
             </div>
             <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold mb-2"><i class="bi bi-percent me-2"></i>Parámetros fiscales de la nómina</h6>
+                <h6 class="fw-bold mb-2"><span class="icono-anim me-2" data-icono="porciento"></span>Parámetros fiscales de la nómina</h6>
                 <div id="nominaParamsBox"></div>
             </div>
             <div id="nominaDocBox" class="d-none"></div>
 
             <div class="card p-3 p-md-4 mb-3" id="cardPuestos">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-briefcase me-2"></i>Puestos de trabajo</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="maletin"></span>Puestos de trabajo</h6>
                 <div class="d-flex gap-2 mb-2">
                     <input id="puestoNombre" class="form-control" maxlength="80" placeholder="Nombre del puesto (ej. Cajero)">
-                    <button class="btn btn-outline-primary" id="btnAddPuesto"><i class="bi bi-plus-lg"></i> Añadir</button>
+                    <button class="btn btn-outline-primary" id="btnAddPuesto"><span class="icono-anim" data-icono="mas"></span> Añadir</button>
                 </div>
                 <div id="puestosList"></div>
                 <small class="text-muted d-block mt-2">Al crear o editar un trabajador podrás elegir su cargo de esta lista.</small>
@@ -1208,13 +1208,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="row g-3">
                 <div class="col-lg-7">
                     <div class="card p-3 p-md-4 h-100">
-                        <h6 class="fw-semibold mb-3"><i class="bi bi-bank me-2"></i>Aportes derivados de la nómina</h6>
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="banco"></span>Aportes derivados de la nómina</h6>
                         <div id="nominaAportesDetalle" class="aporte-box"></div>
                     </div>
                 </div>
                 <div class="col-lg-5">
                     <div class="card p-3 p-md-4 h-100">
-                        <h6 class="fw-semibold mb-3"><i class="bi bi-info-circle me-2"></i>Qué incluye</h6>
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="info"></span>Qué incluye</h6>
                         <div class="small text-secondary">
                             <p class="mb-2"><b>Empleador:</b> Impuesto por Utilización de la Fuerza de Trabajo (5%) y Contribución a la Seguridad Social (14%).</p>
                             <p class="mb-2"><b>Trabajador:</b> Contribución Especial a la Seguridad Social y el Impuesto sobre Ingresos Personales retenidos del salario.</p>
@@ -1227,10 +1227,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mt-3" id="nominaSociosCard" style="display:none;">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                     <div>
-                        <h6 class="fw-semibold mb-1"><i class="bi bi-people-fill me-2"></i>Utilidades de socios</h6>
+                        <h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="usuarios"></span>Utilidades de socios</h6>
                         <div class="small text-secondary">Pagos de utilidades trimestrales. No llevan descuentos de nómina.</div>
                     </div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" id="btnIrTrimestresDesdeNomina"><i class="bi bi-bar-chart-line me-1"></i> Ver trimestres</button>
+                    <button class="btn btn-sm btn-outline-primary" type="button" id="btnIrTrimestresDesdeNomina"><span class="icono-anim me-1" data-icono="grafico"></span> Ver trimestres</button>
                 </div>
                 <div id="nominaSociosUtilidades"></div>
             </div>
@@ -1241,7 +1241,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-utilidades">
             <div class="tri-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                 <div>
-                    <h5 class="fw-bold mb-1"><i class="bi bi-bar-chart-line-fill me-2" style="color:#b45309"></i>Trimestres y utilidades</h5>
+                    <h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="grafico" style="color:#b45309"></span>Trimestres y utilidades</h5>
                     <div class="small text-secondary">Resumen trimestral, contingencia, impuesto sobre utilidades y saldo disponible para socios.</div>
                 </div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -1265,35 +1265,35 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-xl-8">
                     <div class="card p-3 p-md-4 h-100">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                            <div><h6 class="fw-semibold mb-1"><i class="bi bi-bank me-2"></i>Fondo de contingencia</h6><div class="small text-secondary">Acumulado del 10% generado por los trimestres del año.</div></div>
-                            <button class="btn btn-sm btn-outline-warning" id="btnExtraerContingencia"><i class="bi bi-box-arrow-right me-1"></i> Registrar extracción</button>
+                            <div><h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="banco"></span>Fondo de contingencia</h6><div class="small text-secondary">Acumulado del 10% generado por los trimestres del año.</div></div>
+                            <button class="btn btn-sm btn-outline-warning" id="btnExtraerContingencia"><span class="icono-anim me-1" data-icono="salir"></span> Registrar extracción</button>
                         </div>
                         <div id="triContingenciaDetalle"></div>
                     </div>
                 </div>
                 <div class="col-xl-4">
                     <div class="card p-3 p-md-4 h-100">
-                        <h6 class="fw-semibold mb-3"><i class="bi bi-calculator me-2"></i>Control del 35%</h6>
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>Control del 35%</h6>
                         <div id="triControl35"></div>
                     </div>
                 </div>
             </div>
 
             <div class="card p-3 p-md-4 mb-3">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-grid-3x3-gap me-2"></i>Acumulados del año</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="cuadricula"></span>Acumulados del año</h6>
                 <div class="row g-3" id="triAcumulados"></div>
             </div>
 
             <div class="card p-3 p-md-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <div><h6 class="fw-semibold mb-1"><i class="bi bi-receipt-cutoff me-2"></i>Resumen de pagos ONAT</h6><div class="small text-secondary">Se construye con los aportes ONAT realmente registrados en los movimientos.</div></div>
+                    <div><h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="factura"></span>Resumen de pagos ONAT</h6><div class="small text-secondary">Se construye con los aportes ONAT realmente registrados en los movimientos.</div></div>
                 </div>
                 <div class="table-responsive"><div id="triOnatResumen"></div></div>
             </div>
 
             <div class="card p-3 p-md-4 mt-3">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <div><h6 class="fw-semibold mb-1"><i class="bi bi-flag-checkered me-2"></i>Cierre anual</h6><div class="small text-secondary">Resumen del año para el cierre contable.</div></div>
+                    <div><h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="bandera"></span>Cierre anual</h6><div class="small text-secondary">Resumen del año para el cierre contable.</div></div>
                     <div class="d-flex align-items-center gap-2">
                         <label class="small text-secondary" for="cierreAnio">Año</label>
                         <select class="form-select form-select-sm" id="cierreAnio" style="width:auto"></select>
@@ -1307,15 +1307,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <!-- FISCAL / VECTOR ONAT -->
         <div class="tab-pane fade" id="pane-fiscal">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                <div><h5 class="fw-bold mb-1"><i class="bi bi-file-earmark-check me-2" style="color:#7c3aed"></i>Vector Fiscal y obligaciones ONAT</h5></div>
-                <div class="d-flex gap-2 flex-wrap"><span class="badge bg-soft-secondary px-3 py-2" id="vectorEstadoBadge">Sin vector</span><label class="btn btn-sm btn-primary mb-0" for="vectorPdfInput"><i class="bi bi-filetype-pdf me-1"></i> Importar RC-04A</label><input id="vectorPdfInput" type="file" accept="application/pdf" hidden><button class="btn btn-sm btn-outline-secondary" id="btnFiscalManual"><i class="bi bi-plus-lg me-1"></i> Obligación manual</button></div>
+                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="doc-check" style="color:#7c3aed"></span>Vector Fiscal y obligaciones ONAT</h5></div>
+                <div class="d-flex gap-2 flex-wrap"><span class="badge bg-soft-secondary px-3 py-2" id="vectorEstadoBadge">Sin vector</span><label class="btn btn-sm btn-primary mb-0" for="vectorPdfInput"><span class="icono-anim me-1" data-icono="doc"></span> Importar RC-04A</label><input id="vectorPdfInput" type="file" accept="application/pdf" hidden><button class="btn btn-sm btn-outline-secondary" id="btnFiscalManual"><span class="icono-anim me-1" data-icono="mas"></span> Obligación manual</button></div>
             </div>
             <div class="vector-meta mb-3" id="vectorMetaBox">
                 <div><small>NIT</small><b id="vectorNIT">—</b></div><div><small>Contribuyente</small><b id="vectorRazon">—</b></div><div><small>Municipio</small><b id="vectorDPA">—</b></div><div><small>Año</small><b id="vectorAnio">—</b></div><div><small>Fuente</small><b id="vectorFuente">—</b></div>
             </div>
             <div class="row g-3 mb-3" id="vectorCatalogos">
-                <div class="col-lg-5"><div class="card p-3 h-100"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-semibold mb-0"><i class="bi bi-briefcase me-2"></i>Actividades registradas</h6><span class="badge bg-soft-secondary" id="vectorActCount">0</span></div><div id="vectorActividades" class="small text-secondary">—</div></div></div>
-                <div class="col-lg-7"><div class="card p-3 h-100"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-semibold mb-0"><i class="bi bi-receipt me-2"></i>Tributos del Vector</h6><span class="badge bg-soft-secondary" id="vectorTribCount">0</span></div><div id="vectorTributos" class="small text-secondary">—</div></div></div>
+                <div class="col-lg-5"><div class="card p-3 h-100"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="maletin"></span>Actividades registradas</h6><span class="badge bg-soft-secondary" id="vectorActCount">0</span></div><div id="vectorActividades" class="small text-secondary">—</div></div></div>
+                <div class="col-lg-7"><div class="card p-3 h-100"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="factura"></span>Tributos del Vector</h6><span class="badge bg-soft-secondary" id="vectorTribCount">0</span></div><div id="vectorTributos" class="small text-secondary">—</div></div></div>
             </div>
             <div class="row g-3 mb-3">
                 <div class="col-6 col-lg-3"><div class="module-kpi"><small>Obligaciones del Vector</small><strong id="fiscalKpiTotal">0</strong></div></div>
@@ -1324,25 +1324,25 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-6 col-lg-3"><div class="module-kpi"><small>Próximo vencimiento</small><strong id="fiscalKpiVence">—</strong></div></div>
             </div>
             <div class="card p-3 p-md-4 mb-3">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><div><h6 class="fw-semibold mb-1"><i class="bi bi-calendar2-check me-2"></i>Obligaciones tributarias</h6></div><select class="form-select form-select-sm" style="width:auto" id="fiscalFiltro"><option value="periodo">Período actual</option><option value="vector">Año del Vector</option><option value="pendientes">Pendientes</option><option value="todas">Todas</option></select></div>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><div><h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="calendario-check"></span>Obligaciones tributarias</h6></div><select class="form-select form-select-sm" style="width:auto" id="fiscalFiltro"><option value="periodo">Período actual</option><option value="vector">Año del Vector</option><option value="pendientes">Pendientes</option><option value="todas">Todas</option></select></div>
                 <div class="table-responsive"><table class="table table-hover align-middle fiscal-table mb-0"><thead><tr><th>Código</th><th>Concepto</th><th>Período</th><th>Vence</th><th class="text-end">Importe</th><th>Origen</th><th>Estado</th><th></th></tr></thead><tbody id="fiscalBody"></tbody></table></div>
                 <div class="text-center text-muted py-4" id="fiscalVacio" style="display:none">Importa el Vector Fiscal de ONAT o añade una obligación manual.</div>
             </div>
             <div class="row g-3">
-                <div class="col-12"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-3"><i class="bi bi-calculator me-2"></i>Cálculos del período actual</h6><div id="fiscalCalculos" class="aporte-box"></div></div></div>
+                <div class="col-12"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>Cálculos del período actual</h6><div id="fiscalCalculos" class="aporte-box"></div></div></div>
             </div>
         </div>
 
         <!-- DECLARACIÓN JURADA (DJ automática) -->
         <div class="tab-pane fade" id="pane-dj">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                <div><h5 class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2" style="color:#0f766e"></i>Declaración Jurada automática</h5><div class="small text-secondary">Borrador calculado desde tus movimientos, nómina y pagos ONAT clasificados. La firma y la presentación ante la ONAT siguen siendo tuyas.</div></div>
-                <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="djAnioSel">Año fiscal</label><select id="djAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="pane-dj"><i class="bi bi-printer me-1"></i>PDF</button></div>
+                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="doc" style="color:#0f766e"></span>Declaración Jurada automática</h5><div class="small text-secondary">Borrador calculado desde tus movimientos, nómina y pagos ONAT clasificados. La firma y la presentación ante la ONAT siguen siendo tuyas.</div></div>
+                <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="djAnioSel">Año fiscal</label><select id="djAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="pane-dj"><span class="icono-anim me-1" data-icono="impresora"></span>PDF</button></div>
             </div>
             <div id="djAvisos" class="mb-3"></div>
             <div id="djJustificacionBox" class="mb-3"></div>
             <div class="card p-3 p-md-4 mb-3">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-person-vcard me-2"></i>Ficha fiscal del negocio</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Ficha fiscal del negocio</h6>
                 <div class="row g-2">
                     <div class="col-md-3"><label class="form-label small mb-1">Régimen</label><select id="djFichaRegimen" class="form-select form-select-sm"><option value="tcp_general">TCP · Régimen general</option><option value="tcp_simplificado">TCP · Régimen simplificado</option><option value="mipyme">MIPYME</option></select></div>
                     <div class="col-md-3"><label class="form-label small mb-1">NIT</label><input id="djFichaNIT" class="form-control form-control-sm" placeholder="NIT del contribuyente"></div>
@@ -1351,10 +1351,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-md-5"><label class="form-label small mb-1">Actividad</label><input id="djFichaActividad" class="form-control form-control-sm"></div>
                     <div class="col-md-3"><label class="form-label small mb-1">Fecha de inscripción</label><input id="djFichaFecha" type="date" class="form-control form-control-sm"></div>
                 </div>
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"><span class="small text-secondary">Si ya importaste el Vector Fiscal (RC-04A), el NIT, el nombre y el municipio se toman de ahí.</span><button class="btn btn-sm btn-primary" id="btnDjGuardarFicha"><i class="bi bi-check2-circle me-1"></i> Guardar ficha</button></div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"><span class="small text-secondary">Si ya importaste el Vector Fiscal (RC-04A), el NIT, el nombre y el municipio se toman de ahí.</span><button class="btn btn-sm btn-primary" id="btnDjGuardarFicha"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar ficha</button></div>
             </div>
             <div class="card p-3 p-md-4 mb-3">
-                <h6 class="fw-semibold mb-1"><i class="bi bi-sliders me-2"></i>Parámetros del año fiscal <span id="djParAnio" class="text-secondary"></span></h6>
+                <h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="ajustes"></span>Parámetros del año fiscal <span id="djParAnio" class="text-secondary"></span></h6>
                 <div class="small text-secondary mb-3">La Ley Anual del Presupuesto puede cambiarlos: contrasta siempre contra el modelo oficial del año (DJ-08 / DJ-01) publicado por la ONAT.</div>
                 <div class="row g-2">
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Mínimo exento IIP (CUP)</label><input id="djParExento" type="number" min="0" step="1" class="form-control form-control-sm"></div>
@@ -1367,11 +1367,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala dividendos de socios (tope:tasa%)</label><input id="djParEscalaDiv" class="form-control form-control-sm" placeholder="75000:3, 150000:5, 250000:10, 350000:15, :20"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Retención anticipos de dividendos %</label><input id="djParRetDiv" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
                 </div>
-                <div class="text-end mt-3"><button class="btn btn-sm btn-primary" id="btnDjGuardarParams"><i class="bi bi-check2-circle me-1"></i> Guardar parámetros del año</button></div>
+                <div class="text-end mt-3"><button class="btn btn-sm btn-primary" id="btnDjGuardarParams"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar parámetros del año</button></div>
             </div>
             <div id="djCalcTCP">
                 <div class="card p-3 p-md-4 mb-3">
-                    <h6 class="fw-semibold mb-3"><i class="bi bi-calculator me-2"></i><span id="djTituloTCP">DJ-08 · Impuesto sobre Ingresos Personales</span></h6>
+                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span><span id="djTituloTCP">DJ-08 · Impuesto sobre Ingresos Personales</span></h6>
                     <div class="row g-2 mb-3">
                         <div class="col-6 col-md-3"><label class="form-label small mb-1">Gastos con justificante (CUP, opcional)</label><input id="djGastosJust" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Vacío = todos"></div>
                         <div class="col-6 col-md-3"><label class="form-label small mb-1">Arrendamiento a entidades estatales (CUP)</label><input id="djArrend" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
@@ -1382,14 +1382,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div id="djLineasTCP" class="aporte-box"></div>
                 </div>
                 <div class="card p-3 p-md-4 mb-3">
-                    <h6 class="fw-semibold mb-3"><i class="bi bi-people me-2"></i>Sección I · Trabajadores contratados (desde la nómina)</h6>
+                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="usuarios"></span>Sección I · Trabajadores contratados (desde la nómina)</h6>
                     <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Trabajador</th><th>NIT (CI)</th><th>Municipio</th><th>Período</th><th class="text-end">Remuneración anual</th></tr></thead><tbody id="djSeccionIBody"></tbody></table></div>
                     <div id="djSeccionIVacio" class="text-muted small mt-2" style="display:none">Sin trabajadores registrados en la nómina de este año.</div>
                 </div>
             </div>
             <div id="djCalcMIPYME" style="display:none">
                 <div class="card p-3 p-md-4 mb-3">
-                    <h6 class="fw-semibold mb-3"><i class="bi bi-calculator me-2"></i>DJ-01 · Impuesto sobre Utilidades</h6>
+                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>DJ-01 · Impuesto sobre Utilidades</h6>
                     <div class="row g-2 mb-3">
                         <div class="col-6 col-md-4"><label class="form-label small mb-1">Pérdidas fiscales de años anteriores (CUP)</label><input id="djPerdidas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
                         <div class="col-6 col-md-4"><label class="form-label small mb-1">Reservas autorizadas antes del impuesto (CUP)</label><input id="djReservas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
@@ -1399,7 +1399,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="small text-secondary mt-2">La DJ-01 se presenta solo en formato digital con firma electrónica (servicio de la ONAT); usa esta hoja como borrador de cálculo.</div>
                 </div>
                 <div class="card p-3 p-md-4 mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-people me-2"></i>DJ de socios por dividendos</h6><button class="btn btn-sm btn-outline-primary" id="btnDjAddSocio"><i class="bi bi-plus-lg me-1"></i> Socio</button></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="usuarios"></span>DJ de socios por dividendos</h6><button class="btn btn-sm btn-outline-primary" id="btnDjAddSocio"><span class="icono-anim me-1" data-icono="mas"></span> Socio</button></div>
                     <div id="djSociosBox"></div>
                 </div>
             </div>
@@ -1407,11 +1407,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <!-- CONTABILIDAD · PARTIDA DOBLE -->
         <div class="tab-pane fade" id="pane-conta">
-            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><i class="bi bi-journal-bookmark me-2" style="color:#0f766e"></i>Contabilidad · Partida doble</h5><div class="small text-secondary">Se genera sola desde tus movimientos: el importador de estados de cuenta contabiliza automáticamente lo claro; lo dudoso queda en rojo en la bandeja hasta que lo clasifiques (y la decisión se aprende como regla del negocio). Los estados salen solo de los asientos.</div></div>
-            <div class="d-flex gap-2 flex-wrap align-items-center"><label class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" id="contaActiva"> Contabilidad activa</label><button type="button" class="btn btn-sm btn-success" onclick="contaGenerar()"><i class="bi bi-gear-wide-connected me-1"></i> Generar contabilidad</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaRevalBtn()"><i class="bi bi-currency-exchange me-1"></i> Revalorizar USD del mes</button></div></div>
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="libro" style="color:#0f766e"></span>Contabilidad · Partida doble</h5><div class="small text-secondary">Se genera sola desde tus movimientos: el importador de estados de cuenta contabiliza automáticamente lo claro; lo dudoso queda en rojo en la bandeja hasta que lo clasifiques (y la decisión se aprende como regla del negocio). Los estados salen solo de los asientos.</div></div>
+            <div class="d-flex gap-2 flex-wrap align-items-center"><label class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" id="contaActiva"> Contabilidad activa</label><button type="button" class="btn btn-sm btn-success" onclick="contaGenerar()"><span class="icono-anim me-1" data-icono="ajustes"></span> Generar contabilidad</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaRevalBtn()"><span class="icono-anim me-1" data-icono="intercambio"></span> Revalorizar USD del mes</button></div></div>
             <div class="mb-3 d-flex flex-wrap gap-2 align-items-center"><span id="contaAvisoPend"></span><span class="small text-secondary" id="contaPreviewTxt"></span></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2 text-danger" data-icono="alerta"></span>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="idea"></span>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
             <div class="row g-3 mb-3"><div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Situación Financiera</h6><div id="contaSituacionBox"></div></div></div>
             <div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Resultados</h6><div class="mb-2"><select id="contaResCentro" class="form-select form-select-sm" style="width:auto"><option value="">Todos los centros</option></select></div><div id="contaResultadosBox"></div></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Balance de Comprobación</h6><div class="row g-2 align-items-end mb-2"><div class="col-md-2"><label class="form-label mb-1 small">Desde</label><input id="contaBalDesde" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Hasta</label><input id="contaBalHasta" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vista</label><select id="contaBalVista" class="form-select form-select-sm"><option value="6">6 columnas</option><option value="4">4 columnas</option><option value="2">2 columnas</option></select></div><div class="col-md-6"><span class="small text-secondary">Saldos iniciales (antes del «desde»), movimientos del período y saldos finales, directos del mayor. Sin fechas = todo el histórico como movimientos.</span></div></div><div id="contaBalanceBox"></div></div>
@@ -1420,10 +1420,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Submayores · Cuentas por Cobrar y por Pagar (con antigüedad)</h6><div id="contaSubBox"></div>
             <div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Nueva contraparte</label><input id="contaCpNombre" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo</label><select id="contaCpTipo" class="form-select form-select-sm"><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="ambos">Ambos</option></select></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddContraparte()">Crear contraparte</button></div></div>
             <div class="row g-2 align-items-end mt-2"><div class="col-md-2"><label class="form-label mb-1 small">Documento</label><select id="contaDocTipo" class="form-select form-select-sm"><option value="cxc">CxC (venta a crédito)</option><option value="cxp">CxP (compra/obligación)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Contraparte</label><select id="contaDocCp" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Nº / concepto</label><input id="contaDocNumero" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaDocFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vencimiento</label><input id="contaDocVenc" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaDocImporte" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Producto (inventario)</label><select id="contaDocProducto" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cant.</label><input id="contaDocCantidad" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-check small"><input type="checkbox" id="contaDocInv" class="form-check-input"> Es compra de inventario</label><br><label class="form-check small"><input type="checkbox" id="contaDocSaldoIni" class="form-check-input"> Saldo inicial (ya está en la apertura, sin asiento nuevo)</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddDocumento()">Guardar documento</button></div></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank me-2"></i>Conciliación bancaria</h6><p class="small text-secondary">Se alimenta sola de los estados de cuenta que importas: al importar, el saldo final según banco y las operaciones con sus referencias quedan guardados aquí. La conciliación cruza libros contra banco por referencia y lista las partidas conciliatorias; queda «Conciliada» solo si la diferencia es 0 o queda explicada por esas partidas.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta financiera</label><select id="contaConcCuenta" class="form-select form-select-sm"></select></div><div class="col-md-3"><label class="form-label mb-1 small">Período</label><select id="contaConcPeriodo" class="form-select form-select-sm"></select></div><div class="col-md-6"><span class="small text-secondary">Saldo según libros = la cadena de saldos de la app en ese período (saldo inicial + movimientos). Saldo según banco = el del estado importado.</span></div></div><div id="contaConcBox"></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaConcDocBox','Conciliación bancaria')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div><div id="contaConcDocBox" class="border rounded p-3 mt-2"></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-calendar-check me-2"></i>Programador de pagos · Cuentas por Pagar por vencimiento</h6><p class="small text-secondary">Sale del submayor de CxP, sin duplicar datos. «Pagar» crea el movimiento bancario y su asiento en un paso, imputando el pago al documento.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Pagar desde la cuenta</label><select id="contaProgCuenta" class="form-select form-select-sm"></select></div><div class="col-md-9"><span class="small text-secondary">El pago se registra con fecha de hoy en el mes en curso, por el saldo pendiente completo del documento.</span></div></div><div id="contaProgBox"></div><div id="docProgBox" class="d-none"></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-file-earmark-diff me-2"></i>Notas de crédito y débito (CxC / CxP)</h6><p class="small text-secondary">Ajustan el saldo del documento elegido y el de su cuenta control con asiento automático, y se reflejan en la antigüedad del submayor. Una nota de crédito nunca deja el documento en negativo.</p><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label mb-1 small">Documento del submayor</label><select id="contaNotaDoc" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo de nota</label><select id="contaNotaTipo" class="form-select form-select-sm"><option value="credito">Nota de crédito</option><option value="debito">Nota de débito</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaNotaImporte" type="number" step="0.01" min="0" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaNotaFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Motivo</label><input id="contaNotaMotivo" class="form-control form-control-sm" placeholder="Devolución, rebaja…"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-primary" onclick="contaEmitirNotaBtn()">Emitir nota</button></div></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Nº</th><th>Tipo</th><th>Documento</th><th>Motivo</th><th>Fecha</th><th class="text-end">Importe</th></tr></thead><tbody id="contaNotasBox"></tbody></table></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-cash-stack me-2"></i>Arqueo de caja y cuentas de efectivo</h6><p class="small text-secondary">El saldo según libros sale solo del mayor contable; el único dato manual es el conteo físico. Si hay diferencia se genera el asiento de ajuste (faltante a gasto/pérdida, sobrante a otros ingresos) y queda el documento con sus firmas.</p><div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta a arquear</label><select id="contaArqCuenta" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaArqFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Conteo físico</label><input id="contaArqConteo" type="number" step="0.01" min="0" class="form-control form-control-sm" placeholder="0.00"></div><div class="col-md-2"><label class="form-label mb-1 small">Contó</label><input id="contaArqConto" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Revisó</label><input id="contaArqReviso" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-primary" onclick="contaArqueoBtn()">Arquear</button></div></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaArqueoDocBox','Documento de arqueo')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div><div id="contaArqueoDocBox" class="border rounded p-3 mt-2"></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Cuenta</th><th class="text-end">Según libros</th><th class="text-end">Conteo</th><th class="text-end">Diferencia</th><th>Contó</th><th>Revisó</th></tr></thead><tbody id="contaArqueosBox"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="banco"></span>Conciliación bancaria</h6><p class="small text-secondary">Se alimenta sola de los estados de cuenta que importas: al importar, el saldo final según banco y las operaciones con sus referencias quedan guardados aquí. La conciliación cruza libros contra banco por referencia y lista las partidas conciliatorias; queda «Conciliada» solo si la diferencia es 0 o queda explicada por esas partidas.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta financiera</label><select id="contaConcCuenta" class="form-select form-select-sm"></select></div><div class="col-md-3"><label class="form-label mb-1 small">Período</label><select id="contaConcPeriodo" class="form-select form-select-sm"></select></div><div class="col-md-6"><span class="small text-secondary">Saldo según libros = la cadena de saldos de la app en ese período (saldo inicial + movimientos). Saldo según banco = el del estado importado.</span></div></div><div id="contaConcBox"></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaConcDocBox','Conciliación bancaria')"><span class="icono-anim me-1" data-icono="impresora"></span>PDF del documento</button></div><div id="contaConcDocBox" class="border rounded p-3 mt-2"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="calendario-check"></span>Programador de pagos · Cuentas por Pagar por vencimiento</h6><p class="small text-secondary">Sale del submayor de CxP, sin duplicar datos. «Pagar» crea el movimiento bancario y su asiento en un paso, imputando el pago al documento.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Pagar desde la cuenta</label><select id="contaProgCuenta" class="form-select form-select-sm"></select></div><div class="col-md-9"><span class="small text-secondary">El pago se registra con fecha de hoy en el mes en curso, por el saldo pendiente completo del documento.</span></div></div><div id="contaProgBox"></div><div id="docProgBox" class="d-none"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="doc"></span>Notas de crédito y débito (CxC / CxP)</h6><p class="small text-secondary">Ajustan el saldo del documento elegido y el de su cuenta control con asiento automático, y se reflejan en la antigüedad del submayor. Una nota de crédito nunca deja el documento en negativo.</p><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label mb-1 small">Documento del submayor</label><select id="contaNotaDoc" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo de nota</label><select id="contaNotaTipo" class="form-select form-select-sm"><option value="credito">Nota de crédito</option><option value="debito">Nota de débito</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaNotaImporte" type="number" step="0.01" min="0" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaNotaFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Motivo</label><input id="contaNotaMotivo" class="form-control form-control-sm" placeholder="Devolución, rebaja…"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-primary" onclick="contaEmitirNotaBtn()">Emitir nota</button></div></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Nº</th><th>Tipo</th><th>Documento</th><th>Motivo</th><th>Fecha</th><th class="text-end">Importe</th></tr></thead><tbody id="contaNotasBox"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="billete"></span>Arqueo de caja y cuentas de efectivo</h6><p class="small text-secondary">El saldo según libros sale solo del mayor contable; el único dato manual es el conteo físico. Si hay diferencia se genera el asiento de ajuste (faltante a gasto/pérdida, sobrante a otros ingresos) y queda el documento con sus firmas.</p><div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta a arquear</label><select id="contaArqCuenta" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaArqFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Conteo físico</label><input id="contaArqConteo" type="number" step="0.01" min="0" class="form-control form-control-sm" placeholder="0.00"></div><div class="col-md-2"><label class="form-label mb-1 small">Contó</label><input id="contaArqConto" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Revisó</label><input id="contaArqReviso" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-primary" onclick="contaArqueoBtn()">Arquear</button></div></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaArqueoDocBox','Documento de arqueo')"><span class="icono-anim me-1" data-icono="impresora"></span>PDF del documento</button></div><div id="contaArqueoDocBox" class="border rounded p-3 mt-2"></div><div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Cuenta</th><th class="text-end">Según libros</th><th class="text-end">Conteo</th><th class="text-end">Diferencia</th><th>Contó</th><th>Revisó</th></tr></thead><tbody id="contaArqueosBox"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Inventario integrado (costo promedio ponderado)</h6><div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr><th>Código</th><th>Producto</th><th class="text-end">Existencia</th><th class="text-end">Costo promedio</th><th class="text-end">Valoración</th></tr></thead><tbody id="contaInvBody"></tbody></table></div>
             <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaProdCodigo" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label mb-1 small">Nuevo producto</label><input id="contaProdNombre" class="form-control form-control-sm"></div><div class="col-md-1"><label class="form-label mb-1 small">Unidad</label><input id="contaProdUnidad" class="form-control form-control-sm" value="u"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddProducto()">Crear producto</button></div></div>
             <div class="row g-2 align-items-end mt-2"><div class="col-md-3"><label class="form-label mb-1 small">Producto</label><select id="contaInvProd" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cantidad</label><input id="contaInvCant" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Costo unitario (entradas)</label><input id="contaInvCosto" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Contrapartida entrada</label><select id="contaInvContra" class="form-select form-select-sm"><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option><option value="cxp">A crédito (CxP)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Proveedor (si es a crédito)</label><select id="contaInvCp" class="form-select form-select-sm"></select></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-success" onclick="contaInvEntrada()">Entrada</button></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-warning" onclick="contaInvSalida()">Salida</button></div></div></div>
@@ -1440,41 +1440,41 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaCtaCodigo" class="form-control form-control-sm" placeholder="110-040"></div><div class="col-md-3"><label class="form-label mb-1 small">Nombre</label><input id="contaCtaNombre" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Naturaleza</label><select id="contaCtaNat" class="form-select form-select-sm"><option value="deudora">Deudora</option><option value="acreedora">Acreedora</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Grupo</label><select id="contaCtaGrupo" class="form-select form-select-sm"><option value="activo">Activo</option><option value="pasivo">Pasivo</option><option value="patrimonio">Patrimonio</option><option value="ingreso">Ingreso</option><option value="costo">Costo</option><option value="gasto">Gasto</option><option value="cierre">Cierre</option></select></div><div class="col-md-1"><label class="form-label mb-1 small">Admite</label><select id="contaCtaAdmite" class="form-select form-select-sm"><option value="1">Sí</option><option value="0">No</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Auxiliar</label><select id="contaCtaAux" class="form-select form-select-sm"><option value="ninguno">Ninguno</option><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="trabajador">Trabajador</option><option value="socio">Socio</option><option value="banco">Banco</option><option value="almacen">Almacén / artículo</option><option value="centro">Centro de costo</option></select></div><div class="col-md-2"><label class="form-check small mt-3"><input type="checkbox" id="contaCtaAuxReq" class="form-check-input"> Auxiliar obligatorio</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCuenta()">Agregar cuenta</button></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div><div class="col-md-7 d-flex justify-content-end gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docCierreAnualPrint()"><i class="bi bi-printer me-1"></i>Imprimir cierre anual</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docBalanceAperturaPrint()"><i class="bi bi-printer me-1"></i>Imprimir Balance de Apertura</button></div></div><div id="docCierreBox" class="d-none"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><span class="icono-anim me-1" data-icono="candado"></span> Cerrar año contable</button></div><div class="col-md-7 d-flex justify-content-end gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docCierreAnualPrint()"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir cierre anual</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docBalanceAperturaPrint()"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir Balance de Apertura</button></div></div><div id="docCierreBox" class="d-none"></div></div>
         </div>
 
         <!-- GESTIÓN AMPLIADA · RONDAS 10-13 (blindaje, cumplimiento, gestión, profundidad) -->
         <div class="tab-pane fade" id="pane-gestion">
-            <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><i class="bi bi-grid-1x2 me-2" style="color:#0f766e"></i>Gestión ampliada</h5><div class="small text-secondary">Blindaje de datos, cumplimiento (Res. 86/2026, ONAT), gestión tipo Versat y profundidad. Todo nace de los estados de cuenta, los submayores y el mayor: sin pasos manuales nuevos en el flujo normal.</div></div>
+            <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="cuadricula" style="color:#0f766e"></span>Gestión ampliada</h5><div class="small text-secondary">Blindaje de datos, cumplimiento (Res. 86/2026, ONAT), gestión tipo Versat y profundidad. Todo nace de los estados de cuenta, los submayores y el mayor: sin pasos manuales nuevos en el flujo normal.</div></div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjBlindajeCard">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-shield-lock me-2"></i>Blindaje de datos (ronda 10)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="escudo"></span>Blindaje de datos (ronda 10)</h6>
                 <div id="mjTamanoBox" class="small mb-3">Calculando tamaño del documento…</div>
                 <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDescargarCopiaUI()"><i class="bi bi-download me-1"></i>Descargar copia local (JSON)</button>
-                    <label class="btn btn-sm btn-outline-secondary mb-0"><i class="bi bi-upload me-1"></i>Restaurar copia local<input type="file" accept=".json" class="d-none" onchange="mjRestaurarCopiaUI(this)"></label>
-                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="mjRestaurarServidorUI()"><i class="bi bi-clock-history me-1"></i>Restaurar última versión buena del servidor</button>
-                    <button type="button" class="btn btn-sm btn-outline-success" onclick="mjAltaPrestamoUI()"><i class="bi bi-bank me-1"></i>Alta guiada: cuenta de préstamos a corto plazo (412-000)</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDescargarCopiaUI()"><span class="icono-anim me-1" data-icono="descargar"></span>Descargar copia local (JSON)</button>
+                    <label class="btn btn-sm btn-outline-secondary mb-0"><span class="icono-anim me-1" data-icono="subir"></span>Restaurar copia local<input type="file" accept=".json" class="d-none" onchange="mjRestaurarCopiaUI(this)"></label>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="mjRestaurarServidorUI()"><span class="icono-anim me-1" data-icono="reloj"></span>Restaurar última versión buena del servidor</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="mjAltaPrestamoUI()"><span class="icono-anim me-1" data-icono="banco"></span>Alta guiada: cuenta de préstamos a corto plazo (412-000)</button>
                 </div>
                 <div class="row g-2 mt-3">
                     <div class="col-auto"><input type="number" class="form-control form-control-sm" id="mjAnioReabrir" placeholder="Año" style="width:110px"></div>
-                    <div class="col-auto"><button type="button" class="btn btn-sm btn-danger" onclick="mjReabrirUI()"><i class="bi bi-unlock me-1"></i>Reabrir año cerrado (con rastro)</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-danger" onclick="mjReabrirUI()"><span class="icono-anim me-1" data-icono="candado"></span>Reabrir año cerrado (con rastro)</button></div>
                 </div>
                 <div class="small text-secondary mt-2">La reapertura contraasienta los comprobantes del cierre y deja constancia de quién, cuándo y por qué. Solo administrador.</div>
                 <div id="mjBitacoraBox" class="small mt-3"></div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjCumplCard">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-file-earmark-check me-2"></i>Cumplimiento (ronda 11)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="doc-check"></span>Cumplimiento (ronda 11)</h6>
                 <div id="mjRegistroBox" class="small mb-3"></div>
                 <div id="mjEfectivoBox" class="small mb-3"></div>
                 <div id="mjMotorBox" class="small mb-3"></div>
                 <div class="row g-2 align-items-end mb-2">
                     <div class="col-auto"><label class="form-label small mb-0">Año para estados y DJ</label><input type="number" class="form-control form-control-sm" id="mjAnioEstados" style="width:110px"></div>
-                    <div class="col-auto"><button type="button" class="btn btn-sm btn-primary" onclick="mjEstadosUI()"><i class="bi bi-journal-text me-1"></i>Flujo de efectivo + Cambios en el patrimonio</button></div>
-                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDJUtilidadesUI()"><i class="bi bi-pen me-1"></i>DJ de Utilidades PJ (salida para firma)</button></div>
-                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-success" onclick="mjReservaUI()"><i class="bi bi-piggy-bank me-1"></i>Dotar reserva de contingencias</button></div>
-                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="mjExportarEstadosCSV()"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Exportar (CSV/Excel)</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-primary" onclick="mjEstadosUI()"><span class="icono-anim me-1" data-icono="doc"></span>Flujo de efectivo + Cambios en el patrimonio</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDJUtilidadesUI()"><span class="icono-anim me-1" data-icono="lapiz"></span>DJ de Utilidades PJ (salida para firma)</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-success" onclick="mjReservaUI()"><span class="icono-anim me-1" data-icono="monedas"></span>Dotar reserva de contingencias</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="mjExportarEstadosCSV()"><span class="icono-anim me-1" data-icono="tabla"></span>Exportar (CSV/Excel)</button></div>
                 </div>
                 <div id="mjEstadosBox" class="small mb-3"></div>
                 <div id="mjCalendarioBox" class="small mb-3"></div>
@@ -1482,18 +1482,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjKycCard">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-person-vcard me-2"></i>Gestor · Resolución 86/2026 (confidencial, solo tú)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Gestor · Resolución 86/2026 (confidencial, solo tú)</h6>
                 <div class="small text-secondary mb-2">Debida diligencia (KYC) con beneficiario final <b>antes</b> del servicio, evaluación de riesgo, señales de alerta sobre los datos reales, registro de operaciones sospechas (ROS, sin avisar al cliente) y lista de abstención. Archivo confidencial: 5 años.</div>
                 <div id="mjKycBox" class="small"></div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjGestionCard">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-kanban me-2"></i>Gestión (ronda 12)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="cuadricula"></span>Gestión (ronda 12)</h6>
                 <div id="mjIndicadoresBox" class="small mb-3"></div>
                 <div id="mjAlertasBox" class="small mb-3"></div>
                 <div id="mjFlujoProyBox" class="small mb-3"></div>
                 <hr>
-                <h6 class="fw-semibold mb-2"><i class="bi bi-receipt me-2"></i>Facturación integrada</h6>
+                <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="factura"></span>Facturación integrada</h6>
                 <div class="row g-2 align-items-end mb-2">
                     <div class="col-md-3"><label class="form-label small mb-0">Cliente (contraparte)</label><select id="mjFacCliente" class="form-select form-select-sm"></select></div>
                     <div class="col-md-2"><label class="form-label small mb-0">Fecha</label><input type="date" id="mjFacFecha" class="form-control form-control-sm"></div>
@@ -1502,8 +1502,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-md-1"><label class="form-label small mb-0">Cant.</label><input type="number" id="mjFacCant" class="form-control form-control-sm" value="1" min="0" step="any"></div>
                     <div class="col-md-1"><label class="form-label small mb-0">Precio</label><input type="number" id="mjFacPrecio" class="form-control form-control-sm" value="0" min="0" step="any"></div>
                 </div>
-                <div class="d-flex gap-2 flex-wrap mb-2"><button type="button" class="btn btn-sm btn-success" onclick="mjFacturaCrearUI()"><i class="bi bi-plus-lg me-1"></i>Crear factura</button>
-                <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDepreciacionAFUI()"><i class="bi bi-calculator me-1"></i>Depreciación mensual de AFT (con comprobante)</button></div>
+                <div class="d-flex gap-2 flex-wrap mb-2"><button type="button" class="btn btn-sm btn-success" onclick="mjFacturaCrearUI()"><span class="icono-anim me-1" data-icono="mas"></span>Crear factura</button>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDepreciacionAFUI()"><span class="icono-anim me-1" data-icono="calculadora"></span>Depreciación mensual de AFT (con comprobante)</button></div>
                 <div id="mjFacturasBox" class="small mb-3"></div>
                 <div id="mjPatronesBox" class="small mb-3"></div>
                 <div id="mjPresupuestoBox" class="small mb-3"></div>
@@ -1519,13 +1519,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-md-2"><label class="form-label small mb-0">Indirectos</label><input type="number" id="mjFcInd" class="form-control form-control-sm" value="0"></div>
                     <div class="col-md-1"><label class="form-label small mb-0">Unid.</label><input type="number" id="mjFcUnid" class="form-control form-control-sm" value="1"></div>
                     <div class="col-md-1"><label class="form-label small mb-0">Margen %</label><input type="number" id="mjFcMargen" class="form-control form-control-sm" value="0"></div>
-                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-primary w-100" onclick="mjFichaCostosUI()"><i class="bi bi-file-earmark-text me-1"></i>Ficha de costos 148/2023</button></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-primary w-100" onclick="mjFichaCostosUI()"><span class="icono-anim me-1" data-icono="doc"></span>Ficha de costos 148/2023</button></div>
                 </div>
                 <div id="mjFichaBox" class="small mt-2"></div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjProfCard">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-diagram-3 me-2"></i>Profundidad (ronda 13)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="nodos"></span>Profundidad (ronda 13)</h6>
                 <div id="mjCentrosBox" class="small mb-3"></div>
                 <div id="mjOrdenesBox" class="small mb-3"></div>
                 <div id="mjCreditosBox" class="small mb-3"></div>
@@ -1533,7 +1533,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="row g-2 align-items-end mb-2">
                     <div class="col-auto"><label class="form-label small mb-0">Fecha del IPV</label><input type="date" id="mjIpvFecha" class="form-control form-control-sm"></div>
                     <div class="col-auto"><label class="form-label small mb-0">Cajero</label><input id="mjIpvCajero" class="form-control form-control-sm" placeholder="Nombre"></div>
-                    <div class="col-auto"><button type="button" class="btn btn-sm btn-primary" onclick="mjIPVUI()"><i class="bi bi-shop me-1"></i>IPV del turno y cierre de cajero</button></div>
+                    <div class="col-auto"><button type="button" class="btn btn-sm btn-primary" onclick="mjIPVUI()"><span class="icono-anim me-1" data-icono="tienda"></span>IPV del turno y cierre de cajero</button></div>
                 </div>
                 <div id="mjIpvBox" class="small mb-3"></div>
                 <div id="mjLaboralBox" class="small mb-3"></div>
@@ -1546,20 +1546,20 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
         <div class="tab-pane fade" id="pane-gestor">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                <div><h5 class="fw-bold mb-1"><i class="bi bi-briefcase me-2" style="color:#7c3aed"></i>Panel del Gestor</h5><div class="small text-secondary">Todos tus clientes (TCP y MIPYME) en una vista: cierres, vencimientos ONAT, justificación de gastos y tu cobro. Los importes salen de los datos reales de cada negocio.</div></div>
-                <div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" id="btnGestorRefrescar"><i class="bi bi-arrow-clockwise me-1"></i>Actualizar datos</button><button type="button" class="btn btn-sm btn-primary" id="btnAltaRapida"><i class="bi bi-person-plus me-1"></i>Alta rápida de cliente</button></div>
+                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="maletin" style="color:#7c3aed"></span>Panel del Gestor</h5><div class="small text-secondary">Todos tus clientes (TCP y MIPYME) en una vista: cierres, vencimientos ONAT, justificación de gastos y tu cobro. Los importes salen de los datos reales de cada negocio.</div></div>
+                <div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" id="btnGestorRefrescar"><span class="icono-anim me-1" data-icono="sincronizar"></span>Actualizar datos</button><button type="button" class="btn btn-sm btn-primary" id="btnAltaRapida"><span class="icono-anim me-1" data-icono="usuario-mas"></span>Alta rápida de cliente</button></div>
             </div>
             <div id="gestorAlertas" class="mb-3"></div>
-            <h6 class="fw-semibold mb-2"><i class="bi bi-people me-2"></i>Clientes</h6>
+            <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="usuarios"></span>Clientes</h6>
             <div id="gestorClientes" class="row g-3 mb-4"><div class="col-12 text-secondary small">Cargando datos de los negocios…</div></div>
             <div id="gestorDetalle" class="mb-4"></div>
             <div class="card p-3 p-md-4 mb-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-calendar3 me-2"></i>Calendario de vencimientos ONAT</h6>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="calendario"></span>Calendario de vencimientos ONAT</h6>
                 <div class="d-flex gap-2 flex-wrap align-items-center"><input type="month" id="gestorCalMes" class="form-control form-control-sm" style="width:auto"><select id="gestorCalNeg" class="form-select form-select-sm" style="width:auto"><option value="">Todos los negocios</option></select><select id="gestorCalEstado" class="form-select form-select-sm" style="width:auto"><option value="">Todos los estados</option><option value="paid">Pagadas</option><option value="pending">Pendientes</option><option value="vencida">Vencidas</option></select></div></div>
                 <div id="gestorCalendario"><div class="text-secondary small">Sin datos todavía.</div></div>
             </div>
             <div class="card p-3 p-md-4 mb-3">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-cash-coin me-2"></i>Cobro de mis servicios como gestor</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="monedas"></span>Cobro de mis servicios como gestor</h6>
                 <div class="small text-secondary mb-3">Esto es TU control interno como gestor: no forma parte de los libros de ningún cliente.</div>
                 <div id="gestorCobros"><div class="text-secondary small">Sin datos todavía.</div></div>
             </div>
@@ -1568,18 +1568,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
         <!-- TASAS BCC -->
         <div class="tab-pane fade" id="pane-tasas">
-            <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><i class="bi bi-currency-exchange me-2" style="color:#0369a1"></i>Tasas de cambio</h5><div class="small text-secondary">Consulta la tasa del Banco Central de Cuba por fecha y moneda.</div></div>
+            <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="intercambio" style="color:#0369a1"></span>Tasas de cambio</h5><div class="small text-secondary">Consulta la tasa del Banco Central de Cuba por fecha y moneda.</div></div>
             <div class="row g-3 mb-3">
-                <div class="col-lg-5"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-3">Consultar Banco Central de Cuba</h6><div class="row g-2"><div class="col-6"><label class="form-label">Fecha</label><input type="date" class="form-control" id="fxFecha"></div><div class="col-3"><label class="form-label">Moneda</label><select class="form-select" id="fxMoneda"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>MXN</option><option>RUB</option><option>CNY</option><option>JPY</option></select></div><div class="col-3"><label class="form-label">Segmento</label><select class="form-select" id="fxSegmento"><option value="III">III</option><option value="II">II</option><option value="I">I</option></select></div><div class="col-12 d-grid mt-2"><button class="btn btn-primary" id="btnConsultarBCC"><i class="bi bi-cloud-download me-1"></i> Consultar tasa</button></div></div><div class="fx-note mt-2">Segmento III seleccionado por defecto.</div></div></div>
-                <div class="col-lg-7"><div class="fx-result h-100 d-flex flex-column justify-content-center"><small class="text-muted">Resultado de la consulta</small><div class="fx-rate-big" id="fxResultado">—</div><div id="fxResultadoMeta" class="small text-secondary mt-1">Selecciona fecha y consulta.</div><div class="mt-3 d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-success" id="btnUsarTasaUSDIngreso" disabled><i class="bi bi-arrow-up-circle me-1"></i> Ingreso USD</button><button class="btn btn-sm btn-outline-danger" id="btnUsarTasaUSDGasto" disabled><i class="bi bi-arrow-down-circle me-1"></i> Gasto USD</button></div></div></div>
+                <div class="col-lg-5"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-3">Consultar Banco Central de Cuba</h6><div class="row g-2"><div class="col-6"><label class="form-label">Fecha</label><input type="date" class="form-control" id="fxFecha"></div><div class="col-3"><label class="form-label">Moneda</label><select class="form-select" id="fxMoneda"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>MXN</option><option>RUB</option><option>CNY</option><option>JPY</option></select></div><div class="col-3"><label class="form-label">Segmento</label><select class="form-select" id="fxSegmento"><option value="III">III</option><option value="II">II</option><option value="I">I</option></select></div><div class="col-12 d-grid mt-2"><button class="btn btn-primary" id="btnConsultarBCC"><span class="icono-anim me-1" data-icono="descargar"></span> Consultar tasa</button></div></div><div class="fx-note mt-2">Segmento III seleccionado por defecto.</div></div></div>
+                <div class="col-lg-7"><div class="fx-result h-100 d-flex flex-column justify-content-center"><small class="text-muted">Resultado de la consulta</small><div class="fx-rate-big" id="fxResultado">—</div><div id="fxResultadoMeta" class="small text-secondary mt-1">Selecciona fecha y consulta.</div><div class="mt-3 d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-success" id="btnUsarTasaUSDIngreso" disabled><span class="icono-anim me-1" data-icono="flecha-arriba-circulo"></span> Ingreso USD</button><button class="btn btn-sm btn-outline-danger" id="btnUsarTasaUSDGasto" disabled><span class="icono-anim me-1" data-icono="flecha-abajo-circulo"></span> Gasto USD</button></div></div></div>
             </div>
-            <div class="card p-3 p-md-4 mb-3"><div class="d-flex flex-wrap justify-content-between align-items-center gap-3"><h6 class="fw-semibold mb-0"><i class="bi bi-bank me-2"></i>Banco Central de Cuba</h6><a class="btn btn-outline-primary" href="https://www.bc.gob.cu/tasas-de-cambio" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-1"></i>Ver tasas en BCC</a></div></div>
-            <div class="card p-3 p-md-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-clock-history me-2"></i>Tasas utilizadas y guardadas</h6><span class="badge bg-soft-info">Guardadas</span></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Moneda</th><th>Segmento</th><th class="text-end">CUP / 1 unidad</th><th>Fuente</th></tr></thead><tbody id="fxHistBody"></tbody></table></div><div id="fxHistVacio" class="text-muted text-center py-4" style="display:none">Todavía no hay tasas guardadas.</div></div>
+            <div class="card p-3 p-md-4 mb-3"><div class="d-flex flex-wrap justify-content-between align-items-center gap-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="banco"></span>Banco Central de Cuba</h6><a class="btn btn-outline-primary" href="https://www.bc.gob.cu/tasas-de-cambio" target="_blank" rel="noopener"><span class="icono-anim me-1" data-icono="flecha-der"></span>Ver tasas en BCC</a></div></div>
+            <div class="card p-3 p-md-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="reloj"></span>Tasas utilizadas y guardadas</h6><span class="badge bg-soft-info">Guardadas</span></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Moneda</th><th>Segmento</th><th class="text-end">CUP / 1 unidad</th><th>Fuente</th></tr></thead><tbody id="fxHistBody"></tbody></table></div><div id="fxHistVacio" class="text-muted text-center py-4" style="display:none">Todavía no hay tasas guardadas.</div></div>
         </div>
 
         <!-- ACTIVOS FIJOS -->
         <div class="tab-pane fade" id="pane-aft">
-            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><i class="bi bi-pc-display-horizontal me-2" style="color:#b45309"></i>Activos Fijos Tangibles</h5><div class="small text-secondary">Inventario, responsables, vida útil y depreciación mensual.</div></div><div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-success" id="btnNuevoActivo"><i class="bi bi-plus-lg me-1"></i> Activo</button><button class="btn btn-sm btn-outline-primary" id="btnContabilizarDep"><i class="bi bi-journal-check me-1"></i> Contabilizar depreciación</button></div></div>
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="monitor" style="color:#b45309"></span>Activos Fijos Tangibles</h5><div class="small text-secondary">Inventario, responsables, vida útil y depreciación mensual.</div></div><div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-success" id="btnNuevoActivo"><span class="icono-anim me-1" data-icono="mas"></span> Activo</button><button class="btn btn-sm btn-outline-primary" id="btnContabilizarDep"><span class="icono-anim me-1" data-icono="doc-check"></span> Contabilizar depreciación</button></div></div>
             <div class="row g-3 mb-3"><div class="col-6 col-lg-3"><div class="module-kpi"><small>Costo histórico</small><strong id="aftKpiCosto">$0.00</strong></div></div><div class="col-6 col-lg-3"><div class="module-kpi"><small>Depreciación acumulada</small><strong id="aftKpiAcum">$0.00</strong></div></div><div class="col-6 col-lg-3"><div class="module-kpi"><small>Valor en libros</small><strong id="aftKpiLibros">$0.00</strong></div></div><div class="col-6 col-lg-3"><div class="module-kpi"><small>Depreciación del mes</small><strong id="aftKpiMes">$0.00</strong></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><div class="d-flex flex-wrap align-items-end gap-2"><div><label class="form-label mb-1">Umbral interno para considerar AFT (CUP)</label><input type="number" id="aftUmbral" class="form-control form-control-sm" min="0" step="1" style="width:180px"></div><button class="btn btn-sm btn-outline-secondary" id="btnGuardarPoliticaAFT">Guardar política</button></div></div>
             <div class="card p-3 p-md-4"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Código</th><th>Activo</th><th>Categoría</th><th>Responsable / ubicación</th><th class="text-end">Costo</th><th class="text-end">Tasa anual</th><th class="text-end">Dep. mes</th><th class="text-end">Acumulada</th><th class="text-end">Valor libros</th><th>Estado</th><th></th></tr></thead><tbody id="aftBody"></tbody></table></div><div id="aftVacio" class="text-muted text-center py-4" style="display:none">No hay activos registrados.</div></div>
@@ -1588,22 +1588,22 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <!-- HISTORIAL -->
         <div class="tab-pane fade" id="pane-cierre">
             <div class="card p-3 p-md-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><h6 class="fw-semibold mb-0"><i class="bi bi-archive me-2"></i>Historial de Meses <span class="badge bg-soft-secondary ms-2" id="totalMesesCerrados"></span></h6><button class="btn btn-sm btn-outline-danger" id="btnCerrarMesDesdeHistorial"><i class="bi bi-lock me-1"></i> Cerrar mes</button></div>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="archivo"></span>Historial de Meses <span class="badge bg-soft-secondary ms-2" id="totalMesesCerrados"></span></h6><button class="btn btn-sm btn-outline-danger" id="btnCerrarMesDesdeHistorial"><span class="icono-anim me-1" data-icono="candado"></span> Cerrar mes</button></div>
                 <div id="historialMeses" class="mb-3"></div>
                 <hr>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h6 class="fw-semibold"><i class="bi bi-arrow-right-circle me-1"></i> Saldo Inicial del Mes</h6><button class="btn btn-sm btn-outline-secondary mb-2" id="btnEditarSaldoInicial"><i class="bi bi-pencil"></i> Editar saldo inicial</button>
+                        <h6 class="fw-semibold"><span class="icono-anim me-1" data-icono="flecha-der"></span> Saldo Inicial del Mes</h6><button class="btn btn-sm btn-outline-secondary mb-2" id="btnEditarSaldoInicial"><span class="icono-anim" data-icono="lapiz"></span> Editar saldo inicial</button>
                         <div class="d-flex gap-3 flex-wrap" id="saldoInicialDisplay"></div>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-semibold"><i class="bi bi-arrow-left-circle me-1"></i> Mes Actual</h6>
+                        <h6 class="fw-semibold"><span class="icono-anim me-1" data-icono="flecha-izq-circulo"></span> Mes Actual</h6>
                         <div class="d-flex gap-3 flex-wrap" id="mesActualDisplay"></div>
                     </div>
                 </div>
             </div>
             <div class="card p-3 p-md-4 mt-3" id="qrRegistroBox">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-qr-code me-2"></i>Registro de pagos por comercio electrónico (QR)</h6><div class="d-flex gap-2 align-items-center"><select id="qrMesSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docQRPrint()"><i class="bi bi-printer me-1"></i>PDF</button></div></div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="qr"></span>Registro de pagos por comercio electrónico (QR)</h6><div class="d-flex gap-2 align-items-center"><select id="qrMesSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docQRPrint()"><span class="icono-anim me-1" data-icono="impresora"></span>PDF</button></div></div>
                 <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto</th><th>Cuenta</th><th class="text-end">Monto (CUP)</th></tr></thead><tbody id="qrRegistroBody"></tbody></table></div>
                 <div id="qrRegistroVacio" class="text-muted small mt-2" style="display:none">Este mes no tiene pagos marcados como comercio electrónico (QR).</div>
                 <div class="text-end mt-2"><b>Total QR del mes: <span id="qrRegistroTotal">$0.00</span></b></div>
@@ -1617,7 +1617,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <!-- Ajustes -->
                 <div class="col-12">
                     <div class="card p-3 p-md-4" id="cardAjustesGenerales">
-                        <h6 class="fw-semibold mb-3"><i class="bi bi-sliders me-2"></i>Ajustes generales (tasas y porcentajes)</h6>
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="ajustes"></span>Ajustes generales (tasas y porcentajes)</h6>
                         <div class="row g-3">
                             <div class="col-md-4"><label class="form-label">💱 Tasa USD de respaldo (CUP por 1 USD)</label><input type="number" step="0.01" min="0" class="form-control cfg-in" id="cfgTasa"><div class="form-text">Se actualiza automáticamente cada 12 horas. También puedes cambiarla manualmente.</div></div>
                             <div class="col-md-4"><label class="form-label">Tasa base para meses antiguos sin tasa registrada</label><input type="number" step="0.01" min="0" class="form-control cfg-in" id="cfgTasaBase"></div>
@@ -1628,24 +1628,24 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             <div class="col-6 col-md-3"><label class="form-label">Meta de utilidad %</label><input type="number" step="0.01" min="0" max="100" class="form-control cfg-in" id="cfgMeta"></div>
                             <div class="col-12 col-md-3"><label class="form-label">Tolerancia (± puntos %)</label><input type="number" step="0.01" min="0" max="50" class="form-control cfg-in" id="cfgTol"></div>
                             <div class="col-12"><label class="form-label">📅 Tasa por mes (corrige la tasa de un mes concreto)</label>
-                                <div class="d-flex flex-wrap gap-2 mb-2"><select class="form-select" style="width:auto" id="cfgMesSel"></select><input type="number" class="form-control" style="width:100px" id="cfgAnioSel"><input type="number" step="0.01" min="0" class="form-control" style="width:120px" id="cfgTasaMes" placeholder="Tasa"><button type="button" class="btn btn-outline-secondary" id="btnAddTasaMes"><i class="bi bi-plus-lg"></i> Añadir</button></div>
+                                <div class="d-flex flex-wrap gap-2 mb-2"><select class="form-select" style="width:auto" id="cfgMesSel"></select><input type="number" class="form-control" style="width:100px" id="cfgAnioSel"><input type="number" step="0.01" min="0" class="form-control" style="width:120px" id="cfgTasaMes" placeholder="Tasa"><button type="button" class="btn btn-outline-secondary" id="btnAddTasaMes"><span class="icono-anim" data-icono="mas"></span> Añadir</button></div>
                                 <div id="listTasasMes"></div></div>
-                            <div class="col-12"><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarCfg"><i class="bi bi-check2-circle me-1"></i> Guardar ajustes</button></div>
+                            <div class="col-12"><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarCfg"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar ajustes</button></div>
                         </div>
                     </div>
                 </div>
                 <!-- Gestión de Usuarios -->
                 <div class="col-lg-8">
                     <div class="card p-3 p-md-4">
-                        <h6 class="fw-semibold mb-3"><i class="bi bi-people me-2"></i>Gestión de Usuarios</h6>
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="usuarios"></span>Gestión de Usuarios</h6>
                         
                         <!-- Selector: Nuevo o Asociado -->
                         <div class="tipo-usuario-selector">
                             <button class="btn btn-primary active-nuevo" id="btnTipoNuevo">
-                                <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+                                <span class="icono-anim me-1" data-icono="usuario-mas"></span> Nuevo Usuario
                             </button>
                             <button class="btn btn-outline-warning" id="btnTipoAsociado">
-                                <i class="bi bi-people me-1"></i> Asociado a negocio
+                                <span class="icono-anim me-1" data-icono="usuarios"></span> Asociado a negocio
                             </button>
                         </div>
 
@@ -1677,7 +1677,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                     <input type="number" class="form-control form-control-sm" id="newSocios" placeholder="Socios" min="1" value="1">
                                 </div>
                                 <div class="col-3">
-                                    <button class="btn btn-success btn-sm w-100" id="btnCrearUsuario"><i class="bi bi-plus"></i> Crear</button>
+                                    <button class="btn btn-success btn-sm w-100" id="btnCrearUsuario"><span class="icono-anim" data-icono="mas"></span> Crear</button>
                                 </div>
                             </div>
                         </div>
@@ -1710,7 +1710,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         </div>
 
                         <hr>
-                        <h6 class="fw-semibold"><i class="bi bi-person-list me-2"></i>Usuarios Registrados</h6>
+                        <h6 class="fw-semibold"><span class="icono-anim me-2" data-icono="usuarios"></span>Usuarios Registrados</h6>
                         <div id="listaUsuariosAdmin">
                             <!-- Se llena con JS -->
                         </div>
@@ -1721,8 +1721,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-12">
                     <div class="card p-3 p-md-4">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h6 class="fw-semibold mb-0"><i class="bi bi-building me-2"></i>Negocios</h6>
-                            <button class="btn btn-sm btn-success" id="btnNuevoNegocio"><i class="bi bi-plus-lg me-1"></i>Negocio</button>
+                            <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="edificio"></span>Negocios</h6>
+                            <button class="btn btn-sm btn-success" id="btnNuevoNegocio"><span class="icono-anim me-1" data-icono="mas"></span>Negocio</button>
                         </div>
                         <p class="small text-muted">Un negocio se crea al registrar un usuario con un nombre de negocio nuevo. Para eliminar un negocio, primero elimina o reasigna sus usuarios.</p>
                         <div id="listaNegociosAdmin">
@@ -1734,7 +1734,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <!-- Bloqueo de Meses -->
                 <div class="col-lg-4">
                     <div class="card p-3 p-md-4">
-                        <h6 class="fw-semibold mb-3"><i class="bi bi-calendar-lock me-2"></i>Bloqueo de Meses</h6>
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calendario"></span>Bloqueo de Meses</h6>
                         <p class="small text-muted">Marca los meses que no han pagado.</p>
                         <div id="bloqueoMesesList">
                             <!-- Se llena con JS -->
@@ -1752,14 +1752,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <!-- AYUDA · MANUAL DE USUARIO -->
         <div class="tab-pane fade" id="pane-ayuda">
             <div class="card p-3 p-md-4 mb-4" id="ayuda-bienvenida">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-book me-2"></i>Manual de usuario</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="libro"></span>Manual de usuario</h6>
                 <p class="small mb-2">Este es el manual completo de <b>Finanzas</b>: explica para qué sirve cada menú, cada sección y cada botón, según lo que hacen de verdad en la aplicación.</p>
                 <p class="small mb-2"><b>Cómo usarlo:</b> con el submenú «En esta sección» (a la derecha) saltas directo a la tarjeta de cada menú. Y en toda la aplicación verás un botón azul redondo con un <b>«?»</b> arriba a la derecha de cada menú y de cada tarjeta: al pulsarlo vienes aquí, exactamente a la explicación de lo que estabas viendo.</p>
                 <p class="small mb-0 text-secondary">El flujo normal de trabajo parte de subir los estados de cuenta. Lo que no quede claro se muestra en rojo en Contabilidad y <b>no</b> se contabiliza hasta que lo clasifiques.</p>
+                <p class="small text-secondary mb-0 mt-2">Animated icons by <a href="https://lordicon.com" target="_blank" rel="noopener">Lordicon.com</a> — colección Wired Lineal.</p>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-resumen">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-speedometer2 me-2"></i>Resumen</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="velocimetro"></span>Resumen</h6>
                 <p class="small mb-2">La pantalla de inicio del negocio: de un vistazo, cómo está el mes en curso.</p>
                 <ul class="small mb-0">
                     <li><b>Selector de mes/año + ✓</b>: cambia el mes contable en pantalla a otro mes abierto o del historial; si eliges el que ya estás viendo, no cambia nada.</li>
@@ -1772,7 +1773,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-chequera">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-bank me-2"></i>Chequera</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="banco"></span>Chequera</h6>
                 <p class="small mb-0">La cuenta de chequera del negocio. Las tres cuentas (Chequera, Tarjeta CUP y Tarjeta USD) comparten la misma tarjeta de movimientos, filtrada por cuenta.</p>
                 <div class="ayuda-sec" id="ayuda-chequera-0" data-ayuda-titulo="Chequera">
                     <div class="ayuda-sec-tit">Chequera</div>
@@ -1787,7 +1788,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-tarjeta_cup">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-credit-card me-2"></i>Tarjeta CUP</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="tarjeta"></span>Tarjeta CUP</h6>
                 <p class="small mb-0">La tarjeta en CUP del negocio. Funciona igual que la Chequera: la misma tarjeta de movimientos, filtrada por esta cuenta.</p>
                 <div class="ayuda-sec" id="ayuda-tarjeta_cup-0" data-ayuda-titulo="Tarjeta CUP">
                     <div class="ayuda-sec-tit">Tarjeta CUP</div>
@@ -1802,7 +1803,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-tarjeta_usd">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-currency-dollar me-2"></i>Tarjeta USD</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="dolar"></span>Tarjeta USD</h6>
                 <p class="small mb-0">La tarjeta en USD del negocio. Funciona igual que las demás cuentas; los importes se muestran en USD y se convierten a CUP con la tasa guardada.</p>
                 <div class="ayuda-sec" id="ayuda-tarjeta_usd-0" data-ayuda-titulo="Tarjeta USD">
                     <div class="ayuda-sec-tit">Tarjeta USD</div>
@@ -1817,7 +1818,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-nomina">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-people me-2"></i>Nómina</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="usuarios"></span>Nómina</h6>
                 <p class="small mb-0">El módulo de trabajadores y salarios: fichas, vigencia del mes, cálculo de la nómina con sus complementos, documentos y submayores.</p>
                 <div class="ayuda-sec" id="ayuda-nomina-0" data-ayuda-titulo="Trabajadores del mes">
                     <div class="ayuda-sec-tit">Trabajadores del mes</div>
@@ -1887,7 +1888,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-utilidades">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-bar-chart-line me-2"></i>Trimestres</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="grafico"></span>Trimestres</h6>
                 <p class="small mb-2">Las utilidades del negocio por trimestre: el impuesto del 35 %, los pagos a socios, el fondo de contingencia y el cierre del año.</p>
                 <ul class="small mb-0">
                     <li><b>Registrar 35% ONAT</b>: abre el pago del impuesto sobre utilidades (código 0400722) con el importe pendiente y el período del trimestre ya rellenados; solo actúa si hay 35 % pendiente.</li>
@@ -1919,7 +1920,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-fiscal">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-file-earmark-check me-2"></i>Fiscal</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="doc-check"></span>Fiscal</h6>
                 <p class="small mb-0">El Vector Fiscal del negocio y sus obligaciones con la ONAT.</p>
                 <div class="ayuda-sec" id="ayuda-fiscal-0" data-ayuda-titulo="Vector Fiscal y obligaciones ONAT">
                     <div class="ayuda-sec-tit">Vector Fiscal y obligaciones ONAT</div>
@@ -1950,7 +1951,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-dj">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-file-earmark-text me-2"></i>Declaración Jurada</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="doc"></span>Declaración Jurada</h6>
                 <p class="small mb-0">La Declaración Jurada automática del negocio, calculada desde los datos reales del año.</p>
                 <div class="ayuda-sec" id="ayuda-dj-0" data-ayuda-titulo="Declaración Jurada automática">
                     <div class="ayuda-sec-tit">Declaración Jurada automática</div>
@@ -1992,7 +1993,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-tasas">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-currency-exchange me-2"></i>Tasas</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="intercambio"></span>Tasas</h6>
                 <p class="small mb-0">Las tasas de cambio del Banco Central de Cuba que usa el negocio para valorar sus operaciones en divisa.</p>
                 <div class="ayuda-sec" id="ayuda-tasas-0" data-ayuda-titulo="Tasas de cambio">
                     <div class="ayuda-sec-tit">Tasas de cambio</div>
@@ -2018,7 +2019,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-aft">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-pc-display-horizontal me-2"></i>Activos</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="monitor"></span>Activos</h6>
                 <p class="small mb-0">Los activos fijos tangibles (AFT) del negocio: inventario, responsables, vida útil y depreciación.</p>
                 <div class="ayuda-sec" id="ayuda-aft-0" data-ayuda-titulo="Activos Fijos Tangibles">
                     <div class="ayuda-sec-tit">Activos Fijos Tangibles</div>
@@ -2031,7 +2032,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
             </div>
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-conta">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-journal-bookmark me-2"></i>Contabilidad</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="libro"></span>Contabilidad</h6>
                 <p class="small mb-0">La contabilidad por partida doble del negocio. Todo nace de los movimientos ya clasificados: lo que está sin clasificar se muestra en rojo y <b>no</b> se contabiliza.</p>
                 <div class="ayuda-sec" id="ayuda-conta-0" data-ayuda-titulo="Contabilidad · Partida doble">
                     <div class="ayuda-sec-tit">Contabilidad · Partida doble</div>
@@ -2127,7 +2128,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-gestion">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-grid-1x2 me-2"></i>Gestión+</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="cuadricula"></span>Gestión+</h6>
                 <p class="small mb-0">La gestión ampliada: blindaje de datos, cumplimiento, herramientas tipo Versat y profundidad contable. Todo nace de los estados de cuenta, los submayores y el mayor, sin pasos manuales nuevos en el flujo normal.</p>
                 <div class="ayuda-sec" id="ayuda-gestion-0" data-ayuda-titulo="Gestión ampliada">
                     <div class="ayuda-sec-tit">Gestión ampliada</div>
@@ -2190,7 +2191,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-gestor">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-briefcase me-2"></i>Gestor</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="maletin"></span>Gestor</h6>
                 <p class="small mb-0">Solo administrador. El panel del tenedor de libros: todos tus clientes (TCP y MIPYME) en una sola vista. Los importes salen de los datos reales de cada negocio.</p>
                 <div class="ayuda-sec" id="ayuda-gestor-0" data-ayuda-titulo="Panel del Gestor">
                     <div class="ayuda-sec-tit">Panel del Gestor</div>
@@ -2217,7 +2218,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-cierre">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-archive me-2"></i>Historial</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="archivo"></span>Historial</h6>
                 <p class="small mb-0">El cierre de meses y el historial del negocio.</p>
                 <div class="ayuda-sec" id="ayuda-cierre-0" data-ayuda-titulo="Historial de Meses">
                     <div class="ayuda-sec-tit">Historial de Meses</div>
@@ -2234,7 +2235,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-admin">
-                <h6 class="card-title fw-semibold mb-2"><i class="bi bi-gear-fill me-2"></i>Configuración</h6>
+                <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="ajustes"></span>Configuración</h6>
                 <p class="small mb-0">Solo administrador: ajustes generales del negocio, usuarios, negocios y bloqueo de meses. Desde el encabezado, el botón <b>Salir</b> cierra la sesión al momento (la sesión normal dura 30 días en este dispositivo).</p>
                 <div class="ayuda-sec" id="ayuda-admin-0" data-ayuda-titulo="Ajustes generales (tasas y porcentajes)">
                     <div class="ayuda-sec-tit">Ajustes generales</div>
@@ -2269,9 +2270,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="modal fade" id="onatModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i>Cálculo ONAT</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="doc"></span>Cálculo ONAT</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body" id="onatModalBody"></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary-custom" id="btnAgregarOnatDesdeModal"><i class="bi bi-arrow-right-circle me-1"></i> Abrir Fiscal</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary-custom" id="btnAgregarOnatDesdeModal"><span class="icono-anim me-1" data-icono="flecha-der"></span> Abrir Fiscal</button></div>
         </div>
     </div>
 </div>
@@ -2279,7 +2280,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="modal fade" id="bancoCuentaModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title"><i class="bi bi-bank me-2"></i>Datos del banco · <span id="bancoCuentaNombre"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="banco"></span>Datos del banco · <span id="bancoCuentaNombre"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <input type="hidden" id="bancoCuentaClave">
                 <div class="row g-3">
@@ -2302,12 +2303,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="modal-header"><h5 class="modal-title"><i class="bi bi-tags me-2"></i>Clasificación</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="d-flex flex-column gap-2">
-                    <button class="btn btn-outline-primary btn-clasificacion" data-clasificacion="operacional"><i class="bi bi-cash-stack me-2"></i> 💰 Operacional</button>
-                    <button class="btn btn-outline-warning btn-clasificacion" data-clasificacion="transferencia"><i class="bi bi-arrow-left-right me-2"></i> 🔄 Transferencia</button>
-                    <button class="btn btn-outline-danger btn-clasificacion" data-clasificacion="extraccion"><i class="bi bi-box-arrow-right me-2"></i> 🏦 Extracción</button>
-                    <button class="btn btn-outline-secondary btn-clasificacion" data-clasificacion="contingencia"><i class="bi bi-shield-check me-2"></i> 🛡️ Contingencia (no es gasto)</button>
-                    <button class="btn btn-outline-success btn-clasificacion" data-clasificacion="utilidades"><i class="bi bi-people me-2"></i> 👥 Utilidades a socios (no es gasto)</button>
-                    <button class="btn btn-outline-info btn-clasificacion" data-clasificacion="salario"><i class="bi bi-person-badge me-2"></i> 👷 Salario</button>
+                    <button class="btn btn-outline-primary btn-clasificacion" data-clasificacion="operacional"><span class="icono-anim me-2" data-icono="billete"></span> 💰 Operacional</button>
+                    <button class="btn btn-outline-warning btn-clasificacion" data-clasificacion="transferencia"><span class="icono-anim me-2" data-icono="intercambio"></span> 🔄 Transferencia</button>
+                    <button class="btn btn-outline-danger btn-clasificacion" data-clasificacion="extraccion"><span class="icono-anim me-2" data-icono="salir"></span> 🏦 Extracción</button>
+                    <button class="btn btn-outline-secondary btn-clasificacion" data-clasificacion="contingencia"><span class="icono-anim me-2" data-icono="escudo"></span> 🛡️ Contingencia (no es gasto)</button>
+                    <button class="btn btn-outline-success btn-clasificacion" data-clasificacion="utilidades"><span class="icono-anim me-2" data-icono="usuarios"></span> 👥 Utilidades a socios (no es gasto)</button>
+                    <button class="btn btn-outline-info btn-clasificacion" data-clasificacion="salario"><span class="icono-anim me-2" data-icono="tarjeta-id"></span> 👷 Salario</button>
                 </div>
             </div>
         </div>
@@ -2317,14 +2318,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="modal fade" id="saldoInicialModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title"><i class="bi bi-wallet2 me-2"></i>Saldo Inicial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="billetera"></span>Saldo Inicial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <p class="text-muted small">Saldo inicial del mes <strong id="modalMesActual"></strong></p>
                 <div class="mb-3"><label class="form-label fw-semibold">🏦 Chequera (CUP)</label><input type="number" class="form-control" id="saldoInicialChequera" step="0.01" value="0"></div>
                 <div class="mb-3"><label class="form-label fw-semibold">💳 Tarjeta CUP</label><input type="number" class="form-control" id="saldoInicialCUP" step="0.01" value="0"></div>
                 <div class="mb-3"><label class="form-label fw-semibold">💵 Tarjeta USD</label><input type="number" class="form-control" id="saldoInicialUSD" step="0.01" value="0"></div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Omitir</button><button type="button" class="btn btn-primary-custom" id="btnGuardarSaldoInicial"><i class="bi bi-check me-1"></i> Guardar</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Omitir</button><button type="button" class="btn btn-primary-custom" id="btnGuardarSaldoInicial"><span class="icono-anim me-1" data-icono="check"></span> Guardar</button></div>
         </div>
     </div>
 </div>
@@ -2334,7 +2335,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Editar Usuario: <span id="editUserTitle"></span></h5>
+                <h5 class="modal-title"><span class="icono-anim me-2" data-icono="lapiz"></span>Editar Usuario: <span id="editUserTitle"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -2372,7 +2373,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary-custom" id="btnGuardarEdicionUsuario"><i class="bi bi-check me-1"></i> Guardar Cambios</button>
+                <button type="button" class="btn btn-primary-custom" id="btnGuardarEdicionUsuario"><span class="icono-anim me-1" data-icono="check"></span> Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -2398,7 +2399,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="col-6"><label class="form-label" for="movCuentaDestino">Otra cuenta (solo transferencias)</label><select id="movCuentaDestino" class="form-select"><option value="">— Sin indicar —</option><option value="chequera">Chequera</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option></select></div>
 <div class="col-6"><label class="form-label" for="movDocumento">Documento CxC/CxP (contabilidad)</label><select id="movDocumento" class="form-select"><option value="">— Ninguno —</option></select></div>
 <div class="col-6"><label class="form-label" for="movCuentaContable">Cuenta contable (contabilidad)</label><select id="movCuentaContable" class="form-select"><option value="">— Automática según clasificación —</option></select></div>
-<div class="col-12" id="fxMovWrap" style="display:none"><div id="fxMovBox"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label mb-1">Tasa contable (CUP / USD)</label><input id="movTasaUSD" type="number" min="0.0001" step="0.0001" class="form-control"></div><div class="col-4"><label class="form-label mb-1">Equivalente CUP</label><input id="movEquivCUP" class="form-control" readonly></div><div class="col-3 d-grid"><button type="button" class="btn btn-outline-primary" id="btnMovConsultarBCC"><i class="bi bi-cloud-download"></i> BCC</button></div><div class="col-12"><div class="small text-muted" id="movTasaFuente">Consulta BCC o escribe la tasa manualmente.</div></div></div></div></div>
+<div class="col-12" id="fxMovWrap" style="display:none"><div id="fxMovBox"><div class="row g-2 align-items-end"><div class="col-5"><label class="form-label mb-1">Tasa contable (CUP / USD)</label><input id="movTasaUSD" type="number" min="0.0001" step="0.0001" class="form-control"></div><div class="col-4"><label class="form-label mb-1">Equivalente CUP</label><input id="movEquivCUP" class="form-control" readonly></div><div class="col-3 d-grid"><button type="button" class="btn btn-outline-primary" id="btnMovConsultarBCC"><span class="icono-anim" data-icono="descargar"></span> BCC</button></div><div class="col-12"><div class="small text-muted" id="movTasaFuente">Consulta BCC o escribe la tasa manualmente.</div></div></div></div></div>
 </div></div>
 <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarMov">Guardar</button></div>
 </div></div></div>
@@ -2408,7 +2409,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-key me-2"></i>Contraseña restablecida</h5>
+                <h5 class="modal-title"><span class="icono-anim me-2" data-icono="llave"></span>Contraseña restablecida</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -2419,7 +2420,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <p class="small text-warning mb-0">El usuario deberá cambiarla al entrar.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" id="btnCopiarPass"><i class="bi bi-clipboard me-1"></i>Copiar</button>
+                <button type="button" class="btn btn-outline-primary" id="btnCopiarPass"><span class="icono-anim me-1" data-icono="doc"></span>Copiar</button>
                 <a class="btn btn-primary text-white" id="btnShareTg" target="_blank" rel="noopener"><i class="bi bi-telegram me-1"></i>Compartir por Telegram</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
@@ -2431,7 +2432,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-building me-2"></i><span id="negocioModalTitle">Nuevo negocio</span></h5>
+                <h5 class="modal-title"><span class="icono-anim me-2" data-icono="edificio"></span><span id="negocioModalTitle">Nuevo negocio</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -2450,7 +2451,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary-custom" id="btnGuardarNegocio"><i class="bi bi-check me-1"></i>Guardar</button>
+                <button type="button" class="btn btn-primary-custom" id="btnGuardarNegocio"><span class="icono-anim me-1" data-icono="check"></span>Guardar</button>
             </div>
         </div>
     </div>
@@ -2458,7 +2459,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
 <div class="modal fade" id="trabajadorModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content">
-    <div class="modal-header"><h5 class="modal-title" id="trabajadorModalTitulo"><i class="bi bi-person-vcard me-2"></i>Trabajador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title" id="trabajadorModalTitulo"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Trabajador</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
       <div class="row g-3">
         <div class="col-md-6"><label class="form-label">Nombre y apellidos *</label><input id="trabNombre" class="form-control" maxlength="100"></div>
@@ -2484,8 +2485,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
 
 <!-- MODAL OBLIGACIÓN FISCAL MANUAL -->
-<div class="modal fade" id="altaRapidaModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Alta rápida de cliente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
-<div class="alert alert-warning small mb-3"><i class="bi bi-exclamation-triangle me-1"></i>La plantilla por actividad es <b>ORIENTATIVA</b>: propone los tributos habituales de la actividad. El Vector Fiscal real de cada cliente es el <b>RC-04A</b> que emite la ONAT; cuando lo tengas, impórtalo en la pestaña Fiscal del negocio (reemplaza a la plantilla).</div>
+<div class="modal fade" id="altaRapidaModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="usuario-mas"></span>Alta rápida de cliente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+<div class="alert alert-warning small mb-3"><span class="icono-anim me-1" data-icono="alerta"></span>La plantilla por actividad es <b>ORIENTATIVA</b>: propone los tributos habituales de la actividad. El Vector Fiscal real de cada cliente es el <b>RC-04A</b> que emite la ONAT; cuando lo tengas, impórtalo en la pestaña Fiscal del negocio (reemplaza a la plantilla).</div>
 <div class="row g-3">
 <div class="col-md-6"><label class="form-label">Nombre del negocio *</label><input id="altaNombre" class="form-control" maxlength="80" placeholder="Ej. Cafetería El Sol"></div>
 <div class="col-md-3"><label class="form-label">Tipo *</label><select id="altaTipo" class="form-select"><option value="tcp">TCP</option><option value="mipyme">MIPYME</option></select></div>
@@ -2501,10 +2502,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 </div>
 <div class="small text-secondary mt-3" id="altaPlantillaPreview"></div>
 </div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarAltaRapida">Crear cliente</button></div></div></div></div>
-<div class="modal fade" id="fiscalManualModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-file-plus me-2"></i>Obligación fiscal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-5"><label class="form-label">Código tributo</label><input id="fisManCodigo" class="form-control" maxlength="20"></div><div class="col-7"><label class="form-label">Período</label><input id="fisManPeriodo" class="form-control" placeholder="Ej. Septiembre 2026"></div><div class="col-12"><label class="form-label">Concepto</label><input id="fisManConcepto" class="form-control" maxlength="160"></div><div class="col-6"><label class="form-label">Fecha límite</label><input id="fisManVence" type="date" class="form-control"></div><div class="col-6"><label class="form-label">Importe manual (CUP)</label><input id="fisManImporte" type="number" min="0" step="0.01" class="form-control"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarFiscalManual">Guardar</button></div></div></div></div>
+<div class="modal fade" id="fiscalManualModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="doc"></span>Obligación fiscal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-5"><label class="form-label">Código tributo</label><input id="fisManCodigo" class="form-control" maxlength="20"></div><div class="col-7"><label class="form-label">Período</label><input id="fisManPeriodo" class="form-control" placeholder="Ej. Septiembre 2026"></div><div class="col-12"><label class="form-label">Concepto</label><input id="fisManConcepto" class="form-control" maxlength="160"></div><div class="col-6"><label class="form-label">Fecha límite</label><input id="fisManVence" type="date" class="form-control"></div><div class="col-6"><label class="form-label">Importe manual (CUP)</label><input id="fisManImporte" type="number" min="0" step="0.01" class="form-control"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarFiscalManual">Guardar</button></div></div></div></div>
 
 <!-- MODAL ACTIVO FIJO -->
-<div class="modal fade" id="aftModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="aftModalTitulo"><i class="bi bi-pc-display-horizontal me-2"></i>Activo Fijo Tangible</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-md-3"><label class="form-label">Código / chapa *</label><input id="aftCodigo" class="form-control" maxlength="40"></div><div class="col-md-6"><label class="form-label">Descripción *</label><input id="aftNombre" class="form-control" maxlength="120"></div><div class="col-md-3"><label class="form-label">Categoría</label><select id="aftCategoria" class="form-select"><option>Informática y comunicación</option><option>Maquinaria y equipos</option><option>Vehículos y transporte</option><option>Muebles y oficina</option><option>Herramientas</option><option>Edificaciones</option><option>Otro</option></select></div><div class="col-md-4"><label class="form-label">Marca / modelo</label><input id="aftModelo" class="form-control"></div><div class="col-md-4"><label class="form-label">Número de serie</label><input id="aftSerie" class="form-control"></div><div class="col-md-4"><label class="form-label">Costo inicial (CUP) *</label><input id="aftCosto" type="number" min="0" step="0.01" class="form-control"></div><div class="col-md-4"><label class="form-label">Fecha adquisición</label><input id="aftFechaAdq" type="date" class="form-control"></div><div class="col-md-4"><label class="form-label">Puesto en servicio *</label><input id="aftFechaServicio" type="date" class="form-control"></div><div class="col-md-4"><label class="form-label">Tasa depreciación anual % *</label><input id="aftTasa" type="number" min="0" max="100" step="0.01" class="form-control" readonly><div class="form-text">Se asigna automáticamente según la categoría.</div></div><div class="col-md-4"><label class="form-label">Responsable</label><input id="aftResponsable" class="form-control"></div><div class="col-md-4"><label class="form-label">Ubicación</label><input id="aftUbicacion" class="form-control"></div><div class="col-md-4"><label class="form-label">Estado</label><select id="aftEstado" class="form-select"><option value="activo">Activo</option><option value="reparacion">En reparación</option><option value="baja">Dado de baja</option></select></div><div class="col-md-4"><label class="form-label">Fecha de baja</label><input id="aftFechaBaja" type="date" class="form-control"></div><div class="col-md-8"><label class="form-label">Notas</label><input id="aftNotas" class="form-control" maxlength="220"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarActivo">Guardar activo</button></div></div></div></div>
+<div class="modal fade" id="aftModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="aftModalTitulo"><span class="icono-anim me-2" data-icono="monitor"></span>Activo Fijo Tangible</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-md-3"><label class="form-label">Código / chapa *</label><input id="aftCodigo" class="form-control" maxlength="40"></div><div class="col-md-6"><label class="form-label">Descripción *</label><input id="aftNombre" class="form-control" maxlength="120"></div><div class="col-md-3"><label class="form-label">Categoría</label><select id="aftCategoria" class="form-select"><option>Informática y comunicación</option><option>Maquinaria y equipos</option><option>Vehículos y transporte</option><option>Muebles y oficina</option><option>Herramientas</option><option>Edificaciones</option><option>Otro</option></select></div><div class="col-md-4"><label class="form-label">Marca / modelo</label><input id="aftModelo" class="form-control"></div><div class="col-md-4"><label class="form-label">Número de serie</label><input id="aftSerie" class="form-control"></div><div class="col-md-4"><label class="form-label">Costo inicial (CUP) *</label><input id="aftCosto" type="number" min="0" step="0.01" class="form-control"></div><div class="col-md-4"><label class="form-label">Fecha adquisición</label><input id="aftFechaAdq" type="date" class="form-control"></div><div class="col-md-4"><label class="form-label">Puesto en servicio *</label><input id="aftFechaServicio" type="date" class="form-control"></div><div class="col-md-4"><label class="form-label">Tasa depreciación anual % *</label><input id="aftTasa" type="number" min="0" max="100" step="0.01" class="form-control" readonly><div class="form-text">Se asigna automáticamente según la categoría.</div></div><div class="col-md-4"><label class="form-label">Responsable</label><input id="aftResponsable" class="form-control"></div><div class="col-md-4"><label class="form-label">Ubicación</label><input id="aftUbicacion" class="form-control"></div><div class="col-md-4"><label class="form-label">Estado</label><select id="aftEstado" class="form-select"><option value="activo">Activo</option><option value="reparacion">En reparación</option><option value="baja">Dado de baja</option></select></div><div class="col-md-4"><label class="form-label">Fecha de baja</label><input id="aftFechaBaja" type="date" class="form-control"></div><div class="col-md-8"><label class="form-label">Notas</label><input id="aftNotas" class="form-control" maxlength="220"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarActivo">Guardar activo</button></div></div></div></div>
 
 <div id="toasts" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -11411,5 +11412,6 @@ function mjPermisos(rol,modulo){ const M={
      Faltaba esta etiqueta: el archivo existía en el repo pero nunca se
      cargaba, así que la importación no aparecía (auditoría 2026-10-24). -->
 <script src="pdf-import.js"></script>
+<script src="iconos.js"></script>
 </body>
 </html>
