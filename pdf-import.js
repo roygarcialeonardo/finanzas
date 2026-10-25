@@ -7,6 +7,9 @@
      Ref_Corriente y Ref_Origen.
    - Deduplica por Ref_Corriente + Ref_Origen (nunca importa dos veces la
      misma operación, ni siquiera entre varios PDF).
+   - Del encabezado captura titular, banco, sucursal y número de
+     cuenta/tarjeta (extraerCabecera) y los guarda en la cuenta
+     financiera destino al confirmar la importación.
    - Conserva el orden del documento: archivos en el orden elegido, páginas y
      filas de arriba hacia abajo.
    - Cada operación va al mes que le corresponde según su fecha (mes abierto o
@@ -42,6 +45,9 @@ function API() {
    2b) «CREDITO RECIBIDO POR CORREO ELECTRONICO» → marca QR
        (pedido de Leonardo 2026-10-24: todo crédito con ese concepto
        bancario es un cobro por QR; solo la marca, sin tocar la clase).
+       EXCEPCIÓN (también 2026-10-24): si la clase final es
+       «transferencia» (entre cuentas propias), la marca QR se quita:
+       un traspaso propio no es un cobro por QR.
    3) Pago de impuestos con el CÓDIGO del tributo en el concepto →
       «Pago de ONAT» vinculado a las obligaciones del Vector Fiscal;
       alimenta la Declaración Jurada (tributos por concepto).
@@ -166,6 +172,16 @@ function clasificarOperacion(op) {
        Si el concepto no lo dice con claridad, NO se clasifica aquí y el
        movimiento sigue el flujo normal (rojo en contabilidad hasta que
        Leonardo lo clasifique en la app). */
+    /* Pedido de Leonardo (2026-10-24): las transferencias entre cuentas
+       PROPIAS nunca llevan la marca QR — un traspaso entre sus cuentas
+       no es un cobro por QR, aunque el concepto traiga también la frase
+       «CREDITO RECIBIDO POR CORREO ELECTRONICO» (así viene la pata de
+       entrada en la tarjeta: la operación real VB60003597380 de
+       2 096 880,46). Va AL FINAL, con la clase ya definitiva, y aplica
+       a TODAS las vías de detección QR (regla 2 y regla 2b). Si un
+       código ONAT resolvió, la clase ya no es 'transferencia' y el
+       ajuste no aplica. */
+    if (res.clase === 'transferencia') res.qr = false;
     res.claseMov = null;
     if (op.tipo === 'gasto' && res.clase === 'normal') {
         if (/contingencia/.test(t)) {
@@ -364,9 +380,39 @@ function parsearLineas(lineas, buf) {
     return { ops: ops, resto: buf, saldoLinea: saldoLinea };
 }
 
+/* ---------------- Cabecera del estado (pedido de Leonardo, 2026-10-24) ----
+   Del encabezado de la PRIMERA página se capturan los datos de la
+   cuenta para guardarlos en la cuenta financiera de la app y usarlos
+   en su panel y en los documentos (CON-02, documentos de cuenta…).
+   Formato 1 «Estados de Cuenta» (chequera):
+     «Titular: MPM- FRANWE S.U.R.L.»
+     «Sucursal y Cuenta: 3801 [0638034000008114]»
+   Formato 2 «Movimientos Tarjetas Magnéticas» (CUP/USD):
+     «Titular: MPM- FRANWE S.U.R.L.»
+     «Tarjeta [Cuenta]: 9233069990009552 [40313480019850]»
+     (sin sucursal en el encabezado: queda vacía, no se inventa)
+   El BANCO sí viene en el texto de ambos formatos: la primera línea
+   del PDF es «<fecha>, <hora> Banca Remota - BANDEC»; se extrae de
+   ahí tal cual. Si ninguna línea lo identifica, banco queda vacío. */
+function extraerCabecera(lineas) {
+    var cab = { titular: '', sucursal: '', numeroCuenta: '', numeroTarjeta: '', banco: '' };
+    var primeras = (lineas || []).slice(0, 12);
+    primeras.forEach(function (line) {
+        var m;
+        if (!cab.titular && (m = /^Titular:\s*(.+)$/.exec(line))) cab.titular = m[1].trim();
+        if ((m = /^Sucursal y Cuenta:\s*(\d+)\s*\[(\d{6,20})\]/.exec(line))) { cab.sucursal = m[1]; cab.numeroCuenta = m[2]; }
+        if ((m = /^Tarjeta \[Cuenta\]:\s*(\d{10,20})\s*\[(\d{6,20})\]/.exec(line))) { cab.numeroTarjeta = m[1]; if (!cab.numeroCuenta) cab.numeroCuenta = m[2]; }
+        if (!cab.banco) {
+            var mb = /Banca Remota\s*-\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+)/.exec(line) || /\b(BANDEC|BANMET|BPA)\b/.exec(line);
+            if (mb) cab.banco = mb[1].toUpperCase();
+        }
+    });
+    return cab;
+}
+
 async function parsearPdf(arrayBuffer, nombreArchivo, onProgreso) {
     var pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    var ops = [], buf = null, cuenta = '', periodo = '', textoLen = 0, desde = '', hasta = '', saldoLinea = null;
+    var ops = [], buf = null, cuenta = '', periodo = '', textoLen = 0, desde = '', hasta = '', saldoLinea = null, cabecera = null;
     for (var n = 1; n <= pdf.numPages; n++) {
         var lineas = await lineasDePagina(pdf, n);
         textoLen += lineas.join(' ').length;
@@ -377,6 +423,7 @@ async function parsearPdf(arrayBuffer, nombreArchivo, onProgreso) {
             if (mc) cuenta = mc[1];
             var mp = RE_PERIODO.exec(txt);
             if (mp) { periodo = mp[1] + ' al ' + mp[2]; desde = fechaISOdeDMY(mp[1]); hasta = fechaISOdeDMY(mp[2]); }
+            cabecera = extraerCabecera(lineas);
         }
         var r = parsearLineas(lineas, buf);
         ops = ops.concat(r.ops);
@@ -390,7 +437,7 @@ async function parsearPdf(arrayBuffer, nombreArchivo, onProgreso) {
     var saldoBancoFin = null;
     for (var i = 0; i < ops.length; i++) { if (ops[i].saldo != null) saldoBancoFin = ops[i].saldo; }
     if (saldoBancoFin == null) saldoBancoFin = saldoLinea;
-    return { nombre: nombreArchivo, cuenta: cuenta, periodo: periodo, desde: desde, hasta: hasta, saldoBancoFin: saldoBancoFin, ops: ops, textoLen: textoLen };
+    return { nombre: nombreArchivo, cuenta: cuenta, periodo: periodo, desde: desde, hasta: hasta, saldoBancoFin: saldoBancoFin, ops: ops, textoLen: textoLen, cabecera: cabecera };
 }
 
 /* ---------------- Deduplicación ---------------- */
@@ -808,6 +855,21 @@ function importarLote(cuenta) {
     }
     api.renderAll();
 
+    /* Datos bancarios del encabezado (pedido de Leonardo, 2026-10-24):
+       el titular, el banco, la sucursal y el número de cuenta/tarjeta
+       que trae el estado se guardan en la cuenta financiera destino
+       para mostrarlos debajo de su nombre en el panel de Cuentas y en
+       los documentos que piden datos bancarios (CON-02, documentos de
+       cuenta). El gancho de la app fusiona sin sobrescribir con vacíos:
+       un estado sin sucursal (tarjetas) no borra la ya guardada. */
+    try {
+        if (window.__cuentaGuardarDatosBanco && ultimosInfos.length) {
+            ultimosInfos.forEach(function (info) {
+                if (info && info.cabecera) window.__cuentaGuardarDatosBanco(cuenta, info.cabecera);
+            });
+        }
+    } catch (e) { /* la importación ya quedó guardada; los datos del banco se capturan en la próxima */ }
+
     /* Conciliación (ronda 7): cada estado importado se registra con su
        saldo final según banco y sus operaciones referenciadas, para que
        la conciliación de la pestaña Contabilidad se alimente sola de
@@ -869,6 +931,7 @@ window.__pdfImportTest = {
     fechaISOdeDMY: fechaISOdeDMY,
     mesDeFecha: mesDeFecha,
     clasificarOperacion: clasificarOperacion,
+    extraerCabecera: extraerCabecera,
     extraerCodigosConcepto: extraerCodigosConcepto,
     detectarPeriodoConcepto: detectarPeriodoConcepto,
     TABLA_TRIBUTOS_LOCAL: TABLA_TRIBUTOS_LOCAL

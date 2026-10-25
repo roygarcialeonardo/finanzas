@@ -1003,6 +1003,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="chequera"><i class="bi bi-file-check"></i> ONAT</button>
                     </div>
                 </div>
+                <div class="small text-secondary mb-2" id="bancoInfo-chequera" style="display:none"></div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-chequera">$0.00</span></span>
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">💰 Saldo Actual: <span id="saldo-chequera">$0.00</span></span>
@@ -1029,6 +1030,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_cup"><i class="bi bi-file-check"></i> ONAT</button>
                     </div>
                 </div>
+                <div class="small text-secondary mb-2" id="bancoInfo-tarjeta_cup" style="display:none"></div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_cup">$0.00</span></span>
                     <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_cup">$0.00</span></span>
@@ -1055,6 +1057,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_usd"><i class="bi bi-file-check"></i> ONAT</button>
                     </div>
                 </div>
+                <div class="small text-secondary mb-2" id="bancoInfo-tarjeta_usd" style="display:none"></div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_usd">$0.00 USD</span></span>
                     <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_usd">$0.00 USD</span></span>
@@ -3801,6 +3804,47 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function getFiscalKey(){return `finanzas_fiscal_${getCurrentUser()}`;}
         function getFiscal(){const x=Store.getItem(getFiscalKey());if(!x)return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};try{const d=JSON.parse(x)||{};if(!d.meta)d.meta={};if(!Array.isArray(d.actividades))d.actividades=[];if(!d.tributos||Array.isArray(d.tributos))d.tributos={};if(!Array.isArray(d.obligaciones))d.obligaciones=[];if(!d.source)d.source={};return d;}catch(e){return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};}}
         function saveFiscal(d){Store.setItem(getFiscalKey(),JSON.stringify(d));}
+        /* ===== DATOS BANCARIOS DE LAS CUENTAS (pedido de Leonardo, 2026-10-24) =====
+           Al importar un estado de cuenta, el importador captura de su
+           encabezado titular, banco, sucursal y número de cuenta/tarjeta
+           y los deja guardados aquí, por cuenta financiera
+           (chequera / tarjeta_cup / tarjeta_usd), dentro del slot fiscal
+           del negocio (clave «cuentasBanco»): viajan con el guardado
+           normal y PERSISTEN. Se usan debajo del nombre de cada cuenta
+           en su panel y en los documentos que piden datos bancarios
+           (CON-02, documentos de cuenta, registro QR). Sin datos
+           guardados, los documentos siguen mostrando «—» como antes. */
+        function getCuentasBanco(){ try { const f=getFiscal(); const cb=f?f.cuentasBanco:null; return (cb && typeof cb==='object' && !Array.isArray(cb)) ? cb : {}; } catch(e) { return {}; } }
+        function getDatosBancoCuenta(clave){ const d=getCuentasBanco()[clave]; return (d && typeof d==='object') ? d : {}; }
+        function guardarDatosBancoCuenta(clave, cab){
+            if(!clave || !cab) return false;
+            try {
+                const f=getFiscal();
+                if(!f.cuentasBanco || typeof f.cuentasBanco!=='object' || Array.isArray(f.cuentasBanco)) f.cuentasBanco={};
+                const prev=f.cuentasBanco[clave]||{};
+                const next=Object.assign({}, prev);
+                let cambio=false;
+                ['titular','banco','sucursal','numeroCuenta','numeroTarjeta'].forEach(function(k){
+                    const v=cab[k]==null?'':String(cab[k]).trim();
+                    if(v && v!==prev[k]){ next[k]=v; cambio=true; }   /* nunca sobrescribir con un vacío */
+                });
+                if(cambio){ f.cuentasBanco[clave]=next; saveFiscal(f); }
+                return cambio;
+            } catch(e) { return false; }
+        }
+        /* Línea identificadora de la cuenta para su panel: número de
+           tarjeta y/o de cuenta, banco y sucursal, en ese orden. */
+        function bancoLineaCuenta(clave){
+            const d=getDatosBancoCuenta(clave); const p=[];
+            if(d.numeroTarjeta) p.push('Tarjeta '+d.numeroTarjeta);
+            if(d.numeroCuenta) p.push('Cuenta '+d.numeroCuenta);
+            if(d.banco) p.push(d.banco);
+            if(d.sucursal) p.push('Sucursal '+d.sucursal);
+            return p.join(' · ');
+        }
+        /* Gancho del importador PDF (pdf-import.js): guarda la cabecera
+           del estado en la cuenta destino al confirmar la importación. */
+        window.__cuentaGuardarDatosBanco=function(clave, cab){ try { return guardarDatosBancoCuenta(clave, cab); } catch(e) { return false; } };
         function getAFTKey(){return `finanzas_aft_${getCurrentUser()}`;}
         function getAFT(){const x=Store.getItem(getAFTKey());if(!x)return {politica:{umbral:1000},activos:[],depreciaciones:{}};try{const d=JSON.parse(x)||{};if(!d.politica)d.politica={umbral:1000};if(!Array.isArray(d.activos))d.activos=[];if(!d.depreciaciones||Array.isArray(d.depreciaciones))d.depreciaciones={};return d;}catch(e){return {politica:{umbral:1000},activos:[],depreciaciones:{}};}}
         function saveAFT(d){Store.setItem(getAFTKey(),JSON.stringify(d));}
@@ -4114,7 +4158,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const seen=new Set(),obligaciones=[];
             for(const x of obs){const mes=MESES_ES.find(z=>normTxt(z)===normTxt(x.period))||x.period,periodo=`${mes} ${meta.anio}`,vence=isoVencimiento(x.day,x.mon,x.year),key=`${x.code}|${periodo}|${vence}`;if(seen.has(key))continue;seen.add(key);obligaciones.push({id:'vf_'+key.replace(/[^a-zA-Z0-9]+/g,'_'),codigo:x.code,concepto:tributos[x.code]||'Tributo según Vector Fiscal',periodo,vence,vector:true,importeManual:null});}
             obligaciones.sort((a,b)=>String(a.vence||'9999').localeCompare(String(b.vence||'9999'))||String(a.codigo).localeCompare(String(b.codigo)));
-            const prev=getFiscal(),manual=prev.obligaciones.filter(o=>!o.vector),d={meta,actividades:[...new Set(actividades)],tributos,obligaciones:[...obligaciones,...manual],source:{fileName:fileName||'RC-04A.pdf',importedAt:new Date().toISOString(),type:'RC-04A PDF'}};
+            const prev=getFiscal(),manual=prev.obligaciones.filter(o=>!o.vector),d={meta,actividades:[...new Set(actividades)],tributos,obligaciones:[...obligaciones,...manual],source:{fileName:fileName||'RC-04A.pdf',importedAt:new Date().toISOString(),type:'RC-04A PDF'},cuentasBanco:prev.cuentasBanco};
             saveFiscal(d);const filtro=document.getElementById('fiscalFiltro');if(filtro)filtro.value='vector';renderFiscal();
             alert(`✅ Vector Fiscal importado correctamente.\n\nObligaciones: ${obligaciones.length}\nTributos: ${Object.keys(tributos).length}\nActividades: ${d.actividades.length}\nAño: ${meta.anio||'—'}`);
         }
@@ -4782,6 +4826,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById(`saldoInicial-${cuenta}`).textContent = `$${saldoInicialVal.toFixed(2)} ${esUSD ? 'USD' : 'CUP'}`;
             const elCantMov = document.getElementById(`cantMov-${cuenta}`);
             if (elCantMov) elCantMov.textContent = movs.length;
+            /* Datos bancarios capturados del estado (titular/banco/
+               sucursal/números): línea identificadora bajo el nombre
+               de la cuenta. Sin datos guardados, la línea no se muestra. */
+            const elBanco = document.getElementById(`bancoInfo-${cuenta}`);
+            if (elBanco) {
+                const bl = bancoLineaCuenta(cuenta);
+                if (bl) { elBanco.textContent = '🏦 ' + bl; elBanco.style.display = ''; }
+                else { elBanco.textContent = ''; elBanco.style.display = 'none'; }
+            }
             
             const puedeEditarUsuario = puedeEditar();
             
@@ -6643,6 +6696,13 @@ function mjPermisos(rol,modulo){ const M={
                       const periodoConc=selP?selP.value:'';
                       const etiqCuenta=r.cuenta==='chequera'?'Chequera':(r.cuenta==='tarjeta_cup'?'Tarjeta CUP':(r.cuenta==='tarjeta_usd'?'Tarjeta USD':r.cuenta));
                       const mayorConc=((c.plantillas&&c.plantillas.banco)||{})[r.cuenta]||'—';
+                      /* Datos bancarios guardados de la cuenta (capturados
+                         del encabezado del estado al importar): banco y
+                         sucursal, y el número de cuenta junto al nombre.
+                         Sin datos guardados se mantiene el «—» de antes. */
+                      const bancoConc=getDatosBancoCuenta(r.cuenta);
+                      const bancoSucConc=(bancoConc.banco||bancoConc.sucursal)?[bancoConc.banco||'',bancoConc.sucursal?('Suc. '+bancoConc.sucursal):''].filter(Boolean).join(' · '):'—';
+                      const cuentaBancConc=etiqCuenta+(bancoConc.numeroCuenta?(' · '+bancoConc.numeroCuenta):'')+(bancoConc.numeroTarjeta?(' · Tarjeta '+bancoConc.numeroTarjeta):'');
                       const tablaResumenConc=docOficialTabla([{t:'SALDO SEGÚN LIBRO CONTABLE',n:true},{t:'SALDO SEGÚN ESTADO BANCARIO',n:true}],[[docOficialNum(r.saldoLibros),r.saldoBanco==null?'—':docOficialNum(r.saldoBanco)]]);
                       const filasPart=[];
                       const sepPart=t=>({c:[esc(t),'','','',''],cls:'docof-subtotal'});
@@ -6667,9 +6727,9 @@ function mjPermisos(rol,modulo){ const M={
                         campos:[
                           ['Entidad',esc(docOficialNegocio())],
                           ['Período conciliado',esc(periodoConc)],
-                          ['Banco / Sucursal','—'],
+                          ['Banco / Sucursal',esc(bancoSucConc)],
                           ['Fecha de emisión',esc(docOficialHoy())],
-                          ['Cuenta bancaria',esc(etiqCuenta)],
+                          ['Cuenta bancaria',esc(cuentaBancConc)],
                           ['Cuenta mayor',esc(mayorConc)]
                         ],
                         cuerpo:`<div class="docof-sec">I. RESUMEN DE SALDOS AL CIERRE DEL PERÍODO</div>${tablaResumenConc}<div class="docof-sec">II. PARTIDAS EN TRÁNSITO Y PARTIDAS PENDIENTES DE CONCILIAR</div>${tablaPart}${cierreConc}`,
@@ -8849,12 +8909,22 @@ function mjPermisos(rol,modulo){ const M={
                 filas,
                 [{ c: ['', '', esc('SALDO FINAL'), docOficialNum(totD), docOficialNum(totC), docOficialNum(saldoFinal)], cls: 'docof-total' }]
             );
+            /* Datos bancarios guardados de la cuenta (del encabezado del
+               estado importado): titular real del banco, banco, sucursal
+               y números. Sin datos guardados, el titular cae al nombre
+               del negocio y el resto queda «—» como antes. */
+            const bancoDoc = getDatosBancoCuenta(cuenta);
+            const numDoc = bancoDoc.numeroTarjeta
+                ? bancoDoc.numeroTarjeta + (bancoDoc.numeroCuenta ? ' · Cuenta ' + bancoDoc.numeroCuenta : '')
+                : (bancoDoc.numeroCuenta || '—');
             const html = docOficialHTML({
                 titulo: cfgDoc.titulo,
                 subtitulo: cfgDoc.subtitulo,
                 campos: [
-                    ['Titular', esc(docOficialNegocio())],
-                    ['No. de tarjeta / cuenta', '—'],
+                    ['Titular', esc(bancoDoc.titular || docOficialNegocio())],
+                    ['Banco', esc(bancoDoc.banco || '—')],
+                    ['Sucursal', esc(bancoDoc.sucursal || '—')],
+                    ['No. de tarjeta / cuenta', esc(numDoc)],
                     ['Moneda', esc(cfgDoc.moneda)],
                     ['Saldo inicial', docOficialNum(saldoInicial)],
                     ['Período', esc(periodo)]
@@ -8884,7 +8954,10 @@ function mjPermisos(rol,modulo){ const M={
             if (h) { regs = Array.isArray(h.registroQR) ? h.registroQR : registroQRDeMovs(h.movimientos || []); movsMes = h.movimientos || []; }
             else if (mesSel === actual) { regs = registroQRDeMovs(movimientos); movsMes = movimientos; }
             const nombresCuenta = { chequera: 'Chequera', tarjeta_cup: 'Tarjeta CUP', tarjeta_usd: 'Tarjeta USD' };
-            const cuentas = [...new Set(regs.map(r => r.cuenta).filter(Boolean))].map(cu => nombresCuenta[cu] || cu);
+            const cuentas = [...new Set(regs.map(r => r.cuenta).filter(Boolean))].map(cu => {
+                const db = getDatosBancoCuenta(cu);
+                return (nombresCuenta[cu] || cu) + (db.numeroCuenta ? ' · ' + db.numeroCuenta : '');
+            });
             let total = 0;
             const filas = regs.map(reg => {
                 total += Number(reg.monto) || 0;
