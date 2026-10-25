@@ -5599,8 +5599,18 @@ function ctaR2(n){return Math.round((Number(n)||0)*100)/100;}
      pago de la nómina se registran por totales del período (el detalle
      por trabajador vive en la nómina y en su Sección I de la DJ),
      igual que la antigua 220 (decisión D3 de la ronda 6).
-   - 316-000 (socio) igual: los pagos a socios se registran por
+   - 417 (socio) igual: los pagos a socios se registran por
      totales del trimestre; el detalle por socio vive en la DJ.
+     La 417 es la cuenta OFICIAL de dividendos por pagar del
+     Procedimiento Contable No. 28 del MFP (decisión de Leonardo,
+     2026-10-25): sustituye a la 316-000, que se conserva en el plan
+     solo para los saldos históricos ya asentados con ella. Va SIN
+     guion, como la 410 y con su mismo nivel 2: con código «417-000»
+     la regla de jerarquía la haría hija de la decena 410 y la 410
+     dejaría de ser cuenta de movimiento (rompería los créditos).
+   - 314-000 (crédito) SÍ lo exige y con integridad: su análisis es
+     «credito:<id>» y el validador comprueba que el crédito EXISTE en
+     Gestión (sin exenciones: la tipología de la cuenta lo declara).
    - 801/802 (cliente) no lo exigen: el auxiliar cliente se exige
      donde nace el derecho, en la 131-000; la línea de ventas de una
      venta de contado no tiene contraparte que exigir.
@@ -5645,8 +5655,9 @@ function ctaPlanSemilla(){return [
  {codigo:'310',nombre:'Cuentas por Pagar a Corto Plazo',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo'},
  {codigo:'311-000',nombre:'Cuentas por Pagar a Proveedores',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'proveedor',requiereAuxiliar:true},
  {codigo:'312-000',nombre:'Documentos por Pagar',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'proveedor',requiereAuxiliar:true},
+ {codigo:'314-000',nombre:'Intereses por Pagar (Créditos Bancarios)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'credito',requiereAuxiliar:true},
  {codigo:'315-000',nombre:'Cuentas por Pagar Diversas',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'proveedor',requiereAuxiliar:true},
- {codigo:'316-000',nombre:'Dividendos / Utilidades por Pagar a Socios',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'socio',requiereAuxiliar:false},
+ {codigo:'316-000',nombre:'Dividendos / Utilidades por Pagar a Socios (sustituida por la 417 · uso histórico)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'socio',requiereAuxiliar:false},
  {codigo:'318-000',nombre:'Cobros Anticipados de Clientes (Corto Plazo)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'cliente',requiereAuxiliar:true},
  {codigo:'330',nombre:'Obligaciones con el Trabajo y la Seguridad Social (Nómina)',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo'},
  {codigo:'331-000',nombre:'Nómina por Pagar (Sueldos y Salarios Líquidos)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'trabajador',requiereAuxiliar:false},
@@ -5660,6 +5671,7 @@ function ctaPlanSemilla(){return [
  {codigo:'345-000',nombre:'Impuesto sobre Ingresos Personales (Retenido en Nómina)',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo',auxiliar:'trabajador',requiereAuxiliar:true},
  {codigo:'400',nombre:'PASIVO NO CORRIENTE',naturaleza:'acreedora',nivel:1,admite:false,grupo:'pasivo'},
  {codigo:'410',nombre:'Préstamos Bancarios a Largo Plazo',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',auxiliar:'banco',requiereAuxiliar:true},
+ {codigo:'417',nombre:'Dividendos y Participaciones por Pagar',naturaleza:'acreedora',nivel:2,admite:true,grupo:'pasivo',auxiliar:'socio',requiereAuxiliar:false},
  {codigo:'440',nombre:'Ingresos Diferidos y Pasivos No Corrientes Diversos',naturaleza:'acreedora',nivel:2,admite:false,grupo:'pasivo'},
  {codigo:'440-010',nombre:'Ingresos Diferidos por Ventas/Servicios a Largo Plazo',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
  {codigo:'440-020',nombre:'Subvenciones y Donaciones de Capital por Amortizar',naturaleza:'acreedora',nivel:3,admite:true,grupo:'pasivo'},
@@ -5727,15 +5739,17 @@ function ctaPlanSemilla(){return [
      resultado neto a 520-000 y de ahí a utilidades retenidas 510-000.
    - Redondeo: según el signo — pérdida a 710-000, ganancia a 810-000
      (la antigua cuenta 549 desaparece). */
-function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'316-000',adelantosTrab:'139-000',difPos:'805-000',difNeg:'710-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
+function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'417',adelantosTrab:'139-000',difPos:'805-000',difNeg:'710-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
 function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],conceptosTes:[],candados:{},bandeja:[],estadosBanco:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqNota:0,seqArqueo:0};}
 function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
 /* Naturaleza como DATO del plan: si una cuenta no la trae (planes viejos o
    altas a mano), se deriva del grupo — nunca se inventa otra cosa. */
 function ctaNaturalezaDe(c){if(!c)return 'deudora';if(c.naturaleza)return c.naturaleza;return (c.grupo==='pasivo'||c.grupo==='patrimonio'||c.grupo==='ingreso')?'acreedora':'deudora';}
 /* Tipo de auxiliar (análisis) que usa la cuenta: cliente / proveedor /
-   trabajador / ninguno. Las cuentas viejas con analisis:'contraparte' se
-   leen como cliente o proveedor según el grupo. */
+   trabajador / socio / banco / crédito / ninguno. Las cuentas viejas
+   con analisis:'contraparte' se leen como cliente o proveedor según
+   el grupo. El tipo «crédito» (314-000) valida el análisis contra el
+   registro de créditos de Gestión (ver ctaValidarAsiento). */
 function ctaAuxiliarDe(c){if(!c)return 'ninguno';if(c.auxiliar)return c.auxiliar;if(c.analisis==='contraparte')return c.grupo==='pasivo'?'proveedor':'cliente';return 'ninguno';}
 /* Jerarquía del plan: B es hija de A si B = A + '.…' o si A es la clase
    (un dígito) y B empieza por ella. Ej.: 110.01 hija de 110 y de 1;
@@ -5785,7 +5799,13 @@ function ctaValidarAsiento(conta,a){
   const aux=ctaAuxiliarDe(c);
   if(c.requiereAuxiliar&&aux!=='ninguno'){const an=String(l.analisis||'').trim();
    if(!an)return {ok:false,motivo:'La cuenta '+l.cuenta+' requiere el auxiliar ('+aux+'): indica la contraparte en el análisis de la línea'};
-   if((aux==='cliente'||aux==='proveedor')&&(conta.contrapartes||[]).length&&!(conta.contrapartes||[]).some(x=>x.id===an))return {ok:false,motivo:'El auxiliar «'+an+'» de la cuenta '+l.cuenta+' no existe entre las contrapartes'};}}
+   if((aux==='cliente'||aux==='proveedor')&&(conta.contrapartes||[]).length&&!(conta.contrapartes||[]).some(x=>x.id===an))return {ok:false,motivo:'El auxiliar «'+an+'» de la cuenta '+l.cuenta+' no existe entre las contrapartes'};
+   /* Tipología «crédito» (314-000, decisión de Leonardo 2026-10-25):
+      el análisis debe ser «credito:<id>» y el crédito debe EXISTIR en
+      el registro de Gestión — integridad real declarada por la cuenta,
+      sin eximir ningún análisis. */
+   if(aux==='credito'){const mm=/^credito:(.+)$/.exec(an);if(!mm)return {ok:false,motivo:'La cuenta '+l.cuenta+' requiere el auxiliar (crédito) con el análisis «credito:<id>» del crédito'};
+    if(!ctaCreditoDe(conta,mm[1]))return {ok:false,motivo:'El auxiliar «'+an+'» de la cuenta '+l.cuenta+' no existe entre los créditos registrados en Gestión'};}}}
  if(Math.abs(ctaR2(d)-ctaR2(h))>0.005||d<=0)return {ok:false,motivo:'Asiento desbalanceado: Debe '+ctaR2(d)+' ≠ Haber '+ctaR2(h)};
  const anio=String(a.fecha||'').slice(0,4);
  if((conta.cierres||[]).some(c=>String(c.anio)===anio)&&a.origen!=='cierre'&&a.origen!=='apertura')return {ok:false,motivo:'El año '+anio+' está cerrado contablemente'};
@@ -5942,17 +5962,32 @@ function ctaBancoDe(conta,cuentaKey){const p=conta.plantillas||ctaPlantillasDef(
    (núcleo contable), la regla cubre los movimientos nuevos y los YA
    importados cuando se regenera la contabilidad. */
 const CTA_VENTA_CORREO='801-000';
-/* Cuenta del gasto por intereses de un crédito al PAGAR la cuota
-   (710-000, la misma que carga el devengo de intereses de Gestión+).
-   La parte de intereses NO va a la 315-000: esa cuenta exige
-   auxiliar «proveedor» y el validador rechaza el análisis
-   «credito:<id>» en cuanto el negocio tiene contrapartes — de hecho
-   el propio devengo de Gestión+ (Dr 710-000 / Cr 315-000 con ese
-   análisis) choca hoy con esa misma validación; es un defecto
-   preexistente del subsistema de créditos, ajeno a esta pasada.
-   El principal de la cuota carga a la cuenta propia del crédito
-   (cr.cuenta, hoy «410», auxiliar «banco»: admite el análisis). */
+/* Intereses de un crédito (decisión de Leonardo, 2026-10-25, opción 2
+   de ajuste técnico — SIN exenciones en el validador):
+   - El DEVENGO (mjCreditoDevengoMes, Gestión+) carga el gasto a la
+     710-000 y abona la 314-000 «Intereses por Pagar (Créditos
+     Bancarios)»: subcuenta del bloque 310 de pasivos exigibles a
+     corto plazo, SEPARADA del principal (que sigue en la cuenta
+     propia del crédito, cr.cuenta) y con tipología de auxiliar
+     «crédito»: su análisis «credito:<id>» es válido porque la
+     cuenta lo declara y el validador comprueba que el crédito
+     existe en Gestión. (Antes el devengo abonaba la 315-000, de
+     auxiliar «proveedor», y el validador lo rechazaba en cuanto el
+     negocio tenía contrapartes: defecto ya corregido.)
+   - Al PAGAR la cuota, la parte de intereses se liquida primero
+     contra el saldo devengado en la 314-000 (Dr 314-000) y solo el
+     resto —si el interés de la fila supera lo devengado— va al
+     gasto 710-000: un interés devengado NUNCA se gasta dos veces.
+     Sin devengo previo, la cuota carga todo el interés a la 710-000,
+     como siempre. */
 const CTA_CREDITO_GASTO_INT='710-000';
+const CTA_CREDITO_INT_X_PAGAR='314-000';
+/* Saldo de intereses DEVENGADOS y aún no pagados de un crédito:
+   Haber − Debe de la 314-000 con el análisis «credito:<id>» (las
+   líneas filtradas ya netean los contraasientos de anulaciones). */
+function ctaInteresDevengadoPendiente(conta,creditoId){const an='credito:'+creditoId;let s=0;
+ for(const x of ctaLineasFiltradas(conta,{cuenta:CTA_CREDITO_INT_X_PAGAR})){if(x.linea.analisis!==an)continue;s=ctaR2(s+(Number(x.linea.haber)||0)-(Number(x.linea.debe)||0));}
+ return Math.max(0,s);}
 function ctaEsVentaCorreo(mov){
  if(!mov||mov.tipo!=='ingreso')return false;
  if((mov.clasificacion||'operacional')!=='operacional')return false;
@@ -6035,8 +6070,10 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
    if(falta(P.fondoContingencia))return pend('Falta la cuenta del fondo de contingencia en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Uso del fondo de contingencia · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.fondoContingencia,debe:cup,haber:0,centro},l]}]};}
  if(clas==='utilidades'){
-   /* Pago de utilidades/dividendos a socios: contra Dividendos por
-      pagar (pasivo 316-000) — distribución de patrimonio, NUNCA gasto. */
+   /* Pago de utilidades/dividendos a socios: contra Dividendos y
+      Participaciones por Pagar (pasivo 417, la cuenta oficial
+      del PC No. 28 del MFP; decisión de Leonardo, 2026-10-25) —
+      distribución de patrimonio, NUNCA gasto. */
    if(falta(P.dividendosPorPagar))return pend('Falta la cuenta de dividendos por pagar en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de utilidades a socios · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.dividendosPorPagar,debe:cup,haber:0,centro},l]}]};}
  if(clas==='salario'){
@@ -6061,13 +6098,22 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
    const anCred='credito:'+cr.id,nomCred=cr.numero||cr.id;
    if(mov.tipo==='ingreso'){const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:'Desembolso del crédito '+nomCred+' · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:ctaCred,debe:0,haber:cup,analisis:anCred,centro}]}]};}
    if(mov.tipo==='gasto'){const fila=(cr.tabla||[]).find(f=>Number(f.n)===Number(mov.creditoFila));const l=linUSD(banco);l.debe=0;l.haber=cup;
-     /* Pago de cuota: principal a la cuenta del crédito e intereses
-        al gasto financiero 710-000 (ver CTA_CREDITO_GASTO_INT), con
-        el análisis «credito:<id>» en ambas líneas de cargo. Si la
-        fila no cuadra con el importe (o no hay fila), todo el pago
-        carga a la cuenta del crédito. */
-     if(fila&&(Number(fila.interes)||0)>0&&(Number(fila.principal)||0)>0&&Math.abs((Number(fila.principal)||0)+(Number(fila.interes)||0)-cup)<=0.011){if(falta(CTA_CREDITO_GASTO_INT))return pend('Falta la cuenta de gasto de intereses ('+CTA_CREDITO_GASTO_INT+') en el plan');
-       return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de cuota del crédito '+nomCred+' · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:ctaCred,debe:ctaR2(fila.principal),haber:0,analisis:anCred,centro},{cuenta:CTA_CREDITO_GASTO_INT,debe:ctaR2(fila.interes),haber:0,analisis:anCred,centro},l]}]};}
+     /* Pago de cuota: principal a la cuenta del crédito; los intereses
+        se liquidan contra lo DEVENGADO en la 314-000 (Dr 314-000) y
+        solo el exceso sobre el gasto financiero 710-000 — ver
+        CTA_CREDITO_INT_X_PAGAR — con el análisis «credito:<id>» en
+        las líneas de cargo. Si la fila no cuadra con el importe (o
+        no hay fila), todo el pago carga a la cuenta del crédito. */
+     if(fila&&(Number(fila.interes)||0)>0&&(Number(fila.principal)||0)>0&&Math.abs((Number(fila.principal)||0)+(Number(fila.interes)||0)-cup)<=0.011){
+       const intFila=ctaR2(fila.interes);
+       const devPend=ctaCuenta(conta,CTA_CREDITO_INT_X_PAGAR)?ctaInteresDevengadoPendiente(conta,cr.id):0;
+       const desdeDev=Math.min(intFila,devPend), restoInt=ctaR2(intFila-desdeDev);
+       if(restoInt>0&&falta(CTA_CREDITO_GASTO_INT))return pend('Falta la cuenta de gasto de intereses ('+CTA_CREDITO_GASTO_INT+') en el plan');
+       const lineasCuota=[{cuenta:ctaCred,debe:ctaR2(fila.principal),haber:0,analisis:anCred,centro}];
+       if(desdeDev>0)lineasCuota.push({cuenta:CTA_CREDITO_INT_X_PAGAR,debe:desdeDev,haber:0,analisis:anCred,centro});
+       if(restoInt>0)lineasCuota.push({cuenta:CTA_CREDITO_GASTO_INT,debe:restoInt,haber:0,analisis:anCred,centro});
+       lineasCuota.push(l);
+       return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de cuota del crédito '+nomCred+' · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:lineasCuota}]};}
      return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de crédito '+nomCred+' · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:ctaCred,debe:cup,haber:0,analisis:anCred,centro},l]}]};}
    return pend('Movimiento vinculado a un crédito de tipo no reconocido: '+mov.tipo);}
  if(mov.tipo==='ingreso'){
@@ -6458,7 +6504,7 @@ function ctaProgramadorPagos(conta,fechaHoy){const hoyF=fechaHoy||'';const items
    sinClasificar — NUNCA se borra una cuenta, tenga saldo o no; las
    clases y rubros viejos (1, 2, 110, 120…) se absorben en la
    estructura nueva porque ninguna línea vive en ellos. */
-const CTA_MAPA_CUENTAS={'110.01':'110-010','110.02':'110-010','110.03':'110-020','110.04':'101-010','120.01':'131-000','130.01':'188-000','140':'243-000','141':'253-000','210.01':'311-000','220':'331-000','221':'331-000','222':'333-000','223':'332-000','240':'410','250':'315-000','251':'316-000','310':'501-000','320':'505-000','320.01':'505-000','330':'510-000','335':'135-000','340':'901-000','410':'801-000','420':'810-000','421':'805-000','510':'695-000','520':'705-000','521':'614-000','522':'615-000','523':'615-000','524':'613-000','525':'614-000','530':'710-000','531':'710-000','540':'720-000'};
+const CTA_MAPA_CUENTAS={'110.01':'110-010','110.02':'110-010','110.03':'110-020','110.04':'101-010','120.01':'131-000','130.01':'188-000','140':'243-000','141':'253-000','210.01':'311-000','220':'331-000','221':'331-000','222':'333-000','223':'332-000','240':'410','250':'315-000','251':'417','310':'501-000','320':'505-000','320.01':'505-000','330':'510-000','335':'135-000','340':'901-000','410':'801-000','420':'810-000','421':'805-000','510':'695-000','520':'705-000','521':'614-000','522':'615-000','523':'615-000','524':'613-000','525':'614-000','530':'710-000','531':'710-000','540':'720-000'};
 /* Mapa para códigos SUELTOS (plantillas, reglas, documentos, arqueos,
    aperturas): la 230 genérica va a 341-000 y la 549 a 710-000. En las
    LÍNEAS de asiento, 230 y 549 se resuelven por línea (abajo). */
@@ -6993,8 +7039,10 @@ function mjDJUtilidadesPJ(conta,anio,datos){ datos=datos||{}; const A=String(ani
     saldoAPagar:mjR2(impuesto-pagosCuenta),plazo:(Number(anio)+1)+'-03-31',
     formato:'Salida preparada para firmar digitalmente y transcribir al modelo/servicio oficial de Utilidades de la ONAT (Res. 8/2024). No es el modelo oficial celda a celda.'}; }
 /* Anticipo de dividendos a socio: la MIPYME retiene el 5 % y lo aporta
-   (cuenta 345-000); el neto sale por banco/caja contra Dividendos por
-   pagar (316-000). Idempotente por id del anticipo. */
+   (cuenta 345-000); el neto sale por banco/caja contra Dividendos y
+   Participaciones por Pagar (417, la cuenta oficial del PC
+   No. 28 del MFP; decisión de Leonardo, 2026-10-25 — antes 316-000).
+   Idempotente por id del anticipo. */
 function mjRegistrarAnticipoDividendo(conta,datos){ datos=datos||{}; const g=mjAsegurarGestion(conta);
   const clave='anticipo-div:'+datos.id;
   if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true};
@@ -7004,7 +7052,7 @@ function mjRegistrarAnticipoDividendo(conta,datos){ datos=datos||{}; const g=mjA
   const ret=mjR2(imp*0.05), neto=mjR2(imp-ret);
   const P=conta.plantillas||{}; const banco=datos.cuentaSalida==='caja'?(P.caja||'101-010'):((P.banco||{}).chequera||'110-010');
   const r=ctaAgregarAsiento(conta,{fecha:datos.fecha,concepto:'Anticipo de dividendos · '+socio,origen:'manual',fuenteKey:clave,
-    lineas:[{cuenta:P.dividendosPorPagar||'316-000',debe:imp,haber:0,analisis:socio},
+    lineas:[{cuenta:P.dividendosPorPagar||'417',debe:imp,haber:0,analisis:socio},
             {cuenta:P.iipRetenido||'345-000',debe:0,haber:ret,analisis:socio},
             {cuenta:banco,debe:0,haber:neto}]});
   if(!r.ok) return {ok:false,motivo:r.motivo};
@@ -7364,8 +7412,16 @@ function mjCreditoDevengoMes(conta,credito,periodo,fecha,usuario){ const g=mjAse
   const fila=(credito.tabla||[]).find(f=>String(f.fecha||'').slice(0,7)===String(fecha||'').slice(0,7));
   if(!fila) return {ok:false,motivo:'La tabla de amortización no cubre '+periodo};
   if(!(fila.interes>0)) return {ok:true,interes:0,nota:'Sin intereses este mes'};
+  /* El abono va a la 314-000 «Intereses por Pagar (Créditos
+     Bancarios)» — opción 2 de Leonardo (2026-10-25): la subcuenta
+     exacta del plan para intereses, separada del principal, con
+     auxiliar tipología «crédito»: el análisis «credito:<id>» pasa el
+     validador porque la cuenta lo declara y el crédito existe en
+     Gestión (antes abonaba la 315-000, auxiliar «proveedor», y el
+     devengo era rechazado en cuanto había contrapartes). */
+  const ctaIntXP=(typeof CTA_CREDITO_INT_X_PAGAR!=='undefined')?CTA_CREDITO_INT_X_PAGAR:'314-000';
   const r=ctaAgregarAsiento(conta,{fecha:fecha,concepto:'Intereses devengados del crédito '+(credito.numero||credito.id)+' · '+periodo,origen:'manual',fuenteKey:clave,
-    lineas:[{cuenta:'710-000',debe:fila.interes,haber:0},{cuenta:'315-000',debe:0,haber:fila.interes,analisis:'credito:'+credito.id}]});
+    lineas:[{cuenta:'710-000',debe:fila.interes,haber:0},{cuenta:ctaIntXP,debe:0,haber:fila.interes,analisis:'credito:'+credito.id}]});
   if(!r.ok) return {ok:false,motivo:r.motivo};
   mjBitacoraAdd(conta,usuario||'','devengo de intereses','crédito '+(credito.numero||credito.id),'',periodo+' · '+fila.interes);
   return {ok:true,interes:fila.interes,asiento:r.asiento}; }
@@ -7435,7 +7491,14 @@ function mjPermisos(rol,modulo){ const M={
                cuenta no los define (lo que el dueño haya editado manda). */
             const _seed={}; base.plan.forEach(x=>{ _seed[x.codigo]=x; }); c.plan.forEach(x=>{ const s=_seed[x.codigo]; if(s){ if(x.auxiliar===undefined&&s.auxiliar!==undefined) x.auxiliar=s.auxiliar; if(x.requiereAuxiliar===undefined&&s.requiereAuxiliar!==undefined) x.requiereAuxiliar=s.requiereAuxiliar; } });
             if(!c.seqComp||typeof c.seqComp!=='object'||Array.isArray(c.seqComp)) c.seqComp={};
-            c.plantillas=Object.assign(base.plantillas,d.plantillas||{}); c.plantillas.banco=Object.assign(base.plantillas.banco,(d.plantillas||{}).banco||{}); ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','conceptosTes','bandeja','estadosBanco','notas','arqueos'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); if(!c.candados||typeof c.candados!=='object'||Array.isArray(c.candados)) c.candados={}; try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
+            c.plantillas=Object.assign(base.plantillas,d.plantillas||{}); c.plantillas.banco=Object.assign(base.plantillas.banco,(d.plantillas||{}).banco||{});
+            /* Decisión de Leonardo (2026-10-25): los dividendos por pagar
+               van a la 417 OFICIAL del PC No. 28 del MFP. Si la
+               plantilla guardada aún trae el valor por defecto anterior
+               (316-000), se recodifica aquí; un valor distinto, puesto a
+               mano por el dueño, se respeta. Los asientos históricos ya
+               generados con la 316-000 NO se tocan. */
+            if(c.plantillas.dividendosPorPagar==='316-000') c.plantillas.dividendosPorPagar='417'; ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','conceptosTes','bandeja','estadosBanco','notas','arqueos'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); if(!c.candados||typeof c.candados!=='object'||Array.isArray(c.candados)) c.candados={}; try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
         function saveConta(d){ Store.setItem(getContaKey(), JSON.stringify(d)); }
         function contaEventos(clonar){ const ev=[]; const cp=m=>clonar?JSON.parse(JSON.stringify(m)):m;
             for(const h of getHistorial()){ if(Array.isArray(h.movimientos)) for(const m of h.movimientos) ev.push({tipo:'mov',periodo:h.mes,mov:cp(m),fecha:m.fecha,tasa:Number(h.tasa)||tasaVista()}); }
@@ -9854,7 +9917,7 @@ function mjPermisos(rol,modulo){ const M={
             saveConta(c); mjRenderGestion(); alert('✅ Crédito registrado: cuota mensual '+moneda(tabla.cuota)+' · intereses totales '+moneda(tabla.totalIntereses)+'. Devenga los intereses cada período con el botón.'); }
         function mjCreditoDevengoUI(id){ const c=getConta(); const g=mjGestionDe(c); const cr=g.creditos.find(x=>x.id===id); if(!cr) return;
             const per=periodoNominaActual(); const r=mjCreditoDevengoMes(c,cr,per,fechaContablePeriodo(per),getCurrentUser());
-            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'Los intereses de '+per+' ya estaban devengados.':'✅ Intereses de '+per+' devengados: '+moneda(r.interes)+' (Dr 710-000 / Cr 315-000).'); }
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'Los intereses de '+per+' ya estaban devengados.':'✅ Intereses de '+per+' devengados: '+moneda(r.interes)+' (Dr 710-000 / Cr 314-000 Intereses por Pagar).'); }
         function mjSaldoDivisaUI(){ const cuenta=prompt('Cuenta contable del saldo (ej. 131-000):','131-000'); if(!cuenta) return;
             const naturaleza=confirm('¿Es un PASIVO (Aceptar) o un ACTIVO (Cancelar)?')?'pasivo':'activo';
             const monto=Number(prompt('Saldo en divisa:','0'))||0; const tasa=Number(prompt('Tasa a la que está registrado:','0'))||0;
