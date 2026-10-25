@@ -1367,6 +1367,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala dividendos de socios (tope:tasa%)</label><input id="djParEscalaDiv" class="form-control form-control-sm" placeholder="75000:3, 150000:5, 250000:10, 350000:15, :20"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Retención anticipos de dividendos %</label><input id="djParRetDiv" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
                 </div>
+                <div class="row g-2 mt-1">
+                    <div class="col-12 col-md-5"><label class="form-label small mb-1">Fuente de verificación (ficha normativa)</label><input id="djParFuenteVerif" class="form-control form-control-sm" placeholder="Ej.: Gaceta Oficial, consulta en ONAT…"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Fecha de verificación</label><input id="djParFechaVerif" type="date" class="form-control form-control-sm"></div>
+                    <div class="col-6 col-md-4"><label class="form-label small mb-1">Vigencia comprobada / notas</label><input id="djParVigenciaVerif" class="form-control form-control-sm" placeholder="Ej.: Vigente, comprobado en fuente oficial"></div>
+                    <div class="col-12"><div id="djVerifResumen" class="small text-secondary mt-1"></div></div>
+                </div>
                 <div class="text-end mt-3"><button class="btn btn-sm btn-primary" id="btnDjGuardarParams"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar parámetros del año</button></div>
             </div>
             <div id="djCalcTCP">
@@ -1412,7 +1418,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="mb-3 d-flex flex-wrap gap-2 align-items-center"><span id="contaAvisoPend"></span><span class="small text-secondary" id="contaPreviewTxt"></span></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-grid-3x3-gap me-2"></i>Panel de cuadres <span class="small text-secondary">· período <span id="contaCuadresPeriodo"></span></span></h6><p class="small text-secondary">Cada submayor contra su cuenta del mayor, en vivo: bancos (saldos por cuenta, con el saldo inicial encadenado), cuentas por cobrar y por pagar, inventarios, activos fijos, la provisión de vacaciones y las retenciones de nómina. Lo que no tenga datos fiables sale como «Sin datos», nunca rellenado.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Cuadre</th><th class="text-end">Submayor</th><th class="text-end">Mayor</th><th class="text-end">Diferencia</th><th>Estado</th></tr></thead><tbody id="contaCuadresBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-grid-3x3-gap me-2"></i>Panel de cuadres <span class="small text-secondary">· período <span id="contaCuadresPeriodo"></span></span></h6><p class="small text-secondary">Cada submayor contra su cuenta del mayor, en vivo: bancos (saldos por cuenta, con el saldo inicial encadenado), cuentas por cobrar y por pagar, inventarios, activos fijos, la provisión de vacaciones y las retenciones de nómina. Vacaciones y retenciones comparan lo DEVENGADO según Nómina (la misma fuente de los submayores impresos) contra lo devengado en libros; si el negocio no tiene trabajadores, esas filas dicen «No aplica». Lo que no tenga datos fiables sale como «Sin datos», nunca rellenado.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Cuadre</th><th class="text-end">Submayor</th><th class="text-end">Mayor</th><th class="text-end">Diferencia</th><th>Estado</th></tr></thead><tbody id="contaCuadresBody"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank2 me-2"></i>Conceptos de tesorería <span class="small text-secondary">(catálogo de contrapartidas, editable por ti)</span></h6><p class="small text-secondary">El concepto aporta «el otro elemento de la partida» (partida doble) cuando el banco trae un movimiento con ese texto. <b>El tipo de contrapartida se elige por el ORIGEN de la cuenta</b> (modelo de los manuales del Versat): si la cuenta se teclea directa es <b>Cuenta contable</b> (el único tipo que admite cuenta); si el «gasto» es en realidad un traspaso a otra cuenta tuya es <b>Cuenta bancaria</b>; si liquida una factura es <b>Obligación</b> y si viene de un crédito es <b>Crédito bancario</b> — en esos dos la contrapartida la aporta el documento o el crédito, no una cuenta fija, y el movimiento queda pendiente hasta enlazarlo. <b>Regla de integridad:</b> ningún cobro/pago se asienta sin contrapartida; lo que no la tiene queda en la bandeja, nunca se rellena. Precedencia: manda lo estructural/fiscal (transferencias, ONAT, documentos…), luego tu imputación manual, luego la regla aprendida y este concepto, y por último las genéricas (venta por correo → 801-000) y las plantillas. Ejemplos del manual adaptados a tu plan: «Intereses y comisiones bancarias» → 835-000 · «Extraído para nóminas» → 455-000.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-4"><label class="form-label mb-1 small">Texto del concepto (patrón)</label><input id="contaTesPatron" class="form-control form-control-sm" placeholder="Ej.: Pago ETECSA"></div><div class="col-md-2"><label class="form-label mb-1 small">Aplica a</label><select id="contaTesTipo" class="form-select form-select-sm"><option value="ambos">Ingresos y gastos</option><option value="gasto">Solo gastos</option><option value="ingreso">Solo ingresos</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Uso del concepto</label><select id="contaTesUso" class="form-select form-select-sm"><option value="cobro-pago">Al efectuar un Cobro / Pago</option><option value="obligacion">Al crear una Obligación</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Actividad que lo habilita</label><select id="contaTesActividad" class="form-select form-select-sm"><option value="Banco y Caja">Banco y Caja</option><option value="Banco">Banco</option><option value="Caja">Caja</option></select></div></div><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Tipo de contrapartida (por el origen)</label><select id="contaTesTipoCp" class="form-select form-select-sm" onchange="contaTesTipoUI()"><option value="cuenta-contable">Cuenta contable (cuenta directa)</option><option value="cuenta-bancaria">Cuenta bancaria (traspaso)</option><option value="obligacion">Obligación (la aporta el documento)</option><option value="credito-bancario">Crédito bancario (lo aporta el crédito)</option></select></div><div class="col-md-3" id="contaTesCuentaWrap"><label class="form-label mb-1 small">Cuenta contrapartida</label><input id="contaTesCuenta" class="form-control form-control-sm" list="contaCuentasList" placeholder="Código (ej. 705-000)"></div><div class="col-md-3" id="contaTesDestinoWrap" style="display:none"><label class="form-label mb-1 small">Cuenta destino del traspaso</label><select id="contaTesDestino" class="form-select form-select-sm"><option value="">— Elige la cuenta —</option><option value="chequera">Chequera CUP</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option><option value="caja">Caja</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Tipo de comprobante asociado</label><select id="contaTesTComp" class="form-select form-select-sm"><option value="Operaciones">Operaciones</option><option value="Ajuste">Ajuste</option><option value="Traspaso">Traspaso</option></select></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-success" onclick="contaTesAdd()"><i class="bi bi-plus-lg me-1"></i>Guardar concepto</button></div></div><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Uso</th><th>Tipo de contrapartida</th><th>Contrapartida</th><th>Variación del saldo</th><th>Actividad · Comprobante</th><th>Estado</th><th></th></tr></thead><tbody id="contaTesBody"></tbody></table></div><p class="small text-secondary mt-2 mb-0">El tipo de comprobante asociado cubre las tres operaciones del documento: Confirmación, Ajuste y Cancelación.</p></div>
             <div class="row g-3 mb-3"><div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Situación Financiera</h6><div id="contaSituacionBox"></div></div></div>
             <div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Resultados</h6><div class="mb-2"><select id="contaResCentro" class="form-select form-select-sm" style="width:auto"><option value="">Todos los centros</option></select></div><div id="contaResultadosBox"></div></div></div></div>
@@ -1543,6 +1549,93 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div id="mjLaboralBox" class="small mb-3"></div>
                 <div id="mjConsignacionBox" class="small"></div>
                 <div class="small text-secondary mt-3">Trabajo sin conexión: lo garantiza el blindaje de la ronda 10 (copia local restaurable + reintento de guardado + aviso «sin guardar»). No se promete sincronización nueva entre dispositivos.</div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="lbCalcCard">
+                <h6 class="fw-semibold mb-3">Costos, precios y equilibrio (guía del libro)</h6>
+                <div class="small text-secondary mb-3">Método general del libro «Finanzas Inteligentes en Cuba»: primero el costo real, después el precio y por último cuántas unidades hay que vender para no perder. Esta ficha es el método general del libro y <b>NO sustituye la «Ficha de costos 148/2023»</b> que ya existe en esta misma pantalla (en la tarjeta «Gestión (ronda 12)»), que sigue siendo la de la normativa.</div>
+
+                <div class="fw-semibold mb-2">Ficha de costo (Plantilla 6)</div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-4"><label class="form-label small mb-0" for="lbProducto">Producto o servicio</label><input id="lbProducto" class="form-control form-control-sm" placeholder="Ej.: Pastel por encargo"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbHechas">Unidades hechas</label><input type="number" id="lbHechas" class="form-control form-control-sm" value="0" min="0" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbPerdidas">Unidades perdidas/dañadas</label><input type="number" id="lbPerdidas" class="form-control form-control-sm" value="0" min="0" step="any"></div>
+                </div>
+                <div class="small fw-semibold mb-1">Costos directos</div>
+                <div class="table-responsive mb-2"><table class="table table-sm align-middle mb-1"><thead><tr><th>Concepto</th><th style="width:160px">Monto</th><th>Nota</th><th style="width:70px"></th></tr></thead><tbody id="lbDirBody">
+                    <tr><td><input class="form-control form-control-sm lb-dir-nombre" value="Materia prima/mercancía"></td><td><input type="number" class="form-control form-control-sm lb-dir-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-dir-nota" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                    <tr><td><input class="form-control form-control-sm lb-dir-nombre" value="Envases"></td><td><input type="number" class="form-control form-control-sm lb-dir-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-dir-nota" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                    <tr><td><input class="form-control form-control-sm lb-dir-nombre" value="Transporte de la compra"></td><td><input type="number" class="form-control form-control-sm lb-dir-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-dir-nota" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                    <tr><td><input class="form-control form-control-sm lb-dir-nombre" value="Mi propio trabajo (pago por mi trabajo)"></td><td><input type="number" class="form-control form-control-sm lb-dir-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-dir-nota" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                </tbody></table></div>
+                <div class="mb-3"><button type="button" class="btn btn-sm btn-outline-primary" onclick="lbAddDir()">+ Añadir</button></div>
+                <div class="small fw-semibold mb-1">Costos indirectos asignados</div>
+                <div class="table-responsive mb-2"><table class="table table-sm align-middle mb-1"><thead><tr><th>Concepto</th><th style="width:160px">Monto asignado</th><th>Criterio de reparto</th><th style="width:70px"></th></tr></thead><tbody id="lbIndBody">
+                    <tr><td><input class="form-control form-control-sm lb-ind-nombre" value="Alquiler"></td><td><input type="number" class="form-control form-control-sm lb-ind-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-ind-criterio" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                    <tr><td><input class="form-control form-control-sm lb-ind-nombre" value="Electricidad"></td><td><input type="number" class="form-control form-control-sm lb-ind-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-ind-criterio" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                    <tr><td><input class="form-control form-control-sm lb-ind-nombre" value="Depreciación de equipos"></td><td><input type="number" class="form-control form-control-sm lb-ind-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-ind-criterio" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                    <tr><td><input class="form-control form-control-sm lb-ind-nombre" value="Mantenimiento"></td><td><input type="number" class="form-control form-control-sm lb-ind-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-ind-criterio" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                    <tr><td><input class="form-control form-control-sm lb-ind-nombre" value="Administración"></td><td><input type="number" class="form-control form-control-sm lb-ind-monto" value="" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-ind-criterio" value=""></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td></tr>
+                </tbody></table></div>
+                <div class="mb-3"><button type="button" class="btn btn-sm btn-outline-primary" onclick="lbAddInd()">+ Añadir</button></div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-3"><label class="form-label small mb-0" for="lbDepPrecio">Precio del equipo (depreciación)</label><input type="number" id="lbDepPrecio" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbDepVida">Vida útil (meses)</label><input type="number" id="lbDepVida" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="lbDepUI()">Calcular depreciación</button></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-success w-100" onclick="lbDepSumarUI()">Sumar a indirectos</button></div>
+                    <div class="col-md-3"><div id="lbDepBox" class="small"></div></div>
+                </div>
+                <div class="mb-2"><button type="button" class="btn btn-sm btn-primary" onclick="lbFichaUI()">Calcular ficha</button></div>
+                <div id="lbFichaBox" class="small mb-3"></div>
+                <div class="alert alert-info py-2 px-3 small mb-2">El costo de las unidades perdidas lo pagan las vendibles: divide entre vendibles, no entre producidas.</div>
+                <div class="alert alert-warning py-2 px-3 small mb-2">No olvides asignarte un monto por tu propio trabajo; si no, el beneficio es ficticio.</div>
+                <div class="alert alert-secondary py-2 px-3 small mb-4">Para poner precio se usa el costo de <b>REPOSICIÓN</b> (lo que costaría reponer hoy la materia prima o la mercancía), no el costo histórico de la última compra.</div>
+
+                <div class="fw-semibold mb-2">Calculadora de precios</div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbPrecioCosto">Costo unitario</label><input type="number" id="lbPrecioCosto" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="lbTraerCostoUI()">Traer de la ficha</button></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbRecargoPct">% recargo</label><input type="number" id="lbRecargoPct" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbMargenPct">% margen</label><input type="number" id="lbMargenPct" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbPrecioElegido">Precio final elegido</label><input type="number" id="lbPrecioElegido" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-primary w-100" onclick="lbPreciosUI()">Calcular precios</button></div>
+                </div>
+                <div id="lbPreciosBox" class="small mb-2"></div>
+                <div class="alert alert-warning py-2 px-3 small mb-2">⚠️ Margen ≠ recargo: el recargo se calcula sobre el COSTO y el margen sobre el PRECIO. Un recargo del 40 % equivale a un margen del 28,57 %; un margen del 30 % equivale a un recargo del 42,86 %. Con el mismo número, el precio con margen sale más alto.</div>
+                <div class="small text-secondary mb-4">¿El precio respeta la normativa de precios aplicable a tu actividad? Verifícalo en fuente oficial antes de aplicarlo (esta calculadora es una herramienta de análisis, no fija precios oficiales).</div>
+
+                <div class="fw-semibold mb-2">Punto de equilibrio</div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbEqFijos">Costos fijos del mes</label><input type="number" id="lbEqFijos" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbEqPrecio">Precio de venta</label><input type="number" id="lbEqPrecio" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbEqCvu">Costo variable por unidad</label><input type="number" id="lbEqCvu" class="form-control form-control-sm" value="" placeholder="0" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbEqVentas">Ventas reales del mes (unidades, opcional)</label><input type="number" id="lbEqVentas" class="form-control form-control-sm" value="" placeholder="Opcional" step="any"></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-sm btn-primary w-100" onclick="lbEquilibrioUI()">Calcular equilibrio</button></div>
+                </div>
+                <div id="lbEquiBox" class="small"></div>
+            </div>
+            <div class="card p-3 p-md-4 mb-4" id="lbTableroCard">
+                <h6 class="fw-semibold mb-3">Tablero de indicadores del mes</h6>
+                <div class="small text-secondary mb-3">Plantilla 18 del libro «Finanzas Inteligentes en Cuba»: la salud del negocio de un vistazo, comparada con el mes anterior y con semáforo (Bien / Revisar / Mal). Las ventas, el beneficio neto antes de impuestos y obligaciones y el efectivo salen de los datos del negocio; las cuentas por cobrar y por pagar, de los submayores contables; el inventario, de los indicadores contables. Lo que no se puede calcular solo se captura en «Ajustes del tablero» y se guarda en este equipo.</div>
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-4"><label class="form-label small mb-0" for="lbTabPeriodo">Período</label><select id="lbTabPeriodo" class="form-select form-select-sm" onchange="lbTableroRender()"></select></div>
+                    <div class="col-md-3"><button type="button" class="btn btn-sm btn-outline-primary w-100" onclick="lbTableroRender()">Actualizar</button></div>
+                    <div class="col-md-5"><div id="lbTabInfo" class="small text-secondary"></div></div>
+                </div>
+                <div class="table-responsive mb-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Indicador</th><th class="text-end">Este mes</th><th class="text-end">Mes anterior</th><th class="text-end">Diferencia</th><th>¿Cómo va?</th></tr></thead><tbody id="lbTableroBody"><tr><td colspan="5" class="text-secondary">Pulsa «Actualizar» para cargar el tablero.</td></tr></tbody></table></div>
+                <div class="fw-semibold mb-2">Ajustes del tablero (valores manuales)</div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-3"><label class="form-label small mb-0" for="lbTabBeneficio">Beneficio bruto (CUP)</label><input type="number" id="lbTabBeneficio" class="form-control form-control-sm" placeholder="Vacío = sugerido / sin dato" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbTabCxC">Cuentas por cobrar (CUP)</label><input type="number" id="lbTabCxC" class="form-control form-control-sm" placeholder="Vacío = submayor" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbTabCxP">Cuentas por pagar (CUP)</label><input type="number" id="lbTabCxP" class="form-control form-control-sm" placeholder="Vacío = submayor" step="any"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0" for="lbTabInventario">Valor del inventario (CUP)</label><input type="number" id="lbTabInventario" class="form-control form-control-sm" placeholder="Vacío = indicadores" step="any"></div>
+                    <div class="col-md-3"><label class="form-label small mb-0" for="lbTabPE">Punto de equilibrio del mes (CUP)</label><input type="number" id="lbTabPE" class="form-control form-control-sm" placeholder="Ej.: 25000" step="any"></div>
+                </div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-9"><label class="form-label small mb-0" for="lbTabSenal">Señal general del mes (una frase)</label><input id="lbTabSenal" class="form-control form-control-sm" placeholder="Ej.: Vendí por encima del equilibrio, pero cobré menos y el efectivo bajó"></div>
+                    <div class="col-md-3"><button type="button" class="btn btn-sm btn-primary w-100" onclick="lbTableroGuardar()">Guardar valores manuales</button></div>
+                </div>
+                <div id="lbTabSugerido" class="small text-secondary"></div>
             </div>
             <div id="docGestionBox" class="d-none"></div>
         </div>
@@ -1952,6 +2045,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="ayuda-sec-tit">Cálculos del período actual</div>
                     <p class="small mb-0">Muestra lo que corresponde pagar en el período según los movimientos y el Vector.</p>
                 </div>
+                <div class="ayuda-sec" id="ayuda-fiscal-5" data-ayuda-titulo="Responsable y fuente de verificación">
+                    <div class="ayuda-sec-tit">Responsable y fuente de verificación</div>
+                    <p class="small mb-1">Según la Plantilla 16 del libro, tu calendario de obligaciones es propio: cada obligación lleva su período, su fecha límite verificada, quién la atiende y de dónde salió el dato. Por eso cada obligación de la tabla fiscal puede anotar tres campos nuevos con el botón <b>Anotar</b> (también las que vienen del Vector):</p>
+                    <ul class="small mb-0">
+                        <li><b>Responsable</b>: quién se encarga de prepararla y presentarla (tú, tu contador, tu administrador).</li>
+                        <li><b>Fuente de verificación</b>: dónde se comprobó la obligación y su fecha límite (Gaceta Oficial, consulta en ONAT, tu inscripción tributaria…).</li>
+                        <li><b>Fecha de verificación</b>: el día en que se hizo esa comprobación; se muestra en la fila como (dd/mm/aaaa) y el responsable también aparece en el calendario de vencimientos del Gestor.</li>
+                        <li><b>Dato no verificado = pendiente</b>: si una obligación no está verificada, se marca como pendiente de verificación; nunca se supone una fecha ni un importe por lo que hace otro negocio.</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-dj">
@@ -1992,6 +2095,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <p class="small mb-1">Registra los socios con sus dividendos y la retención del 5 %; esos datos alimentan la DJ individual de cada socio.</p>
                     <ul class="small mb-0">
                         <li><b>Añadir socio / quitar socio</b>: agrega o elimina un socio de la lista; se guarda en los datos manuales del año.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-7" data-ayuda-titulo="Verificación de los parámetros">
+                    <div class="ayuda-sec-tit">Verificación de los parámetros</div>
+                    <p class="small mb-1">La Parte IX del libro trabaja con una ficha de verificación por norma: qué se consultó, en qué fuente oficial, cuándo y con qué vigencia comprobada. La tarjeta «Parámetros del año fiscal» lleva esa misma ficha en miniatura, con tres campos que se guardan por año junto a los parámetros:</p>
+                    <ul class="small mb-0">
+                        <li><b>Fuente de verificación (ficha normativa)</b>: la fuente oficial donde contrastaste los parámetros del año (Gaceta Oficial, modelo oficial de la ONAT…).</li>
+                        <li><b>Fecha de verificación</b>: el día de esa comprobación; bajo los parámetros verás el resumen «Última verificación: … · Fuente: …».</li>
+                        <li><b>Vigencia comprobada / notas</b>: el resultado de la comprobación (vigente, modificada…) y cualquier nota útil.</li>
+                        <li><b>Si la fecha es antigua, vuelve a comprobar</b>: las normas cambian; una verificación de hace meses no garantiza la vigencia de hoy. Sin verificación registrada, la app te avisa: comprueba los parámetros en fuente oficial (Gaceta/ONAT) antes de aplicarlos.</li>
                     </ul>
                 </div>
             </div>
@@ -2129,6 +2242,50 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="ayuda-sec-tit">Cierre contable anual y Balance de Apertura</div>
                     <p class="small mb-0">Cierra el ejercicio y genera el asiento de apertura del año siguiente.</p>
                 </div>
+                <div class="ayuda-sec" id="ayuda-conta-19" data-ayuda-titulo="Errores contables frecuentes">
+                    <div class="ayuda-sec-tit">Errores contables frecuentes</div>
+                    <p class="small mb-1">Los 8 errores del Capítulo 7 del libro «Finanzas Inteligentes en Cuba»: cada uno te hace decidir con un número equivocado.</p>
+                    <ul class="small mb-1">
+                        <li><b>Confundir ventas con ganancias</b>: vender no es ganar. Antídoto: resta costos y gastos a las ventas antes de dar por bueno el resultado.</li>
+                        <li><b>Registrar dos veces una operación</b>: infla ventas o gastos. Antídoto: un solo registro por comprobante; revisa montos repetidos en fechas cercanas.</li>
+                        <li><b>Perder comprobantes</b>: el gasto existió, pero falta la prueba. Antídoto: guarda el comprobante el mismo día, en su sobre o carpeta del mes; si se pierde, anota la pérdida y busca respaldo, nunca inventes uno.</li>
+                        <li><b>No registrar deudas</b>: la deuda existe aunque no esté anotada. Antídoto: anota toda deuda al nacer, con monto y vencimiento, en Cuentas por pagar.</li>
+                        <li><b>Omitir gastos</b>: infla el beneficio con gastos invisibles. Antídoto: anota también los gastos pequeños y en efectivo, el mismo día.</li>
+                        <li><b>Calcular mal el inventario</b>: promete ventas que no puedes cumplir. Antídoto: cuenta el inventario cada mes y valóralo al costo, no al precio de venta.</li>
+                        <li><b>Mezclar dinero personal con el del negocio</b>: no sabes cuánto ganó el negocio ni cuánto gastó la casa. Antídoto: dos lugares, dos registros y un retiro personal fijo anotado.</li>
+                        <li><b>No conciliar con efectivo y bancos</b>: la diferencia entre registros y realidad crece sin que nadie la vea. Antídoto: cuenta la caja cada semana y compara cada cuenta bancaria con tus registros.</li>
+                    </ul>
+                    <p class="small mb-0">Regla de oro: corrige sin borrar — tacha con una línea, anota la corrección, la fecha y el motivo.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-20" data-ayuda-titulo="Partida doble con ejemplos">
+                    <div class="ayuda-sec-tit">Partida doble con ejemplos</div>
+                    <p class="small mb-1">Toda operación se registra dos veces: una cuenta en el Debe y otra en el Haber, por el mismo importe. Por eso todo asiento suma Debe = Haber: si no cuadra, hay un error de registro. El Debe es el lado izquierdo del asiento y el Haber, el derecho.</p>
+                    <ul class="small mb-0">
+                        <li><b>Compra de mercancía al contado</b>: Debe Inventario / Haber Caja-Banco.</li>
+                        <li><b>Venta</b>: Debe Caja / Haber Ingresos por ventas.</li>
+                        <li><b>Cobro a un cliente</b>: Debe Caja / Haber Cuentas por cobrar.</li>
+                        <li><b>Pago de un gasto</b>: Debe Gasto / Haber Caja-Banco.</li>
+                        <li><b>Compra de un equipo</b>: Debe Activos fijos / Haber Caja-Banco o Cuentas por pagar.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-conta-21" data-ayuda-titulo="Glosario básico">
+                    <div class="ayuda-sec-tit">Glosario básico</div>
+                    <ul class="small mb-0">
+                        <li><b>Activo</b>: todo lo que el negocio posee y tiene valor (efectivo, mercancía, equipos, cuentas por cobrar).</li>
+                        <li><b>Pasivo</b>: todo lo que el negocio debe (cuentas por pagar, préstamos, obligaciones pendientes).</li>
+                        <li><b>Patrimonio</b>: lo que queda a los dueños después de restar lo que se debe de lo que se tiene: Patrimonio = Activo − Pasivo.</li>
+                        <li><b>Debe</b>: el lado izquierdo de un asiento; junto con el Haber forma la partida doble.</li>
+                        <li><b>Haber</b>: el lado derecho de un asiento; en cada asiento, Debe y Haber suman lo mismo.</li>
+                        <li><b>Saldo</b>: lo que queda en una cuenta, en caja o en una deuda después de sumar entradas y restar salidas.</li>
+                        <li><b>Asiento / comprobante</b>: el asiento es el registro de una operación (fecha, cuentas, Debe, Haber y respaldo); el comprobante es el documento que la respalda (factura, recibo, contrato).</li>
+                        <li><b>Cuenta</b>: el registro donde se anotan, agrupadas, las operaciones de un mismo tipo (caja, inventario, ventas…).</li>
+                        <li><b>Devengado</b>: reconocido cuando la operación ocurre, aunque el cobro o el pago se haga después.</li>
+                        <li><b>Costo histórico</b>: lo que se pagó la última vez que se compró algo; es un dato del pasado.</li>
+                        <li><b>Costo de reposición</b>: lo que habría que pagar hoy para volver a comprar lo mismo; para poner precio se usa este, no el histórico.</li>
+                        <li><b>Margen</b>: porcentaje del precio de venta que queda después de pagar ciertos costos; se calcula sobre el precio.</li>
+                        <li><b>Recargo</b>: porcentaje que se suma al costo para fijar el precio; se calcula sobre el costo. No es lo mismo que margen.</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-gestion">
@@ -2192,6 +2349,26 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Consignación</b> — <b>Recibir mercancía</b>: registra la mercancía de terceros. <b>Registrar venta</b>: anota su venta con precio.</li>
                     </ul>
                 </div>
+                <div class="ayuda-sec" id="ayuda-gestion-6" data-ayuda-titulo="Costos, precios y equilibrio (guía del libro)">
+                    <div class="ayuda-sec-tit">Costos, precios y equilibrio (guía del libro)</div>
+                    <ul class="small mb-0">
+                        <li><b>Ficha de costo (Plantilla 6 del libro)</b>: suma los costos directos (materia prima, envases, transporte de la compra y tu propio trabajo) y los indirectos asignados (alquiler, electricidad, depreciación, mantenimiento, administración, cada uno con su criterio de reparto) y divide el costo total entre las unidades <b>vendibles</b> (hechas − perdidas), no entre las producidas. Es el método general del libro para conocer tu costo real: <b>no sustituye la «Ficha de costos 148/2023»</b>, que es la ficha de la normativa y sigue estando en Gestión+ con sus límites de indirectos y su margen por sector. Incluye una mini-calculadora de depreciación mensual (precio del equipo ÷ vida útil en meses) para sumarla a los indirectos.</li>
+                        <li><b>Calculadora de precios (Plantilla 7 del libro)</b>: compara el precio con <b>recargo</b> (porcentaje sobre el costo) y el precio con <b>margen</b> (porcentaje sobre el precio). Margen ≠ recargo: con el mismo número, el precio con margen sale más alto. Con «Traer de la ficha» copias el costo unitario calculado en la ficha y, si escribes el precio final que elijas, ves su margen real, su recargo real y su beneficio por unidad.</li>
+                        <li><b>Punto de equilibrio</b>: con los costos fijos del mes, el precio y el costo variable por unidad, calcula el margen de contribución (precio − costo variable) y cuántas unidades (y cuántos CUP en ventas) necesitas vender para cubrir los costos fijos sin perder ni ganar. Si anotas las ventas reales del mes, también ves el margen de seguridad y si estás por encima o por debajo del equilibrio.</li>
+                        <li><b>De dónde salen las cifras</b>: son las del propio negocio, las que tú escribes en cada bloque; no son datos oficiales ni precios fijados. Antes de aplicar un precio, verifica la normativa de precios aplicable a tu actividad en fuente oficial.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestion-7" data-ayuda-titulo="Tablero de indicadores del mes">
+                    <div class="ayuda-sec-tit">Tablero de indicadores del mes</div>
+                    <p class="small mb-1">La Plantilla 18 del libro, en la tarjeta del mismo nombre de Gestión+: la salud del negocio de un vistazo, en una sola tabla, al cerrar cada mes.</p>
+                    <ul class="small mb-0">
+                        <li><b>Los 9 indicadores</b>: ventas del mes, beneficio bruto, margen bruto (%), beneficio neto antes de impuestos y obligaciones, efectivo disponible, cuentas por cobrar, cuentas por pagar, valor del inventario y punto de equilibrio del mes (CUP).</li>
+                        <li><b>Comparación con el mes anterior</b>: cada indicador trae su valor del mes anterior y la diferencia; un número solo no dice nada sin comparación.</li>
+                        <li><b>Semáforo</b>: Bien (verde), Revisar (amarillo) o Mal (rojo), según reglas fijas: por ejemplo, ventas que bajan más de un 20 % van a Mal, un margen que pierde más de 2 puntos va a Revisar y unas ventas por debajo del punto de equilibrio van a Mal. Sin base de comparación sale «Sin dato».</li>
+                        <li><b>Señal general del mes</b>: una frase honesta que resume el mes; la app sugiere una según el peor semáforo y tú puedes escribir la tuya.</li>
+                        <li><b>De dónde salen las cifras</b>: de los datos del propio negocio (movimientos del período, submayores de cuentas por cobrar y por pagar e indicadores contables). El beneficio bruto se sugiere desde la cuenta 695-000 (Costo de ventas) cuando hay registro en el período. Los campos manuales (beneficio bruto, cuentas por cobrar/pagar o inventario cuando no hay contabilidad, punto de equilibrio y señal general) se guardan con «Guardar valores manuales» en este equipo (localStorage), por período.</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-gestor">
@@ -2235,6 +2412,28 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="ayuda-sec" id="ayuda-cierre-1" data-ayuda-titulo="Registro de pagos por comercio electrónico (QR)">
                     <div class="ayuda-sec-tit">Registro de pagos por comercio electrónico (QR)</div>
                     <p class="small mb-0">Listado de las operaciones por código QR del mes, con su total. Queda congelado al cerrar el mes.</p>
+                </div>
+                <div class="ayuda-sec" id="ayuda-cierre-2" data-ayuda-titulo="Lista de comprobación mensual">
+                    <div class="ayuda-sec-tit">Lista de comprobación mensual</div>
+                    <p class="small mb-1">La Plantilla 17 del libro, en su versión de cumplimiento (Capítulo 16): recórrela al final de cada mes y marca cada punto solo cuando esté hecho de verdad. Si algo queda sin marcar, anótalo como pendiente con responsable y fecha de seguimiento.</p>
+                    <ol class="small mb-1">
+                        <li>Registros del mes actualizados y al día.</li>
+                        <li>Cada registro tiene su justificante archivado.</li>
+                        <li>Justificantes clasificados en su sección (física y digital).</li>
+                        <li>Conciliación del mes hecha (registros vs. justificantes).</li>
+                        <li>Obligaciones del mes revisadas en el calendario propio (Plantilla 16).</li>
+                        <li>Fechas límite del próximo período verificadas en fuente oficial.</li>
+                        <li>Declaraciones del mes presentadas (si correspondían).</li>
+                        <li>Pagos del mes realizados (si correspondían).</li>
+                        <li>Constancias de declaraciones y pagos archivadas (física y digital).</li>
+                        <li>Correspondencia y requerimientos del mes respondidos y archivados.</li>
+                        <li>Consultas oficiales del mes guardadas por escrito.</li>
+                        <li>Errores detectados corregidos con justificantes y constancia.</li>
+                        <li>Respaldo de la carpeta digital comprobado (abre bien).</li>
+                        <li>Dudas pendientes anotadas para consulta oficial o profesional.</li>
+                        <li>Calendario propio actualizado (estados, responsables, observaciones).</li>
+                    </ol>
+                    <p class="small mb-0">Frase de cierre de la revisión mensual (para anotar en tu cuaderno): «Revisión mensual completada el día _. Documentos pendientes: _. Dudas pendientes de consulta: _. Próxima revisión: _.» Las fechas son tu organización personal, no plazos legales.</p>
                 </div>
             </div>
 
@@ -2507,7 +2706,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 </div>
 <div class="small text-secondary mt-3" id="altaPlantillaPreview"></div>
 </div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarAltaRapida">Crear cliente</button></div></div></div></div>
-<div class="modal fade" id="fiscalManualModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="doc"></span>Obligación fiscal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-5"><label class="form-label">Código tributo</label><input id="fisManCodigo" class="form-control" maxlength="20"></div><div class="col-7"><label class="form-label">Período</label><input id="fisManPeriodo" class="form-control" placeholder="Ej. Septiembre 2026"></div><div class="col-12"><label class="form-label">Concepto</label><input id="fisManConcepto" class="form-control" maxlength="160"></div><div class="col-6"><label class="form-label">Fecha límite</label><input id="fisManVence" type="date" class="form-control"></div><div class="col-6"><label class="form-label">Importe manual (CUP)</label><input id="fisManImporte" type="number" min="0" step="0.01" class="form-control"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarFiscalManual">Guardar</button></div></div></div></div>
+<div class="modal fade" id="fiscalManualModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="doc"></span>Obligación fiscal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-5"><label class="form-label">Código tributo</label><input id="fisManCodigo" class="form-control" maxlength="20"></div><div class="col-7"><label class="form-label">Período</label><input id="fisManPeriodo" class="form-control" placeholder="Ej. Septiembre 2026"></div><div class="col-12"><label class="form-label">Concepto</label><input id="fisManConcepto" class="form-control" maxlength="160"></div><div class="col-6"><label class="form-label">Fecha límite</label><input id="fisManVence" type="date" class="form-control"></div><div class="col-6"><label class="form-label">Importe manual (CUP)</label><input id="fisManImporte" type="number" min="0" step="0.01" class="form-control"></div><div class="col-12"><label class="form-label">Responsable</label><input id="fisManResponsable" class="form-control" maxlength="120" placeholder="Quién prepara y presenta esta obligación"></div><div class="col-7"><label class="form-label">Fuente de verificación</label><input id="fisManFuenteVerif" class="form-control" maxlength="160" placeholder="Ej.: Gaceta Oficial, consulta en ONAT…"></div><div class="col-5"><label class="form-label">Fecha de verificación</label><input id="fisManFechaVerif" type="date" class="form-control"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarFiscalManual">Guardar</button></div></div></div></div>
 
 <!-- MODAL ACTIVO FIJO -->
 <div class="modal fade" id="aftModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="aftModalTitulo"><span class="icono-anim me-2" data-icono="monitor"></span>Activo Fijo Tangible</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-md-3"><label class="form-label">Código / chapa *</label><input id="aftCodigo" class="form-control" maxlength="40"></div><div class="col-md-6"><label class="form-label">Descripción *</label><input id="aftNombre" class="form-control" maxlength="120"></div><div class="col-md-3"><label class="form-label">Categoría</label><select id="aftCategoria" class="form-select"><option>Informática y comunicación</option><option>Maquinaria y equipos</option><option>Vehículos y transporte</option><option>Muebles y oficina</option><option>Herramientas</option><option>Edificaciones</option><option>Otro</option></select></div><div class="col-md-4"><label class="form-label">Marca / modelo</label><input id="aftModelo" class="form-control"></div><div class="col-md-4"><label class="form-label">Número de serie</label><input id="aftSerie" class="form-control"></div><div class="col-md-4"><label class="form-label">Costo inicial (CUP) *</label><input id="aftCosto" type="number" min="0" step="0.01" class="form-control"></div><div class="col-md-4"><label class="form-label">Fecha adquisición</label><input id="aftFechaAdq" type="date" class="form-control"></div><div class="col-md-4"><label class="form-label">Puesto en servicio *</label><input id="aftFechaServicio" type="date" class="form-control"></div><div class="col-md-4"><label class="form-label">Tasa depreciación anual % *</label><input id="aftTasa" type="number" min="0" max="100" step="0.01" class="form-control" readonly><div class="form-text">Se asigna automáticamente según la categoría.</div></div><div class="col-md-4"><label class="form-label">Responsable</label><input id="aftResponsable" class="form-control"></div><div class="col-md-4"><label class="form-label">Ubicación</label><input id="aftUbicacion" class="form-control"></div><div class="col-md-4"><label class="form-label">Estado</label><select id="aftEstado" class="form-select"><option value="activo">Activo</option><option value="reparacion">En reparación</option><option value="baja">Dado de baja</option></select></div><div class="col-md-4"><label class="form-label">Fecha de baja</label><input id="aftFechaBaja" type="date" class="form-control"></div><div class="col-md-8"><label class="form-label">Notas</label><input id="aftNotas" class="form-control" maxlength="220"></div></div></div><div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btnGuardarActivo">Guardar activo</button></div></div></div></div>
@@ -4253,11 +4452,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             alert(`✅ Vector Fiscal importado correctamente.\n\nObligaciones: ${obligaciones.length}\nTributos: ${Object.keys(tributos).length}\nActividades: ${d.actividades.length}\nAño: ${meta.anio||'—'}`);
         }
         async function importarVectorPDF(file){if(!file)return;if(!window.pdfjsLib){alert('No se pudo cargar el lector PDF. Revisa la conexión a Internet o añade la obligación manualmente.');return;}try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise,lines=[];for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p),tc=await page.getTextContent(),map={};for(const it of tc.items){const y=Math.round(it.transform[5]);(map[y]||(map[y]=[])).push({x:it.transform[4],s:it.str});}for(const y of Object.keys(map).map(Number).sort((a,b)=>b-a)){const line=map[y].sort((a,b)=>a.x-b.x).map(x=>x.s).join(' ').replace(/\s+/g,' ').trim();if(line)lines.push(line);}}parseVectorLines(lines,file.name);}catch(e){console.error(e);alert('No se pudo leer ese PDF. Puedes añadir las obligaciones manualmente.');}}
-        function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}<div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo (desde nómina)</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Contribución a la Seguridad Social al Presupuesto (desde nómina)</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Contribución Especial a la Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));}
+        function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}${(o.responsable||o.fuenteVerificacion||o.fechaVerificacion)?`<div class="small text-secondary">Resp.: ${esc(o.responsable||'—')} · Fuente: ${esc(o.fuenteVerificacion||'—')}${o.fechaVerificacion?' ('+fisFmtFechaDMY(o.fechaVerificacion)+')':''}</div>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button><button class="btn btn-outline-primary fiscal-anotar" data-id="${o.id}" title="Anotar responsable y verificación">Anotar</button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}<div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo (desde nómina)</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Contribución a la Seguridad Social al Presupuesto (desde nómina)</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Contribución Especial a la Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));document.querySelectorAll('.fiscal-anotar').forEach(b=>b.onclick=()=>anotarObligacionFiscal(b.dataset.id));}
         function editarImporteFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const actual=o.importeManual===null||o.importeManual===undefined?'':o.importeManual;const v=prompt('Importe CUP para esta obligación. Deja vacío para volver al cálculo automático:',actual);if(v===null)return;if(String(v).trim()==='')o.importeManual=null;else{const n=Number(v);if(!(n>=0)){alert('Importe inválido.');return;}o.importeManual=n;}saveFiscal(d);renderFiscal();}
         function borrarFiscalManual(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o||o.vector)return;if(!confirm('¿Eliminar esta obligación manual?'))return;d.obligaciones=d.obligaciones.filter(x=>x.id!==id);saveFiscal(d);renderFiscal();}
+        function fisFmtFechaDMY(iso){const a=String(iso||'').split('-');return a.length===3?(a[2]+'/'+a[1]+'/'+a[0]):String(iso||'');}
+        function anotarObligacionFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const r=prompt('Responsable de esta obligación (quién la prepara y presenta):',o.responsable||'');if(r===null)return;const f=prompt('Fuente de verificación (dónde se comprobó: Gaceta Oficial, consulta en ONAT…):',o.fuenteVerificacion||'');if(f===null)return;const fv=prompt('Fecha de verificación (AAAA-MM-DD). Déjala vacía si aún no está verificada:',o.fechaVerificacion||'');if(fv===null)return;o.responsable=String(r).trim();o.fuenteVerificacion=String(f).trim();o.fechaVerificacion=String(fv).trim();saveFiscal(d);renderFiscal();}
         function registrarPagoFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);if(c.importe===null){alert('Primero fija el importe de esta obligación.');return;}const rest=Math.max(0,c.importe-est.pagado);if(rest<=.005){alert('Esta obligación ya aparece pagada.');return;}abrirMovModal('onat','chequera',null);pendingFiscalLink={id:o.id,codigo:o.codigo,periodo:o.periodo,concepto:o.concepto};cargarAporteFiscalEnModal(pendingFiscalLink);document.getElementById('movMonto').value=rest.toFixed(2);}
-        function guardarFiscalManual(){const codigo=document.getElementById('fisManCodigo').value.trim(),periodo=document.getElementById('fisManPeriodo').value.trim(),concepto=document.getElementById('fisManConcepto').value.trim(),vence=document.getElementById('fisManVence').value,raw=document.getElementById('fisManImporte').value;if(!codigo||!periodo||!concepto){alert('Completa código, período y concepto.');return;}const d=getFiscal();d.obligaciones.push({id:'man_'+Date.now(),codigo,periodo,concepto,vence,vector:false,importeManual:raw===''?null:Math.max(0,Number(raw)||0)});saveFiscal(d);fiscalManualModal.hide();renderFiscal();}
+        function guardarFiscalManual(){const codigo=document.getElementById('fisManCodigo').value.trim(),periodo=document.getElementById('fisManPeriodo').value.trim(),concepto=document.getElementById('fisManConcepto').value.trim(),vence=document.getElementById('fisManVence').value,raw=document.getElementById('fisManImporte').value,responsable=document.getElementById('fisManResponsable').value.trim(),fuenteVerificacion=document.getElementById('fisManFuenteVerif').value.trim(),fechaVerificacion=document.getElementById('fisManFechaVerif').value;if(!codigo||!periodo||!concepto){alert('Completa código, período y concepto.');return;}const d=getFiscal();d.obligaciones.push({id:'man_'+Date.now(),codigo,periodo,concepto,vence,vector:false,importeManual:raw===''?null:Math.max(0,Number(raw)||0),responsable:responsable,fuenteVerificacion:fuenteVerificacion,fechaVerificacion:fechaVerificacion});saveFiscal(d);fiscalManualModal.hide();renderFiscal();}
 
         function firstNumber(o,keys){for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null&&o[k]!==''){const n=parseFloat(String(o[k]).replace(',','.'));if(Number.isFinite(n)&&n>0)return n;}return null;}
         function bccCode(o){if(!o||typeof o!=='object')return '';const nested=o.moneda&&typeof o.moneda==='object'?o.moneda:{};return String(o.codigoMoneda||o.codigo_moneda||o.monedaCodigo||o.moneda_codigo||o.code||o.codigo||o.siglas||nested.codigo||nested.code||nested.siglas||(typeof o.moneda==='string'?o.moneda:'')||'').toUpperCase().trim();}
@@ -5673,10 +5874,21 @@ function ctaBancoDe(conta,cuentaKey){const p=conta.plantillas||ctaPlantillasDef(
    (núcleo contable), la regla cubre los movimientos nuevos y los YA
    importados cuando se regenera la contabilidad. */
 const CTA_VENTA_CORREO='801-000';
+/* Cuenta del gasto por intereses de un crédito al PAGAR la cuota
+   (710-000, la misma que carga el devengo de intereses de Gestión+).
+   La parte de intereses NO va a la 315-000: esa cuenta exige
+   auxiliar «proveedor» y el validador rechaza el análisis
+   «credito:<id>» en cuanto el negocio tiene contrapartes — de hecho
+   el propio devengo de Gestión+ (Dr 710-000 / Cr 315-000 con ese
+   análisis) choca hoy con esa misma validación; es un defecto
+   preexistente del subsistema de créditos, ajeno a esta pasada.
+   El principal de la cuota carga a la cuenta propia del crédito
+   (cr.cuenta, hoy «410», auxiliar «banco»: admite el análisis). */
+const CTA_CREDITO_GASTO_INT='710-000';
 function ctaEsVentaCorreo(mov){
  if(!mov||mov.tipo!=='ingreso')return false;
  if((mov.clasificacion||'operacional')!=='operacional')return false;
- if(mov.documentoId||mov.aCredito||mov.ventaCredito||(mov.productoId&&mov.cantidad))return false;
+ if(mov.documentoId||mov.creditoId||mov.aCredito||mov.ventaCredito||(mov.productoId&&mov.cantidad))return false;
  const t=String(mov.concepto||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
  return t.replace(/\s+/g,' ').indexOf('credito recibido por correo electronico')>=0||t.replace(/\s+/g,'').indexOf('creditorecibidoporcorreoelectronico')>=0;}
 /* ===== TRANSFERENCIAS ENTRE CUENTAS PROPIAS: EMPAREJADO DE PATAS
@@ -5776,6 +5988,20 @@ function ctaAsientoDesdeMov(conta,mov,periodo,tasaFallback){
       con la nómina (614-000/615-000), así que aquí NO se duplica. */
    if(falta(P.nominasPorPagar))return pend('Falta la cuenta de nóminas por pagar en el plan/plantillas');
    const l=linUSD(banco);l.debe=0;l.haber=cup;return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de salario · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.nominasPorPagar,debe:cup,haber:0,centro},l]}]};}
+ if(mov.creditoId){const cr=ctaCreditoDe(conta,mov.creditoId);if(!cr)return pend('El crédito vinculado ('+mov.creditoId+') no existe en Gestión');
+   const ctaCred=cr.cuenta||'410';if(falta(ctaCred))return pend('La cuenta del crédito ('+ctaCred+') no existe en el plan');
+   const anCred='credito:'+cr.id,nomCred=cr.numero||cr.id;
+   if(mov.tipo==='ingreso'){const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:'Desembolso del crédito '+nomCred+' · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:ctaCred,debe:0,haber:cup,analisis:anCred,centro}]}]};}
+   if(mov.tipo==='gasto'){const fila=(cr.tabla||[]).find(f=>Number(f.n)===Number(mov.creditoFila));const l=linUSD(banco);l.debe=0;l.haber=cup;
+     /* Pago de cuota: principal a la cuenta del crédito e intereses
+        al gasto financiero 710-000 (ver CTA_CREDITO_GASTO_INT), con
+        el análisis «credito:<id>» en ambas líneas de cargo. Si la
+        fila no cuadra con el importe (o no hay fila), todo el pago
+        carga a la cuenta del crédito. */
+     if(fila&&(Number(fila.interes)||0)>0&&(Number(fila.principal)||0)>0&&Math.abs((Number(fila.principal)||0)+(Number(fila.interes)||0)-cup)<=0.011){if(falta(CTA_CREDITO_GASTO_INT))return pend('Falta la cuenta de gasto de intereses ('+CTA_CREDITO_GASTO_INT+') en el plan');
+       return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de cuota del crédito '+nomCred+' · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:ctaCred,debe:ctaR2(fila.principal),haber:0,analisis:anCred,centro},{cuenta:CTA_CREDITO_GASTO_INT,debe:ctaR2(fila.interes),haber:0,analisis:anCred,centro},l]}]};}
+     return {clave,asientos:[{fecha:mov.fecha,concepto:'Pago de crédito '+nomCred+' · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:ctaCred,debe:cup,haber:0,analisis:anCred,centro},l]}]};}
+   return pend('Movimiento vinculado a un crédito de tipo no reconocido: '+mov.tipo);}
  if(mov.tipo==='ingreso'){
    if(mov.documentoId){const doc=(conta.documentos||[]).find(d=>d.id===mov.documentoId);if(!doc)return pend('El documento vinculado ('+mov.documentoId+') no existe en los submayores');if(falta(P.cxc))return pend('Falta la cuenta de cuentas por cobrar');const l=linUSD(banco);l.debe=cup;l.haber=0;return {clave,asientos:[{fecha:mov.fecha,concepto:'Cobro · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[l,{cuenta:P.cxc,debe:0,haber:cup,analisis:doc.contraparteId,centro}]}],aplicacion:{documentoId:doc.id,monto:cup,fecha:mov.fecha}};}
    if(mov.aCredito||mov.ventaCredito){if(falta(P.cxc)||falta(P.ventas))return pend('Falta la cuenta de cuentas por cobrar o de ventas');if(!mov.contraparteId)return pend('Venta a crédito sin contraparte: indica el cliente (auxiliar obligatorio de Cuentas por cobrar)');return {clave,asientos:[{fecha:mov.fecha,concepto:'Venta a crédito · '+mov.concepto,origen:'auto',fuenteKey:clave,lineas:[{cuenta:P.cxc,debe:cup,haber:0,analisis:mov.contraparteId||'',centro},{cuenta:P.ventas,debe:0,haber:cup,centro}]}]};}
@@ -5844,6 +6070,7 @@ function ctaClasificarMov(conta,mov){
  if(mov.sospechaOnat)return {estado:'pendiente',motivo:'Posible pago de impuestos sin código ONAT reconocido: confirma si es un pago de ONAT u otro gasto'};
  if(mov.tipo==='onat')return {estado:'claro',via:'pago ONAT identificado por código'};
  if(mov.documentoId)return {estado:'claro',via:'cobro/pago de documento de submayor'};
+ if(mov.creditoId)return {estado:'claro',via:'crédito bancario vinculado'};
  if(mov.aCredito||mov.ventaCredito)return {estado:'claro',via:'venta a crédito'};
  if(mov.compraInventario)return {estado:'claro',via:'compra de inventario'};
  if(mov.productoId&&mov.cantidad)return {estado:'claro',via:'venta con salida de inventario'};
@@ -5851,8 +6078,12 @@ function ctaClasificarMov(conta,mov){
  const rg=ctaReglaPara(conta,mov);if(rg)return {estado:'claro',via:'regla aprendida del negocio',regla:rg};
  const ct=ctaConceptoTesPara(conta,mov);
  if(ct){ if(ct.tipoContrapartida==='cuenta-bancaria'&&ct.cuentaDestino)return {estado:'claro',via:'concepto de tesorería → traspaso a cuenta propia ('+ct.cuentaDestino+')',tesoreria:ct};
-  if(ct.tipoContrapartida==='obligacion')return {estado:'pendiente',motivo:'Concepto de tesorería de tipo «obligación»: la contrapartida nace del documento (la factura que se liquida), no de una cuenta fija — enlaza el documento a este movimiento',tesoreria:ct};
-  if(ct.tipoContrapartida==='credito-bancario')return {estado:'pendiente',motivo:'Concepto de tesorería de tipo «crédito bancario»: la contrapartida nace del crédito — enlaza el crédito a este movimiento',tesoreria:ct};
+  if(ct.tipoContrapartida==='obligacion'){const rAuto=ctaAutoEnlaceDocumento(conta,mov);
+   if(rAuto.elegido)return {estado:'claro',via:'concepto de tesorería (obligación) → documento enlazado automáticamente',tesoreria:ct,enlaceAuto:{tipo:'obligacion',documentoId:rAuto.elegido.id,numero:rAuto.elegido.numero||rAuto.elegido.id,patron:ct.patron,automatico:true}};
+   return {estado:'pendiente',motivo:'Concepto de tesorería de tipo «obligación»: la contrapartida nace del documento (la factura que se liquida), no de una cuenta fija. Enlace automático: '+rAuto.detalle+' — enlaza el documento a este movimiento',tesoreria:ct};}
+  if(ct.tipoContrapartida==='credito-bancario'){const rAuto=ctaAutoEnlaceCredito(conta,mov);
+   if(rAuto.elegido)return {estado:'claro',via:'concepto de tesorería (crédito bancario) → crédito enlazado automáticamente',tesoreria:ct,enlaceAuto:{tipo:'credito',creditoId:rAuto.elegido.creditoId,creditoFila:rAuto.elegido.creditoFila!=null?rAuto.elegido.creditoFila:null,numero:rAuto.elegido.numero||rAuto.elegido.creditoId,patron:ct.patron,automatico:true}};
+   return {estado:'pendiente',motivo:'Concepto de tesorería de tipo «crédito bancario»: la contrapartida nace del crédito, no de una cuenta fija. Enlace automático: '+rAuto.detalle+' — enlaza el crédito a este movimiento',tesoreria:ct};}
   return {estado:'claro',via:'concepto de tesorería → '+ct.cuentaContable,tesoreria:ct}; }
  if(ctaEsVentaCorreo(mov))return {estado:'claro',via:'venta cobrada por correo electrónico → 801-000'};
  return {estado:'pendiente',motivo:'Naturaleza no clara: indica si es venta, costo, gasto u otra cuenta (puedes guardar la decisión como regla)'};}
@@ -5884,6 +6115,14 @@ function ctaReconstruir(conta,eventos){
      if(clMov.regla&&!mov.cuentaContable){mov.cuentaContable=clMov.regla.cuentaContable;mov._viaRegla=clMov.regla.patron;}
      if(clMov.tesoreria&&clMov.tesoreria.tipoContrapartida==='cuenta-bancaria'&&clMov.tesoreria.cuentaDestino&&clMov.tesoreria.cuentaDestino!==mov.cuenta&&!mov.cuentaDestino){mov.clasificacion='transferencia';mov.cuentaDestino=clMov.tesoreria.cuentaDestino;mov._viaTesoreria=clMov.tesoreria.patron;}
      else if(clMov.tesoreria&&!mov.cuentaContable&&clMov.tesoreria.cuentaContable){mov.cuentaContable=clMov.tesoreria.cuentaContable;mov._viaTesoreria=clMov.tesoreria.patron;}
+     /* Pasada de automatización (2026-10-25): enlace automático de la
+        contrapartida Obligación/Crédito detectado al clasificar —
+        queda aplicado al movimiento (documentoId / creditoId) y
+        registrado en mov._enlaceAuto para que se sepa que lo hizo la
+        app sola y con qué criterio. */
+     if(clMov.enlaceAuto){const ea=clMov.enlaceAuto;mov._enlaceAuto={tipo:ea.tipo,automatico:true,patron:ea.patron||'',numero:ea.numero||''};
+       if(ea.documentoId){mov.documentoId=ea.documentoId;mov._enlaceAuto.documentoId=ea.documentoId;}
+       if(ea.creditoId){mov.creditoId=ea.creditoId;mov._enlaceAuto.creditoId=ea.creditoId;if(ea.creditoFila!=null){mov.creditoFila=ea.creditoFila;mov._enlaceAuto.creditoFila=ea.creditoFila;}}}
      if(mov.productoId&&mov.cantidad){
        if(mov.compraInventario){ctaInventarioEntrada(conta,mov.productoId,mov.cantidad,(Number(mov.monto)||0)/(Number(mov.cantidad)||1),mov.fecha,ctaClaveMov(ev.periodo,mov)+':inv');}
        else if(mov.tipo==='ingreso'){const s=ctaInventarioSalida(conta,mov.productoId,mov.cantidad,mov.fecha,ctaClaveMov(ev.periodo,mov)+':inv');
@@ -6276,6 +6515,92 @@ function ctaConceptoTesPara(conta,mov){if(!mov||(mov.tipo!=='ingreso'&&mov.tipo!
   if(r.patron===n||(r.patron.length>=6&&(n.includes(r.patron)||r.patron.includes(n))))return r;}
  return null;}
 
+/* ===== AUTO-ENLACE DE CONTRAPARTIDAS OBLIGACIÓN / CRÉDITO =====
+   (pasada de automatización, 2026-10-25 — REGLA DE ORO de Leonardo:
+   todo lo automático que pueda serlo; su intervención solo en lo
+   estrictamente obligatorio). Cuando un concepto de tesorería es de
+   tipo «obligación» o «crédito bancario», la contrapartida no es una
+   cuenta fija: nace del documento o del crédito. Antes el movimiento
+   quedaba SIEMPRE pendiente hasta que Leonardo lo enlazaba a mano;
+   ahora la app lo enlaza sola con el mismo criterio del emparejado
+   de transferencias (ctaParejaTransferencia): SOLO si el candidato
+   es ÚNICO. Criterios exactos, iguales para documentos y créditos:
+   · Importe EXACTO (tolerancia ±0,01). En documentos se compara
+     contra el SALDO PENDIENTE del documento (importe − aplicaciones
+     + notas), porque es lo que el cobro/pago liquida; en créditos,
+     contra el principal (desembolso) o la cuota de la tabla (pago).
+   · Sentido coherente: cobro (ingreso) ↔ CxC, pago (gasto) ↔ CxP;
+     desembolso = ingreso contra un crédito aún no desembolsado;
+     cuota = gasto contra un crédito ya desembolsado.
+   · Cercanía de fecha, con ventanas fijas y documentadas:
+     - Documento: su fecha NO puede ser posterior a la del movimiento
+       (no se paga lo que aún no existe; un anticipo lo decide el
+       dueño) y la antigüedad máxima es 365 días.
+     - Desembolso: entre 5 días antes y 45 días después de la fecha
+       de inicio registrada del crédito.
+     - Cuota: la fila de la tabla vence como máximo 5 días después
+       del pago y como máximo 31 días antes.
+   · Nombre de la contraparte como refuerzo/desempate: si el texto
+     del movimiento (o el concepto de tesorería) nombra a una
+     contraparte (documentos) o el número del crédito, los candidatos
+     se restringen a esa contraparte/crédito; si el nombre apunta a
+     otra, NO se enlaza (conflicto = decisión del dueño).
+   Con cero candidatos o con más de uno tras el desempate, el
+   movimiento queda en la bandeja como antes: ahí sí la intervención
+   de Leonardo es obligatoria (la app no elige entre dos posibles).
+   El enlace aplicado queda registrado en el movimiento
+   (mov._enlaceAuto) y la precedencia del motor no cambia: este
+   intento vive DENTRO de la rama de tesorería, después de lo
+   estructural/fiscal, lo manual y las reglas aprendidas. */
+function ctaDiasEntre(f1,f2){const a=new Date(String(f1||'')+'T12:00:00'),b=new Date(String(f2||'')+'T12:00:00');if(isNaN(a)||isNaN(b))return null;return Math.round((b-a)/86400000);}
+function ctaTextoNorm(mov,ct){return ' '+ctaNormConcepto((mov&&mov.concepto)||'')+' ';}
+function ctaResolverCandidatos(cands,idsNombre,claveDe,etiqueta){
+ if(!cands.length)return {elegido:null,detalle:'ningún '+etiqueta+' coincide en importe exacto, sentido y fecha'};
+ if(idsNombre&&idsNombre.size){const con=cands.filter(c=>idsNombre.has(claveDe(c)));
+  if(con.length===1)return {elegido:con[0],detalle:'candidato único y la contraparte coincide con el nombre del concepto'};
+  if(!con.length)return {elegido:null,detalle:'el concepto nombra a otra contraparte: no se enlaza solo'};
+  cands=con;}
+ if(cands.length===1)return {elegido:cands[0],detalle:'candidato único'};
+ return {elegido:null,detalle:'hay '+cands.length+' candidatos con el mismo importe y fecha compatible: hay que elegir a mano'};}
+function ctaAutoEnlaceDocumento(conta,mov){
+ const tipoDoc=mov.tipo==='ingreso'?'cxc':(mov.tipo==='gasto'?'cxp':null);
+ if(!tipoDoc)return {elegido:null,detalle:'el movimiento no es un cobro ni un pago'};
+ const monto=ctaMontoCUP(mov);
+ if(!(monto>0))return {elegido:null,detalle:'sin importe en CUP comparable (movimiento en divisa sin tasa registrada)'};
+ const texto=ctaTextoNorm(mov);
+ const idsNombre=new Set();
+ for(const cp of (conta.contrapartes||[])){const n=ctaNormConcepto(cp.nombre||'');if(n&&n.length>=4&&texto.includes(' '+n+' '))idsNombre.add(cp.id);}
+ const cands=[];
+ for(const d of (conta.documentos||[])){if(!d||d.tipo!==tipoDoc||d.estado==='cancelado')continue;
+  if(Math.abs(ctaPendienteDoc(conta,d)-monto)>0.01)continue;
+  const dias=ctaDiasEntre(d.fecha,mov.fecha);if(dias==null||dias<0||dias>365)continue;
+  cands.push(d);}
+ return ctaResolverCandidatos(cands,idsNombre,d=>d.contraparteId,'documento abierto');}
+function ctaCreditosDe(conta){const g=conta&&conta.gestion;return (g&&Array.isArray(g.creditos))?g.creditos.filter(c=>c&&c.id):[];}
+function ctaCreditoDe(conta,id){return ctaCreditosDe(conta).find(c=>c.id===id)||null;}
+function ctaAutoEnlaceCredito(conta,mov){
+ const monto=ctaMontoCUP(mov);
+ if(!(monto>0))return {elegido:null,detalle:'sin importe en CUP comparable (movimiento en divisa sin tasa registrada)'};
+ const lineas=ctaLineasFiltradas(conta,{hasta:'9999-12-31'});
+ const desembolsado=cr=>lineas.some(x=>x.linea.cuenta===(cr.cuenta||'410')&&x.linea.analisis==='credito:'+cr.id&&(Number(x.linea.haber)||0)>0&&String(x.asiento.fuenteKey||'').indexOf('mov:')===0);
+ const cuotaPagada=(cr,fila)=>lineas.some(x=>x.linea.cuenta===(cr.cuenta||'410')&&x.linea.analisis==='credito:'+cr.id&&(Number(x.linea.debe)||0)>0&&String(x.asiento.fuenteKey||'').indexOf('mov:')===0&&(()=>{const dd=ctaDiasEntre(fila.fecha,x.asiento.fecha);return dd!=null&&dd>=-15&&dd<=45;})());
+ const texto=ctaTextoNorm(mov);
+ const idsNombre=new Set();
+ for(const cr of ctaCreditosDe(conta)){const nn=ctaNormConcepto(cr.numero||'');const ni=ctaNormConcepto(cr.id||'');
+  if((nn&&texto.includes(' '+nn+' '))||(ni&&ni.length>=3&&texto.includes(' '+ni+' ')))idsNombre.add(cr.id);}
+ const cands=[];
+ for(const cr of ctaCreditosDe(conta)){
+  if(mov.tipo==='ingreso'){if(desembolsado(cr))continue;
+   if(Math.abs((Number(cr.principal)||0)-monto)>0.01)continue;
+   const dias=ctaDiasEntre(cr.fechaInicio,mov.fecha);if(dias==null||dias<-5||dias>45)continue;
+   cands.push({creditoId:cr.id,creditoFila:null,numero:cr.numero||cr.id,clase:'desembolso'});}
+  else if(mov.tipo==='gasto'){if(!desembolsado(cr))continue;
+   for(const fila of (cr.tabla||[])){if(Math.abs((Number(fila.cuota)||0)-monto)>0.01)continue;
+    const dias=ctaDiasEntre(fila.fecha,mov.fecha);if(dias==null||dias<-5||dias>31)continue;
+    if(cuotaPagada(cr,fila))continue;
+    cands.push({creditoId:cr.id,creditoFila:fila.n,numero:cr.numero||cr.id,clase:'cuota'});}}}
+ return ctaResolverCandidatos(cands,idsNombre,c=>c.creditoId,'crédito vivo');}
+
 /* --- Bloque 2 · DOCUMENTOS CON ESTADOS Y REVERSIÓN ---
    Las facturas de Gestión+ ya nacían con este patrón (borrador →
    confirmada → anulada, con contraasiento y devolución de
@@ -6314,9 +6639,19 @@ function ctaCancelarDocumento(conta,docId,fecha){
    (valor a costo promedio de conta.productos), AFT (la UI pasa el
    costo y la depreciación acumulada del registro de activos),
    vacaciones (mayor por el análisis «Provisión de vacaciones» de la
-   cuenta 331-000; el submayor por trabajador lo pasa la UI cuando lo
-   tiene) y retenciones (saldo acreedor de la 332-000). Lo que no
-   tenga fuente fiable llega como null y la fila sale «sin datos». */
+   cuenta 331-000) y retenciones (la cuenta del plan, 332-000). En
+   ambas filas se compara lo DEVENGADO: la UI pasa el total devengado
+   según Nómina (misma fuente de los submayores impresos, acumulado
+   hasta el corte) y el mayor se suma SOLO de los asientos de
+   devengo de nómina y apertura. Es la única comparación homogénea
+   derivable con fiabilidad: en el modelo de la app las vacaciones
+   disfrutadas se pagan dentro del neto (331-000 sin análisis) y las
+   retenciones a terceros se pagan con movimientos bancarios, así
+   que comparar SALDOS netos descuadraría por cada pago aunque todo
+   esté bien contabilizado. Si el negocio no tiene trabajadores ni
+   devengos, la UI pasa «no-aplica» y la fila lo dice (distinto de
+   «sin datos»). Lo que no tenga fuente fiable llega como null y la
+   fila sale «sin datos». */
 function ctaCuadres(conta,datos){datos=datos||{};const P=conta.plantillas||ctaPlantillasDef();const hasta=datos.hasta||'9999-12-31';
  const m=ctaMayor(conta,{hasta:hasta});
  const saldo=cod=>{const e=m[cod];return e?e.saldoFirmado:0;};
@@ -6336,8 +6671,15 @@ function ctaCuadres(conta,datos){datos=datos||{};const P=conta.plantillas||ctaPl
  else{fila('aft-valor','Activos fijos · valor bruto',null,null);fila('aft-dep','Activos fijos · depreciación acumulada',null,null);}
  const lv=ctaLineasFiltradas(conta,{cuenta:P.provVacaciones,hasta:hasta}).filter(x=>/vacacion/i.test(x.linea.analisis||''));
  const mayVac=ctaR2(lv.reduce((s,x)=>s+(Number(x.linea.haber)||0)-(Number(x.linea.debe)||0),0));
- fila('vacaciones','Provisión de vacaciones · '+P.provVacaciones,datos.vacaciones!=null?datos.vacaciones:null,mayVac);
- fila('retenciones','Retenciones por pagar · '+P.retencionesPorPagar,datos.retenciones!=null?datos.retenciones:null,-saldo(P.retencionesPorPagar));
+ /* Retenciones: el lado del mayor se suma SOLO de los devengos de
+    nómina (y la apertura), no del saldo neto de la cuenta — ver la
+    nota de cabecera del panel. */
+ let mayRet=0;
+ for(const x of ctaLineasFiltradas(conta,{cuenta:P.retencionesPorPagar,hasta:hasta})){const fk=String(x.asiento.fuenteKey||'');
+  if(fk.indexOf('nomina-devengo:')===0||x.asiento.origen==='apertura'||fk.indexOf('apertura')===0)mayRet=ctaR2(mayRet+(Number(x.linea.haber)||0)-(Number(x.linea.debe)||0));}
+ const filaNom=(clave,nombre,sub,may)=>{if(sub==='no-aplica'){filas.push({clave:clave,nombre:nombre,submayor:null,mayor:may==null?null:ctaR2(may),diferencia:null,estado:'no-aplica'});return;}fila(clave,nombre,sub!=null?sub:null,may);};
+ filaNom('vacaciones','Provisión de vacaciones (devengada) · '+P.provVacaciones,datos.vacaciones!=null?datos.vacaciones:null,mayVac);
+ filaNom('retenciones','Retenciones por pagar (devengadas) · '+P.retencionesPorPagar,datos.retenciones!=null?datos.retenciones:null,mayRet);
  return {hasta:hasta,filas:filas,descuadres:filas.filter(f=>f.estado==='descuadre'),todoCuadra:filas.every(f=>f.estado!=='descuadre')};}
 
 /* --- Bloque 4 · CIERRE CON CANDADOS ---
@@ -6798,6 +7140,88 @@ function mjFichaCostos(datos){ datos=datos||{}; const tipo=datos.tipo==='servici
     costoTotal:costoTotal,costoUnitario:mjR2(costoTotal/unidades),margenPct:margen,
     precioSugerido:mjR2(costoTotal/unidades*(1+margen/100)),
     nota:'Ficha de costos y gastos (Res. 148/2023 MFP): indirectos hasta '+(tipo==='servicio'?'1,0':'1,5')+'× la mano de obra directa; el margen se fija por sector (dato de entrada)'}; }
+/* ---------- RONDA LIBRO · COSTOS, PRECIOS Y EQUILIBRIO (puro, sin DOM) ----------
+   Método general del libro «Finanzas Inteligentes en Cuba» (Plantillas 6 y 7
+   y punto de equilibrio). NO sustituye la ficha de costos 148/2023
+   (mjFichaCostos): es una guía de análisis con las cifras del propio negocio. */
+function lbFichaCosto(d){ d=d||{};
+  const hechas=Number(d.hechas)||0, perdidas=Number(d.perdidas)||0;
+  const vendibles=Math.max(0,hechas-perdidas);
+  const subDirectos=mjR2((d.directos||[]).reduce((s,x)=>s+(Number(x&&x.monto)||0),0));
+  const subIndirectos=mjR2((d.indirectos||[]).reduce((s,x)=>s+(Number(x&&x.monto)||0),0));
+  const costoTotal=mjR2(subDirectos+subIndirectos);
+  return {producto:String(d.producto||''),hechas:hechas,perdidas:perdidas,vendibles:vendibles,
+    subDirectos:subDirectos,subIndirectos:subIndirectos,subDir:subDirectos,subInd:subIndirectos,
+    costoTotal:costoTotal,costoUnitario:vendibles>0?mjR2(costoTotal/vendibles):null}; }
+function lbDepreciacion(precio,vidaMeses){ const v=Number(vidaMeses)||0; return v>0?mjR2((Number(precio)||0)/v):0; }
+function lbPrecios(d){ d=d||{};
+  const costo=Number(d.costo)||0, recargo=Number(d.recargoPct)||0, margen=Number(d.margenPct)||0;
+  const elegido=Number(d.precioElegido)||0;
+  const precioRecargo=mjR2(costo*(1+recargo/100));
+  const precioMargen=margen<100?mjR2(costo/(1-margen/100)):null;
+  const tieneElegido=elegido>0;
+  return {costo:mjR2(costo),recargoPct:recargo,margenPct:margen,precioElegido:tieneElegido?mjR2(elegido):null,
+    precioRecargo:precioRecargo,beneficioRecargo:mjR2(precioRecargo-costo),
+    precioMargen:precioMargen,beneficioMargen:precioMargen==null?null:mjR2(precioMargen-costo),
+    recargoDesdeMargen:margen<100?mjR2(margen/(100-margen)*100):null,
+    margenDesdeRecargo:mjR2(recargo/(100+recargo)*100),
+    margenReal:tieneElegido?mjR2((elegido-costo)/elegido*100):null,
+    recargoReal:(tieneElegido&&costo>0)?mjR2((elegido-costo)/costo*100):null,
+    beneficioElegido:tieneElegido?mjR2(elegido-costo):null}; }
+function lbEquilibrio(d){ d=d||{};
+  const costosFijos=Number(d.costosFijos)||0, precio=Number(d.precio)||0, cvu=Number(d.costoVariableUnit)||0;
+  const mc=mjR2(precio-cvu);
+  if(!(mc>0)) return {ok:false,motivo:'El precio no supera el costo variable: cada venta pierde dinero.',margenContribucion:mc};
+  const peUnidades=Math.ceil(costosFijos/mc);
+  return {ok:true,costosFijos:mjR2(costosFijos),precio:mjR2(precio),costoVariableUnit:mjR2(cvu),
+    margenContribucion:mc,mcPct:precio>0?mjR2(mc/precio*100):null,margenContribucionPct:precio>0?mjR2(mc/precio*100):null,
+    peUnidades:peUnidades,peCUP:mjR2(peUnidades*precio),puntoEquilibrioUnidades:peUnidades,puntoEquilibrioCUP:mjR2(peUnidades*precio)}; }
+function lbSemaforo(clave, actual, anterior, extra){ extra=extra||{};
+  const a=(actual===null||actual===undefined||actual===''||isNaN(Number(actual)))?null:Number(actual);
+  const p=(anterior===null||anterior===undefined||anterior===''||isNaN(Number(anterior)))?null:Number(anterior);
+  if(a===null) return 'sindato';
+  if(clave==='ventas'){
+    if(p===null||p===0) return a>0?'bien':'sindato';
+    const baja=(p-a)/p*100;
+    if(baja>20) return 'mal';
+    if(baja>0) return 'revisar';
+    return 'bien'; }
+  if(clave==='beneficioBruto'||clave==='beneficioNeto'){
+    if(a<0) return 'mal';
+    if(p!==null&&a<p) return 'revisar';
+    return 'bien'; }
+  if(clave==='margenBruto'){
+    if(a<0) return 'mal';
+    if(p!==null&&(p-a)>2) return 'revisar';
+    return 'bien'; }
+  if(clave==='efectivo'){
+    if(a<0) return 'mal';
+    if(a===0) return 'revisar';
+    return 'bien'; }
+  if(clave==='cxc'||clave==='cxp'){
+    if(p===null) return 'sindato';
+    if(p===0) return a>0?'revisar':'bien';
+    const sube=(a-p)/p*100;
+    if(sube>20) return 'mal';
+    if(sube>0) return 'revisar';
+    return 'bien'; }
+  if(clave==='inventario'){
+    if(p===null) return 'sindato';
+    if(p===0) return a>0?'revisar':'bien';
+    const sube=a-p, subePct=(p>0)?sube/p*100:0;
+    const vA=(extra.ventasActual===null||extra.ventasActual===undefined)?null:Number(extra.ventasActual);
+    const vP=(extra.ventasAnterior===null||extra.ventasAnterior===undefined)?null:Number(extra.ventasAnterior);
+    if(sube>0&&subePct>20&&vA!==null&&vP!==null&&vA<vP) return 'mal';
+    if(sube>0&&(vA===null||vP===null||!(vA>vP))) return 'revisar';
+    return 'bien'; }
+  if(clave==='equilibrio'){
+    if(!(a>0)) return 'sindato';
+    const v=(extra.ventasActual===null||extra.ventasActual===undefined)?null:Number(extra.ventasActual);
+    if(v===null) return 'sindato';
+    if(v>=a) return 'bien';
+    if(v>=0.9*a) return 'revisar';
+    return 'mal'; }
+  return 'sindato'; }
 function mjInstrumentoSiguiente(talonario){ if(!talonario) return null;
   const usados=new Set((talonario.usados||[]).map(x=>Number(x.numero)));
   const anulados=new Set((talonario.anulados||[]).map(Number));
@@ -7337,15 +7761,34 @@ function mjPermisos(rol,modulo){ const M={
             let aft=null; try{ const d=getAFT(); if(d&&Array.isArray(d.activos)&&d.activos.length){ let costo=0,acum=0;
                 for(const a of d.activos){ const cc=calcAFT(a,periodo); costo=ctaR2(costo+(Number(cc.costo)||0)); acum=ctaR2(acum+(Number(cc.acum)||0)); } aft={costo:costo,acum:acum}; } }catch(e){}
             const rango=contaPeriodoRango(periodo);
-            /* Vacaciones y retenciones: su submayor por trabajador vive
-               en Nómina (documentos impresos), no en una estructura que
-               esta capa pueda sumar con fiabilidad → null = «sin datos»,
-               nunca un número rellenado. */
-            return {hasta:rango?rango.hasta:'9999-12-31',bancos:Object.keys(porPlan).map(cod=>({cuenta:cod,submayor:porPlan[cod]})),aft:aft,vacaciones:null,retenciones:null}; }
+            /* Vacaciones y retenciones (pasada de automatización,
+               2026-10-25): el panel compara lo DEVENGADO según Nómina
+               contra lo devengado en libros (ver la nota de ctaCuadres).
+               La fuente es la MISMA que alimenta los submayores
+               impresos: obtenerNominaParaPeriodo(periodo).tot —
+               provisionVac es el devengo de la provisión de vacaciones
+               y deducciones el de las retenciones a terceros (332-000).
+               Se acumulan los períodos cuyo fin cae en o antes del
+               corte del panel. Si el negocio no tiene trabajadores ni
+               devengos de nómina en Contabilidad → «no-aplica» (la fila
+               lo dice, distinto de «sin datos»). Si la suma fallara, se
+               devuelve null = «sin datos», nunca un número rellenado. */
+            let vacaciones=null, retenciones=null;
+            try{ const rrhh=getRRHH(); const hastaC=rango?rango.hasta:'9999-12-31';
+                const hayTrab=Array.isArray(rrhh.trabajadores)&&rrhh.trabajadores.length>0;
+                const hayDevengo=(c.asientos||[]).some(a=>String(a.fuenteKey||'').indexOf('nomina-devengo:')===0);
+                if(!hayTrab&&!hayDevengo){ vacaciones='no-aplica'; retenciones='no-aplica'; }
+                else{ let dev=0, ded=0;
+                    for(const per of Object.keys(rrhh.nominas||{})){ const rec=rrhh.nominas[per]; if(!rec||!Array.isArray(rec.lineas)||!rec.lineas.length) continue;
+                        if(fechaContablePeriodo(per)>hastaC) continue;
+                        const tot=(obtenerNominaParaPeriodo(per)||{}).tot||{};
+                        dev=ctaR2(dev+(Number(tot.provisionVac)||0)); ded=ctaR2(ded+(Number(tot.deducciones)||0)); }
+                    vacaciones=dev; retenciones=ded; } }catch(e){ vacaciones=null; retenciones=null; }
+            return {hasta:rango?rango.hasta:'9999-12-31',bancos:Object.keys(porPlan).map(cod=>({cuenta:cod,submayor:porPlan[cod]})),aft:aft,vacaciones:vacaciones,retenciones:retenciones}; }
         function contaRenderCuadres(filasPre){ const body=document.getElementById('contaCuadresBody'); if(!body) return; const c=getConta(); const per=periodoNominaActual();
             const r=filasPre?{hasta:'',filas:filasPre}:ctaCuadres(c,contaDatosCuadres(per)); window.__contaCuadresUltimo=r;
             const tit=document.getElementById('contaCuadresPeriodo'); if(tit) tit.textContent=per;
-            const sem=f=>f.estado==='cuadra'?'<span class="badge bg-success">✓ Cuadra</span>':f.estado==='descuadre'?'<span class="badge bg-danger">✘ Descuadre</span>':'<span class="badge bg-secondary">Sin datos</span>';
+            const sem=f=>f.estado==='cuadra'?'<span class="badge bg-success">✓ Cuadra</span>':f.estado==='descuadre'?'<span class="badge bg-danger">✘ Descuadre</span>':f.estado==='no-aplica'?'<span class="badge bg-light text-dark border">No aplica</span>':'<span class="badge bg-secondary">Sin datos</span>';
             body.innerHTML=r.filas.map(f=>`<tr><td>${esc(f.nombre)}</td><td class="text-end">${f.submayor==null?'—':moneda(f.submayor)}</td><td class="text-end">${f.mayor==null?'—':moneda(f.mayor)}</td><td class="text-end ${f.estado==='descuadre'?'text-danger fw-bold':''}">${f.diferencia==null?'—':moneda(f.diferencia)}</td><td>${sem(f)}</td></tr>`).join(''); }
         function contaRenderTes(){ const body=document.getElementById('contaTesBody'); if(!body) return; const c=getConta();
             const NOMBRET={ 'cuenta-contable':'Cuenta contable','cuenta-bancaria':'Cuenta bancaria','obligacion':'Obligación (documento)','credito-bancario':'Crédito bancario' };
@@ -7590,6 +8033,9 @@ function mjPermisos(rol,modulo){ const M={
             });
             if (Array.isArray(g.escalaIIP) && g.escalaIIP.length) P.escalaIIP = g.escalaIIP;
             if (Array.isArray(g.escalaDiv) && g.escalaDiv.length) P.escalaDiv = g.escalaDiv;
+            P.fuenteVerif = (g.fuenteVerif !== undefined && g.fuenteVerif !== null) ? String(g.fuenteVerif) : '';
+            P.fechaVerif = (g.fechaVerif !== undefined && g.fechaVerif !== null) ? String(g.fechaVerif) : '';
+            P.vigenciaVerif = (g.vigenciaVerif !== undefined && g.vigenciaVerif !== null) ? String(g.vigenciaVerif) : '';
             return P;
         }
         function djManualAnio(anio){
@@ -7824,6 +8270,11 @@ function mjPermisos(rol,modulo){ const M={
                 document.getElementById('djParExentoDiv').value = P.exentoDiv;
                 document.getElementById('djParEscalaDiv').value = djEscalaTexto(P.escalaDiv);
                 document.getElementById('djParRetDiv').value = P.retencionDiv;
+                document.getElementById('djParFuenteVerif').value = P.fuenteVerif || '';
+                document.getElementById('djParFechaVerif').value = P.fechaVerif || '';
+                document.getElementById('djParVigenciaVerif').value = P.vigenciaVerif || '';
+                const djVerRes = document.getElementById('djVerifResumen');
+                if (djVerRes) djVerRes.textContent = P.fechaVerif ? ('Última verificación: ' + P.fechaVerif + ' · Fuente: ' + (P.fuenteVerif || '—') + (P.vigenciaVerif ? ' · Vigencia comprobada / notas: ' + P.vigenciaVerif : '')) : 'Sin verificación registrada: comprueba los parámetros en fuente oficial (Gaceta/ONAT) antes de aplicarlos.';
                 const man = djManualAnio(djAnioSel);
                 document.getElementById('djGastosJust').value = man.gastosJustificados == null ? '' : man.gastosJustificados;
                 document.getElementById('djArrend').value = man.arrendEstatales || '';
@@ -7857,6 +8308,9 @@ function mjPermisos(rol,modulo){ const M={
                     P.exentoDiv = parseFloat(document.getElementById('djParExentoDiv').value);
                     P.escalaDiv = djParseEscala(document.getElementById('djParEscalaDiv').value, DJ_PARAMS_DEF.escalaDiv);
                     P.retencionDiv = parseFloat(document.getElementById('djParRetDiv').value);
+                    P.fuenteVerif = document.getElementById('djParFuenteVerif').value.trim();
+                    P.fechaVerif = document.getElementById('djParFechaVerif').value;
+                    P.vigenciaVerif = document.getElementById('djParVigenciaVerif').value.trim();
                     saveDJ(dd); renderDJ(); alert('✅ Parámetros de ' + djAnioSel + ' guardados.');
                 });
                 const guardarManual = () => {
@@ -8371,6 +8825,7 @@ function mjPermisos(rol,modulo){ const M={
             const selC=document.getElementById('mjFacCliente'); if(selC){ const act=selC.value; selC.innerHTML=(c.contrapartes||[]).map(x=>`<option value="${esc(x.id)}">${esc(x.nombre||x.id)}</option>`).join('')||'<option value="">(crea primero una contraparte en Contabilidad)</option>'; selC.value=act; }
             const selP=document.getElementById('mjFacProd'); if(selP){ const act=selP.value; selP.innerHTML='<option value="">Sin inventario</option>'+(c.productos||[]).map(x=>`<option value="${esc(x.id)}">${esc(x.nombre||x.id)}</option>`).join(''); selP.value=act; }
             mjRenderFacturas(); mjRenderPatrones(); mjRenderPresupuesto(); mjRenderInstrumentos(); mjRenderContratos(); mjRenderUtiles();
+            try{ lbTableroRender(); }catch(e){}
         }
         function mjFacturaCrearUI(){ const c=getConta(); const cp=mjVal('mjFacCliente'); if(!cp){ alert('Selecciona un cliente (contraparte).'); return; }
             const linea={concepto:mjVal('mjFacConcepto')||'Venta',cantidad:Number(mjVal('mjFacCant'))||0,precio:Number(mjVal('mjFacPrecio'))||0};
@@ -8444,6 +8899,152 @@ function mjPermisos(rol,modulo){ const M={
         function mjFichaCostosUI(){ const tipo=(getEntityType()==='mipyme'&&(Number(mjVal('mjFcMod'))>0))?(confirm('¿Es un SERVICIO? (Aceptar = servicio, límite de indirectos 1,0×MOD; Cancelar = producto, 1,5×MOD)')?'servicio':'producto'):'producto';
             const f=mjFichaCostos({tipo:tipo,materiales:Number(mjVal('mjFcMat'))||0,manoObraDirecta:Number(mjVal('mjFcMod'))||0,otrosDirectos:Number(mjVal('mjFcOtros'))||0,indirectos:Number(mjVal('mjFcInd'))||0,unidades:Number(mjVal('mjFcUnid'))||1,margenPct:Number(mjVal('mjFcMargen'))||0});
             const box=document.getElementById('mjFichaBox'); if(box) box.innerHTML=`<b>Ficha de costos (${esc(f.tipo)}):</b> materiales ${moneda(f.materiales)} + MOD ${moneda(f.manoObraDirecta)} + otros ${moneda(f.otrosDirectos)} + indirectos aplicados ${moneda(f.indirectosAplicados)} (límite ${moneda(f.limiteIndirectos)}; excluidos ${moneda(f.indirectosExcluidos)}) = costo total <b>${moneda(f.costoTotal)}</b> · unitario <b>${moneda(f.costoUnitario)}</b> · precio sugerido con margen ${f.margenPct} %: <b>${moneda(f.precioSugerido)}</b><br><span class="text-secondary">${esc(f.nota)}</span>`;
+        }
+        /* ----- Ronda Libro · Costos, precios y equilibrio (UI) ----- */
+        let lbUltimoCostoUnitario=null;
+        function lbQuitarFila(btn){ const tr=btn&&btn.closest?btn.closest('tr'):null; if(tr) tr.remove(); }
+        function lbAddDir(nombre,monto,nota){ const tb=document.getElementById('lbDirBody'); if(!tb) return;
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td><input class="form-control form-control-sm lb-dir-nombre" value="${esc(nombre||'')}"></td><td><input type="number" class="form-control form-control-sm lb-dir-monto" value="${monto==null?'':esc(String(monto))}" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-dir-nota" value="${esc(nota||'')}"></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td>`;
+            tb.appendChild(tr); }
+        function lbAddInd(nombre,monto,criterio){ const tb=document.getElementById('lbIndBody'); if(!tb) return;
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td><input class="form-control form-control-sm lb-ind-nombre" value="${esc(nombre||'')}"></td><td><input type="number" class="form-control form-control-sm lb-ind-monto" value="${monto==null?'':esc(String(monto))}" placeholder="0" step="any"></td><td><input class="form-control form-control-sm lb-ind-criterio" value="${esc(criterio||'')}"></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="lbQuitarFila(this)">Quitar</button></td>`;
+            tb.appendChild(tr); }
+        function lbLeerDirectos(){ const tb=document.getElementById('lbDirBody'); if(!tb) return [];
+            return Array.from(tb.querySelectorAll('tr')).map(tr=>{ const n=tr.querySelector('.lb-dir-nombre'), m=tr.querySelector('.lb-dir-monto'), t=tr.querySelector('.lb-dir-nota');
+                return {nombre:n?n.value:'',monto:Number(m?m.value:0)||0,nota:t?t.value:''}; }); }
+        function lbLeerIndirectos(){ const tb=document.getElementById('lbIndBody'); if(!tb) return [];
+            return Array.from(tb.querySelectorAll('tr')).map(tr=>{ const n=tr.querySelector('.lb-ind-nombre'), m=tr.querySelector('.lb-ind-monto'), c=tr.querySelector('.lb-ind-criterio');
+                return {nombre:n?n.value:'',monto:Number(m?m.value:0)||0,criterio:c?c.value:''}; }); }
+        function lbFichaUI(){ const f=lbFichaCosto({producto:mjVal('lbProducto'),hechas:Number(mjVal('lbHechas'))||0,perdidas:Number(mjVal('lbPerdidas'))||0,directos:lbLeerDirectos(),indirectos:lbLeerIndirectos()});
+            if(f.costoUnitario!=null) lbUltimoCostoUnitario=f.costoUnitario;
+            const box=document.getElementById('lbFichaBox'); if(!box) return;
+            box.innerHTML=`<div class="table-responsive"><table class="table table-sm mb-2"><tbody>`
+              +`<tr><td>Producto</td><td class="text-end"><b>${esc(f.producto||'—')}</b></td></tr>`
+              +`<tr><td>Subtotal de costos directos</td><td class="text-end">${moneda(f.subDirectos)}</td></tr>`
+              +`<tr><td>Subtotal de costos indirectos asignados</td><td class="text-end">${moneda(f.subIndirectos)}</td></tr>`
+              +`<tr><td><b>Costo total del período</b></td><td class="text-end"><b>${moneda(f.costoTotal)}</b></td></tr>`
+              +`<tr><td>Unidades vendibles (hechas − perdidas)</td><td class="text-end">${f.vendibles}</td></tr>`
+              +`</tbody></table></div>`
+              +(f.costoUnitario!=null?`<div class="alert alert-success py-2 px-3 mb-0">Costo unitario: <b>${moneda(f.costoUnitario)}</b> por unidad vendible.</div>`:`<div class="alert alert-warning py-2 px-3 mb-0">Sin unidades vendibles: no se puede calcular el costo unitario. Revisa las unidades hechas y las perdidas.</div>`);
+        }
+        function lbDepUI(){ const dep=lbDepreciacion(Number(mjVal('lbDepPrecio'))||0,Number(mjVal('lbDepVida'))||0);
+            const box=document.getElementById('lbDepBox'); if(box) box.innerHTML=`Depreciación mensual: <b>${moneda(dep)}</b>`;
+            return dep; }
+        function lbDepSumarUI(){ const dep=lbDepUI(); if(!(dep>0)){ alert('Calcula primero una depreciación mayor que cero: pon el precio del equipo y su vida útil en meses.'); return; }
+            lbAddInd('Depreciación de equipos',dep,'precio / vida útil'); }
+        function lbTraerCostoUI(){ if(lbUltimoCostoUnitario==null){ alert('Primero calcula la ficha de costo (botón «Calcular ficha») y después trae su costo unitario.'); return; }
+            mjSetVal('lbPrecioCosto',String(lbUltimoCostoUnitario)); }
+        function lbPreciosUI(){ const r=lbPrecios({costo:Number(mjVal('lbPrecioCosto'))||0,recargoPct:Number(mjVal('lbRecargoPct'))||0,margenPct:Number(mjVal('lbMargenPct'))||0,precioElegido:Number(mjVal('lbPrecioElegido'))||0});
+            const box=document.getElementById('lbPreciosBox'); if(!box) return;
+            box.innerHTML=`<div class="table-responsive"><table class="table table-sm mb-2"><thead><tr><th>Método</th><th class="text-end">Precio</th><th class="text-end">Beneficio por unidad</th></tr></thead><tbody>`
+              +`<tr><td>Recargo del ${r.recargoPct} % sobre el costo</td><td class="text-end"><b>${moneda(r.precioRecargo)}</b></td><td class="text-end">${moneda(r.beneficioRecargo)}</td></tr>`
+              +(r.precioMargen!=null?`<tr><td>Margen del ${r.margenPct} % sobre el precio</td><td class="text-end"><b>${moneda(r.precioMargen)}</b></td><td class="text-end">${moneda(r.beneficioMargen)}</td></tr>`:`<tr><td>Margen del ${r.margenPct} % sobre el precio</td><td class="text-end" colspan="2"><span class="text-danger">No válido: el margen debe ser menor que 100 %.</span></td></tr>`)
+              +`</tbody></table></div>`
+              +`<div>Conversiones: un margen del ${r.margenPct} % equivale a un recargo del <b>${r.recargoDesdeMargen==null?'—':r.recargoDesdeMargen+' %'}</b>; un recargo del ${r.recargoPct} % equivale a un margen del <b>${r.margenDesdeRecargo} %</b>.</div>`
+              +(r.precioElegido!=null?`<div class="mt-1">Precio final elegido: <b>${moneda(r.precioElegido)}</b> · margen real <b>${r.margenReal} %</b> · recargo real <b>${r.recargoReal==null?'—':r.recargoReal+' %'}</b> · beneficio por unidad <b>${moneda(r.beneficioElegido)}</b>.</div>`:`<div class="mt-1 text-secondary">Sin precio final elegido: escribe uno para ver su margen real, su recargo real y su beneficio por unidad.</div>`);
+        }
+        function lbEquilibrioUI(){ const r=lbEquilibrio({costosFijos:Number(mjVal('lbEqFijos'))||0,precio:Number(mjVal('lbEqPrecio'))||0,costoVariableUnit:Number(mjVal('lbEqCvu'))||0});
+            const box=document.getElementById('lbEquiBox'); if(!box) return;
+            if(!r.ok){ box.innerHTML=`<div class="alert alert-danger py-2 px-3 mb-0">${esc(r.motivo)}</div>`; return; }
+            const ventasTxt=mjVal('lbEqVentas'); const ventas=ventasTxt===''?null:(Number(ventasTxt)||0);
+            let seg='';
+            if(ventas!=null){ const msU=ventas-r.peUnidades; const msPct=ventas>0?mjR2((ventas-r.peUnidades)/ventas*100):null;
+                const pos=ventas>r.peUnidades?'por encima del equilibrio':(ventas<r.peUnidades?'por debajo del equilibrio':'justo en el equilibrio');
+                seg=`<div class="mt-1">Ventas reales: <b>${ventas}</b> unidades · margen de seguridad: <b>${msU}</b> unidades${msPct==null?'':' (<b>'+msPct+' %</b>)'} · estás <b>${pos}</b>.</div>`; }
+            box.innerHTML=`<div>Margen de contribución: <b>${moneda(r.margenContribucion)}</b> por unidad (${r.mcPct==null?'—':r.mcPct+' %'} del precio).</div>`
+              +`<div>Punto de equilibrio: <b>${r.peUnidades}</b> unidades · <b>${moneda(r.peCUP)}</b> en ventas.</div>`+seg;
+        }
+        /* ----- Ronda Libro \u00b7 Tablero de indicadores del mes (Plantilla 18, UI) ----- */
+        let lbTabPeriodoVisto=null;
+        function lbTableroClave(periodo){ return 'lbTablero_'+String(periodo||''); }
+        function lbTableroLeer(periodo){ try{ const x=localStorage.getItem(lbTableroClave(periodo)); const d=x?JSON.parse(x):null; return (d&&typeof d==='object')?d:{}; }catch(e){ return {}; } }
+        function lbTabPeriodoAnterior(periodo){ const p=periodoParts(periodo); if(!p) return ''; let mi=p.mi-1, y=p.y; if(mi<0){ mi=11; y--; } return MESES_ES[mi]+' '+y; }
+        function lbTabNumInput(id){ const e=document.getElementById(id); if(!e) return null; const v=String(e.value==null?'':e.value).trim(); if(v==='') return null; const n=Number(v); return isNaN(n)?null:n; }
+        function lbTabSetInput(id,v){ const e=document.getElementById(id); if(e) e.value=(v===null||v===undefined)?'':String(v); }
+        function lbTabGuardadoNum(g,k){ return (g&&g[k]!==null&&g[k]!==undefined&&g[k]!==''&&!isNaN(Number(g[k])))?Number(g[k]):null; }
+        function lbTabCostoVentasPeriodo(conta,periodo){ try{ const pp=periodoParts(periodo); if(!pp||typeof ctaResultados!=='function') return 0; const desde=pp.y+'-'+String(pp.mi+1).padStart(2,'0')+'-01'; const r=ctaResultados(conta,{desde:desde,hasta:fechaContablePeriodo(periodo)}); const d=(r.detGastos||[]).find(x=>x.codigo==='695-000'); return d?mjR2(d.importe):0; }catch(e){ return 0; } }
+        function lbTabAutoSubmayor(tipo,fechaFin){ try{ const c=getConta(); const sm=ctaSubmayor(c,tipo,fechaFin); if(!sm||!sm.buckets) return null; return mjR2(Object.keys(sm.buckets).reduce((s,k)=>s+(Number(sm.buckets[k])||0),0)); }catch(e){ return null; } }
+        function lbTabAutoInventario(doc,periodo){ try{ const ind=mjIndicadores(getConta(),doc,periodo); return (ind&&ind.inventarios!==null&&ind.inventarios!==undefined)?mjR2(ind.inventarios):null; }catch(e){ return null; } }
+        function lbTableroGuardar(){ const sel=document.getElementById('lbTabPeriodo'); const per=(sel&&sel.value)||lbTabPeriodoVisto||''; if(!per){ alert('Elige primero el per\u00edodo del tablero.'); return; }
+          const sEl=document.getElementById('lbTabSenal');
+          const d={beneficioBruto:lbTabNumInput('lbTabBeneficio'),cxc:lbTabNumInput('lbTabCxC'),cxp:lbTabNumInput('lbTabCxP'),inventario:lbTabNumInput('lbTabInventario'),pe:lbTabNumInput('lbTabPE'),senal:sEl?sEl.value:''};
+          try{ localStorage.setItem(lbTableroClave(per),JSON.stringify(d)); }catch(e){}
+          lbTableroRender(); alert('\u2705 Valores manuales del tablero de '+per+' guardados en este equipo.'); }
+        function lbTableroRender(){ const card=document.getElementById('lbTableroCard'); if(!card) return; const body=document.getElementById('lbTableroBody'); if(!body) return;
+          const doc=mjDocActualComoGestor();
+          const setP=new Set(); const act=gActualPeriodo(doc); if(act) setP.add(act); ((doc&&doc.hist)||[]).forEach(hh=>{ if(hh&&hh.mes) setP.add(hh.mes); });
+          const periodos=Array.from(setP).sort((a,b)=>{ const pa=periodoParts(a), pb=periodoParts(b); const ka=pa?pa.y*12+pa.mi:-1, kb=pb?pb.y*12+pb.mi:-1; return kb-ka; });
+          const sel=document.getElementById('lbTabPeriodo'); if(!sel) return;
+          let periodo=sel.value||'';
+          if(periodos.indexOf(periodo)<0) periodo=act||periodos[0]||'';
+          sel.innerHTML=periodos.map(p=>`<option value="${esc(p)}"${p===periodo?' selected':''}>${esc(p)}</option>`).join('')||'<option value="">Sin per\u00edodo</option>';
+          sel.value=periodo;
+          const info=document.getElementById('lbTabInfo');
+          if(!periodo){ body.innerHTML='<tr><td colspan="5" class="text-secondary">Sin datos del negocio todav\u00eda.</td></tr>'; return; }
+          const perAnt=lbTabPeriodoAnterior(periodo);
+          const tieneAnt=periodos.indexOf(perAnt)>=0;
+          const guardado=lbTableroLeer(periodo), guardadoAnt=tieneAnt?lbTableroLeer(perAnt):{};
+          if(lbTabPeriodoVisto!==periodo){ lbTabPeriodoVisto=periodo;
+            lbTabSetInput('lbTabBeneficio',guardado.beneficioBruto);
+            lbTabSetInput('lbTabCxC',guardado.cxc);
+            lbTabSetInput('lbTabCxP',guardado.cxp);
+            lbTabSetInput('lbTabInventario',guardado.inventario);
+            lbTabSetInput('lbTabPE',guardado.pe);
+            const sEl2=document.getElementById('lbTabSenal'); if(sEl2) sEl2.value=guardado.senal||'';
+          }
+          const res=gResumenPeriodo(doc,periodo);
+          const resAnt=tieneAnt?gResumenPeriodo(doc,perAnt):null;
+          let conta=null; try{ conta=getConta(); }catch(e){ conta=null; }
+          const costoV=conta?lbTabCostoVentasPeriodo(conta,periodo):0;
+          const costoVAnt=(conta&&tieneAnt)?lbTabCostoVentasPeriodo(conta,perAnt):0;
+          const sug=costoV>0?mjR2(res.ingresos-costoV):null;
+          const sugAnt=(resAnt&&costoVAnt>0)?mjR2(resAnt.ingresos-costoVAnt):null;
+          const inBenef=lbTabNumInput('lbTabBeneficio');
+          const benef=(inBenef!==null)?inBenef:sug;
+          const gBenefAnt=lbTabGuardadoNum(guardadoAnt,'beneficioBruto');
+          const benefAnt=(gBenefAnt!==null)?gBenefAnt:sugAnt;
+          const fechaFin=fechaContablePeriodo(periodo), fechaFinAnt=tieneAnt?fechaContablePeriodo(perAnt):'';
+          const autoCxC=lbTabAutoSubmayor('cxc',fechaFin), autoCxP=lbTabAutoSubmayor('cxp',fechaFin);
+          const autoCxCAnt=tieneAnt?lbTabAutoSubmayor('cxc',fechaFinAnt):null, autoCxPAnt=tieneAnt?lbTabAutoSubmayor('cxp',fechaFinAnt):null;
+          const autoInv=lbTabAutoInventario(doc,periodo);
+          const inCxC=lbTabNumInput('lbTabCxC'), inCxP=lbTabNumInput('lbTabCxP'), inInv=lbTabNumInput('lbTabInventario'), inPE=lbTabNumInput('lbTabPE');
+          const cxc=(inCxC!==null)?inCxC:autoCxC;
+          const cxp=(inCxP!==null)?inCxP:autoCxP;
+          const inv=(inInv!==null)?inInv:autoInv;
+          const gCxCAnt=lbTabGuardadoNum(guardadoAnt,'cxc'), gCxPAnt=lbTabGuardadoNum(guardadoAnt,'cxp'), gInvAnt=lbTabGuardadoNum(guardadoAnt,'inventario'), gPEAnt=lbTabGuardadoNum(guardadoAnt,'pe');
+          const cxcAnt=(gCxCAnt!==null)?gCxCAnt:autoCxCAnt;
+          const cxpAnt=(gCxPAnt!==null)?gCxPAnt:autoCxPAnt;
+          const invAnt=(gInvAnt!==null)?gInvAnt:(tieneAnt?autoInv:null);
+          const ventas=res.ingresos, ventasAnt=resAnt?resAnt.ingresos:null;
+          const margen=(benef!==null&&ventas)?mjR2(benef/ventas*100):null;
+          const margenAnt=(benefAnt!==null&&ventasAnt)?mjR2(benefAnt/ventasAnt*100):null;
+          const neto=mjR2(res.utilidad+res.onat);
+          const netoAnt=resAnt?mjR2(resAnt.utilidad+resAnt.onat):null;
+          const extra={ventasActual:ventas,ventasAnterior:ventasAnt};
+          const filas=[
+            {clave:'ventas',etiqueta:'Ventas del mes (ingresos del per\u00edodo)',actual:ventas,anterior:ventasAnt,fmt:'cup'},
+            {clave:'beneficioBruto',etiqueta:'Beneficio bruto',actual:benef,anterior:benefAnt,fmt:'cup'},
+            {clave:'margenBruto',etiqueta:'Margen bruto (%)',actual:margen,anterior:margenAnt,fmt:'pct'},
+            {clave:'beneficioNeto',etiqueta:'Beneficio neto antes de impuestos y obligaciones',actual:neto,anterior:netoAnt,fmt:'cup'},
+            {clave:'efectivo',etiqueta:'Efectivo disponible',actual:res.saldoTotal,anterior:resAnt?resAnt.saldoTotal:null,fmt:'cup'},
+            {clave:'cxc',etiqueta:'Cuentas por cobrar',actual:cxc,anterior:cxcAnt,fmt:'cup'},
+            {clave:'cxp',etiqueta:'Cuentas por pagar',actual:cxp,anterior:cxpAnt,fmt:'cup'},
+            {clave:'inventario',etiqueta:'Valor del inventario',actual:inv,anterior:invAnt,fmt:'cup'},
+            {clave:'equilibrio',etiqueta:'Punto de equilibrio del mes (CUP)',actual:inPE,anterior:gPEAnt,fmt:'cup'}
+          ];
+          const badge=s=>s==='bien'?'<span class="badge bg-success">Bien</span>':s==='revisar'?'<span class="badge bg-warning text-dark">Revisar</span>':s==='mal'?'<span class="badge bg-danger">Mal</span>':'<span class="badge bg-secondary">Sin dato</span>';
+          const fmtV=(v,f)=>v===null||v===undefined?'\u2014':(f==='pct'?mjR2(v)+' %':moneda(v));
+          const fmtD=(f2)=>{ if(f2.actual===null||f2.actual===undefined||f2.anterior===null||f2.anterior===undefined) return '\u2014'; const d=mjR2(f2.actual-f2.anterior); return f2.fmt==='pct'?((d>0?'+':'')+d+' puntos'):((d>0?'+':'')+moneda(d)); };
+          const estados=filas.map(f2=>lbSemaforo(f2.clave,f2.actual,f2.anterior,extra));
+          body.innerHTML=filas.map((f2,i)=>`<tr><td>${esc(f2.etiqueta)}</td><td class="text-end fw-semibold">${fmtV(f2.actual,f2.fmt)}</td><td class="text-end">${fmtV(f2.anterior,f2.fmt)}</td><td class="text-end">${fmtD(f2)}</td><td>${badge(estados[i])}</td></tr>`).join('');
+          let peor='bien';
+          if(estados.indexOf('mal')>=0) peor='mal'; else if(estados.indexOf('revisar')>=0) peor='revisar'; else if(estados.every(s=>s==='sindato')) peor='sindato';
+          const sugBox=document.getElementById('lbTabSugerido');
+          if(sugBox){ const frase=peor==='mal'?'Mes en alerta: revisa los indicadores marcados.':peor==='revisar'?'Mes para revisar: hay indicadores que empeoraron respecto al mes anterior.':peor==='bien'?'Mes en orden: los indicadores se mantienen o mejoran respecto al mes anterior.':'Sin datos suficientes para valorar el mes: completa los valores manuales y vuelve a actualizar.';
+            sugBox.innerHTML='Se\u00f1al sugerida: <i>'+esc(frase)+'</i>'+(sug!==null?'<br>Beneficio bruto sugerido desde la contabilidad (cuenta 695-000 \u00b7 Costo de ventas del per\u00edodo: '+moneda(costoV)+'): <b>'+moneda(sug)+'</b>. Si el campo de Ajustes queda vac\u00edo se usa este valor; escribe otro para fijarlo.':'<br>Sin costo de ventas (cuenta 695-000) registrado en este per\u00edodo: el beneficio bruto se captura a mano en \u00abAjustes del tablero\u00bb.'); }
+          if(info) info.textContent=tieneAnt?('Comparaci\u00f3n contra '+perAnt+'.'):('Sin mes anterior ('+perAnt+') en los datos: la comparaci\u00f3n queda \u00abSin dato\u00bb donde no hay base.');
         }
         /* ----- Profundidad (ronda 13) ----- */
         function mjRenderProfundidad(){ const c=getConta(); const g=mjGestionDe(c);
@@ -8828,7 +9429,7 @@ function mjPermisos(rol,modulo){ const M={
         }
         function gDjParams(doc,anio){
             const d=(doc&&doc.dj)||{}, g=(d.params&&d.params[anio])||{};
-            const P={exentoIIP:DJ_PARAMS_DEF.exentoIIP, bonifPronto:DJ_PARAMS_DEF.bonifPronto, bonifElec:DJ_PARAMS_DEF.bonifElec, tipoUtilidades:DJ_PARAMS_DEF.tipoUtilidades, exentoDiv:DJ_PARAMS_DEF.exentoDiv, retencionDiv:DJ_PARAMS_DEF.retencionDiv, topeSimplificado:DJ_PARAMS_DEF.topeSimplificado, escalaIIP:DJ_PARAMS_DEF.escalaIIP.map(t=>t.slice()), escalaDiv:DJ_PARAMS_DEF.escalaDiv.map(t=>t.slice())};
+            const P={exentoIIP:DJ_PARAMS_DEF.exentoIIP, bonifPronto:DJ_PARAMS_DEF.bonifPronto, bonifElec:DJ_PARAMS_DEF.bonifElec, tipoUtilidades:DJ_PARAMS_DEF.tipoUtilidades, exentoDiv:DJ_PARAMS_DEF.exentoDiv, retencionDiv:DJ_PARAMS_DEF.retencionDiv, topeSimplificado:DJ_PARAMS_DEF.topeSimplificado, escalaIIP:DJ_PARAMS_DEF.escalaIIP.map(t=>t.slice()), escalaDiv:DJ_PARAMS_DEF.escalaDiv.map(t=>t.slice()), fuenteVerif:String(g.fuenteVerif||''), fechaVerif:String(g.fechaVerif||''), vigenciaVerif:String(g.vigenciaVerif||'')};
             ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv','topeSimplificado'].forEach(k=>{ if(g[k]!==undefined&&g[k]!==''&&!isNaN(Number(g[k]))) P[k]=Number(g[k]); });
             if(Array.isArray(g.escalaIIP)&&g.escalaIIP.length) P.escalaIIP=g.escalaIIP;
             if(Array.isArray(g.escalaDiv)&&g.escalaDiv.length) P.escalaDiv=g.escalaDiv;
@@ -8939,7 +9540,7 @@ function mjPermisos(rol,modulo){ const M={
             if(est==='vencida') rows=rows.filter(x=>x.estado.vencida);
             else if(est) rows=rows.filter(x=>!x.estado.vencida&&x.estado.key===est);
             const sinVector=GDOCS?Object.keys(GDOCS).filter(n=>{const d=GDOCS[n];return !(d.fiscal&&Array.isArray(d.fiscal.obligaciones)&&d.fiscal.obligaciones.some(o=>o&&o.vector));}):[];
-            box.innerHTML=(rows.length? `<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Fecha límite</th><th>Negocio</th><th>Código</th><th>Concepto</th><th>Período</th><th class="text-end">Importe</th><th class="text-end">Pagado</th><th>Estado</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.obligacion.vence||'—')}</td><td>${esc(x.negocio)}</td><td><code>${esc(x.obligacion.codigo||'—')}</code></td><td>${esc(x.obligacion.concepto||'Tributo')}</td><td>${esc(x.obligacion.periodo||'—')}</td><td class="text-end">${x.estado.importe==null?'—':moneda(x.estado.importe)}</td><td class="text-end">${moneda(x.estado.pagado)}</td><td><span class="fiscal-status ${x.estado.vencida?'vencida':x.estado.key}">${x.estado.txt}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="text-secondary small">No hay obligaciones para los filtros elegidos.</div>')
+            box.innerHTML=(rows.length? `<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Fecha límite</th><th>Negocio</th><th>Código</th><th>Concepto</th><th>Responsable</th><th>Período</th><th class="text-end">Importe</th><th class="text-end">Pagado</th><th>Estado</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.obligacion.vence||'—')}</td><td>${esc(x.negocio)}</td><td><code>${esc(x.obligacion.codigo||'—')}</code></td><td>${esc(x.obligacion.concepto||'Tributo')}</td><td>${esc(x.obligacion.responsable||'—')}${x.obligacion.fuenteVerificacion?`<div class="small text-secondary">${esc(x.obligacion.fuenteVerificacion)}</div>`:''}</td><td>${esc(x.obligacion.periodo||'—')}</td><td class="text-end">${x.estado.importe==null?'—':moneda(x.estado.importe)}</td><td class="text-end">${moneda(x.estado.pagado)}</td><td><span class="fiscal-status ${x.estado.vencida?'vencida':x.estado.key}">${x.estado.txt}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="text-secondary small">No hay obligaciones para los filtros elegidos.</div>')
               + (sinVector.length?`<div class="small text-secondary mt-2"><i class="bi bi-info-circle me-1"></i>Negocios sin Vector importado (RC-04A): ${sinVector.map(esc).join(', ')}. Sus vencimientos de plantilla, si los hay, son orientativos.</div>`:'');
         }
         function gestorPeriodosDisponibles(doc){
@@ -11253,7 +11854,7 @@ function mjPermisos(rol,modulo){ const M={
         document.getElementById('puestoNombre').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btnAddPuesto').click(); } });
         document.getElementById('vectorPdfInput').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)importarVectorPDF(f);e.target.value='';});
         document.getElementById('fiscalFiltro').addEventListener('change',renderFiscal);
-        document.getElementById('btnFiscalManual').addEventListener('click',()=>{document.getElementById('fisManCodigo').value='';document.getElementById('fisManPeriodo').value=periodoNominaActual();document.getElementById('fisManConcepto').value='';document.getElementById('fisManVence').value='';document.getElementById('fisManImporte').value='';fiscalManualModal.show();});
+        document.getElementById('btnFiscalManual').addEventListener('click',()=>{document.getElementById('fisManCodigo').value='';document.getElementById('fisManPeriodo').value=periodoNominaActual();document.getElementById('fisManConcepto').value='';document.getElementById('fisManVence').value='';document.getElementById('fisManImporte').value='';document.getElementById('fisManResponsable').value='';document.getElementById('fisManFuenteVerif').value='';document.getElementById('fisManFechaVerif').value='';fiscalManualModal.show();});
         document.getElementById('btnGuardarFiscalManual').addEventListener('click',guardarFiscalManual);
         document.getElementById('btnConsultarBCC').addEventListener('click',consultarBCCDesdePanel);
         document.getElementById('btnUsarTasaUSDIngreso').addEventListener('click',()=>usarTasaEnMovimiento('ingreso'));
