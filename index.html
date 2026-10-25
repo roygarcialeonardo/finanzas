@@ -1666,7 +1666,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
         <div class="tab-pane fade" id="pane-gestor">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="maletin" style="color:#7c3aed"></span>Panel del Gestor</h5><div class="small text-secondary">Todos tus clientes (TCP y MIPYME) en una vista: cierres, vencimientos ONAT, justificación de gastos y tu cobro. Los importes salen de los datos reales de cada negocio.</div></div>
+                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="maletin" style="color:#7c3aed"></span>Panel del Gestor</h5><div class="small text-secondary">Todos tus clientes (TCP, MIPYME y Proyectos de Desarrollo Local) en una vista: cierres, vencimientos ONAT, justificación de gastos y tu cobro. Los importes salen de los datos reales de cada negocio.</div></div>
                 <div class="d-flex gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" id="btnGestorRefrescar"><span class="icono-anim me-1" data-icono="sincronizar"></span>Actualizar datos</button><button type="button" class="btn btn-sm btn-primary" id="btnAltaRapida"><span class="icono-anim me-1" data-icono="usuario-mas"></span>Alta rápida de cliente</button></div>
             </div>
             <div id="gestorAlertas" class="mb-3"></div>
@@ -2432,7 +2432,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-gestor">
                 <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="maletin"></span>Gestor</h6>
-                <p class="small mb-0">Solo administrador. El panel del tenedor de libros: todos tus clientes (TCP y MIPYME) en una sola vista. Los importes salen de los datos reales de cada negocio.</p>
+                <p class="small mb-0">Solo administrador. El panel del tenedor de libros: todos tus clientes (TCP, MIPYME y Proyectos de Desarrollo Local) en una sola vista. Los importes salen de los datos reales de cada negocio.</p>
                 <div class="ayuda-sec" id="ayuda-gestor-0" data-ayuda-titulo="Panel del Gestor">
                     <div class="ayuda-sec-tit">Panel del Gestor</div>
                     <p class="small mb-1">La lista de clientes con su semáforo de estado: al día o atrasado, según vencimientos y actividad.</p>
@@ -2453,6 +2453,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <p class="small mb-1">Tu control interno como gestor: no forma parte de los libros de ningún cliente.</p>
                     <ul class="small mb-0">
                         <li><b>Registrar pago</b>: anota lo que el cliente te pagó como gestor y lo guarda.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-gestor-3" data-ayuda-titulo="Clientes PDL (Proyectos de Desarrollo Local)">
+                    <div class="ayuda-sec-tit">Clientes PDL (Proyectos de Desarrollo Local)</div>
+                    <p class="small mb-1">Tercer tipo de cliente del Gestor, junto a TCP y MIPYME. Marco vigente: <b>Decreto 174/2026</b> «Para la Gestión Estratégica del Desarrollo Territorial» (Gaceta Oficial ordinaria No. 87 de 2026), que <b>derogó el Decreto 33/2021</b>. Se dan de alta con «Alta rápida de cliente» eligiendo el tipo PDL, y su ficha se completa en el detalle del cliente.</p>
+                    <ul class="small mb-0">
+                        <li><b>Vigencia de 5 años</b> desde la aprobación (CAM o Gobernador, según la estrategia EDM/EDP a la que responde): la fecha de vencimiento se calcula sola; el panel avisa en ámbar con 90 días y en rojo si venció. Al vencer o cumplir lo aprobado, el proyecto se extingue y pasa por liquidación, o se convierte en un actor económico.</li>
+                        <li><b>Evaluación anual obligatoria</b>: cada PDL se evalúa al menos una vez al año; el panel y el calendario avisan con 30 días y marcan rojo si la evaluación venció.</li>
+                        <li><b>Tope de 100 contratados</b>: aviso al llegar a 90; si se supera el tope, el proyecto debe transformarse en empresa.</li>
+                        <li><b>Fuentes por separado</b>: presupuesto local, donaciones, cooperación y otras, cada una con su monto aprobado y su ejecución; el informe mensual del cliente PDL incluye el bloque de fuentes con su ejecución.</li>
+                        <li><b>Cautela contable</b>: el PDL no tiene Declaración Jurada propia en la app ni Vector Fiscal RC-04A. Su contabilidad se lleva con el <b>plan general de cuentas</b>; el tratamiento contable y bancario específico está <b>pendiente de verificar</b> contra las Resoluciones 202/2026 del MFP y 118/2026 del BCC, así que la app no aplica cuentas especiales ni reglas bancarias al PDL hasta confirmarlo en la Gaceta.</li>
                     </ul>
                 </div>
             </div>
@@ -2762,12 +2773,23 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 <div class="alert alert-warning small mb-3"><span class="icono-anim me-1" data-icono="alerta"></span>La plantilla por actividad es <b>ORIENTATIVA</b>: propone los tributos habituales de la actividad. El Vector Fiscal real de cada cliente es el <b>RC-04A</b> que emite la ONAT; cuando lo tengas, impórtalo en la pestaña Fiscal del negocio (reemplaza a la plantilla).</div>
 <div class="row g-3">
 <div class="col-md-6"><label class="form-label">Nombre del negocio *</label><input id="altaNombre" class="form-control" maxlength="80" placeholder="Ej. Cafetería El Sol"></div>
-<div class="col-md-3"><label class="form-label">Tipo *</label><select id="altaTipo" class="form-select"><option value="tcp">TCP</option><option value="mipyme">MIPYME</option></select></div>
-<div class="col-md-3"><label class="form-label">Actividad (plantilla) *</label><select id="altaActividad" class="form-select"><option value="gastronomia">Gastronomía</option><option value="comercio">Comercio minorista</option><option value="transporte">Transporte</option><option value="servicios">Servicios</option><option value="produccion">Producción</option></select></div>
-<div class="col-md-4"><label class="form-label">NIT</label><input id="altaNIT" class="form-control" maxlength="20"></div>
+<div class="col-md-3"><label class="form-label">Tipo *</label><select id="altaTipo" class="form-select"><option value="tcp">TCP</option><option value="mipyme">MIPYME</option><option value="pdl">Proyecto de Desarrollo Local (PDL)</option></select></div>
+<div class="col-md-3" id="altaActividadWrap"><label class="form-label">Actividad (plantilla) *</label><select id="altaActividad" class="form-select"><option value="gastronomia">Gastronomía</option><option value="comercio">Comercio minorista</option><option value="transporte">Transporte</option><option value="servicios">Servicios</option><option value="produccion">Producción</option></select></div>
+<div class="col-md-4" id="altaNitWrap"><label class="form-label">NIT</label><input id="altaNIT" class="form-control" maxlength="20"></div>
 <div class="col-md-4"><label class="form-label">Municipio de inscripción</label><input id="altaMunicipio" class="form-control" maxlength="80"></div>
-<div class="col-md-4"><label class="form-label">Socios (solo MIPYME)</label><input id="altaSocios" type="number" min="1" max="99" value="1" class="form-control"></div>
+<div class="col-md-4" id="altaSociosWrap"><label class="form-label">Socios (solo MIPYME)</label><input id="altaSocios" type="number" min="1" max="99" value="1" class="form-control"></div>
 <div class="col-12"><label class="form-label">Nombre del contribuyente / Razón social</label><input id="altaRazon" class="form-control" maxlength="120" placeholder="Si se deja vacío se usa el nombre del negocio"></div>
+<div class="col-12" id="altaPdlBox" style="display:none"><div class="border rounded p-3"><div class="fw-semibold small mb-2">Datos del Proyecto de Desarrollo Local (Decreto 174/2026)</div><div class="row g-3">
+<div class="col-md-6"><label class="form-label">Entidad que lo ejecuta (promovente)</label><input id="altaPdlEntidad" class="form-control" maxlength="120"></div>
+<div class="col-md-3"><label class="form-label">Órgano que lo aprobó</label><select id="altaPdlOrgano" class="form-select"><option value="CAM">Consejo de la Administración Municipal (CAM)</option><option value="Gobernador">Gobernador provincial</option></select></div>
+<div class="col-md-3"><label class="form-label">Nº de acuerdo</label><input id="altaPdlAcuerdo" class="form-control" maxlength="40"></div>
+<div class="col-md-3"><label class="form-label">Estrategia a la que responde</label><select id="altaPdlEstrategia" class="form-select"><option value="EDM">EDM (municipal)</option><option value="EDP">EDP (provincial)</option></select></div>
+<div class="col-md-3"><label class="form-label">Fecha de aprobación *</label><input id="altaPdlFecha" type="date" class="form-control"></div>
+<div class="col-md-3"><label class="form-label">Provincia</label><input id="altaPdlProvincia" class="form-control" maxlength="60"></div>
+<div class="col-md-3"><label class="form-label">Cuenta bancaria CUP del proyecto</label><input id="altaPdlCuenta" class="form-control" maxlength="40"></div>
+<div class="col-md-3"><label class="form-label">Contratados al inicio</label><input id="altaPdlContratados" type="number" min="0" max="999" value="0" class="form-control"></div>
+<div class="col-12"><div class="small text-secondary mb-0">La vigencia (5 años) y su fecha de vencimiento se calculan solas desde la fecha de aprobación. El municipio se toma del campo «Municipio de inscripción». El PDL no lleva plantilla de tributos ONAT: no tiene Vector Fiscal RC-04A.</div></div>
+</div></div></div>
 <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="altaCrearUsuario" checked><label class="form-check-label" for="altaCrearUsuario">Crear también el usuario de acceso del cliente</label></div></div>
 <div class="col-md-4"><label class="form-label">Usuario</label><input id="altaUsuario" class="form-control" maxlength="40" autocomplete="off"></div>
 <div class="col-md-4"><label class="form-label">Contraseña inicial</label><input id="altaPass" class="form-control" maxlength="60" autocomplete="new-password"></div>
@@ -9901,6 +9923,129 @@ function mjPermisos(rol,modulo){ const M={
         function gMontoMovCUP(m,tasa){const monto=Number(m&&m.monto)||0;if(m&&m.cuenta==='tarjeta_usd'){const t=Number(m.tasaCambio)>0?Number(m.tasaCambio):(Number(tasa)||0);return monto*t;}return monto;}
         function gDocTasa(doc){const md=(doc&&doc.mes)||{};const campos=['tasaUSDSeleccionada','tasaSeleccionada','tasa','tasaUSD'];for(const c of campos){const t=Number(md[c]);if(t>0)return t;}const h=(doc&&doc.hist)||[];for(let i=h.length-1;i>=0;i--){const th=Number(h[i]&&h[i].tasa);if(th>0)return th;}return 0;}
         function gDocTipo(doc){return (doc&&(doc.tipo||(doc._info&&doc._info.tipo)))==='mipyme'?'mipyme':'tcp';}
+        /* --- PDL: tercer tipo de cliente (Proyecto de Desarrollo Local) ---
+           Marco: Decreto 174/2026 «Para la Gestión Estratégica del
+           Desarrollo Territorial» (Gaceta Oficial ordinaria No. 87 de
+           2026), que DEROGA el Decreto 33/2021. La ficha vive en el slot
+           fiscal del negocio (fiscal.pdl + fiscal.meta.tipoCliente='pdl'),
+           sembrada en el alta rápida; los ajustes que el gestor hace en el
+           Panel se guardan como overlay en su propio slot «gestor» (mismo
+           mecanismo que el cobro de servicios) y mandan sobre la semilla.
+           SIN obligaciones ONAT propias: no se inventa DJ ni cuentas
+           específicas — el tratamiento contable/bancario fino está
+           PENDIENTE DE VERIFICAR contra las Res. 202/2026 (MFP) y
+           118/2026 (BCC); mientras tanto, plan general de cuentas. */
+        const PDL_FUENTES_TIPOS=['Presupuesto local','Donaciones','Cooperación','Otras'];
+        function gTipoCliente(doc){
+            const f=(doc&&doc.fiscal)||{};
+            if(f.pdl&&typeof f.pdl==='object') return 'pdl';
+            if(f.meta&&f.meta.tipoCliente==='pdl') return 'pdl';
+            const t=(doc&&(doc.tipo||(doc._info&&doc._info.tipo)))||'';
+            if(t==='pdl') return 'pdl';
+            return t==='mipyme'?'mipyme':'tcp';
+        }
+        function gPdlSumarAnios(iso,anios){
+            const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return '';
+            const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),12,0,0);
+            d.setFullYear(d.getFullYear()+anios);
+            const p=x=>String(x).padStart(2,'0');
+            return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+        }
+        function gPdlVenceVigencia(ficha){ return ficha&&ficha.fechaAprobacion? gPdlSumarAnios(ficha.fechaAprobacion,5):''; }
+        function gPdlProximaEvaluacion(ficha){
+            if(!ficha) return '';
+            const base=ficha.ultimaEvaluacion||ficha.fechaAprobacion||'';
+            return base? gPdlSumarAnios(base,1):'';
+        }
+        function gPdlFicha(doc,overlay){
+            const semilla=(doc&&doc.fiscal&&doc.fiscal.pdl&&typeof doc.fiscal.pdl==='object')?doc.fiscal.pdl:null;
+            const o=(overlay&&typeof overlay==='object')?overlay:null;
+            if(!semilla&&!o&&gTipoCliente(doc)!=='pdl') return null;
+            const F=Object.assign({}, semilla||{}, o||{});
+            const fuentes=(Array.isArray(F.fuentes)?F.fuentes:[]).filter(x=>x&&typeof x==='object')
+                .map(x=>({tipo:String(x.tipo||'Otras'), monto:Math.max(0,Number(x.monto)||0), ejecutado:Math.max(0,Number(x.ejecutado)||0)}));
+            return {
+                organo:String(F.organo||'CAM'), acuerdo:String(F.acuerdo||''),
+                estrategia:String(F.estrategia||'EDM'),
+                entidadEjecutora:String(F.entidadEjecutora||''),
+                municipio:String(F.municipio||''), provincia:String(F.provincia||''),
+                fechaAprobacion:String(F.fechaAprobacion||''),
+                ultimaEvaluacion:String(F.ultimaEvaluacion||''),
+                cuentaCup:String(F.cuentaCup||''),
+                contratados:Math.max(0,Math.floor(Number(F.contratados)||0)),
+                estado:['activo','liquidacion','extinguido','convertido'].indexOf(F.estado)>=0?F.estado:'activo',
+                fuentes
+            };
+        }
+        function gPdlFuentes(ficha){
+            const fs=(ficha&&Array.isArray(ficha.fuentes))?ficha.fuentes:[];
+            const filas=fs.map(f=>{ const monto=Number(f.monto)||0, ejecutado=Number(f.ejecutado)||0;
+                return {tipo:f.tipo, monto:+monto.toFixed(2), ejecutado:+ejecutado.toFixed(2), pct:monto>0?+(ejecutado/monto*100).toFixed(1):null}; });
+            const totalMonto=+filas.reduce((a,f)=>a+f.monto,0).toFixed(2);
+            const totalEjecutado=+filas.reduce((a,f)=>a+f.ejecutado,0).toFixed(2);
+            return {filas, totalMonto, totalEjecutado, pctTotal:totalMonto>0?+(totalEjecutado/totalMonto*100).toFixed(1):null, hayDatos:filas.some(f=>f.monto>0||f.ejecutado>0)};
+        }
+        function gPdlAlertas(ficha,hoyISO){
+            const out={nivel:null, motivos:[], venceVigencia:'', proximaEvaluacion:'', diasVigencia:null, diasEvaluacion:null, sobreTope:false, cercaTope:false};
+            if(!ficha) return out;
+            out.venceVigencia=gPdlVenceVigencia(ficha);
+            out.proximaEvaluacion=gPdlProximaEvaluacion(ficha);
+            if(out.venceVigencia) out.diasVigencia=gDiasEntre(hoyISO,out.venceVigencia);
+            if(out.proximaEvaluacion) out.diasEvaluacion=gDiasEntre(hoyISO,out.proximaEvaluacion);
+            if(ficha.estado!=='activo') return out;
+            let rojo=false, ambar=false;
+            if(out.diasVigencia!==null){
+                if(out.diasVigencia<0){ rojo=true; out.motivos.push('Vigencia vencida el '+out.venceVigencia+' (cumplidos los 5 años): toca liquidar el proyecto o convertirlo en actor económico'); }
+                else if(out.diasVigencia<=90){ ambar=true; out.motivos.push('La vigencia del PDL vence el '+out.venceVigencia+' (en '+out.diasVigencia+' días)'); }
+            }
+            if(out.diasEvaluacion!==null){
+                if(out.diasEvaluacion<0){ rojo=true; out.motivos.push('Evaluación anual del PDL vencida (debió hacerse el '+out.proximaEvaluacion+')'); }
+                else if(out.diasEvaluacion<=30){ ambar=true; out.motivos.push('Evaluación anual del PDL próxima: '+out.proximaEvaluacion+' (en '+out.diasEvaluacion+' días)'); }
+            }
+            const c=ficha.contratados||0;
+            if(c>100){ rojo=true; out.sobreTope=true; out.motivos.push('Contratados: '+c+' — SUPERA el tope de 100 del PDL (superarlo implica transformarse en empresa)'); }
+            else if(c>=90){ ambar=true; out.cercaTope=true; out.motivos.push('Contratados: '+c+' de 100 (cerca del tope del PDL)'); }
+            out.nivel=rojo?'rojo':(ambar?'ambar':null);
+            return out;
+        }
+        function gPdlPlantillaFiscal(datos,hoyISO){
+            datos=datos||{};
+            const pdl={
+                organo:datos.organo||'CAM', acuerdo:String(datos.acuerdo||''),
+                estrategia:datos.estrategia||'EDM',
+                entidadEjecutora:String(datos.entidadEjecutora||''),
+                municipio:String(datos.municipio||''), provincia:String(datos.provincia||''),
+                fechaAprobacion:String(datos.fechaAprobacion||hoyISO||''),
+                ultimaEvaluacion:'', cuentaCup:String(datos.cuentaCup||''),
+                contratados:Math.max(0,Math.floor(Number(datos.contratados)||0)),
+                estado:'activo',
+                fuentes:PDL_FUENTES_TIPOS.map(t=>({tipo:t,monto:0,ejecutado:0}))
+            };
+            return {
+                meta:{nit:'', razon:String(datos.razon||''), dpa:pdl.municipio, anio:Number(String(hoyISO||'').slice(0,4))||new Date().getFullYear(), tipoCliente:'pdl'},
+                actividades:[], tributos:{}, obligaciones:[],
+                pdl,
+                source:{fileName:'Alta de Proyecto de Desarrollo Local — Decreto 174/2026. El PDL no tiene Vector Fiscal RC-04A ni plantilla de tributos ONAT.', importedAt:new Date().toISOString(), plantilla:true, pdl:true}
+            };
+        }
+        function gCalendarioPdlItems(docsMap,hoyISO,overlays){
+            const out=[];
+            Object.keys(docsMap||{}).forEach(nombre=>{ const doc=docsMap[nombre];
+                if(gTipoCliente(doc)!=='pdl') return;
+                const ficha=gPdlFicha(doc,(overlays||{})[nombre]); if(!ficha) return;
+                const al=gPdlAlertas(ficha,hoyISO);
+                const mk=(concepto,fecha,dias,umbral)=>{ if(!fecha) return;
+                    const vencida=dias!==null&&dias<0;
+                    out.push({negocio:nombre, pdl:true,
+                        obligacion:{codigo:'PDL', concepto, periodo:'', vence:fecha, responsable:''},
+                        estado:{importe:null, pagado:0, key:vencida?'vencida':(dias!==null&&dias<=umbral?'pending':'pdl'), txt:vencida?'Vencida':(dias===0?'Vence hoy':(dias!==null&&dias<=umbral?'Vence en '+dias+' día(s)':'En plazo')), vencida, diasVence:dias, restante:null}});
+                };
+                mk('Evaluación anual del PDL', al.proximaEvaluacion, al.diasEvaluacion, 30);
+                mk('Vencimiento de la vigencia del PDL (5 años)', al.venceVigencia, al.diasVigencia, 90);
+            });
+            out.sort((a,b)=>String(a.obligacion.vence||'9999').localeCompare(String(b.obligacion.vence||'9999')));
+            return out;
+        }
         function gActualPeriodo(doc){return (doc&&doc.mes&&doc.mes.mesSeleccionado)||'';}
         function gMovsPeriodo(doc,periodo){
             if(periodo&&periodo===gActualPeriodo(doc)) return Array.isArray(doc.mov)?doc.mov:[];
@@ -10152,7 +10297,7 @@ function mjPermisos(rol,modulo){ const M={
             gAllMovs(doc).forEach(m=>{ if(m&&m.fecha&&String(m.fecha)>f) f=String(m.fecha); });
             return f;
         }
-        function gEstadoNegocio(doc,hoyISO,onatCfg){
+        function gEstadoNegocio(doc,hoyISO,onatCfg,pdlFicha){
             const esperado=gEsperadoDesdeHoy(hoyISO);
             const ultimo=gUltimoCerrado(doc);
             const atraso=ultimo?Math.max(0,gPeriodoKey(esperado)-gPeriodoKey(ultimo)):null;
@@ -10167,6 +10312,8 @@ function mjPermisos(rol,modulo){ const M={
                 if(e.key!=='paid'&&o.vence&&(!proxima||String(o.vence)<String(proxima.obligacion.vence))) proxima=item;
             });
             const tieneDatos=gAllMovs(doc).length>0||!!ultimo;
+            const esPdl=gTipoCliente(doc)==='pdl'||!!pdlFicha;
+            const pdlAl=esPdl?gPdlAlertas(pdlFicha||gPdlFicha(doc),hoyISO):null;
             const motivos=[];
             let semaforo='verde';
             if(vencidas.length){semaforo='rojo';motivos.push(vencidas.length+' obligación(es) vencida(s) sin pagar');}
@@ -10174,16 +10321,18 @@ function mjPermisos(rol,modulo){ const M={
             if(semaforo==='rojo'){
                 if(atraso===1) motivos.push('Falta cerrar '+esperado+' (último cierre: '+ultimo+')');
                 if(!ultimo) motivos.push('Sin meses cerrados todavía');
-                if(!tieneVector) motivos.push('Sin Vector Fiscal importado (RC-04A)');
+                if(!tieneVector&&!esPdl) motivos.push('Sin Vector Fiscal importado (RC-04A)');
             } else {
                 if(atraso===1){semaforo='amarillo';motivos.push('Falta cerrar '+esperado+' (último cierre: '+ultimo+')');}
                 if(!ultimo){semaforo='amarillo';motivos.push('Sin meses cerrados todavía');}
                 if(porVencer.length){semaforo='amarillo';motivos.push(porVencer.length+' obligación(es) vence(n) en ≤7 días');}
-                if(!tieneVector){semaforo='amarillo';motivos.push('Sin Vector Fiscal importado (RC-04A)');}
+                if(!tieneVector&&!esPdl){semaforo='amarillo';motivos.push('Sin Vector Fiscal importado (RC-04A)');}
                 if(!tieneDatos){semaforo='amarillo';motivos.push('Sin movimientos registrados');}
             }
+            if(pdlAl&&pdlAl.nivel==='rojo'){ semaforo='rojo'; pdlAl.motivos.forEach(m=>motivos.push(m)); }
+            else if(pdlAl&&pdlAl.nivel==='ambar'){ if(semaforo==='verde') semaforo='amarillo'; pdlAl.motivos.forEach(m=>motivos.push(m)); }
             if(semaforo==='verde') motivos.push('Al día');
-            return {semaforo, motivos, esperado, ultimoCerrado:ultimo, atrasoMeses:atraso, vencidas, porVencer, proxima, tieneVector, tieneDatos, ultimaActividad:gUltimaActividad(doc)};
+            return {semaforo, motivos, esperado, ultimoCerrado:ultimo, atrasoMeses:atraso, vencidas, porVencer, proxima, tieneVector, tieneDatos, ultimaActividad:gUltimaActividad(doc), tipoCliente:gTipoCliente(doc), pdlAlertas:pdlAl};
         }
         /* --- DJ / justificación parametrizados por doc (misma definición que djDatosAnio) --- */
         function gDjDatosAnio(doc,anio){
@@ -10228,7 +10377,7 @@ function mjPermisos(rol,modulo){ const M={
         function gRegistroQR(movs,tasa){
             return (movs||[]).filter(m=>m&&m.qr).map(m=>({fecha:m.fecha||'',concepto:m.concepto||'',monto:+gMontoMovCUP(m,tasa).toFixed(2),cuenta:m.cuenta||'',tipo:m.tipo||''}));
         }
-        function gInformeMensual(doc,periodo,onatCfg){
+        function gInformeMensual(doc,periodo,onatCfg,pdlFicha){
             const r=gResumenPeriodo(doc,periodo), movs=gMovsPeriodo(doc,periodo), tasa=r.tasa;
             const impDetalle=movs.filter(m=>m&&m.tipo==='onat'&&m.clasificacion==='operacional').map(m=>({fecha:m.fecha||'',concepto:m.concepto||'',codigo:m.aporteNumero||'',monto:+gMontoMovCUP(m,tasa).toFixed(2)}));
             const sig=gPeriodoSiguiente(periodo);
@@ -10236,7 +10385,12 @@ function mjPermisos(rol,modulo){ const M={
             const qr=gRegistroQR(movs,tasa);
             const pp=periodoParts(periodo);
             const jus=gJustificacion(doc, pp?pp.y:new Date().getFullYear());
-            return {periodo, ingresos:r.ingresos, gastos:r.gastos, impuestos:r.onat, impuestosDetalle:impDetalle, resultado:r.utilidad, saldos:r.saldos, saldoTotal:r.saldoTotal, cuentas:r.cuentas, justificacion:jus, qr, qrTotal:+qr.reduce((a,x)=>a+x.monto,0).toFixed(2), siguientes:obs, siguientePeriodo:sig};
+            let pdlBloque=null;
+            if(gTipoCliente(doc)==='pdl'||pdlFicha){
+                const f=pdlFicha||gPdlFicha(doc);
+                if(f) pdlBloque={ficha:f, fuentes:gPdlFuentes(f), alertas:gPdlAlertas(f,gHoyISOFecha()), venceVigencia:gPdlVenceVigencia(f), proximaEvaluacion:gPdlProximaEvaluacion(f)};
+            }
+            return {periodo, ingresos:r.ingresos, gastos:r.gastos, impuestos:r.onat, impuestosDetalle:impDetalle, resultado:r.utilidad, saldos:r.saldos, saldoTotal:r.saldoTotal, cuentas:r.cuentas, justificacion:jus, qr, qrTotal:+qr.reduce((a,x)=>a+x.monto,0).toFixed(2), siguientes:obs, siguientePeriodo:sig, pdl:pdlBloque};
         }
         /* --- Cobro del gestor (control interno, fuera de los libros del cliente) --- */
         function gMesesEntre(desdeYM,hastaYM){
@@ -10258,6 +10412,7 @@ function mjPermisos(rol,modulo){ const M={
 
         /* ===== GESTOR: capa UI (Panel del Gestor) ===== */
         let GDOCS=null, GDOC_META={}, gestorCargando=false, gestorNegSel='', gestorInformePeriodo='';
+        let pdlDraft=null; /* borrador de fuentes de la ficha PDL mientras se edita en el detalle */
         const altaRapidaModal = new bootstrap.Modal(document.getElementById('altaRapidaModal'));
         function gestorOnatCfg(){ return {ventas:Number(CFG&&CFG.onat&&CFG.onat.ventas)||0, desarrolloLocal:Number(CFG&&CFG.onat&&CFG.onat.desarrolloLocal)||0, utilidades:Number(CFG&&CFG.onat&&CFG.onat.utilidades)||0}; }
         function gestorHoyYM(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
@@ -10278,13 +10433,15 @@ function mjPermisos(rol,modulo){ const M={
             if(!GDOCS){ if(!gestorCargando) cargarGestorDatos(); return; }
             const hoy=gHoyISOFecha(), cfg=gestorOnatCfg();
             const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
-            const estados={}; nombres.forEach(n=>{ estados[n]=gEstadoNegocio(GDOCS[n],hoy,cfg); });
-            const items=gCalendarioItems(GDOCS,hoy,cfg);
+            const pdlOverlays=(getCobrosGestor().pdlFichas)||{};
+            const estados={}; nombres.forEach(n=>{ estados[n]=gEstadoNegocio(GDOCS[n],hoy,cfg,gPdlFicha(GDOCS[n],pdlOverlays[n])); });
+            const items=gCalendarioItems(GDOCS,hoy,cfg).concat(gCalendarioPdlItems(GDOCS,hoy,pdlOverlays))
+                .sort((a,b)=>String(a.obligacion.vence||'9999').localeCompare(String(b.obligacion.vence||'9999')));
             const vencidas=items.filter(x=>x.estado.vencida);
-            const semana=items.filter(x=>!x.estado.vencida&&x.estado.key!=='paid'&&x.estado.diasVence!==null&&x.estado.diasVence>=0&&x.estado.diasVence<=7);
+            const semana=items.filter(x=>!x.estado.vencida&&x.estado.key!=='paid'&&x.estado.diasVence!==null&&x.estado.diasVence>=0&&x.estado.diasVence<=(x.pdl?30:7));
             const al=document.getElementById('gestorAlertas');
             if(al) al.innerHTML =
-              (vencidas.length? `<div class="gestor-alert-venc p-3 mb-2"><div class="fw-semibold text-danger mb-1"><i class="bi bi-exclamation-octagon me-1"></i>Vencidas (${vencidas.length})</div>${vencidas.map(x=>`<div class="small"><b>${esc(x.negocio)}</b> · ${esc(x.obligacion.concepto||x.obligacion.codigo||'Tributo')} · ${esc(x.obligacion.periodo||'')} · venció ${esc(x.obligacion.vence||'')} · ${x.estado.importe==null?'importe por determinar':moneda(x.estado.restante)+' pendiente'}</div>`).join('')}</div>`:'') +
+              (vencidas.length? `<div class="gestor-alert-venc p-3 mb-2"><div class="fw-semibold text-danger mb-1"><i class="bi bi-exclamation-octagon me-1"></i>Vencidas (${vencidas.length})</div>${vencidas.map(x=>`<div class="small"><b>${esc(x.negocio)}</b> · ${esc(x.obligacion.concepto||x.obligacion.codigo||'Tributo')} · ${esc(x.obligacion.periodo||'')} · venció ${esc(x.obligacion.vence||'')}${x.pdl?'':' · '+(x.estado.importe==null?'importe por determinar':moneda(x.estado.restante)+' pendiente')}</div>`).join('')}</div>`:'') +
               (semana.length? `<div class="gestor-alert-semana p-3 mb-2"><div class="fw-semibold mb-1" style="color:#92400e"><i class="bi bi-alarm me-1"></i>Vence esta semana (${semana.length})</div>${semana.map(x=>`<div class="small"><b>${esc(x.negocio)}</b> · ${esc(x.obligacion.concepto||x.obligacion.codigo||'Tributo')} · ${esc(x.obligacion.periodo||'')} · vence ${esc(x.obligacion.vence||'')} (${x.estado.diasVence===0?'hoy':'en '+x.estado.diasVence+' día(s)'})</div>`).join('')}</div>`:'');
             const anio=new Date().getFullYear();
             const cobrosData=getCobrosGestor();
@@ -10292,17 +10449,18 @@ function mjPermisos(rol,modulo){ const M={
             if(boxC) boxC.innerHTML = nombres.length? nombres.map(n=>{
                 const doc=GDOCS[n], e=estados[n], jus=gJustificacion(doc,anio), cob=gCobroEstado((cobrosData.cobros||{})[n], gestorHoyYM());
                 const dot=e.semaforo==='verde'?'🟢':e.semaforo==='amarillo'?'🟡':'🔴';
+                const tipoCli=gTipoCliente(doc), tipoTxt=tipoCli==='pdl'?'PDL':tipoCli==='mipyme'?'MIPYME':'TCP';
                 return `<div class="col-md-6 col-xl-4"><div class="card gestor-card p-3 h-100">
-                  <div class="d-flex justify-content-between align-items-start"><div class="fw-bold">${dot} ${esc(n)}</div><span class="badge bg-soft-secondary">${esc((GDOC_META[n]&&GDOC_META[n].tipo)||doc.tipo||'')}</span></div>
+                  <div class="d-flex justify-content-between align-items-start"><div class="fw-bold">${dot} ${esc(n)}</div><span class="badge bg-soft-secondary">${tipoTxt}</span></div>
                   <div class="small text-secondary mt-1">${e.motivos.map(esc).join(' · ')}</div>
                   <div class="small mt-2">Último cierre: <b>${esc(e.ultimoCerrado||'—')}</b> · Esperado: <b>${esc(e.esperado)}</b></div>
                   <div class="small">Última actividad: <b>${esc(e.ultimaActividad||'—')}</b></div>
-                  <div class="small mt-2">Justificación ${anio}: ${jus.pct===null?'<span class="text-secondary">sin capturar</span>':`<b>${jus.pct} %</b> ${jus.bajo?'<span class="badge bg-danger">bajo el 80 %</span>':'<span class="badge bg-success">OK</span>'}`}</div>
+                  ${tipoCli==='pdl'? gestorPdlCardHTML(doc,pdlOverlays[n],hoy) : `<div class="small mt-2">Justificación ${anio}: ${jus.pct===null?'<span class="text-secondary">sin capturar</span>':`<b>${jus.pct} %</b> ${jus.bajo?'<span class="badge bg-danger">bajo el 80 %</span>':'<span class="badge bg-success">OK</span>'}`}</div>`}
                   ${cob.alerta?`<div class="small mt-1"><span class="badge bg-danger">Tu cobro: ${cob.mesesPendientes} meses pendientes (${moneda(cob.pendiente)})</span></div>`:cob.pendiente>0?`<div class="small mt-1 text-secondary">Tu cobro pendiente: ${moneda(cob.pendiente)}</div>`:''}
                   <div class="mt-2"><button class="btn btn-sm btn-outline-primary" data-gestor-ver="${esc(n)}"><i class="bi bi-eye me-1"></i>Ver detalle</button></div>
                 </div></div>`;
             }).join('') : '<div class="col-12 text-secondary small">Todavía no hay negocios creados. Usa «Alta rápida de cliente» para crear el primero.</div>';
-            document.querySelectorAll('[data-gestor-ver]').forEach(b=>b.onclick=()=>{ gestorNegSel=b.getAttribute('data-gestor-ver'); gestorInformePeriodo=''; renderGestorDetalle(); const d=document.getElementById('gestorDetalle'); if(d) d.scrollIntoView({behavior:'smooth',block:'start'}); });
+            document.querySelectorAll('[data-gestor-ver]').forEach(b=>b.onclick=()=>{ gestorNegSel=b.getAttribute('data-gestor-ver'); gestorInformePeriodo=''; pdlDraft=null; renderGestorDetalle(); const d=document.getElementById('gestorDetalle'); if(d) d.scrollIntoView({behavior:'smooth',block:'start'}); });
             renderGestorCalendario(items);
             renderGestorCobros();
             if(gestorNegSel&&GDOCS[gestorNegSel]) renderGestorDetalle();
@@ -10317,9 +10475,73 @@ function mjPermisos(rol,modulo){ const M={
             if(neg) rows=rows.filter(x=>x.negocio===neg);
             if(est==='vencida') rows=rows.filter(x=>x.estado.vencida);
             else if(est) rows=rows.filter(x=>!x.estado.vencida&&x.estado.key===est);
-            const sinVector=GDOCS?Object.keys(GDOCS).filter(n=>{const d=GDOCS[n];return !(d.fiscal&&Array.isArray(d.fiscal.obligaciones)&&d.fiscal.obligaciones.some(o=>o&&o.vector));}):[];
-            box.innerHTML=(rows.length? `<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Fecha límite</th><th>Negocio</th><th>Código</th><th>Concepto</th><th>Responsable</th><th>Período</th><th class="text-end">Importe</th><th class="text-end">Pagado</th><th>Estado</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.obligacion.vence||'—')}</td><td>${esc(x.negocio)}</td><td><code>${esc(x.obligacion.codigo||'—')}</code></td><td>${esc(x.obligacion.concepto||'Tributo')}</td><td>${esc(x.obligacion.responsable||'—')}${x.obligacion.fuenteVerificacion?`<div class="small text-secondary">${esc(x.obligacion.fuenteVerificacion)}</div>`:''}</td><td>${esc(x.obligacion.periodo||'—')}</td><td class="text-end">${x.estado.importe==null?'—':moneda(x.estado.importe)}</td><td class="text-end">${moneda(x.estado.pagado)}</td><td><span class="fiscal-status ${x.estado.vencida?'vencida':x.estado.key}">${x.estado.txt}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="text-secondary small">No hay obligaciones para los filtros elegidos.</div>')
+            const sinVector=GDOCS?Object.keys(GDOCS).filter(n=>{const d=GDOCS[n];return gTipoCliente(d)!=='pdl'&&!(d.fiscal&&Array.isArray(d.fiscal.obligaciones)&&d.fiscal.obligaciones.some(o=>o&&o.vector));}):[];
+            box.innerHTML=(rows.length? `<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Fecha límite</th><th>Negocio</th><th>Código</th><th>Concepto</th><th>Responsable</th><th>Período</th><th class="text-end">Importe</th><th class="text-end">Pagado</th><th>Estado</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.obligacion.vence||'—')}</td><td>${esc(x.negocio)}${x.pdl?' <span class="badge bg-soft-secondary">PDL</span>':''}</td><td><code>${esc(x.obligacion.codigo||'—')}</code></td><td>${esc(x.obligacion.concepto||'Tributo')}</td><td>${esc(x.obligacion.responsable||'—')}${x.obligacion.fuenteVerificacion?`<div class="small text-secondary">${esc(x.obligacion.fuenteVerificacion)}</div>`:''}</td><td>${esc(x.obligacion.periodo||'—')}</td><td class="text-end">${x.estado.importe==null?'—':moneda(x.estado.importe)}</td><td class="text-end">${moneda(x.estado.pagado)}</td><td><span class="fiscal-status ${x.estado.vencida?'vencida':x.estado.key}">${x.estado.txt}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="text-secondary small">No hay obligaciones para los filtros elegidos.</div>')
               + (sinVector.length?`<div class="small text-secondary mt-2"><i class="bi bi-info-circle me-1"></i>Negocios sin Vector importado (RC-04A): ${sinVector.map(esc).join(', ')}. Sus vencimientos de plantilla, si los hay, son orientativos.</div>`:'');
+        }
+        /* --- PDL: líneas de la tarjeta del panel --- */
+        function gestorPdlCardHTML(doc,overlay,hoy){
+            const f=gPdlFicha(doc,overlay); if(!f) return '';
+            const al=gPdlAlertas(f,hoy), fu=gPdlFuentes(f);
+            const badgeC=f.contratados>100?'<span class="badge bg-danger">'+f.contratados+' / 100 · supera el tope</span>':f.contratados>=90?'<span class="badge bg-warning text-dark">'+f.contratados+' / 100</span>':'<b>'+f.contratados+'</b> / 100';
+            const estadoTxt=f.estado==='activo'?'Activo':f.estado==='liquidacion'?'En liquidación':f.estado==='extinguido'?'Extinguido':'Convertido en actor económico';
+            return `<div class="small mt-2">🏛️ <b>Proyecto de Desarrollo Local</b> · ${esc(estadoTxt)}</div>
+            <div class="small">Vigencia hasta: <b>${esc(al.venceVigencia||'—')}</b>${al.diasVigencia!==null?' ('+(al.diasVigencia<0?'<span class="text-danger fw-semibold">vencida hace '+Math.abs(al.diasVigencia)+' días</span>':'quedan '+al.diasVigencia+' días')+')':''}</div>
+            <div class="small">Evaluación anual: <b>${esc(al.proximaEvaluacion||'—')}</b></div>
+            <div class="small">Contratados: ${badgeC}</div>
+            <div class="small">Fuentes: ${fu.hayDatos? moneda(fu.totalEjecutado)+' ejecutados de '+moneda(fu.totalMonto)+' ('+(fu.pctTotal===null?'—':fu.pctTotal+' %')+')' : '<span class="text-secondary">sin montos cargados</span>'}</div>`;
+        }
+        /* --- PDL: ficha editable del expediente (detalle del Gestor) --- */
+        function gestorPdlFichaHTML(n,doc){
+            const overlay=(getCobrosGestor().pdlFichas||{})[n];
+            const f=gPdlFicha(doc,overlay); if(!f) return '';
+            const hoy=gHoyISOFecha(), al=gPdlAlertas(f,hoy), fu=gPdlFuentes(f);
+            const fuentes=(pdlDraft&&pdlDraft.negocio===n)?pdlDraft.fuentes:f.fuentes;
+            const filaFuente=(x,i)=>{ const monto=Number(x.monto)||0, ej=Number(x.ejecutado)||0; const pct=monto>0?(ej/monto*100).toFixed(1)+' %':'—';
+                return `<tr><td><input class="form-control form-control-sm pdl-f-tipo" value="${esc(x.tipo||'')}" maxlength="60" placeholder="Tipo de fuente"></td><td><input type="number" min="0" step="0.01" class="form-control form-control-sm pdl-f-monto text-end" value="${monto||''}"></td><td><input type="number" min="0" step="0.01" class="form-control form-control-sm pdl-f-ejecutado text-end" value="${ej||''}"></td><td class="text-end">${pct}</td><td><button type="button" class="btn btn-sm btn-outline-danger" data-pdl-del-fuente="${i}" title="Quitar fuente">✕</button></td></tr>`; };
+            return `<div class="border rounded p-3 mb-3">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><div class="fw-semibold"><i class="bi bi-bank2 me-2"></i>Ficha del Proyecto de Desarrollo Local <span class="badge bg-soft-secondary">Decreto 174/2026</span></div>
+              <button type="button" class="btn btn-sm btn-primary" id="btnPdlGuardarFicha"><i class="bi bi-save me-1"></i>Guardar ficha</button></div>
+              ${al.motivos.length?`<div class="alert ${al.nivel==='rojo'?'alert-danger':'alert-warning'} py-2 small mb-3">${al.motivos.map(esc).join('<br>')}</div>`:''}
+              <div class="row g-2">
+                <div class="col-md-4"><label class="form-label small mb-1">Entidad que lo ejecuta (promovente)</label><input id="pdlF_entidad" class="form-control form-control-sm" value="${esc(f.entidadEjecutora)}" maxlength="120"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Órgano aprobador</label><select id="pdlF_organo" class="form-select form-select-sm"><option value="CAM" ${f.organo==='CAM'?'selected':''}>CAM (municipal)</option><option value="Gobernador" ${f.organo==='Gobernador'?'selected':''}>Gobernador (provincial)</option></select></div>
+                <div class="col-md-2"><label class="form-label small mb-1">Nº de acuerdo</label><input id="pdlF_acuerdo" class="form-control form-control-sm" value="${esc(f.acuerdo)}" maxlength="40"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Estrategia a la que responde</label><select id="pdlF_estrategia" class="form-select form-select-sm"><option value="EDM" ${f.estrategia==='EDM'?'selected':''}>EDM — Desarrollo Municipal</option><option value="EDP" ${f.estrategia==='EDP'?'selected':''}>EDP — Desarrollo Provincial</option></select></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Municipio</label><input id="pdlF_municipio" class="form-control form-control-sm" value="${esc(f.municipio)}" maxlength="80"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Provincia</label><input id="pdlF_provincia" class="form-control form-control-sm" value="${esc(f.provincia)}" maxlength="60"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Fecha de aprobación</label><input id="pdlF_fechaAprob" type="date" class="form-control form-control-sm" value="${esc(f.fechaAprobacion)}"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Vencimiento de la vigencia (5 años, calculado)</label><input class="form-control form-control-sm" value="${esc(al.venceVigencia||'—')}" readonly></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Última evaluación anual</label><input id="pdlF_ultimaEval" type="date" class="form-control form-control-sm" value="${esc(f.ultimaEvaluacion)}"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Próxima evaluación (calculada)</label><input class="form-control form-control-sm" value="${esc(al.proximaEvaluacion||'—')}" readonly></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Cuenta bancaria CUP del proyecto</label><input id="pdlF_cuenta" class="form-control form-control-sm" value="${esc(f.cuentaCup)}" maxlength="40"></div>
+                <div class="col-md-2"><label class="form-label small mb-1">Contratados (tope 100)</label><input id="pdlF_contratados" type="number" min="0" max="999" class="form-control form-control-sm" value="${f.contratados}"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Estado del proyecto</label><select id="pdlF_estado" class="form-select form-select-sm"><option value="activo" ${f.estado==='activo'?'selected':''}>Activo</option><option value="liquidacion" ${f.estado==='liquidacion'?'selected':''}>En liquidación</option><option value="extinguido" ${f.estado==='extinguido'?'selected':''}>Extinguido</option><option value="convertido" ${f.estado==='convertido'?'selected':''}>Convertido en actor económico</option></select></div>
+              </div>
+              <div class="fw-semibold small mt-3 mb-1">Fuentes de financiamiento (cada una con su ejecución)</div>
+              <div class="table-responsive"><table class="table table-sm align-middle mb-1"><thead><tr><th>Fuente</th><th class="text-end">Monto aprobado</th><th class="text-end">Ejecutado</th><th class="text-end">% ejec.</th><th></th></tr></thead><tbody>${fuentes.map(filaFuente).join('')||'<tr><td colspan="5" class="text-secondary small">Sin fuentes todavía: añade la primera.</td></tr>'}<tr class="fw-semibold"><td>Total (último guardado)</td><td class="text-end">${moneda(fu.totalMonto)}</td><td class="text-end">${moneda(fu.totalEjecutado)}</td><td class="text-end">${fu.pctTotal===null?'—':fu.pctTotal+' %'}</td><td></td></tr></tbody></table></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPdlAddFuente">+ Añadir fuente</button>
+              <div class="small text-secondary mt-2"><i class="bi bi-question-circle me-1"></i><b>Cautela:</b> la contabilidad del PDL se lleva con el <b>plan general de cuentas</b> de la app. El tratamiento contable y bancario específico del PDL está <b>pendiente de verificar</b> contra las Resoluciones 202/2026 (MFP) y 118/2026 (BCC) de la Gaceta Oficial No. 87 de 2026; la app no aplica cuentas especiales ni reglas bancarias al PDL hasta confirmarlo. El PDL tampoco tiene Declaración Jurada propia en la app.</div>
+            </div>`;
+        }
+        function pdlFuentesDesdeDOM(){
+            const ts=document.querySelectorAll('.pdl-f-tipo'), ms=document.querySelectorAll('.pdl-f-monto'), es=document.querySelectorAll('.pdl-f-ejecutado');
+            const out=[]; ts.forEach((el,i)=>{ out.push({tipo:el.value.trim(), monto:Math.max(0,Number(ms[i]&&ms[i].value)||0), ejecutado:Math.max(0,Number(es[i]&&es[i].value)||0)}); });
+            return out;
+        }
+        function pdlAddFuente(n){ pdlDraft={negocio:n, fuentes:pdlFuentesDesdeDOM().concat([{tipo:'',monto:0,ejecutado:0}])}; renderGestorDetalle(); }
+        function pdlDelFuente(n,i){ const f=pdlFuentesDesdeDOM(); f.splice(i,1); pdlDraft={negocio:n, fuentes:f}; renderGestorDetalle(); }
+        function gestorGuardarPdlFicha(n){
+            const v=id=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
+            const fuentes=pdlFuentesDesdeDOM().filter(f=>f.tipo);
+            const ficha={ organo:v('pdlF_organo')||'CAM', acuerdo:v('pdlF_acuerdo'), estrategia:v('pdlF_estrategia')||'EDM',
+                entidadEjecutora:v('pdlF_entidad'), municipio:v('pdlF_municipio'), provincia:v('pdlF_provincia'),
+                fechaAprobacion:v('pdlF_fechaAprob'), ultimaEvaluacion:v('pdlF_ultimaEval'), cuentaCup:v('pdlF_cuenta'),
+                contratados:Math.max(0,Math.floor(Number(v('pdlF_contratados'))||0)), estado:v('pdlF_estado')||'activo', fuentes };
+            const data=getCobrosGestor(); if(!data.pdlFichas) data.pdlFichas={};
+            data.pdlFichas[n]=ficha; saveCobrosGestor(data); pdlDraft=null;
+            renderGestor();
+            alert('✅ Ficha del PDL guardada.');
         }
         function gestorPeriodosDisponibles(doc){
             const set=new Set(); ((doc&&doc.hist)||[]).forEach(h=>{ if(h&&h.mes) set.add(h.mes); });
@@ -10331,16 +10553,19 @@ function mjPermisos(rol,modulo){ const M={
             const n=gestorNegSel, doc=GDOCS&&GDOCS[n];
             if(!doc){ box.innerHTML=''; return; }
             const cfg=gestorOnatCfg(), anio=new Date().getFullYear(), jus=gJustificacion(doc,anio);
+            const tipoCli=gTipoCliente(doc), tipoTxt=tipoCli==='pdl'?'PDL':tipoCli==='mipyme'?'MIPYME':'TCP';
+            const pdlFichaAct=gPdlFicha(doc,(getCobrosGestor().pdlFichas||{})[n]);
             const per=gestorPeriodosDisponibles(doc);
             if(!gestorInformePeriodo||per.indexOf(gestorInformePeriodo)<0) gestorInformePeriodo=per[0]||'';
-            const inf=gestorInformePeriodo?gInformeMensual(doc,gestorInformePeriodo,cfg):null;
+            const inf=gestorInformePeriodo?gInformeMensual(doc,gestorInformePeriodo,cfg,pdlFichaAct):null;
             box.innerHTML=`<div class="card p-3 p-md-4">
-              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-shop me-2"></i>${esc(n)} <span class="badge bg-soft-secondary ms-1">${esc(doc.tipo||'')}</span></h6>
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h6 class="fw-semibold mb-0"><i class="bi bi-shop me-2"></i>${esc(n)} <span class="badge bg-soft-secondary ms-1">${tipoTxt}</span></h6>
               <div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-secondary" id="btnGestorRespaldo"><i class="bi bi-download me-1"></i>Respaldo del negocio</button><button class="btn btn-sm btn-outline-dark" id="btnGestorCerrarDetalle">Cerrar detalle</button></div></div>
+              ${tipoCli==='pdl'?gestorPdlFichaHTML(n,doc):''}
               <div class="row g-3">
-                <div class="col-md-6"><div class="fw-semibold small mb-1">Justificación de gastos ${anio} (regla DJ-08)</div>
-                  ${jus.pct===null?'<div class="small text-secondary">Sin monto justificado capturado en la DJ de este negocio (o sin gastos en el año). Se captura en la pestaña DJ del negocio, en «Datos manuales».</div>':
-                  `<div class="d-flex justify-content-between small"><span>${moneda(jus.justificado||0)} de ${moneda(jus.total)}</span><b>${jus.pct} %</b></div><div class="just-bar ${jus.bajo?'bajo':''} mt-1"><div style="width:${Math.min(100,jus.pct)}%"></div></div><div class="small mt-1 ${jus.bajo?'text-danger fw-semibold':'text-success'}">${jus.bajo?'⚠️ Por debajo de la meta del 80 %: la DJ-08 solo reconoce lo justificado + hasta un 20 % sin justificar.':'Cumple la meta del 80 %.'}</div>`}
+                <div class="col-md-6"><div class="fw-semibold small mb-1">${tipoCli==='pdl'?'Control del PDL':'Justificación de gastos '+anio+' (regla DJ-08)'}</div>
+                  ${tipoCli==='pdl'?'<div class="small text-secondary">El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la <b>vigencia</b> (5 años desde la aprobación), la <b>evaluación anual</b> y la <b>ejecución por fuentes</b>, todo en su ficha.</div>':(jus.pct===null?'<div class="small text-secondary">Sin monto justificado capturado en la DJ de este negocio (o sin gastos en el año). Se captura en la pestaña DJ del negocio, en «Datos manuales».</div>':
+                  `<div class="d-flex justify-content-between small"><span>${moneda(jus.justificado||0)} de ${moneda(jus.total)}</span><b>${jus.pct} %</b></div><div class="just-bar ${jus.bajo?'bajo':''} mt-1"><div style="width:${Math.min(100,jus.pct)}%"></div></div><div class="small mt-1 ${jus.bajo?'text-danger fw-semibold':'text-success'}">${jus.bajo?'⚠️ Por debajo de la meta del 80 %: la DJ-08 solo reconoce lo justificado + hasta un 20 % sin justificar.':'Cumple la meta del 80 %.'}</div>`)}
                 </div>
                 <div class="col-md-6"><div class="fw-semibold small mb-1">Informe mensual para el cliente</div>
                   <div class="d-flex gap-2 align-items-center flex-wrap"><select id="gestorInformeMesSel" class="form-select form-select-sm" style="width:auto">${per.map(p=>`<option value="${esc(p)}" ${p===gestorInformePeriodo?'selected':''}>${esc(p)}</option>`).join('')}</select>
@@ -10355,7 +10580,10 @@ function mjPermisos(rol,modulo){ const M={
             const bp=document.getElementById('btnGestorInformePrint'); if(bp) bp.onclick=()=>printPane('gestorInformeBox');
             const bw=document.getElementById('btnGestorInformeWA'); if(bw) bw.onclick=()=>copiarInformeWhatsApp(n);
             const br=document.getElementById('btnGestorRespaldo'); if(br) br.onclick=()=>descargarRespaldoNegocio(n);
-            const bc=document.getElementById('btnGestorCerrarDetalle'); if(bc) bc.onclick=()=>{ gestorNegSel=''; box.innerHTML=''; };
+            const bc=document.getElementById('btnGestorCerrarDetalle'); if(bc) bc.onclick=()=>{ gestorNegSel=''; pdlDraft=null; box.innerHTML=''; };
+            const bpg=document.getElementById('btnPdlGuardarFicha'); if(bpg) bpg.onclick=()=>gestorGuardarPdlFicha(n);
+            const bpa=document.getElementById('btnPdlAddFuente'); if(bpa) bpa.onclick=()=>pdlAddFuente(n);
+            box.querySelectorAll('[data-pdl-del-fuente]').forEach(b=>b.onclick=()=>pdlDelFuente(n,Number(b.getAttribute('data-pdl-del-fuente'))));
         }
         function gestorInformeHTML(n,inf){
             const rows=inf.impuestosDetalle.length?inf.impuestosDetalle.map(d=>`<tr><td>${esc(d.fecha)}</td><td>${esc(d.concepto||'Pago ONAT')}${d.codigo?` <code>${esc(d.codigo)}</code>`:''}</td><td class="text-end">${moneda(d.monto)}</td></tr>`).join(''):'<tr><td colspan="3" class="text-secondary">Sin pagos de impuestos registrados en el mes.</td></tr>';
@@ -10372,6 +10600,9 @@ function mjPermisos(rol,modulo){ const M={
               </div>
               <h6 class="fw-semibold">Saldos de cuentas</h6>
               <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Cuenta</th><th class="text-end">Saldo inicial</th><th class="text-end">Saldo final</th></tr></thead><tbody>${inf.cuentas.map(c=>`<tr><td>${esc(c.etiqueta)}</td><td class="text-end">${c.moneda==='USD'?'US$':'$'}${c.inicial.toFixed(2)}</td><td class="text-end fw-semibold">${c.moneda==='USD'?'US$':'$'}${c.final.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>
+              ${inf.pdl&&inf.pdl.fuentes.hayDatos?`<h6 class="fw-semibold">Proyecto de Desarrollo Local — fuentes de financiamiento</h6>
+              <div class="small mb-2">Vigencia hasta <b>${esc(inf.pdl.venceVigencia||'—')}</b> · Próxima evaluación anual: <b>${esc(inf.pdl.proximaEvaluacion||'—')}</b> · Contratados: <b>${inf.pdl.ficha.contratados}</b> / 100 · Estado: <b>${esc(inf.pdl.ficha.estado)}</b></div>
+              <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fuente</th><th class="text-end">Monto</th><th class="text-end">Ejecutado</th><th class="text-end">% ejecución</th></tr></thead><tbody>${inf.pdl.fuentes.filas.map(f=>`<tr><td>${esc(f.tipo)}</td><td class="text-end">${moneda(f.monto)}</td><td class="text-end">${moneda(f.ejecutado)}</td><td class="text-end">${f.pct===null?'—':f.pct+' %'}</td></tr>`).join('')}<tr class="fw-semibold"><td>Total</td><td class="text-end">${moneda(inf.pdl.fuentes.totalMonto)}</td><td class="text-end">${moneda(inf.pdl.fuentes.totalEjecutado)}</td><td class="text-end">${inf.pdl.fuentes.pctTotal===null?'—':inf.pdl.fuentes.pctTotal+' %'}</td></tr></tbody></table></div>`:''}
               <h6 class="fw-semibold">Impuestos pagados en el mes</h6>
               <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th></tr></thead><tbody>${rows}</tbody></table></div>
               <h6 class="fw-semibold mt-3">Obligaciones del mes siguiente (${esc(inf.siguientePeriodo)})</h6>
@@ -10391,6 +10622,7 @@ function mjPermisos(rol,modulo){ const M={
             L.push('🧮 Justificación de gastos '+inf.justificacion.anio+': '+(inf.justificacion.pct===null?'sin capturar':inf.justificacion.pct+' %'+(inf.justificacion.bajo?' (bajo la meta del 80 %)':'')));
             L.push(''); L.push('🏦 Saldos de cuentas:');
             inf.cuentas.forEach(c=>L.push('• '+c.etiqueta+': inicial '+(c.moneda==='USD'?'US$':'$')+c.inicial.toFixed(2)+' → final '+(c.moneda==='USD'?'US$':'$')+c.final.toFixed(2)));
+            if(inf.pdl&&inf.pdl.fuentes.hayDatos){ L.push(''); L.push('🏛️ Fuentes del PDL (ejecución por fuente):'); inf.pdl.fuentes.filas.forEach(f=>L.push('• '+f.tipo+': '+moneda(f.ejecutado)+' de '+moneda(f.monto)+(f.pct===null?'':' ('+f.pct+' %)'))); L.push('Total: '+moneda(inf.pdl.fuentes.totalEjecutado)+' de '+moneda(inf.pdl.fuentes.totalMonto)); L.push('Vigencia hasta: '+(inf.pdl.venceVigencia||'—')+' · Próxima evaluación: '+(inf.pdl.proximaEvaluacion||'—')); }
             if(inf.impuestosDetalle.length){ L.push(''); L.push('Impuestos pagados en el mes:'); inf.impuestosDetalle.forEach(d=>L.push('• '+(d.fecha||'')+' — '+(d.concepto||'Pago ONAT')+': '+moneda(d.monto))); }
             L.push(''); L.push('📌 Obligaciones de '+inf.siguientePeriodo+':');
             if(inf.siguientes.length) inf.siguientes.forEach(o=>L.push('• '+(o.concepto||'Tributo')+' — vence '+(o.vence||'—')+' — '+(o.importe==null?'importe por determinar':moneda(o.importe))+' ('+o.estado+')'));
@@ -10402,7 +10634,7 @@ function mjPermisos(rol,modulo){ const M={
         function fallbackCopiar(txt,done){ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); if(done) done(); }catch(e){ alert('No se pudo copiar automáticamente.'); } document.body.removeChild(ta); }
         function copiarInformeWhatsApp(n){
             const doc=GDOCS&&GDOCS[n]; if(!doc||!gestorInformePeriodo) return;
-            const txt=gestorInformeTexto(n, gInformeMensual(doc,gestorInformePeriodo,gestorOnatCfg()));
+            const txt=gestorInformeTexto(n, gInformeMensual(doc,gestorInformePeriodo,gestorOnatCfg(),gPdlFicha(doc,(getCobrosGestor().pdlFichas||{})[n])));
             const done=()=>alert('Texto del informe copiado. Pégalo en el WhatsApp del cliente.');
             if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopiar(txt,done)); }
             else fallbackCopiar(txt,done);
@@ -10504,12 +10736,17 @@ function mjPermisos(rol,modulo){ const M={
         }
         function actualizarPreviewPlantilla(){
             const tipo=document.getElementById('altaTipo').value, act=document.getElementById('altaActividad').value;
+            const esPdl=tipo==='pdl';
+            const boxP=document.getElementById('altaPdlBox'); if(boxP) boxP.style.display=esPdl?'':'none';
+            ['altaActividadWrap','altaSociosWrap','altaNitWrap'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=esPdl?'none':''; });
+            if(esPdl){ document.getElementById('altaPlantillaPreview').innerHTML='Proyecto de Desarrollo Local (<b>Decreto 174/2026</b>): <b>sin plantilla de tributos ONAT</b> — el PDL no tiene Vector Fiscal RC-04A ni Declaración Jurada propia en la app. Vigencia: 5 años desde la aprobación (el vencimiento se calcula solo). Tope: 100 contratados. Evaluación anual obligatoria.'; return; }
             const lista=(GESTOR_PLANTILLAS[tipo]||[]).concat((GESTOR_PLANTILLAS.extra&&GESTOR_PLANTILLAS.extra[act])||[]);
             document.getElementById('altaPlantillaPreview').innerHTML='Tributos de la plantilla: '+lista.map(t=>'<code>'+esc(t.codigo)+'</code> '+esc(t.nombre)+' ('+t.frec+')').join(' · ')+'. Vencimientos orientativos: mensual, día 20 del mes siguiente; DJ anual: 30 de abril (TCP) o 31 de marzo (MIPYME).';
         }
         function abrirAltaRapida(){
             if(!isAdmin()){ alert('Solo el administrador/gestor puede dar de alta clientes.'); return; }
-            ['altaNombre','altaNIT','altaMunicipio','altaRazon','altaUsuario','altaPass'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+            ['altaNombre','altaNIT','altaMunicipio','altaRazon','altaUsuario','altaPass','altaPdlEntidad','altaPdlAcuerdo','altaPdlProvincia','altaPdlCuenta','altaPdlFecha'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+            const pc0=document.getElementById('altaPdlContratados'); if(pc0) pc0.value='0';
             actualizarPreviewPlantilla();
             altaRapidaModal.show();
         }
@@ -10519,18 +10756,28 @@ function mjPermisos(rol,modulo){ const M={
             if(!nombre){ alert('Escribe el nombre del negocio.'); return; }
             if(GDOCS&&GDOCS[nombre]){ alert('Ya existe un negocio con ese nombre.'); return; }
             const razon=document.getElementById('altaRazon').value.trim()||nombre;
-            const ficha={regimen: tipo==='mipyme'?'mipyme':'tcp_general', nit:document.getElementById('altaNIT').value.trim(), nombre:razon, municipio:document.getElementById('altaMunicipio').value.trim()};
-            const fiscal=plantillaFiscal(tipo, actividad, {nit:ficha.nit, razon, municipio:ficha.municipio});
-            const r=await api('negocio_save',{nombre, tipo, semilla:{ficha, fiscal}});
+            const municipio=document.getElementById('altaMunicipio').value.trim();
+            const esPdl=tipo==='pdl';
+            if(esPdl&&!document.getElementById('altaPdlFecha').value){ alert('Para un PDL la fecha de aprobación es obligatoria: de ella se calcula la vigencia de 5 años.'); return; }
+            const ficha={regimen: tipo==='mipyme'?'mipyme':'tcp_general', nit:esPdl?'':document.getElementById('altaNIT').value.trim(), nombre:razon, municipio};
+            const fiscal=esPdl
+                ? gPdlPlantillaFiscal({razon, municipio, provincia:document.getElementById('altaPdlProvincia').value.trim(), entidadEjecutora:document.getElementById('altaPdlEntidad').value.trim(), organo:document.getElementById('altaPdlOrgano').value, acuerdo:document.getElementById('altaPdlAcuerdo').value.trim(), estrategia:document.getElementById('altaPdlEstrategia').value, fechaAprobacion:document.getElementById('altaPdlFecha').value, cuentaCup:document.getElementById('altaPdlCuenta').value.trim(), contratados:document.getElementById('altaPdlContratados').value}, gHoyISOFecha())
+                : plantillaFiscal(tipo, actividad, {nit:ficha.nit, razon, municipio});
+            /* El servidor (Code.gs) solo registra tipos tcp/mipyme; la
+               condición de PDL viaja en el slot fiscal (fiscal.pdl +
+               meta.tipoCliente) y es la que manda en el Gestor. */
+            const r=await api('negocio_save',{nombre, tipo:esPdl?'tcp':tipo, semilla:{ficha, fiscal}});
             if(!r||!r.ok){ alert('⚠️ '+((r&&r.error)||'No se pudo crear el negocio')); return; }
             if(r.negocios) CFG.negocios=r.negocios;
-            let msg='Cliente «'+nombre+'» creado con su plantilla orientativa. Cuando tengas su RC-04A, impórtalo en la pestaña Fiscal del negocio para sustituirla.';
+            let msg=esPdl
+                ? 'Proyecto de Desarrollo Local «'+nombre+'» creado: vigencia de 5 años calculada desde su aprobación y sin plantilla ONAT (el PDL no tiene Vector RC-04A). Completa su ficha y las fuentes de financiamiento desde el Panel del Gestor.'
+                : 'Cliente «'+nombre+'» creado con su plantilla orientativa. Cuando tengas su RC-04A, impórtalo en la pestaña Fiscal del negocio para sustituirla.';
             if(document.getElementById('altaCrearUsuario').checked){
                 const username=document.getElementById('altaUsuario').value.trim(), password=document.getElementById('altaPass').value.trim();
                 if(username&&password){
                     const users=getUsuarios();
                     if(users[username]){ msg+=' OJO: el usuario «'+username+'» ya existía; no se creó otro.'; }
-                    else { users[username]={password, role:document.getElementById('altaRol').value, entityType:tipo, socios: tipo==='mipyme'?(parseInt(document.getElementById('altaSocios').value)||1):0, negocio:nombre, negocioId:nombre}; saveUsuarios(users); msg+=' Usuario «'+username+'» creado.'; }
+                    else { users[username]={password, role:document.getElementById('altaRol').value, entityType:esPdl?'tcp':tipo, socios: tipo==='mipyme'?(parseInt(document.getElementById('altaSocios').value)||1):0, negocio:nombre, negocioId:nombre}; saveUsuarios(users); msg+=' Usuario «'+username+'» creado.'; }
                 } else msg+=' No se creó usuario (faltó usuario o contraseña).';
             }
             altaRapidaModal.hide();
@@ -10549,6 +10796,7 @@ function mjPermisos(rol,modulo){ const M={
         function csvEscape(v){ const s=String(v==null?'':v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
         function gestorDjHTML(n, doc){
             const anio=new Date().getFullYear();
+            if(gTipoCliente(doc)==='pdl'){ return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>PDL — '+esc(n)+'</title></head><body style="font-family:Arial,sans-serif;margin:24px;color:#111"><h1>'+esc(n)+' — Proyecto de Desarrollo Local</h1><p>Este cliente es un Proyecto de Desarrollo Local (Decreto 174/2026): no presenta DJ-08 ni DJ-01 propia en la app, así que este respaldo no incluye una Declaración Jurada. Su control es la vigencia (5 años), la evaluación anual y la ejecución por fuentes de financiamiento, visibles en su ficha del Panel del Gestor y en el informe mensual.</p></body></html>'; }
             const datos=gDjDatosAnio(doc,anio), P=gDjParams(doc,anio), man=gDjManual(doc,anio);
             let L=[], titulo='';
             /* djCore01/djCore08/djCoreDiv devuelven {lineas:[...]} (así los
