@@ -1412,12 +1412,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="mb-3 d-flex flex-wrap gap-2 align-items-center"><span id="contaAvisoPend"></span><span class="small text-secondary" id="contaPreviewTxt"></span></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-grid-3x3-gap me-2"></i>Panel de cuadres <span class="small text-secondary">· período <span id="contaCuadresPeriodo"></span></span></h6><p class="small text-secondary">Cada submayor contra su cuenta del mayor, en vivo: bancos (saldos por cuenta, con el saldo inicial encadenado), cuentas por cobrar y por pagar, inventarios, activos fijos, la provisión de vacaciones y las retenciones de nómina. Lo que no tenga datos fiables sale como «Sin datos», nunca rellenado.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Cuadre</th><th class="text-end">Submayor</th><th class="text-end">Mayor</th><th class="text-end">Diferencia</th><th>Estado</th></tr></thead><tbody id="contaCuadresBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank2 me-2"></i>Conceptos de tesorería <span class="small text-secondary">(catálogo de contrapartidas, editable por ti)</span></h6><p class="small text-secondary">El concepto aporta «el otro elemento de la partida» (partida doble) cuando el banco trae un movimiento con ese texto. <b>El tipo de contrapartida se elige por el ORIGEN de la cuenta</b> (modelo de los manuales del Versat): si la cuenta se teclea directa es <b>Cuenta contable</b> (el único tipo que admite cuenta); si el «gasto» es en realidad un traspaso a otra cuenta tuya es <b>Cuenta bancaria</b>; si liquida una factura es <b>Obligación</b> y si viene de un crédito es <b>Crédito bancario</b> — en esos dos la contrapartida la aporta el documento o el crédito, no una cuenta fija, y el movimiento queda pendiente hasta enlazarlo. <b>Regla de integridad:</b> ningún cobro/pago se asienta sin contrapartida; lo que no la tiene queda en la bandeja, nunca se rellena. Precedencia: manda lo estructural/fiscal (transferencias, ONAT, documentos…), luego tu imputación manual, luego la regla aprendida y este concepto, y por último las genéricas (venta por correo → 801-000) y las plantillas. Ejemplos del manual adaptados a tu plan: «Intereses y comisiones bancarias» → 835-000 · «Extraído para nóminas» → 455-000.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-4"><label class="form-label mb-1 small">Texto del concepto (patrón)</label><input id="contaTesPatron" class="form-control form-control-sm" placeholder="Ej.: Pago ETECSA"></div><div class="col-md-2"><label class="form-label mb-1 small">Aplica a</label><select id="contaTesTipo" class="form-select form-select-sm"><option value="ambos">Ingresos y gastos</option><option value="gasto">Solo gastos</option><option value="ingreso">Solo ingresos</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Uso del concepto</label><select id="contaTesUso" class="form-select form-select-sm"><option value="cobro-pago">Al efectuar un Cobro / Pago</option><option value="obligacion">Al crear una Obligación</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Actividad que lo habilita</label><select id="contaTesActividad" class="form-select form-select-sm"><option value="Banco y Caja">Banco y Caja</option><option value="Banco">Banco</option><option value="Caja">Caja</option></select></div></div><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Tipo de contrapartida (por el origen)</label><select id="contaTesTipoCp" class="form-select form-select-sm" onchange="contaTesTipoUI()"><option value="cuenta-contable">Cuenta contable (cuenta directa)</option><option value="cuenta-bancaria">Cuenta bancaria (traspaso)</option><option value="obligacion">Obligación (la aporta el documento)</option><option value="credito-bancario">Crédito bancario (lo aporta el crédito)</option></select></div><div class="col-md-3" id="contaTesCuentaWrap"><label class="form-label mb-1 small">Cuenta contrapartida</label><input id="contaTesCuenta" class="form-control form-control-sm" list="contaCuentasList" placeholder="Código (ej. 705-000)"></div><div class="col-md-3" id="contaTesDestinoWrap" style="display:none"><label class="form-label mb-1 small">Cuenta destino del traspaso</label><select id="contaTesDestino" class="form-select form-select-sm"><option value="">— Elige la cuenta —</option><option value="chequera">Chequera CUP</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option><option value="caja">Caja</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Tipo de comprobante asociado</label><select id="contaTesTComp" class="form-select form-select-sm"><option value="Operaciones">Operaciones</option><option value="Ajuste">Ajuste</option><option value="Traspaso">Traspaso</option></select></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-success" onclick="contaTesAdd()"><i class="bi bi-plus-lg me-1"></i>Guardar concepto</button></div></div><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Uso</th><th>Tipo de contrapartida</th><th>Contrapartida</th><th>Variación del saldo</th><th>Actividad · Comprobante</th><th>Estado</th><th></th></tr></thead><tbody id="contaTesBody"></tbody></table></div><p class="small text-secondary mt-2 mb-0">El tipo de comprobante asociado cubre las tres operaciones del documento: Confirmación, Ajuste y Cancelación.</p></div>
             <div class="row g-3 mb-3"><div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Situación Financiera</h6><div id="contaSituacionBox"></div></div></div>
             <div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Resultados</h6><div class="mb-2"><select id="contaResCentro" class="form-select form-select-sm" style="width:auto"><option value="">Todos los centros</option></select></div><div id="contaResultadosBox"></div></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Balance de Comprobación</h6><div class="row g-2 align-items-end mb-2"><div class="col-md-2"><label class="form-label mb-1 small">Desde</label><input id="contaBalDesde" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Hasta</label><input id="contaBalHasta" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vista</label><select id="contaBalVista" class="form-select form-select-sm"><option value="6">6 columnas</option><option value="4">4 columnas</option><option value="2">2 columnas</option></select></div><div class="col-md-6"><span class="small text-secondary">Saldos iniciales (antes del «desde»), movimientos del período y saldos finales, directos del mayor. Sin fechas = todo el histórico como movimientos.</span></div></div><div id="contaBalanceBox"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Libro Diario General</h6><p class="small text-secondary mb-2">Comprobantes en orden cronológico, agrupados por tipo (Apertura · Operaciones · Ajustes · Cierre), con su Nº correlativo por tipo y período. Se genera solo desde los asientos; sale impreso con el resto de la pestaña.</p><div id="contaDiarioBox"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Libro Mayor</h6><div class="mb-2"><select id="contaMayorSel" class="form-select form-select-sm" style="width:auto"></select></div><div id="contaMayorBox"></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Submayores · Cuentas por Cobrar y por Pagar (con antigüedad)</h6><div id="contaSubBox"></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Submayores · Cuentas por Cobrar y por Pagar (con antigüedad)</h6><div id="contaSubBox"></div><div id="contaDocsGestion"></div>
             <div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Nueva contraparte</label><input id="contaCpNombre" class="form-control form-control-sm" placeholder="Nombre"></div><div class="col-md-2"><label class="form-label mb-1 small">Tipo</label><select id="contaCpTipo" class="form-select form-select-sm"><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="ambos">Ambos</option></select></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddContraparte()">Crear contraparte</button></div></div>
             <div class="row g-2 align-items-end mt-2"><div class="col-md-2"><label class="form-label mb-1 small">Documento</label><select id="contaDocTipo" class="form-select form-select-sm"><option value="cxc">CxC (venta a crédito)</option><option value="cxp">CxP (compra/obligación)</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Contraparte</label><select id="contaDocCp" class="form-select form-select-sm"></select></div><div class="col-md-2"><label class="form-label mb-1 small">Nº / concepto</label><input id="contaDocNumero" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Fecha</label><input id="contaDocFecha" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vencimiento</label><input id="contaDocVenc" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Importe</label><input id="contaDocImporte" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Producto (inventario)</label><select id="contaDocProducto" class="form-select form-select-sm"></select></div><div class="col-md-1"><label class="form-label mb-1 small">Cant.</label><input id="contaDocCantidad" type="number" step="0.01" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-check small"><input type="checkbox" id="contaDocInv" class="form-check-input"> Es compra de inventario</label><br><label class="form-check small"><input type="checkbox" id="contaDocSaldoIni" class="form-check-input"> Saldo inicial (ya está en la apertura, sin asiento nuevo)</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddDocumento()">Guardar documento</button></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank me-2"></i>Conciliación bancaria</h6><p class="small text-secondary">Se alimenta sola de los estados de cuenta que importas: al importar, el saldo final según banco y las operaciones con sus referencias quedan guardados aquí. La conciliación cruza libros contra banco por referencia y lista las partidas conciliatorias; queda «Conciliada» solo si la diferencia es 0 o queda explicada por esas partidas.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Cuenta financiera</label><select id="contaConcCuenta" class="form-select form-select-sm"></select></div><div class="col-md-3"><label class="form-label mb-1 small">Período</label><select id="contaConcPeriodo" class="form-select form-select-sm"></select></div><div class="col-md-6"><span class="small text-secondary">Saldo según libros = la cadena de saldos de la app en ese período (saldo inicial + movimientos). Saldo según banco = el del estado importado.</span></div></div><div id="contaConcBox"></div><div class="d-flex justify-content-end mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaConcDocBox','Conciliación bancaria')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div><div id="contaConcDocBox" class="border rounded p-3 mt-2"></div></div>
@@ -1440,6 +1442,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Código</label><input id="contaCtaCodigo" class="form-control form-control-sm" placeholder="110-040"></div><div class="col-md-3"><label class="form-label mb-1 small">Nombre</label><input id="contaCtaNombre" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Naturaleza</label><select id="contaCtaNat" class="form-select form-select-sm"><option value="deudora">Deudora</option><option value="acreedora">Acreedora</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Grupo</label><select id="contaCtaGrupo" class="form-select form-select-sm"><option value="activo">Activo</option><option value="pasivo">Pasivo</option><option value="patrimonio">Patrimonio</option><option value="ingreso">Ingreso</option><option value="costo">Costo</option><option value="gasto">Gasto</option><option value="cierre">Cierre</option></select></div><div class="col-md-1"><label class="form-label mb-1 small">Admite</label><select id="contaCtaAdmite" class="form-select form-select-sm"><option value="1">Sí</option><option value="0">No</option></select></div><div class="col-md-2"><label class="form-label mb-1 small">Auxiliar</label><select id="contaCtaAux" class="form-select form-select-sm"><option value="ninguno">Ninguno</option><option value="cliente">Cliente</option><option value="proveedor">Proveedor</option><option value="trabajador">Trabajador</option><option value="socio">Socio</option><option value="banco">Banco</option><option value="almacen">Almacén / artículo</option><option value="centro">Centro de costo</option></select></div><div class="col-md-2"><label class="form-check small mt-3"><input type="checkbox" id="contaCtaAuxReq" class="form-check-input"> Auxiliar obligatorio</label></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCuenta()">Agregar cuenta</button></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-files me-2"></i>Comprobantes patrón</h6><div id="contaPatronesBox"></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lock me-2"></i>Cierre con candados <span class="small text-secondary">(verificaciones previas al cierre de mes)</span></h6><div id="contaCandadosBox"></div><p class="small text-secondary mt-2 mb-0">Orden de la cadena (modelo del Versat): comprobantes asentados → subsistemas → saldos inversos → transitorias → valuación de divisa → cuadres → depreciación → pendientes → nómina.</p></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div><div class="col-md-7 d-flex justify-content-end gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docCierreAnualPrint()"><i class="bi bi-printer me-1"></i>Imprimir cierre anual</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docBalanceAperturaPrint()"><i class="bi bi-printer me-1"></i>Imprimir Balance de Apertura</button></div></div><div id="docCierreBox" class="d-none"></div></div>
         </div>
 
@@ -4508,7 +4512,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const estaCerrado = mesData && mesData.cerrado;
             const res = calcularResumen();
             const mesStr = mesData && mesData.mesSeleccionado ? mesData.mesSeleccionado : getMesActualStr();
-            
+
             document.getElementById('mesContablePeriodo').textContent = `📅 ${mesStr}`;
             document.getElementById('tasaBadge').textContent = `💱 respaldo: 1 USD = ${Number(CFG.tasa).toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:4})} CUP`;
             document.getElementById('mesContableEstado').textContent = modoEdicionActivo ? '✏️ Editando' : (estaCerrado ? '🔒 Cerrado' : '✅ Abierto');
@@ -5455,7 +5459,7 @@ function ctaPlanSemilla(){return [
    - Redondeo: según el signo — pérdida a 710-000, ganancia a 810-000
      (la antigua cuenta 549 desaparece). */
 function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'316-000',adelantosTrab:'139-000',difPos:'805-000',difNeg:'710-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
-function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],bandeja:[],estadosBanco:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqNota:0,seqArqueo:0};}
+function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],conceptosTes:[],candados:{},bandeja:[],estadosBanco:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqNota:0,seqArqueo:0};}
 function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
 /* Naturaleza como DATO del plan: si una cuenta no la trae (planes viejos o
    altas a mano), se deriva del grupo — nunca se inventa otra cosa. */
@@ -5649,7 +5653,7 @@ function ctaSituacion(conta,f){const m=ctaMayor(conta,f);let act=0,pas=0,pat=0,r
  return {activo:act,pasivo:pas,patrimonioCuentas:pat,resultadoPendiente:resPend,patrimonio:patrimonio,cuadrado:Math.abs(act-ctaR2(pas+patrimonio))<0.005};}
 function ctaMontoCUP(mov,tasaFallback){const m=Number(mov&&mov.monto)||0;if(mov&&mov.cuenta==='tarjeta_usd'){const t=Number(mov.tasaCambio)>0?Number(mov.tasaCambio):(Number(tasaFallback)>0?Number(tasaFallback):1);return ctaR2(m*t);}return ctaR2(m);}
 function ctaClaveMov(periodo,mov){return 'mov:'+periodo+'|'+mov.id+'|'+(mov.fecha||'')+'|'+(mov.monto||'')+'|'+(mov.tipo||'');}
-function ctaBancoDe(conta,cuentaKey){const p=conta.plantillas||ctaPlantillasDef();return (p.banco||{})[cuentaKey]||null;}
+function ctaBancoDe(conta,cuentaKey){const p=conta.plantillas||ctaPlantillasDef();return (p.banco||{})[cuentaKey]||(cuentaKey==='caja'?(p.caja||null):null);}
 /* ===== VENTAS POR CORREO ELECTRÓNICO → 801-000 (pedido de Leonardo,
    2026-10-25) =====
    Todo INGRESO bancario cuyo concepto traiga «CREDITO RECIBIDO POR
@@ -5845,6 +5849,11 @@ function ctaClasificarMov(conta,mov){
  if(mov.productoId&&mov.cantidad)return {estado:'claro',via:'venta con salida de inventario'};
  if(mov.cuentaContable)return {estado:'claro',via:'clasificado por el usuario'};
  const rg=ctaReglaPara(conta,mov);if(rg)return {estado:'claro',via:'regla aprendida del negocio',regla:rg};
+ const ct=ctaConceptoTesPara(conta,mov);
+ if(ct){ if(ct.tipoContrapartida==='cuenta-bancaria'&&ct.cuentaDestino)return {estado:'claro',via:'concepto de tesorería → traspaso a cuenta propia ('+ct.cuentaDestino+')',tesoreria:ct};
+  if(ct.tipoContrapartida==='obligacion')return {estado:'pendiente',motivo:'Concepto de tesorería de tipo «obligación»: la contrapartida nace del documento (la factura que se liquida), no de una cuenta fija — enlaza el documento a este movimiento',tesoreria:ct};
+  if(ct.tipoContrapartida==='credito-bancario')return {estado:'pendiente',motivo:'Concepto de tesorería de tipo «crédito bancario»: la contrapartida nace del crédito — enlaza el crédito a este movimiento',tesoreria:ct};
+  return {estado:'claro',via:'concepto de tesorería → '+ct.cuentaContable,tesoreria:ct}; }
  if(ctaEsVentaCorreo(mov))return {estado:'claro',via:'venta cobrada por correo electrónico → 801-000'};
  return {estado:'pendiente',motivo:'Naturaleza no clara: indica si es venta, costo, gasto u otra cuenta (puedes guardar la decisión como regla)'};}
 function ctaReconstruir(conta,eventos){
@@ -5873,6 +5882,8 @@ function ctaReconstruir(conta,eventos){
      const clMov=ctaClasificarMov(conta,mov);
      if(clMov.estado==='pendiente'){const p={clave:ctaClaveMov(ev.periodo,mov),motivo:clMov.motivo,ref:mov.concepto||'',estado:'por-clasificar',periodo:ev.periodo,movId:mov.id,fecha:mov.fecha||'',concepto:mov.concepto||'',monto:ctaMontoCUP(mov,ev.tasa),tipo:mov.tipo,cuenta:mov.cuenta,clasificacion:mov.clasificacion||'operacional'};res.pendientes.push(p);bandeja.push(p);continue;}
      if(clMov.regla&&!mov.cuentaContable){mov.cuentaContable=clMov.regla.cuentaContable;mov._viaRegla=clMov.regla.patron;}
+     if(clMov.tesoreria&&clMov.tesoreria.tipoContrapartida==='cuenta-bancaria'&&clMov.tesoreria.cuentaDestino&&clMov.tesoreria.cuentaDestino!==mov.cuenta&&!mov.cuentaDestino){mov.clasificacion='transferencia';mov.cuentaDestino=clMov.tesoreria.cuentaDestino;mov._viaTesoreria=clMov.tesoreria.patron;}
+     else if(clMov.tesoreria&&!mov.cuentaContable&&clMov.tesoreria.cuentaContable){mov.cuentaContable=clMov.tesoreria.cuentaContable;mov._viaTesoreria=clMov.tesoreria.patron;}
      if(mov.productoId&&mov.cantidad){
        if(mov.compraInventario){ctaInventarioEntrada(conta,mov.productoId,mov.cantidad,(Number(mov.monto)||0)/(Number(mov.cantidad)||1),mov.fecha,ctaClaveMov(ev.periodo,mov)+':inv');}
        else if(mov.tipo==='ingreso'){const s=ctaInventarioSalida(conta,mov.productoId,mov.cantidad,mov.fecha,ctaClaveMov(ev.periodo,mov)+':inv');
@@ -5880,7 +5891,7 @@ function ctaReconstruir(conta,eventos){
          else if(!s.ok)res.pendientes.push({clave:ctaClaveMov(ev.periodo,mov)+':inv',motivo:s.motivo,ref:mov.concepto});}}
      registrar(ctaAsientoDesdeMov(conta,mov,ev.periodo,ev.tasa),mov.concepto);}
    else if(ev.tipo==='doc'){const doc=ev.doc;
-     if(doc.sinAsiento)continue;
+     if(doc.sinAsiento||doc.estado==='cancelado')continue;
      if(doc.esInventario&&doc.productoId&&doc.cantidad)ctaInventarioEntrada(conta,doc.productoId,doc.cantidad,(Number(doc.importe)||0)/(Number(doc.cantidad)||1),doc.fecha,'doc:'+doc.id+':inv');
      registrar(ctaAsientoDocumento(conta,doc),doc.numero);}
    else if(ev.tipo==='nomina'){const t=ev.tot||{};const claveD='nomina-devengo:'+ev.periodo,claveP='nomina-pago:'+ev.periodo;const P=Object.assign({},ctaPlantillasDef(),conta.plantillas||{});
@@ -5932,7 +5943,7 @@ function ctaPendienteDoc(conta,doc){if(!doc)return 0;return ctaR2((Number(doc.im
 function ctaSubmayor(conta,tipo,fechaCorte){
  const P=conta.plantillas||ctaPlantillasDef();const codControl=tipo==='cxc'?P.cxc:P.cxp;const m=ctaMayor(conta,{});const ctrl=m[codControl];const saldoControl=ctrl?(tipo==='cxc'?ctrl.saldoFirmado:-ctrl.saldoFirmado):0;
  const corte=fechaCorte||'9999-12-31';const porCp={};let totalPend=0;
- for(const d of (conta.documentos||[])){if(d.tipo!==tipo)continue;const ap=ctaAplicadoDoc(conta,d.id);const ajN=ctaAjusteNotasDoc(conta,d.id);const pend=ctaPendienteDoc(conta,d);if(Math.abs(pend)<0.005)continue;
+ for(const d of (conta.documentos||[])){if(d.tipo!==tipo)continue;if(d.estado==='cancelado')continue;const ap=ctaAplicadoDoc(conta,d.id);const ajN=ctaAjusteNotasDoc(conta,d.id);const pend=ctaPendienteDoc(conta,d);if(Math.abs(pend)<0.005)continue;
    const venc=d.vencimiento||d.fecha||'';let bucket='Al día',dias=0;
    if(venc&&venc<corte){dias=Math.round((new Date(corte+'T12:00:00')-new Date(venc+'T12:00:00'))/86400000);bucket=dias<=30?'1-30':dias<=60?'31-60':dias<=90?'61-90':'+90';}
    const cp=(conta.contrapartes||[]).find(x=>x.id===d.contraparteId);const nombre=cp?cp.nombre:(d.contraparteId||'Sin contraparte');
@@ -6205,6 +6216,171 @@ function ctaMigrarClasificador(conta){
  conta.migClasificador=true;
  conta.migracionR8={fecha:'2026-10-24',lineasRecodificadas:nLin,sinClasificar:sinClasificar};
  return {migrado:true,lineas:nLin,sinClasificar:sinClasificar};}
+/* ===== RONDA VERSAT (2026-10-25) — patrones del Versat Sarasola
+   adaptados por orden de Leonardo SOLO a lo particular de MIPYMES
+   privadas y TCP: panel de cuadres, documentos con estados y
+   reversión, conceptos de tesorería configurables, cierre con
+   candados y comprobantes patrón (estos viven en Gestión+). Nada
+   del sector estatal/presupuestado. ===== */
+
+/* --- Bloque 3 · CONCEPTOS DE TESORERÍA CONFIGURABLES ---
+   Tabla editable por el dueño: patrón de texto del concepto bancario
+   → cuenta contrapartida, para ingresos y/o gastos. Es la capa
+   VISIBLE y editable del motor de clasificación: vive junto a las
+   reglas aprendidas (conta.reglas) y comparte su nivel. Precedencia
+   final del motor (de mayor a menor):
+     1. estructural/fiscal: transferencia, ONAT y su sospecha,
+        extracción, contingencia, utilidades, salario, depreciación,
+        documentos de submayor, venta a crédito, compra de inventario,
+        venta con producto;
+     2. imputación manual del dueño (mov.cuentaContable de la ficha);
+     3. regla aprendida / concepto de tesorería (la aprendida primero:
+        nació de clasificar un movimiento real de este negocio);
+     4. genéricas por concepto (venta por correo electrónico →
+        801-000) y plantillas de ventas/gasto de operación.
+   La normalización del patrón es la del importador (ctaNormConcepto)
+   y el cotejo, el mismo que el de las reglas aprendidas. */
+function ctaGuardarConceptoTes(conta,datos){datos=datos||{};const p=ctaNormConcepto(datos.patron||datos.conceptoOriginal||'');
+ if(!p)return null;
+ conta.conceptosTes=conta.conceptosTes||[];
+ const tipo=(datos.tipo==='ingreso'||datos.tipo==='gasto')?datos.tipo:'ambos';
+ /* Tipo de contrapartida — modelo del Versat (Finanzas, pp. 99-102):
+    se elige por el ORIGEN de la cuenta. SOLO «cuenta-contable» admite
+    una cuenta directa; «cuenta-bancaria» exige la cuenta destino del
+    traspaso; «obligacion» y «credito-bancario» NO admiten cuenta: la
+    contrapartida nace del documento de obligación (con su desglose
+    de facturas) o de las remesas del crédito. Regla de integridad
+    del subsistema: ningún cobro/pago se asienta sin contrapartida —
+    en Finanzas eso ya lo garantiza el motor (sin cuenta, el
+    movimiento queda pendiente en la bandeja, nunca se rellena). */
+ const tc=['cuenta-contable','cuenta-bancaria','obligacion','credito-bancario'].indexOf(datos.tipoContrapartida)>=0?datos.tipoContrapartida:'cuenta-contable';
+ const uso=(datos.uso==='obligacion')?'obligacion':'cobro-pago';
+ let cuenta='',destino='';
+ if(tc==='cuenta-contable'){cuenta=String(datos.cuentaContable||'');if(!cuenta)return null;}
+ else if(tc==='cuenta-bancaria'){destino=String(datos.cuentaDestino||'');if(!destino)return null;}
+ const act=['Banco','Caja','Banco y Caja'].indexOf(datos.actividad)>=0?datos.actividad:'Banco y Caja';
+ const tcomp=String(datos.tipoComprobante||'Operaciones');
+ const campos={uso:uso,tipoContrapartida:tc,cuentaContable:cuenta,cuentaDestino:destino,actividad:act,tipoComprobante:tcomp,activo:true};
+ let r=conta.conceptosTes.find(x=>x.patron===p&&x.tipo===tipo);
+ if(r){Object.assign(r,campos);if(datos.conceptoOriginal)r.conceptoOriginal=datos.conceptoOriginal;}
+ else{r=Object.assign({id:'CT'+((conta.conceptosTes.length||0)+1)+'-'+Date.now(),patron:p,conceptoOriginal:datos.conceptoOriginal||datos.patron||'',tipo:tipo},campos);conta.conceptosTes.push(r);}
+ return r;}
+function ctaConceptoTesPara(conta,mov){if(!mov||(mov.tipo!=='ingreso'&&mov.tipo!=='gasto'))return null;
+ const n=ctaNormConcepto(mov.concepto);if(!n)return null;
+ for(const r of (conta.conceptosTes||[])){if(!r||r.activo===false||!r.patron)continue;
+  /* Los conceptos de USO «obligación» se aplican al CREAR la
+     obligación (la factura/documento aporta la contrapartida), no
+     clasifican cobros/pagos bancarios. */
+  if(r.uso==='obligacion')continue;
+  if(r.tipo!=='ambos'&&r.tipo!==mov.tipo)continue;
+  if(r.patron===n||(r.patron.length>=6&&(n.includes(r.patron)||r.patron.includes(n))))return r;}
+ return null;}
+
+/* --- Bloque 2 · DOCUMENTOS CON ESTADOS Y REVERSIÓN ---
+   Las facturas de Gestión+ ya nacían con este patrón (borrador →
+   confirmada → anulada, con contraasiento y devolución de
+   inventario: mjFacturaConfirmar / mjFacturaCancelar). Aquí el MISMO
+   patrón llega a los documentos de los submayores CxC/CxP
+   (conta.documentos): un documento confirmado NO se edita; al
+   CANCELARLO se genera el contraasiento de su asiento, se revierte
+   la entrada de inventario que hubiera creado y queda visible como
+   CANCELADO con su rastro (nunca se borra). Los cobros/pagos del
+   documento son movimientos: tienen su propia reversión (anulación
+   por contraasiento y edición con reasiento), así que un documento
+   con aplicaciones no se cancela hasta anularlos a ellos. */
+function ctaCancelarDocumento(conta,docId,fecha){
+ const doc=(conta.documentos||[]).find(d=>d.id===docId);
+ if(!doc)return {ok:false,motivo:'Documento no encontrado'};
+ if(doc.estado==='cancelado')return {ok:true,ya:true,documento:doc};
+ if(String(doc.id).indexOf('DOCF')===0)return {ok:false,motivo:'Es el documento de una factura de Gestión+: cancela la factura y su documento se retira con ella'};
+ if((conta.aplicaciones||[]).some(a=>a.documentoId===docId))return {ok:false,motivo:'El documento tiene cobros/pagos aplicados: anula primero esos movimientos (su asiento se revierte por contraasiento) y luego cancela el documento'};
+ if((conta.notas||[]).some(n=>n.documentoId===docId))return {ok:false,motivo:'El documento tiene notas de crédito/débito emitidas y sus asientos no se revierten solos: no se cancela para no descuadrar el submayor'};
+ const clave='doc:'+docId;let contra=null;
+ const as=(conta.asientos||[]).find(a=>a.fuenteKey===clave&&a.estado!=='anulado');
+ if(as){const r=ctaContraasiento(conta,as.id,fecha||doc.fecha);if(!r.ok&&!/ya fue anulado/.test(r.motivo||''))return {ok:false,motivo:r.motivo};if(r.ok)contra=r.asiento;}
+ let invRev=false;
+ if(doc.esInventario&&doc.productoId&&Number(doc.cantidad)>0&&(conta.movInventario||[]).some(m=>m.origenKey===clave+':inv')){
+  const s=ctaInventarioSalida(conta,doc.productoId,Number(doc.cantidad),fecha||doc.fecha,clave+':inv-rev');if(s.ok)invRev=true;}
+ doc.estado='cancelado';doc.sinAsiento=true;doc.fechaCancelacion=fecha||null;
+ return {ok:true,documento:doc,contraasiento:contra,inventarioRevertido:invRev};}
+
+/* --- Bloque 1 · PANEL DE CUADRES ---
+   Un tablero único que compara cada submayor contra su cuenta del
+   mayor a una fecha de corte. Se calcula desde las estructuras
+   existentes, sin inventar datos: bancos (la UI pasa los «saldos por
+   cuenta» = saldo inicial encadenado + movimientos del período,
+   agrupados por la cuenta del plan de cada cuenta financiera), CxC y
+   CxP (ctaSubmayor, la conciliación que la app ya hacía), inventarios
+   (valor a costo promedio de conta.productos), AFT (la UI pasa el
+   costo y la depreciación acumulada del registro de activos),
+   vacaciones (mayor por el análisis «Provisión de vacaciones» de la
+   cuenta 331-000; el submayor por trabajador lo pasa la UI cuando lo
+   tiene) y retenciones (saldo acreedor de la 332-000). Lo que no
+   tenga fuente fiable llega como null y la fila sale «sin datos». */
+function ctaCuadres(conta,datos){datos=datos||{};const P=conta.plantillas||ctaPlantillasDef();const hasta=datos.hasta||'9999-12-31';
+ const m=ctaMayor(conta,{hasta:hasta});
+ const saldo=cod=>{const e=m[cod];return e?e.saldoFirmado:0;};
+ const filas=[];
+ const fila=(clave,nombre,sub,may)=>{let estado='sin-datos',dif=null;
+  if(sub!=null&&may!=null){dif=ctaR2(sub-may);estado=Math.abs(dif)<0.005?'cuadra':'descuadre';}
+  filas.push({clave:clave,nombre:nombre,submayor:sub==null?null:ctaR2(sub),mayor:may==null?null:ctaR2(may),diferencia:dif,estado:estado});};
+ for(const b of (datos.bancos||[]))fila('banco:'+b.cuenta,'Banco · '+b.cuenta+((ctaCuenta(conta,b.cuenta)||{}).nombre?' · '+ctaCuenta(conta,b.cuenta).nombre:''),b.submayor,saldo(b.cuenta));
+ const smC=ctaSubmayor(conta,'cxc',hasta);fila('cxc','Cuentas por cobrar · '+P.cxc,smC.totalDocumentos,smC.saldoControl);
+ const smP=ctaSubmayor(conta,'cxp',hasta);fila('cxp','Cuentas por pagar · '+P.cxp,smP.totalDocumentos,smP.saldoControl);
+ const valInv=ctaR2((conta.productos||[]).reduce((s,p)=>s+(Number(p.stock)||0)*(Number(p.costoProm)||0),0));
+ fila('inventarios','Inventarios · '+P.inventarios,valInv,saldo(P.inventarios));
+ if(datos.aft){const codsAft=(conta.plan||[]).filter(c=>c.grupo==='activo'&&/^24/.test(c.codigo)&&!c.esContra).map(c=>c.codigo);
+  const bruto=ctaR2(codsAft.reduce((s,cod)=>s+saldo(cod),0));
+  fila('aft-valor','Activos fijos · valor bruto',datos.aft.costo,bruto);
+  fila('aft-dep','Activos fijos · depreciación acumulada',datos.aft.acum,-saldo(P.depreciacionAcum));}
+ else{fila('aft-valor','Activos fijos · valor bruto',null,null);fila('aft-dep','Activos fijos · depreciación acumulada',null,null);}
+ const lv=ctaLineasFiltradas(conta,{cuenta:P.provVacaciones,hasta:hasta}).filter(x=>/vacacion/i.test(x.linea.analisis||''));
+ const mayVac=ctaR2(lv.reduce((s,x)=>s+(Number(x.linea.haber)||0)-(Number(x.linea.debe)||0),0));
+ fila('vacaciones','Provisión de vacaciones · '+P.provVacaciones,datos.vacaciones!=null?datos.vacaciones:null,mayVac);
+ fila('retenciones','Retenciones por pagar · '+P.retencionesPorPagar,datos.retenciones!=null?datos.retenciones:null,-saldo(P.retencionesPorPagar));
+ return {hasta:hasta,filas:filas,descuadres:filas.filter(f=>f.estado==='descuadre'),todoCuadra:filas.every(f=>f.estado!=='descuadre')};}
+
+/* --- Bloque 4 · CIERRE CON CANDADOS ---
+   Evaluación pura de la puerta de cierre mensual (la mecánica del
+   cierre NO cambia: cerrarMes consulta esta puerta antes de cerrar).
+   Cada verificación: aplica o no, ok o no, y su detalle. Lo no
+   cumplido BLOQUEA salvo que el dueño lo haya ASUMIDO expresamente
+   (datos.asumidos[clave]); la asunción se registra en la UI
+   (conta.candados[periodo]) con fecha y usuario, y el cierre que
+   pasa con asunciones las deja anotadas en ese mismo registro. */
+function ctaCandadosCierre(conta,periodo,datos){datos=datos||{};const asu=datos.asumidos||{};
+ const checks=[];
+ const add=(clave,nombre,aplica,ok,detalle)=>{checks.push({clave:clave,nombre:nombre,aplica:!!aplica,ok:!!ok,detalle:detalle||'',asumido:!!asu[clave]});};
+ /* Cadena de validaciones del cierre de período del Versat
+    (Contabilidad General, §6.4.1.3.3), adaptada a MIPYME/TCP y a
+    lo que la app puede comprobar de verdad, EN ESTE ORDEN:
+    (1) comprobantes asentados, (2) subsistemas cerrados,
+    (3) sin saldos inversos, (4) cuadre de transitorias,
+    (5) valuación de medios monetarios. Después, los candados
+    propios de Finanzas (cuadres, depreciación, pendientes, nómina). */
+ const nBorr=datos.borradores;
+ add('comprobantes','Todos los comprobantes asentados',(nBorr!==undefined&&nBorr!==null),Number(nBorr||0)===0,(nBorr===undefined||nBorr===null)?'Sin datos en esta evaluación':(Number(nBorr)>0?(nBorr+' comprobante(s) del período siguen en borrador, sin asentar: aséntalos o bórralos antes de cerrar'):'Ningún comprobante en borrador en el período'));
+ add('subsistemas','Subsistemas cerrados',false,true,'Finanzas es un único sistema: no hay subsistemas con cierre propio (en el Versat cada subsistema cierra antes que Contabilidad); el cuadre con los submayores lo cubre el panel de cuadres');
+ const inv=Array.isArray(datos.saldosInversos)?datos.saldosInversos:null;
+ add('saldos-inversos','Sin saldos inversos a su naturaleza',!!inv,!!inv&&inv.length===0,!inv?'Sin datos en esta evaluación':(inv.length?('Saldo contrario a su naturaleza en: '+inv.map(x=>x.cuenta+' '+x.nombre).join(' · ')):'Ninguna cuenta con saldo contrario a su naturaleza'));
+ const trs=Array.isArray(datos.transitorias)?datos.transitorias:[];
+ const trsMal=trs.filter(t=>Math.abs(Number(t.saldo)||0)>=0.005);
+ add('transitorias','Cuadre de cuentas transitorias',trs.length>0,trsMal.length===0,trs.length?(trsMal.length?('Con saldo al cierre (deben quedar en cero): '+trsMal.map(t=>t.cuenta+' '+t.nombre+' = '+t.saldo).join(' · ')):'Las cuentas transitorias del plan quedan en cero'):'El plan no tiene cuentas transitorias');
+ const rv=datos.revalorizacion||{};
+ add('revalorizacion','Valuación de medios monetarios (divisa)',!!rv.aplica,!!rv.ejecutada,rv.aplica?(rv.ejecutada?('Revalorización de la divisa registrada en '+periodo+((String(periodo).slice(5)==='12')?' — en diciembre queda firme, no se revierte':'')):('Hay saldos en divisa sin valuar en '+periodo+': ejecuta la revalorización antes de cerrar')):'Sin saldos en divisa que valuar');
+ if(Array.isArray(datos.cuadres)){const des=datos.cuadres.filter(f=>f.estado==='descuadre');
+  add('cuadres','Panel de cuadres en verde',true,des.length===0,des.length?('Descuadre en: '+des.map(f=>f.nombre+' (dif. '+f.diferencia+')').join(' · ')):'Todos los submayores con datos cuadran con el mayor');}
+ else add('cuadres','Panel de cuadres en verde',false,true,'Sin datos de cuadres en esta evaluación');
+ const dep=datos.depreciacion||{};
+ add('depreciacion','Depreciación del período ejecutada',!!dep.aplica,!!dep.ejecutada,dep.aplica?(dep.ejecutada?('Hay asiento de depreciación de '+periodo):('Falta el asiento de depreciación de '+periodo)):'Sin activos fijos que depreciar');
+ const np=Number(datos.pendientes)||0;
+ add('pendientes','Movimientos por clasificar en cero',true,np===0,np===0?'Sin pendientes en la bandeja del período':(np+' movimiento(s) por clasificar en la bandeja de '+periodo));
+ const nom=datos.nomina||{};
+ add('nomina','Nómina del mes contabilizada',!!nom.aplica,!!nom.contabilizada,nom.aplica?(nom.contabilizada?('Devengo de nómina asentado en '+periodo):('La nómina de '+periodo+' aún no tiene su devengo en Contabilidad')):'Sin nómina en el período');
+ const bloqueos=checks.filter(c=>c.aplica&&!c.ok&&!c.asumido);
+ return {periodo:periodo,checks:checks,bloqueado:bloqueos.length>0,motivos:bloqueos.map(c=>c.nombre+' — '+c.detalle),asumidosUsados:checks.filter(c=>c.aplica&&!c.ok&&c.asumido).map(c=>c.clave)};}
+
+
 /* ===== FIN CONTA-CORE ===== */
 
 /* ===== MEJORAS-CORE (rondas 10-13, puro, sin DOM) =====
@@ -6767,7 +6943,7 @@ function mjPermisos(rol,modulo){ const M={
                cuenta no los define (lo que el dueño haya editado manda). */
             const _seed={}; base.plan.forEach(x=>{ _seed[x.codigo]=x; }); c.plan.forEach(x=>{ const s=_seed[x.codigo]; if(s){ if(x.auxiliar===undefined&&s.auxiliar!==undefined) x.auxiliar=s.auxiliar; if(x.requiereAuxiliar===undefined&&s.requiereAuxiliar!==undefined) x.requiereAuxiliar=s.requiereAuxiliar; } });
             if(!c.seqComp||typeof c.seqComp!=='object'||Array.isArray(c.seqComp)) c.seqComp={};
-            c.plantillas=Object.assign(base.plantillas,d.plantillas||{}); c.plantillas.banco=Object.assign(base.plantillas.banco,(d.plantillas||{}).banco||{}); ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','bandeja','estadosBanco','notas','arqueos'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
+            c.plantillas=Object.assign(base.plantillas,d.plantillas||{}); c.plantillas.banco=Object.assign(base.plantillas.banco,(d.plantillas||{}).banco||{}); ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','conceptosTes','bandeja','estadosBanco','notas','arqueos'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); if(!c.candados||typeof c.candados!=='object'||Array.isArray(c.candados)) c.candados={}; try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
         function saveConta(d){ Store.setItem(getContaKey(), JSON.stringify(d)); }
         function contaEventos(clonar){ const ev=[]; const cp=m=>clonar?JSON.parse(JSON.stringify(m)):m;
             for(const h of getHistorial()){ if(Array.isArray(h.movimientos)) for(const m of h.movimientos) ev.push({tipo:'mov',periodo:h.mes,mov:cp(m),fecha:m.fecha,tasa:Number(h.tasa)||tasaVista()}); }
@@ -6948,7 +7124,7 @@ function mjPermisos(rol,modulo){ const M={
                 prog.innerHTML=(p.items.length?`<div class="mb-2"><span class="badge bg-danger me-1">Vencidas: ${moneda(p.totales.vencida)}</span><span class="badge bg-warning text-dark me-1">Esta semana: ${moneda(p.totales.semana)}</span><span class="badge bg-success me-1">Futuras: ${moneda(p.totales.futura)}</span><span class="badge bg-soft-secondary">Total por pagar: ${moneda(p.totales.total)}</span></div><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Vencimiento</th><th>Documento</th><th>Contraparte</th><th class="text-end">Pendiente</th><th>Estado</th><th></th></tr></thead><tbody>${p.items.map(it=>`<tr><td class="text-nowrap">${fmtF(it.vencimiento)}${it.dias!=null&&it.dias<0?` <span class="small text-danger">(${Math.abs(it.dias)} día(s))</span>`:''}</td><td>${esc(it.numero)}<div class="small text-secondary">${esc(it.concepto||'')}</div></td><td>${esc(it.contraparte)}</td><td class="text-end">${moneda(it.pendiente)}</td><td>${semB(it.semaforo)}</td><td class="text-nowrap"><button type="button" class="btn btn-sm btn-success" onclick="contaPagarDoc('${esc(it.documentoId)}')">Pagar</button></td></tr>`).join('')}</tbody></table></div>`:'<span class="text-muted small">Sin cuentas por pagar pendientes: todo está saldado o aún no hay documentos CxP con saldo.</span>'); }
             /* --- Notas de crédito / débito --- */
             const nSel=document.getElementById('contaNotaDoc');
-            if(nSel){ const val=nSel.value; nSel.innerHTML=c.documentos.map(d=>{ const cp=c.contrapartes.find(x=>x.id===d.contraparteId); const pend=ctaPendienteDoc(c,d); return `<option value="${esc(d.id)}" ${d.id===val?'selected':''}>${d.tipo==='cxc'?'CxC':'CxP'} · ${esc(d.numero)} · ${esc(cp?cp.nombre:(d.contraparteId||''))} · pendiente ${moneda(pend)}</option>`; }).join('')||'<option value="">— Sin documentos en los submayores —</option>'; }
+            if(nSel){ const val=nSel.value; nSel.innerHTML=c.documentos.filter(d=>d.estado!=='cancelado').map(d=>{ const cp=c.contrapartes.find(x=>x.id===d.contraparteId); const pend=ctaPendienteDoc(c,d); return `<option value="${esc(d.id)}" ${d.id===val?'selected':''}>${d.tipo==='cxc'?'CxC':'CxP'} · ${esc(d.numero)} · ${esc(cp?cp.nombre:(d.contraparteId||''))} · pendiente ${moneda(pend)}</option>`; }).join('')||'<option value="">— Sin documentos en los submayores —</option>'; }
             const nFecha=document.getElementById('contaNotaFecha'); if(nFecha&&!nFecha.value) nFecha.value=hoy();
             const nBox=document.getElementById('contaNotasBox');
             if(nBox) nBox.innerHTML=(c.notas||[]).slice().reverse().map(n=>`<tr><td class="text-nowrap">${esc(n.numero)}</td><td>${n.tipo==='credito'?'<span class="badge bg-info text-dark">Crédito</span>':'<span class="badge bg-warning text-dark">Débito</span>'}</td><td>${esc(n.docTipo==='cxc'?'CxC':'CxP')} · ${esc(n.docNumero)}</td><td>${esc(n.motivo||'')}</td><td class="text-nowrap">${fmtF(n.fecha)}</td><td class="text-end">${moneda(n.importe)}</td></tr>`).join('')||'<tr><td colspan="6" class="text-center text-muted">Sin notas emitidas todavía.</td></tr>';
@@ -7001,7 +7177,7 @@ function mjPermisos(rol,modulo){ const M={
             if(aBox) aBox.innerHTML=arqs.slice().reverse().map(a=>`<tr><td class="text-nowrap">${fmtF(a.fecha)}</td><td>${esc(a.cuenta)}</td><td class="text-end">${moneda(a.saldoLibros)}</td><td class="text-end">${moneda(a.conteo)}</td><td class="text-end">${a.diferencia===0?'<span class="text-success">0.00</span>':('<span class="text-danger">'+moneda(a.diferencia)+'</span>')}</td><td>${esc(a.conto||'')}</td><td>${esc(a.reviso||'')}</td></tr>`).join('')||'<tr><td colspan="7" class="text-center text-muted">Sin arqueos registrados.</td></tr>';
         }
         function contaFillMovFields(m){ const c=getConta(); const selC=document.getElementById('movCentro'); if(selC){ selC.innerHTML='<option value="">— Sin centro —</option>'+c.centros.map(x=>`<option value="${esc(x.nombre)}">${esc(x.nombre)}</option>`).join(''); if(m&&m.centroCosto) selC.value=m.centroCosto; }
-            const selD=document.getElementById('movDocumento'); if(selD){ selD.innerHTML='<option value="">— Ninguno (o se crea en Contabilidad) —</option>'+c.documentos.map(d=>{ const cp=c.contrapartes.find(x=>x.id===d.contraparteId); const pend=ctaPendienteDoc(c,d); return pend>0?`<option value="${esc(d.id)}">${d.tipo==='cxc'?'CxC':'CxP'} · ${esc(d.numero)} · ${esc(cp?cp.nombre:d.contraparteId)} · pendiente ${moneda(pend)}</option>`:''; }).join(''); if(m&&m.documentoId) selD.value=m.documentoId; }
+            const selD=document.getElementById('movDocumento'); if(selD){ selD.innerHTML='<option value="">— Ninguno (o se crea en Contabilidad) —</option>'+c.documentos.filter(d=>d.estado!=='cancelado').map(d=>{ const cp=c.contrapartes.find(x=>x.id===d.contraparteId); const pend=ctaPendienteDoc(c,d); return pend>0?`<option value="${esc(d.id)}">${d.tipo==='cxc'?'CxC':'CxP'} · ${esc(d.numero)} · ${esc(cp?cp.nombre:d.contraparteId)} · pendiente ${moneda(pend)}</option>`:''; }).join(''); if(m&&m.documentoId) selD.value=m.documentoId; }
             const selCt=document.getElementById('movCuentaContable'); if(selCt){ selCt.innerHTML='<option value="">— Automática según clasificación —</option>'+c.plan.filter(x=>ctaEsMovimiento(c,x.codigo)).map(x=>`<option value="${esc(x.codigo)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join(''); if(m&&m.cuentaContable) selCt.value=m.cuentaContable; }
             const selDest=document.getElementById('movCuentaDestino'); if(selDest&&m&&m.cuentaDestino) selDest.value=m.cuentaDestino; }
         function contaGenerar(){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; } const c=getConta(); if(!c.activa){ alert('Primero activa la contabilidad en esta pestaña.'); return; } const prev=contaPreview(); if(!confirm(`Se crearán ${prev.creados} asiento(s) nuevo(s) desde los movimientos, documentos y nóminas registrados.\nQuedarán ${prev.pendientes.length} pendiente(s) en la bandeja (en rojo) con su motivo.\nLos ya generados no se duplican. ¿Continuar?`)) return; const r=contaGenerarSilencioso(); renderAll(); alert(`✅ Contabilidad generada: ${r.creados||0} asiento(s) nuevo(s), ${r.ya||0} ya existían.\nPendientes en la bandeja: ${r.pendientes||0} (revisa la sección «Por clasificar / Pendientes» en rojo).`); }
@@ -7136,8 +7312,120 @@ function mjPermisos(rol,modulo){ const M={
             const dl=document.getElementById('contaCuentasList'); if(dl) dl.innerHTML=c.plan.filter(x=>ctaEsMovimiento(c,x.codigo)).map(x=>`<option value="${esc(x.codigo)}">${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('');
             const edBox=document.getElementById('contaEdLineas'); if(edBox){ if(!edBox.querySelector('.conta-ed-row')){ edBox.innerHTML=''; contaEdAddLinea(); contaEdAddLinea(); } else contaEdRecalc();
                 const fEl=document.getElementById('contaAsFecha'); if(fEl&&!fEl.value) fEl.value=hoy(); }
+            let _filasVersat=null; try{ _filasVersat=ctaCuadres(c, contaDatosCuadres(periodoNominaActual())).filas; }catch(e){}
+            try{ contaRenderCuadres(_filasVersat); }catch(e){}
+            try{ contaRenderTes(); }catch(e){}
+            try{ contaRenderPatrones(); }catch(e){}
+            try{ contaRenderCandados(_filasVersat); }catch(e){}
+            try{ contaRenderDocsGestion(); }catch(e){}
             renderTesoreria(c);
         }
+
+        /* ===== RONDA VERSAT (2026-10-25) · capa de aplicación =====
+           Panel de cuadres, conceptos de tesorería, documentos con
+           estados, cierre con candados y comprobantes patrón (la lista
+           ÚNICA vive en Gestión+: mjGestion.patrones; desde aquí se
+           ve y se aplica, no se duplica). */
+        function contaMesDatos(periodo){ for(const h of getHistorial()){ if(h.mes===periodo) return {saldoInicial:h.saldoInicial||{},saldoInicialTasaUSD:h.saldoInicialTasaUSD,movimientos:h.movimientos||[],tasa:Number(h.tasa)||tasaVista()}; }
+            const md=getMesActual()||{}; return {saldoInicial:md.saldoInicial||{},saldoInicialTasaUSD:md.saldoInicialTasaUSD,movimientos:(typeof movimientos!=='undefined'?movimientos:[]),tasa:tasaVista()}; }
+        function contaDatosCuadres(periodo){ const c=getConta(); const md=contaMesDatos(periodo); const P=c.plantillas||ctaPlantillasDef(); const porPlan={};
+            for(const k in (P.banco||{})){ const cod=P.banco[k]; if(porPlan[cod]==null) porPlan[cod]=0;
+                let ini=Number((md.saldoInicial||{})[k])||0; if(k==='tarjeta_usd') ini=ctaR2(ini*(Number(md.saldoInicialTasaUSD)>0?Number(md.saldoInicialTasaUSD):md.tasa));
+                porPlan[cod]=ctaR2(porPlan[cod]+ini); }
+            for(const mv of (md.movimientos||[])){ if(!mv||mv.cuenta==='ajuste_contable') continue; const cod=(P.banco||{})[mv.cuenta]; if(!cod) continue;
+                porPlan[cod]=ctaR2(porPlan[cod]+(mv.tipo==='ingreso'?1:-1)*ctaMontoCUP(mv,md.tasa)); }
+            let aft=null; try{ const d=getAFT(); if(d&&Array.isArray(d.activos)&&d.activos.length){ let costo=0,acum=0;
+                for(const a of d.activos){ const cc=calcAFT(a,periodo); costo=ctaR2(costo+(Number(cc.costo)||0)); acum=ctaR2(acum+(Number(cc.acum)||0)); } aft={costo:costo,acum:acum}; } }catch(e){}
+            const rango=contaPeriodoRango(periodo);
+            /* Vacaciones y retenciones: su submayor por trabajador vive
+               en Nómina (documentos impresos), no en una estructura que
+               esta capa pueda sumar con fiabilidad → null = «sin datos»,
+               nunca un número rellenado. */
+            return {hasta:rango?rango.hasta:'9999-12-31',bancos:Object.keys(porPlan).map(cod=>({cuenta:cod,submayor:porPlan[cod]})),aft:aft,vacaciones:null,retenciones:null}; }
+        function contaRenderCuadres(filasPre){ const body=document.getElementById('contaCuadresBody'); if(!body) return; const c=getConta(); const per=periodoNominaActual();
+            const r=filasPre?{hasta:'',filas:filasPre}:ctaCuadres(c,contaDatosCuadres(per)); window.__contaCuadresUltimo=r;
+            const tit=document.getElementById('contaCuadresPeriodo'); if(tit) tit.textContent=per;
+            const sem=f=>f.estado==='cuadra'?'<span class="badge bg-success">✓ Cuadra</span>':f.estado==='descuadre'?'<span class="badge bg-danger">✘ Descuadre</span>':'<span class="badge bg-secondary">Sin datos</span>';
+            body.innerHTML=r.filas.map(f=>`<tr><td>${esc(f.nombre)}</td><td class="text-end">${f.submayor==null?'—':moneda(f.submayor)}</td><td class="text-end">${f.mayor==null?'—':moneda(f.mayor)}</td><td class="text-end ${f.estado==='descuadre'?'text-danger fw-bold':''}">${f.diferencia==null?'—':moneda(f.diferencia)}</td><td>${sem(f)}</td></tr>`).join(''); }
+        function contaRenderTes(){ const body=document.getElementById('contaTesBody'); if(!body) return; const c=getConta();
+            const NOMBRET={ 'cuenta-contable':'Cuenta contable','cuenta-bancaria':'Cuenta bancaria','obligacion':'Obligación (documento)','credito-bancario':'Crédito bancario' };
+            const contra=r=>r.tipoContrapartida==='cuenta-bancaria'?('→ '+esc(r.cuentaDestino||'')):r.tipoContrapartida==='obligacion'?'la aporta el documento':r.tipoContrapartida==='credito-bancario'?'la aporta el crédito':esc(r.cuentaContable||'');
+            const variac=r=>r.tipo==='ingreso'?'ingreso: + banco':r.tipo==='gasto'?'gasto: − banco':'ingreso: + · gasto: −';
+            body.innerHTML=(c.conceptosTes||[]).map(r=>`<tr><td>${esc(r.conceptoOriginal||r.patron)}<br><code class="small">${esc(r.patron)}</code></td><td>${r.uso==='obligacion'?'Crear obligación':'Cobro / Pago'}</td><td>${NOMBRET[r.tipoContrapartida||'cuenta-contable']}</td><td>${contra(r)}</td><td class="small">${variac(r)}</td><td class="small">${esc(r.actividad||'Banco y Caja')} · ${esc(r.tipoComprobante||'Operaciones')}</td><td>${r.activo===false?'<span class="badge bg-secondary">inactivo</span>':'<span class="badge bg-success">activo</span>'}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="contaTesToggle('${r.id}')">${r.activo===false?'Activar':'Pausar'}</button> <button type="button" class="btn btn-sm btn-outline-danger" onclick="contaTesDel('${r.id}')">Quitar</button></td></tr>`).join('')||'<tr><td colspan="8" class="text-center text-muted">Sin conceptos configurados todavía.</td></tr>'; }
+        function contaTesTipoUI(){ const t=(document.getElementById('contaTesTipoCp')||{}).value||'cuenta-contable';
+            const cw=document.getElementById('contaTesCuentaWrap'), dw=document.getElementById('contaTesDestinoWrap');
+            if(cw) cw.style.display=(t==='cuenta-contable')?'':'none';
+            if(dw) dw.style.display=(t==='cuenta-bancaria')?'':'none'; }
+        function contaTesAdd(){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const pat=document.getElementById('contaTesPatron').value.trim(), tipo=document.getElementById('contaTesTipo').value;
+            const uso=document.getElementById('contaTesUso').value, tcp=document.getElementById('contaTesTipoCp').value;
+            const act=document.getElementById('contaTesActividad').value, tcomp=document.getElementById('contaTesTComp').value;
+            const c=getConta(); const datos={patron:pat,tipo:tipo,uso:uso,tipoContrapartida:tcp,actividad:act,tipoComprobante:tcomp};
+            if(tcp==='cuenta-contable'){ datos.cuentaContable=document.getElementById('contaTesCuenta').value.trim();
+                if(!datos.cuentaContable){ alert('El tipo «cuenta contable» es el único que admite una cuenta directa: escribe la cuenta contrapartida.'); return; }
+                if(!ctaCuenta(c,datos.cuentaContable)){ alert('La cuenta '+datos.cuentaContable+' no existe en el plan de cuentas.'); return; } }
+            else if(tcp==='cuenta-bancaria'){ datos.cuentaDestino=document.getElementById('contaTesDestino').value;
+                if(!datos.cuentaDestino){ alert('El tipo «cuenta bancaria» necesita la cuenta destino del traspaso.'); return; } }
+            const r=ctaGuardarConceptoTes(c,datos); if(!r){ alert('Ese texto no deja un patrón válido (queda vacío tras la normalización).'); return; }
+            saveConta(c); document.getElementById('contaTesPatron').value=''; contaGenerarSilencioso(); renderAll();
+            alert('✅ Concepto de tesorería guardado: «'+r.patron+'» ('+(r.tipoContrapartida||'cuenta-contable')+'). Se aplica al clasificar y al regenerar, con la precedencia documentada.'); }
+        function contaTesDel(id){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; } if(!confirm('¿Quitar este concepto de tesorería? Los asientos ya generados no se tocan.')) return;
+            const c=getConta(); c.conceptosTes=(c.conceptosTes||[]).filter(r=>r.id!==id); saveConta(c); renderAll(); }
+        function contaTesToggle(id){ const c=getConta(); const r=(c.conceptosTes||[]).find(x=>x.id===id); if(!r) return; r.activo=(r.activo===false); saveConta(c); renderAll(); }
+        function contaRenderDocsGestion(){ const box=document.getElementById('contaDocsGestion'); if(!box) return; const c=getConta();
+            if(!(c.documentos||[]).length){ box.innerHTML=''; return; }
+            box.innerHTML='<h6 class="fw-semibold mt-3">Documentos de los submayores · estados y reversión</h6><div class="table-responsive"><table class="table table-sm align-middle mb-1"><thead><tr><th>Tipo</th><th>Nº</th><th>Fecha</th><th>Contraparte</th><th class="text-end">Pendiente</th><th>Estado</th><th></th></tr></thead><tbody>'+
+            c.documentos.map(d=>{ const cp=(c.contrapartes||[]).find(x=>x.id===d.contraparteId); const canc=d.estado==='cancelado';
+                return `<tr class="${canc?'text-muted':''}"><td>${d.tipo==='cxc'?'CxC':'CxP'}</td><td>${esc(d.numero||d.id)}</td><td>${esc(d.fecha||'')}</td><td>${esc(cp?cp.nombre:(d.contraparteId||''))}</td><td class="text-end">${canc?'—':moneda(ctaPendienteDoc(c,d))}</td><td>${canc?'<span class="badge bg-secondary">CANCELADO</span>':'<span class="badge bg-success">confirmado</span>'}</td><td class="text-end">${canc?'':`<button type="button" class="btn btn-sm btn-outline-danger" onclick="contaCancelarDoc('${d.id}')">Cancelar</button>`}</td></tr>`; }).join('')+
+            '</tbody></table></div><p class="small text-secondary mb-0">Un documento confirmado no se edita: al cancelarlo se genera el contraasiento de su asiento y, si movió inventario, la devolución correspondiente. Queda visible como CANCELADO, con su rastro. Los cobros/pagos son movimientos y se revierten desde su propia ficha o anulando su asiento. Circuito completo (como en el Versat): <b>Confirmación</b> = el asiento original · <b>Ajuste</b> = una nota de crédito/débito sobre el documento confirmado (no se reescribe el original) · <b>Cancelación</b> = el contraasiento que lo revierte entero.</p>'; }
+        function contaCancelarDoc(id){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            if(!confirm('Cancelar conserva el documento marcado CANCELADO, revierte su asiento por contraasiento y devuelve el inventario si lo movió. ¿Continuar?')) return;
+            const c=getConta(); const r=ctaCancelarDocumento(c,id,hoy()); if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll(); alert('✅ Documento cancelado (conservado con su rastro).'); }
+        function contaRenderPatrones(){ const box=document.getElementById('contaPatronesBox'); if(!box) return; const c=getConta();
+            if(typeof mjGestionDe!=='function'){ box.innerHTML='<span class="text-muted small">Gestión+ no está disponible en esta vista.</span>'; return; }
+            const g=mjGestionDe(c);
+            box.innerHTML=((g.patrones&&g.patrones.length)?g.patrones.map(p=>`<div class="d-flex justify-content-between align-items-center gap-2 border-bottom py-1"><span>· <b>${esc(p.nombre)}</b> <span class="text-secondary">(${esc(p.frecuencia||'mensual')})</span> — ${(p.lineas||[]).map(l=>esc(l.cuenta)+' '+(Number(l.debe)>0?('D '+l.debe):('H '+l.haber))).join(' · ')}</span><button type="button" class="btn btn-sm btn-outline-primary text-nowrap" onclick="contaPatronAplicar('${p.id}')">Crear comprobante</button></div>`).join(''):'<span class="text-secondary small">Sin patrones todavía: crea el primero y reutilízalo cada mes en un toque.</span>')+
+            ' <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="contaPatronCrear()">Crear patrón</button><div class="small text-secondary mt-1">Es la misma lista de «Comprobantes patrones / recurrentes» de Gestión+: una sola lista para toda la app. Aplicar crea el comprobante del período actual y no se duplica dentro del mismo período.</div>'; }
+        function contaPatronAplicar(id){ if(typeof mjPatronAplicarUI==='function') mjPatronAplicarUI(id); else alert('Gestión+ no está disponible.'); }
+        function contaPatronCrear(){ if(typeof mjPatronCrearUI!=='function'){ alert('Gestión+ no está disponible.'); return; } mjPatronCrearUI(); renderAll(); }
+        function contaCandadosDatos(periodo,filasPre){ const c=getConta();
+            let cuad=filasPre||null; if(!cuad){ try{ cuad=ctaCuadres(c,contaDatosCuadres(periodo)).filas; }catch(e){} }
+            const dep={aplica:false,ejecutada:false};
+            try{ const d=getAFT(); const rango=contaPeriodoRango(periodo);
+                if(d&&(d.activos||[]).some(a=>a.estado!=='baja')){ dep.aplica=true;
+                    dep.ejecutada=!!(d.depreciaciones&&d.depreciaciones[periodo])||(c.asientos||[]).some(a=>a.estado!=='anulado'&&(a.fuenteKey==='dep-af:'+periodo||(/deprecia/i.test(a.concepto||'')&&rango&&a.fecha>=rango.desde&&a.fecha<=rango.hasta))); } }catch(e){}
+            const pend=(c.bandeja||[]).filter(b=>b.periodo===periodo).length;
+            const nom={aplica:false,contabilizada:false};
+            try{ const t=obtenerNominaParaPeriodo(periodo).tot; if((Number(t&&t.bruto)||0)>0){ nom.aplica=true; nom.contabilizada=(c.asientos||[]).some(a=>a.fuenteKey==='nomina-devengo:'+periodo&&a.estado!=='anulado'); } }catch(e){}
+            let borr=0; const si=[],trs=[]; const rv={aplica:false,ejecutada:false};
+            try{ const rg=contaPeriodoRango(periodo); if(rg){ borr=(c.asientos||[]).filter(a=>a.estado==='borrador'&&a.fecha>=rg.desde&&a.fecha<=rg.hasta).length;
+                const may=ctaMayor(c,{desde:null,hasta:rg.hasta});
+                for(const k in may){ const e=may[k]; if(!e||!e.saldoFirmado) continue;
+                    if((e.naturaleza==='deudora'&&e.saldoFirmado<0)||(e.naturaleza==='acreedora'&&e.saldoFirmado>0)) si.push({cuenta:e.codigo,nombre:e.nombre}); }
+                (c.plan||[]).filter(p=>/transitori|por depositar|en tr[aá]nsito/i.test(p.nombre||'')).forEach(p=>{ const e=may[p.codigo]; trs.push({cuenta:p.codigo,nombre:p.nombre,saldo:e?e.saldoFirmado:0}); });
+                rv.aplica=Object.keys(may).some(k=>Math.abs(Number(may[k].divisa)||0)>=0.005);
+                rv.ejecutada=(c.asientos||[]).some(a=>a.fuenteKey==='reval:'+periodo&&a.estado!=='anulado'); } }catch(e){}
+            return {cuadres:cuad,depreciacion:dep,pendientes:pend,nomina:nom,borradores:borr,saldosInversos:si,transitorias:trs,revalorizacion:rv}; }
+        function contaRenderCandados(filasPre){ const box=document.getElementById('contaCandadosBox'); if(!box) return; const c=getConta(); const per=periodoNominaActual();
+            const reg=(c.candados||{})[per]||{}; const r=ctaCandadosCierre(c,per,Object.assign(contaCandadosDatos(per,filasPre),{asumidos:reg.asumidos||{}}));
+            window.__contaCandadosUltimo=r;
+            box.innerHTML='<div class="small mb-2">Período en curso: <b>'+esc(per)+'</b> · '+(r.bloqueado?'<span class="badge bg-danger">🔒 El cierre está bloqueado</span>':'<span class="badge bg-success">Listo para cerrar</span>')+'</div>'+
+            r.checks.map(ch=>`<div class="d-flex justify-content-between align-items-center gap-2 border-bottom py-1"><span>${ch.aplica?(ch.ok?'✅':(ch.asumido?'🟡':'🔒')):'➖'} <b>${esc(ch.nombre)}</b><br><span class="small text-secondary">${esc(ch.detalle)}${ch.asumido?' · <i>asumido expresamente por el dueño</i>':''}</span></span>${(ch.aplica&&!ch.ok)?(ch.asumido?`<button type="button" class="btn btn-sm btn-outline-secondary text-nowrap" onclick="contaCandadoDesasumir('${ch.clave}')">Quitar asunción</button>`:`<button type="button" class="btn btn-sm btn-outline-warning text-nowrap" onclick="contaCandadoAsumir('${ch.clave}')">Asumir y permitir</button>`):''}</div>`).join('')+
+            (reg.cerradoConAsumidos?'<div class="small text-secondary mt-2">Este período se cerró con asunciones registradas el '+esc(reg.cerradoConAsumidos.fecha)+' por '+esc(reg.cerradoConAsumidos.usuario||'')+': '+esc((reg.cerradoConAsumidos.claves||[]).join(', '))+'.</div>':'')+
+            '<div class="small text-secondary mt-1">La puerta se consulta al pulsar «Cerrar mes»: lo no cumplido y no asumido bloquea el cierre con el motivo visible.</div>'; }
+        function contaCandadoAsumir(clave){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const c=getConta(); const per=periodoNominaActual(); c.candados=c.candados||{}; const reg=c.candados[per]=c.candados[per]||{asumidos:{}}; reg.asumidos=reg.asumidos||{};
+            reg.asumidos[clave]={fecha:hoy(),usuario:getCurrentUser()}; saveConta(c); renderConta(); }
+        function contaCandadoDesasumir(clave){ const c=getConta(); const per=periodoNominaActual();
+            if(c.candados&&c.candados[per]&&c.candados[per].asumidos) delete c.candados[per].asumidos[clave]; saveConta(c); renderConta(); }
+        /* Puerta que consulta cerrarMes() (flujo principal) ANTES de
+           cerrar: si la contabilidad no está activa, no bloquea nada. */
+        window.__contaCandadosCierre=function(periodo){ try{ const c=getConta(); if(!c.activa) return {ok:true}; const per=periodo||periodoNominaActual();
+            const reg=(c.candados||{})[per]||{};
+            const r=ctaCandadosCierre(c,per,Object.assign(contaCandadosDatos(per),{asumidos:reg.asumidos||{}}));
+            if(r.bloqueado) return {ok:false,motivos:r.motivos};
+            if(r.asumidosUsados&&r.asumidosUsados.length){ c.candados[per]=Object.assign({},reg,{cerradoConAsumidos:{fecha:hoy(),usuario:getCurrentUser(),claves:r.asumidosUsados}}); saveConta(c); }
+            return {ok:true,asumidos:r.asumidosUsados||[]}; }catch(e){ return {ok:true}; } };
 
         // ===== RENDER TODO =====
         function renderAll() {
@@ -7719,7 +8007,20 @@ function mjPermisos(rol,modulo){ const M={
 
             const res = calcularResumen();
             const mesStr = mesData && mesData.mesSeleccionado ? mesData.mesSeleccionado : getMesActualStr();
-            
+
+            /* RONDA VERSAT · Cierre con candados: puerta previa estilo
+               Versat. La mecánica del cierre no cambia; solo se consulta
+               la puerta de Contabilidad (cuadres, depreciación,
+               pendientes y nómina). Lo no cumplido y NO asumido
+               expresamente por el dueño bloquea con el motivo visible. */
+            if (typeof window.__contaCandadosCierre === 'function') {
+                const cand = window.__contaCandadosCierre(mesStr);
+                if (cand && !cand.ok) {
+                    alert('🔒 Cierre bloqueado por los candados de Contabilidad:\n\n· ' + (cand.motivos || []).join('\n· ') + '\n\nResuelve cada punto o asúmelo expresamente en Contabilidad → «Cierre con candados» y vuelve a intentarlo.');
+                    return;
+                }
+            }
+
             if (movimientos.length === 0) {
                 if (!confirm(`No hay movimientos. ¿Cerrar ${mesStr}?`)) return;
             }
@@ -11322,6 +11623,8 @@ function mjPermisos(rol,modulo){ const M={
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
+         'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
+         'contaCancelarDoc','contaPatronAplicar','contaPatronCrear',
          'mjContratoCrearUI','mjUtilCrearUI','mjTraspasoUI','mjOrdenTerminarUI','mjOrdenCrearUI','mjCreditoDevengoUI',
          'mjCreditoCrearUI','mjSaldoDivisaUI','mjRevalAmpliaUI','mjConsignacionRecibirUI','mjConsignacionVentaUI',
          'guardarParamsFiscalesNomina','docCuentaPrint','docQRPrint',
