@@ -1337,14 +1337,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-dj">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                 <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="doc" style="color:#0f766e"></span>Declaración Jurada automática</h5><div class="small text-secondary">Borrador calculado desde tus movimientos, nómina y pagos ONAT clasificados. La firma y la presentación ante la ONAT siguen siendo tuyas.</div></div>
-                <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="djAnioSel">Año fiscal</label><select id="djAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="pane-dj"><span class="icono-anim me-1" data-icono="impresora"></span>PDF</button></div>
+                <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="djAnioSel">Año fiscal</label><select id="djAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="pane-dj"><span class="icono-anim me-1" data-icono="impresora"></span>PDF</button><label class="btn btn-sm btn-primary mb-0" for="djImportInput"><span class="icono-anim me-1" data-icono="subir"></span> Importar DJ</label><input id="djImportInput" type="file" accept=".pdf,.xlsx" hidden><span class="badge bg-soft-secondary px-3 py-2" id="djImportBadge">Sin DJ importada</span></div>
             </div>
             <div id="djAvisos" class="mb-3"></div>
             <div id="djJustificacionBox" class="mb-3"></div>
             <div class="card p-3 p-md-4 mb-3">
                 <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Ficha fiscal del negocio</h6>
                 <div class="row g-2">
-                    <div class="col-md-3"><label class="form-label small mb-1">Régimen</label><select id="djFichaRegimen" class="form-select form-select-sm"><option value="tcp_general">TCP · Régimen general</option><option value="tcp_simplificado">TCP · Régimen simplificado</option><option value="mipyme">MIPYME</option></select></div>
+                    <div class="col-md-3"><label class="form-label small mb-1">Régimen</label><select id="djFichaRegimen" class="form-select form-select-sm"><option value="tcp_general">TCP · Régimen general</option><option value="tcp_simplificado">TCP · Régimen simplificado</option><option value="tcp_gratificaciones">TCP · Gratificaciones</option><option value="mipyme">MIPYME</option></select></div>
                     <div class="col-md-3"><label class="form-label small mb-1">NIT</label><input id="djFichaNIT" class="form-control form-control-sm" placeholder="NIT del contribuyente"></div>
                     <div class="col-md-6"><label class="form-label small mb-1">Nombre / Razón social</label><input id="djFichaNombre" class="form-control form-control-sm" placeholder="Nombre del contribuyente o la MIPYME"></div>
                     <div class="col-md-4"><label class="form-label small mb-1">Municipio de inscripción</label><input id="djFichaMunicipio" class="form-control form-control-sm"></div>
@@ -1362,10 +1362,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Bonif. canales electrónicos %</label><input id="djParBonifE" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Tope régimen simplificado (CUP)</label><input id="djParTopeSimp" type="number" min="0" step="1" class="form-control form-control-sm"></div>
                     <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala IIP (tope:tasa% por tramo, último tramo con tope vacío)</label><input id="djParEscalaIIP" class="form-control form-control-sm" placeholder="10000:15, 20000:20, 30000:30, 50000:40, :50"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Impuesto sobre Utilidades %</label><input id="djParTipoUtil" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Impuesto sobre Utilidades % ⚠ sin verificar</label><input id="djParTipoUtil" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Exento dividendos socios (CUP)</label><input id="djParExentoDiv" type="number" min="0" step="1" class="form-control form-control-sm"></div>
                     <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala dividendos de socios (tope:tasa%)</label><input id="djParEscalaDiv" class="form-control form-control-sm" placeholder="75000:3, 150000:5, 250000:10, 350000:15, :20"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Retención anticipos de dividendos %</label><input id="djParRetDiv" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala gratificaciones (tope:tasa%, 10 tramos)</label><input id="djParEscalaGrat" class="form-control form-control-sm" placeholder="25000:5, 50000:10, 100000:15, 200000:20, 350000:25, 500000:30, 650000:35, 800000:40, 1000000:45, :50"></div>
+                    <div class="col-12"><div class="small text-secondary">Las bonificaciones son beneficios <b>distintos y condicionados</b>: la de pronto pago solo procede si pagas antes del 28 de febrero, y la de canales electrónicos solo si pagas por esa vía; los <b>pagos a cuenta (fila 22) no son bonificación</b>. El tipo del Impuesto sobre Utilidades queda <b>sin verificar — provisional</b> hasta contrastarlo con la norma específica del MFP.</div></div>
                 </div>
                 <div class="row g-2 mt-1">
                     <div class="col-12 col-md-5"><label class="form-label small mb-1">Fuente de verificación (ficha normativa)</label><input id="djParFuenteVerif" class="form-control form-control-sm" placeholder="Ej.: Gaceta Oficial, consulta en ONAT…"></div>
@@ -1393,6 +1395,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div id="djSeccionIVacio" class="text-muted small mt-2" style="display:none">Sin trabajadores registrados en la nómina de este año.</div>
                 </div>
             </div>
+            <div id="djCalcGRAT" style="display:none">
+                <div class="card p-3 p-md-4 mb-3">
+                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>DJ-08 · Gratificaciones (régimen propio)</h6>
+                    <p class="small text-secondary">Personal que recibe gratificaciones (actividad 877): escala propia de 10 tramos, gastos deducibles solo del 10 % y mínimo exento condicionado. Los ingresos y gastos salen de los movimientos del año; si la gratificación se recibió en divisa, captura su importe y la tasa del BCC para convertirla a CUP.</p>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Gratificación en divisa (opcional)</label><input id="djGratDivisa" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Vacío = ingresos del año"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Tasa de cambio BCC (CUP por divisa)</label><input id="djGratTasa" type="number" min="0" step="0.0001" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Retenciones acreditadas · fila 24 (CUP)</label><input id="djGratRet" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Fecha prevista de pago</label><input id="djGratFechaPago" type="date" class="form-control form-control-sm"></div>
+                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djGratSinOtra"><label class="form-check-label small" for="djGratSinOtra">No ejerzo otra actividad (el mínimo exento procede en esta DJ; si ejerces otra, el exento va en tu DJ-08 general y presentas 2 DJ)</label></div></div>
+                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djGratCanalElec"><label class="form-check-label small" for="djGratCanalElec">Pago por canales electrónicos (bonificación 3 %, solo si pagas por esa vía)</label></div></div>
+                    </div>
+                    <div id="djLineasGRAT" class="aporte-box"></div>
+                </div>
+            </div>
             <div id="djCalcMIPYME" style="display:none">
                 <div class="card p-3 p-md-4 mb-3">
                     <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>DJ-01 · Impuesto sobre Utilidades</h6>
@@ -1408,6 +1425,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="usuarios"></span>DJ de socios por dividendos</h6><button class="btn btn-sm btn-outline-primary" id="btnDjAddSocio"><span class="icono-anim me-1" data-icono="mas"></span> Socio</button></div>
                     <div id="djSociosBox"></div>
                 </div>
+            </div>
+            <div class="card p-3 p-md-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="doc-check"></span>Declaraciones presentadas (importadas)</h6><span class="badge bg-soft-secondary" id="djPresentadasCount">0</span></div>
+                <p class="small text-secondary">Las DJ oficiales ya presentadas que importaste con «Importar DJ» (PDF o Excel del modelo oficial). La importada manda como «presentada» en el expediente; el cálculo de la app queda como contraste visible. Se guardan los datos leídos y el nombre del archivo de referencia, no el archivo.</p>
+                <div id="djPresentadasBox"></div>
+                <div id="djPresentadasVacio" class="text-muted small">Sin declaraciones importadas todavía.</div>
             </div>
         </div>
 
@@ -2055,6 +2078,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Dato no verificado = pendiente</b>: si una obligación no está verificada, se marca como pendiente de verificación; nunca se supone una fecha ni un importe por lo que hace otro negocio.</li>
                     </ul>
                 </div>
+                <div class="ayuda-sec" id="ayuda-fiscal-6" data-ayuda-titulo="Códigos de párrafo: formas de 6 y 7 dígitos">
+                    <div class="ayuda-sec-tit">Códigos de párrafo: formas de 6 y 7 dígitos</div>
+                    <p class="small mb-1">Las fuentes oficiales usan dos formas del mismo código y ambas son correctas:</p>
+                    <ul class="small mb-0">
+                        <li><b>6 dígitos</b> en la Res. 271/2024 (Art. 13): 011402 Ventas/Servicios, 051012 cuotas del IIP, 052052 retención a trabajadores del TCP, 053022 liquidación adicional, 051052 régimen simplificado, 061032 IUFT, 082013 Contribución Especial a la Seguridad Social.</li>
+                        <li><b>7 dígitos</b> (con subconcepto) en la planilla DJ-08 y el Vector Fiscal: 0114022, 0510122, 0530222, 0610322… La app usa esta forma, coherente con el Vector; no hay que «corregirla».</li>
+                        <li><b>IUFT</b>: tipo único del 5 % (nuevo Art. 236 de la Ley 113). El TCP lo paga <b>trimestralmente</b>, en los primeros 20 días naturales del mes siguiente al trimestre vencido (Res. 271/2024, Art. 8), por el párrafo 061032.</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-dj">
@@ -2080,7 +2112,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div class="ayuda-sec" id="ayuda-dj-3" data-ayuda-titulo="DJ-08 · Impuesto sobre Ingresos Personales">
                     <div class="ayuda-sec-tit">DJ-08 · Impuesto sobre Ingresos Personales</div>
-                    <p class="small mb-0">Para TCP: calcula el impuesto sobre ingresos personales con la regla del 80 % de gastos justificados, a partir de los movimientos del año.</p>
+                    <p class="small mb-1">Para TCP: calcula el impuesto sobre ingresos personales a partir de los movimientos del año, con las reglas verificadas contra el modelo oficial (ONAT, 2026-10-25):</p>
+                    <ul class="small mb-0">
+                        <li><b>Gastos</b>: se deducen los autorizados al <b>100 % si justificas el 80 %</b> de ellos; si no llegas, se deduce lo justificado + el 20 % de los gastos. El 80 % es de justificación documental, <b>no</b> un tope sobre los ingresos. Todos los gastos deben constar en el Registro de Gastos.</li>
+                        <li><b>Pagos a cuenta (fila 22)</b>: los anticipos mensuales (5 % de los ingresos que exceden 3 260 CUP) minoran el impuesto; <b>no son una bonificación</b>. El Impuesto sobre las Ventas (10 %) es un tributo distinto.</li>
+                        <li><b>Bonificaciones, separadas y con condición</b>: 5 % solo por pronto pago (antes del 28 de febrero) y 3 % solo por pagar por canales electrónicos; ninguna se aplica sin cumplir su condición.</li>
+                    </ul>
                 </div>
                 <div class="ayuda-sec" id="ayuda-dj-4" data-ayuda-titulo="Sección I · Trabajadores contratados (desde la nómina)">
                     <div class="ayuda-sec-tit">Sección I · Trabajadores contratados</div>
@@ -2088,13 +2125,35 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div class="ayuda-sec" id="ayuda-dj-5" data-ayuda-titulo="DJ-01 · Impuesto sobre Utilidades">
                     <div class="ayuda-sec-tit">DJ-01 · Impuesto sobre Utilidades</div>
-                    <p class="small mb-0">Para MIPYME: calcula el impuesto sobre utilidades (35 %) con pérdidas, reservas y pagos a cuenta.</p>
+                    <p class="small mb-0">Para MIPYME: calcula el impuesto sobre utilidades (35 %) con pérdidas, reservas y pagos a cuenta. ⚠ Ese 35 % está <b>sin verificar — provisional</b>: ninguna norma oficial disponible lo fija para las MIPYME (las normas remiten a la legislación específica del MFP); contrástalo antes de presentar.</p>
                 </div>
                 <div class="ayuda-sec" id="ayuda-dj-6" data-ayuda-titulo="DJ de socios por dividendos">
                     <div class="ayuda-sec-tit">DJ de socios por dividendos</div>
                     <p class="small mb-1">Registra los socios con sus dividendos y la retención del 5 %; esos datos alimentan la DJ individual de cada socio.</p>
                     <ul class="small mb-0">
                         <li><b>Añadir socio / quitar socio</b>: agrega o elimina un socio de la lista; se guarda en los datos manuales del año.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-8" data-ayuda-titulo="DJ-08 · Gratificaciones (régimen propio)">
+                    <div class="ayuda-sec-tit">DJ-08 · Gratificaciones (régimen propio)</div>
+                    <p class="small mb-1">El personal que recibe gratificaciones (actividad 877) tiene régimen propio: NO se le aplica ni la escala del TCP ni la regla general de gastos.</p>
+                    <ul class="small mb-0">
+                        <li><b>Escala propia de 10 tramos</b>: 5 % hasta 25 000, subiendo por tramos hasta 50 % en el exceso de 1 000 000.</li>
+                        <li><b>Gastos deducibles: solo el 10 %</b> de los asociados a la actividad.</li>
+                        <li><b>Mínimo exento condicionado</b>: solo se descuenta en esta DJ si NO ejerces otra actividad; si la ejerces, el exento va en tu DJ-08 general y presentas 2 DJ.</li>
+                        <li><b>Divisa</b>: la gratificación recibida en otra moneda se convierte a la tasa de cambio publicada por el BCC.</li>
+                        <li>Se elige en la <b>ficha fiscal → Régimen → TCP · Gratificaciones</b>.</li>
+                    </ul>
+                </div>
+                <div class="ayuda-sec" id="ayuda-dj-9" data-ayuda-titulo="Importar DJ (presentada)">
+                    <div class="ayuda-sec-tit">Importar DJ (presentada)</div>
+                    <p class="small mb-1">Además del borrador que la app calcula, puedes subir la DJ oficial ya presentada (el Excel del modelo de la ONAT o el PDF con texto) con el botón <b>Importar DJ</b> de la pestaña DJ:</p>
+                    <ul class="small mb-0">
+                        <li><b>Qué se lee</b>: identidad (NIT, nombre, municipio), año, actividades, secciones y el TOTAL A PAGAR. La lectura se guía por los conceptos del modelo, no por números de fila sueltos.</li>
+                        <li><b>Validación contra el negocio abierto</b>: el NIT y el nombre del documento se comparan con la ficha fiscal y el Vector de ESTE negocio. Si el NIT no coincide, no se guarda salvo que lo fuerces con confirmación, y el forzado queda registrado. La misma validación se aplica al importar el RC-04A.</li>
+                        <li><b>Si el PDF está escaneado</b> (foto o escáner, sin texto), la app no puede leerlo: ofrece registrar la DJ a mano dejando el archivo como referencia.</li>
+                        <li><b>La importada manda como «presentada»</b>: queda en la tarjeta «Declaraciones presentadas (importadas)» y el cálculo de la app se muestra al lado como contraste, con su diferencia. Una rectificada sustituye a la anterior del mismo año, que se conserva marcada.</li>
+                        <li>Se guarda el nombre del archivo de referencia, no el archivo; el expediente completo también viaja en el respaldo ZIP del negocio (<i>dj_presentadas.json</i>).</li>
                     </ul>
                 </div>
                 <div class="ayuda-sec" id="ayuda-dj-7" data-ayuda-titulo="Verificación de los parámetros">
@@ -2476,6 +2535,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="doc"></span>Cálculo ONAT</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body" id="onatModalBody"></div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary-custom" id="btnAgregarOnatDesdeModal"><span class="icono-anim me-1" data-icono="flecha-der"></span> Abrir Fiscal</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="djImportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="doc"></span>Importar Declaración Jurada</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body" id="djImportBody"></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary" id="btnDjImportGuardar">Guardar en el expediente</button></div>
         </div>
     </div>
 </div>
@@ -4447,11 +4516,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const seen=new Set(),obligaciones=[];
             for(const x of obs){const mes=MESES_ES.find(z=>normTxt(z)===normTxt(x.period))||x.period,periodo=`${mes} ${meta.anio}`,vence=isoVencimiento(x.day,x.mon,x.year),key=`${x.code}|${periodo}|${vence}`;if(seen.has(key))continue;seen.add(key);obligaciones.push({id:'vf_'+key.replace(/[^a-zA-Z0-9]+/g,'_'),codigo:x.code,concepto:tributos[x.code]||'Tributo según Vector Fiscal',periodo,vence,vector:true,importeManual:null});}
             obligaciones.sort((a,b)=>String(a.vence||'9999').localeCompare(String(b.vence||'9999'))||String(a.codigo).localeCompare(String(b.codigo)));
-            const prev=getFiscal(),manual=prev.obligaciones.filter(o=>!o.vector),d={meta,actividades:[...new Set(actividades)],tributos,obligaciones:[...obligaciones,...manual],source:{fileName:fileName||'RC-04A.pdf',importedAt:new Date().toISOString(),type:'RC-04A PDF'},cuentasBanco:prev.cuentasBanco};
+            const actorVec={nitFicha:'',nombreFicha:'',nitVector:'',razonVector:''};
+            try{const djx=getDJ();actorVec.nitFicha=(djx.ficha&&djx.ficha.nit||'').replace(/[^0-9]/g,'');actorVec.nombreFicha=(djx.ficha&&djx.ficha.nombre)||'';const pv=getFiscal();actorVec.nitVector=(pv.meta&&pv.meta.nit||'').replace(/[^0-9]/g,'');actorVec.razonVector=(pv.meta&&pv.meta.razon)||'';}catch(e){}
+            const valVec=validarActorDoc({tipo:'vector',nit:meta.nit||'',nombre:meta.razon||''},actorVec);
+            let vecForzado=false;
+            if(valVec.nivel==='bloqueo'||valVec.nivel==='aviso'){
+                if(!confirm('⚠️ Validación contra el negocio abierto:\n\n'+valVec.mensajes.join('\n')+'\n\n¿Importar el Vector de todas formas? Quedará registrado como forzado.')){alert('Importación cancelada: el Vector NO se guardó.');return;}
+                vecForzado=true;
+            }
+            const prev=getFiscal(),manual=prev.obligaciones.filter(o=>!o.vector),d={meta,actividades:[...new Set(actividades)],tributos,obligaciones:[...obligaciones,...manual],source:{fileName:fileName||'RC-04A.pdf',importedAt:new Date().toISOString(),type:'RC-04A PDF',validacion:vecForzado?'forzada':(valVec.nivel==='sin-nit'?'sin-nit':'ok')},cuentasBanco:prev.cuentasBanco};
             saveFiscal(d);const filtro=document.getElementById('fiscalFiltro');if(filtro)filtro.value='vector';renderFiscal();
-            alert(`✅ Vector Fiscal importado correctamente.\n\nObligaciones: ${obligaciones.length}\nTributos: ${Object.keys(tributos).length}\nActividades: ${d.actividades.length}\nAño: ${meta.anio||'—'}`);
+            alert(`✅ Vector Fiscal importado correctamente.\n\nObligaciones: ${obligaciones.length}\nTributos: ${Object.keys(tributos).length}\nActividades: ${d.actividades.length}\nAño: ${meta.anio||'—'}${vecForzado?'\n\n⚠️ Guardado FORZADO: el documento no coincidía con la identidad registrada de este negocio.':''}`);
         }
-        async function importarVectorPDF(file){if(!file)return;if(!window.pdfjsLib){alert('No se pudo cargar el lector PDF. Revisa la conexión a Internet o añade la obligación manualmente.');return;}try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise,lines=[];for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p),tc=await page.getTextContent(),map={};for(const it of tc.items){const y=Math.round(it.transform[5]);(map[y]||(map[y]=[])).push({x:it.transform[4],s:it.str});}for(const y of Object.keys(map).map(Number).sort((a,b)=>b-a)){const line=map[y].sort((a,b)=>a.x-b.x).map(x=>x.s).join(' ').replace(/\s+/g,' ').trim();if(line)lines.push(line);}}parseVectorLines(lines,file.name);}catch(e){console.error(e);alert('No se pudo leer ese PDF. Puedes añadir las obligaciones manualmente.');}}
+        async function importarVectorPDF(file){if(!file)return;if(!window.pdfjsLib){alert('No se pudo cargar el lector PDF. Revisa la conexión a Internet o añade la obligación manualmente.');return;}try{const lines=await pdfLineasDe(file);parseVectorLines(lines,file.name);}catch(e){console.error(e);alert('No se pudo leer ese PDF. Puedes añadir las obligaciones manualmente.');}}
         function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}${(o.responsable||o.fuenteVerificacion||o.fechaVerificacion)?`<div class="small text-secondary">Resp.: ${esc(o.responsable||'—')} · Fuente: ${esc(o.fuenteVerificacion||'—')}${o.fechaVerificacion?' ('+fisFmtFechaDMY(o.fechaVerificacion)+')':''}</div>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button><button class="btn btn-outline-primary fiscal-anotar" data-id="${o.id}" title="Anotar responsable y verificación">Anotar</button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}<div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo (desde nómina)</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Contribución a la Seguridad Social al Presupuesto (desde nómina)</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Contribución Especial a la Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));document.querySelectorAll('.fiscal-anotar').forEach(b=>b.onclick=()=>anotarObligacionFiscal(b.dataset.id));}
         function editarImporteFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const actual=o.importeManual===null||o.importeManual===undefined?'':o.importeManual;const v=prompt('Importe CUP para esta obligación. Deja vacío para volver al cálculo automático:',actual);if(v===null)return;if(String(v).trim()==='')o.importeManual=null;else{const n=Number(v);if(!(n>=0)){alert('Importe inválido.');return;}o.importeManual=n;}saveFiscal(d);renderFiscal();}
         function borrarFiscalManual(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o||o.vector)return;if(!confirm('¿Eliminar esta obligación manual?'))return;d.obligaciones=d.obligaciones.filter(x=>x.id!==id);saveFiscal(d);renderFiscal();}
@@ -7960,12 +8037,25 @@ function mjPermisos(rol,modulo){ const M={
 
         // ===== CERRAR MES =====
         // ===== DECLARACIÓN JURADA (DJ automática) =====
-        /* Reglas según el informe «DJ automática TCP/MIPYME» (2026-10-24):
-           DJ-08: ingresos − exento 39 120 − gastos deducibles (100 %,
-           justificando ≥ 80 %) − tributos pagados → escala 15-50 % −
-           anticipos 5 % − bonificaciones 5 % (≤28 feb) y 3 % (electrónico).
-           DJ-01: 35 % sobre utilidad − pérdidas − reservas − pagos a cuenta.
+        /* Reglas verificadas contra los documentos oficiales ONAT
+           (estudio 2026-10-25, ONAT-APUNTES.md):
+           DJ-08: ingresos − exento 39 120 − gastos (al 100 % si se
+           justifica ≥ 80 %; si no, lo justificado + 20 % de los gastos)
+           − tributos pagados → escala 15-50 % − pagos a cuenta (fila 22,
+           NO son bonificación) − bonificaciones SEPARADAS y condicionadas:
+           5 % solo pronto pago (antes del 28 feb) y 3 % solo por canales
+           electrónicos. Anticipo mensual: 5 % de los ingresos que exceden
+           3 260 CUP (Res. 271/2024, Art. 20); el Impuesto sobre las
+           Ventas (10 %, párrafo 011402) es un tributo distinto.
+           Gratificaciones: régimen propio (escala de 10 tramos 5-50 %,
+           gastos deducibles solo 10 %, exento condicionado a no ejercer
+           otra actividad).
+           DJ-01: 35 % sobre utilidad − pérdidas − reservas − pagos a
+           cuenta — tipo SIN VERIFICAR (provisional): ninguna norma del
+           paquete oficial lo fija; remite a la legislación del MFP.
            Socios: dividendos − 39 120 → escala 3-20 % − retenciones 5 %.
+           IUFT: tipo único 5 % (nuevo Art. 236 de la Ley 113); el TCP
+           lo paga trimestralmente (Res. 271/2024, Art. 8).
            Todos los parámetros son editables por año fiscal en la interfaz. */
         const DJ_PARAMS_DEF = {
             exentoIIP: 39120,
@@ -7974,7 +8064,20 @@ function mjPermisos(rol,modulo){ const M={
             tipoUtilidades: 35,
             escalaDiv: [[75000,3],[150000,5],[250000,10],[350000,15],[Infinity,20]],
             exentoDiv: 39120, retencionDiv: 5,
-            topeSimplificado: 200000
+            topeSimplificado: 200000,
+            escalaGrat: [[25000,5],[50000,10],[100000,15],[200000,20],[350000,25],[500000,30],[650000,35],[800000,40],[1000000,45],[Infinity,50]]
+        };
+        /* Fuentes oficiales que verifican los parámetros, por año
+           liquidado (ficha de verificación normativa precargada; el
+           usuario puede sobrescribirla en la tarjeta de parámetros).
+           La Campaña 2024 liquida el año 2023: su modelo oficial
+           (Excel DJ-08 2024 / planilla Campaña 2024) es la fuente. */
+        const DJ_FUENTES_DEF = {
+            '2023': {
+                fuente: 'Modelos oficiales ONAT: Excel DJ-08 2024 y planilla DJ-08 Campaña 2024 (Instructivo DJ-08, p. 1); Excel de Dividendos de socios; GOC-2024-o78 (Res. 271/2024, Arts. 7, 8 y 20; DL 93/2024). Estudio: ONAT-APUNTES.md (2026-10-25)',
+                fecha: '2026-10-25',
+                vigencia: 'Parámetros de la Campaña 2024 (liquida el año 2023) verificados contra el modelo oficial; re-verificar cada año según la Ley del Presupuesto. El tipo de utilidades (DJ-01) NO está en estas fuentes: sigue sin verificar.'
+            }
         };
         /* Tabla código de tributo → categoría DJ. Códigos verificados contra
            un Vector Fiscal real 2025, el Manual del Tenedor de Libros
@@ -8018,6 +8121,7 @@ function mjPermisos(rol,modulo){ const M={
             if (!d.ficha || typeof d.ficha !== 'object') d.ficha = {};
             if (!d.params || typeof d.params !== 'object') d.params = {};
             if (!d.manual || typeof d.manual !== 'object') d.manual = {};
+            if (!Array.isArray(d.presentadas)) d.presentadas = [];
             return d;
         }
         function saveDJ(d){ Store.setItem(getDJKey(), JSON.stringify(d)); }
@@ -8029,16 +8133,24 @@ function mjPermisos(rol,modulo){ const M={
                 exentoDiv: DJ_PARAMS_DEF.exentoDiv, retencionDiv: DJ_PARAMS_DEF.retencionDiv,
                 topeSimplificado: DJ_PARAMS_DEF.topeSimplificado,
                 escalaIIP: DJ_PARAMS_DEF.escalaIIP.map(t => t.slice()),
-                escalaDiv: DJ_PARAMS_DEF.escalaDiv.map(t => t.slice())
+                escalaDiv: DJ_PARAMS_DEF.escalaDiv.map(t => t.slice()),
+                escalaGrat: DJ_PARAMS_DEF.escalaGrat.map(t => t.slice())
             };
             ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv','topeSimplificado'].forEach(k => {
                 if (g[k] !== undefined && g[k] !== '' && !isNaN(Number(g[k]))) P[k] = Number(g[k]);
             });
             if (Array.isArray(g.escalaIIP) && g.escalaIIP.length) P.escalaIIP = g.escalaIIP;
             if (Array.isArray(g.escalaDiv) && g.escalaDiv.length) P.escalaDiv = g.escalaDiv;
+            if (Array.isArray(g.escalaGrat) && g.escalaGrat.length) P.escalaGrat = g.escalaGrat;
             P.fuenteVerif = (g.fuenteVerif !== undefined && g.fuenteVerif !== null) ? String(g.fuenteVerif) : '';
             P.fechaVerif = (g.fechaVerif !== undefined && g.fechaVerif !== null) ? String(g.fechaVerif) : '';
             P.vigenciaVerif = (g.vigenciaVerif !== undefined && g.vigenciaVerif !== null) ? String(g.vigenciaVerif) : '';
+            const FV = DJ_FUENTES_DEF[String(anio)];
+            if (FV) {
+                if (!P.fuenteVerif) P.fuenteVerif = FV.fuente;
+                if (!P.fechaVerif) P.fechaVerif = FV.fecha;
+                if (!P.vigenciaVerif) P.vigenciaVerif = FV.vigencia;
+            }
             return P;
         }
         function djManualAnio(anio){
@@ -8050,7 +8162,12 @@ function mjPermisos(rol,modulo){ const M={
                 fechaPago: m.fechaPago || '', canalElectronico: !!m.canalElectronico,
                 perdidas: Number(m.perdidas) || 0, reservas: Number(m.reservas) || 0,
                 pagosCuenta: Array.isArray(m.pagosCuenta) ? m.pagosCuenta.map(x => Number(x) || 0) : [0,0,0],
-                socios: Array.isArray(m.socios) ? m.socios : []
+                socios: Array.isArray(m.socios) ? m.socios : [],
+                grat: (m.grat && typeof m.grat === 'object') ? {
+                    divisa: Number(m.grat.divisa) || 0, tasaBCC: Number(m.grat.tasaBCC) || 0,
+                    sinOtraActividad: !!m.grat.sinOtraActividad, retenciones: Number(m.grat.retenciones) || 0,
+                    fechaPago: m.grat.fechaPago || '', canalElectronico: !!m.grat.canalElectronico
+                } : { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, fechaPago: '', canalElectronico: false }
             };
         }
         function djEscalaTexto(esc){ return esc.map(t => (isFinite(t[0]) ? t[0] : '') + ':' + t[1]).join(', '); }
@@ -8115,11 +8232,22 @@ function mjPermisos(rol,modulo){ const M={
             add('Ingresos brutos del año', datos.ingresos, 'Movimientos operacionales del año');
             add('Menos: mínimo exento', -P.exentoIIP, 'Parámetro del año fiscal');
             const T = datos.gastos;
-            let dedGastos = T, notaGastos = 'Se asume el 100 % con justificante; captura el monto justificado para aplicar la regla del 80 %';
+            /* Regla oficial (Instructivo DJ-08, Sección A, casilla 14): el
+               80 % es de JUSTIFICACIÓN documental sobre los gastos, no un
+               tope sobre los ingresos. Si se justifica ≥ 80 % → se deduce
+               el 100 % de los gastos autorizados; si no → lo justificado
+               + el 20 % de los gastos. Todos deben constar en el Registro
+               de Gastos. */
+            let dedGastos = T, notaGastos = 'Sin captura de justificantes: se asume justificado el 80 % o más y se deduce el 100 %. La norma exige justificar el 80 % de los gastos para deducirlos al 100 %; captura el monto con justificante para aplicar la regla exacta';
             if (man.gastosJustificados != null) {
                 const J = Math.min(T, Math.max(0, man.gastosJustificados));
-                dedGastos = Math.min(T, J + 0.20 * T);
-                notaGastos = 'Justificado ' + moneda(J) + ' de ' + moneda(T) + ': se reconoce lo justificado + hasta el 20 % sin justificar';
+                if (T > 0 && J >= 0.80 * T) {
+                    dedGastos = T;
+                    notaGastos = 'Justificaste ' + moneda(J) + ' (≥ 80 % de ' + moneda(T) + '): los gastos autorizados se deducen al 100 % (Instructivo DJ-08)';
+                } else {
+                    dedGastos = Math.min(T, J + 0.20 * T);
+                    notaGastos = 'Justificaste ' + moneda(J) + ' (< 80 % de ' + moneda(T) + '): se deduce lo justificado + el 20 % de los gastos (' + moneda(0.20 * T) + ') (Instructivo DJ-08)';
+                }
             }
             add('Menos: gastos deducibles de la actividad', -dedGastos, notaGastos);
             add('Menos: tributos pagados deducibles', -datos.trib.deducible, 'Pagos ONAT clasificados por concepto (ventas, fuerza de trabajo, seguridad social, territorial…)');
@@ -8130,17 +8258,17 @@ function mjPermisos(rol,modulo){ const M={
             const esc = djAplicarEscala(base, P.escalaIIP);
             esc.detalle.forEach(d => add('Escala ' + d.tasa + ' % sobre ' + moneda(d.base), d.importe, 'Tramo ' + moneda(d.desde) + ' – ' + (isFinite(d.hasta) ? moneda(d.hasta) : 'en adelante')));
             add('Impuesto determinado (IIP)', esc.total, 'Escala progresiva del año', 'subtotal');
-            add('Menos: anticipos del IIP pagados (5 % mensual)', -datos.trib.anticipo_iip, 'Clasificados por código 0510122: minoran el impuesto, NO la base');
+            add('Menos: pagos a cuenta del IIP — fila 22 (NO son bonificación)', -datos.trib.anticipo_iip, 'Anticipos mensuales: 5 % de los ingresos que exceden 3 260 CUP (Res. 271/2024, Art. 20), clasificados por código 0510122. Minoran el impuesto, NO la base. Ojo: el Impuesto sobre las Ventas (10 %, párrafo 011402) es un tributo distinto y ya va en los tributos deducibles');
             let saldo = esc.total - datos.trib.anticipo_iip;
             const limiteBonif = (Number(anio) + 1) + '-02-28';
             if (saldo > 0 && man.fechaPago && man.fechaPago <= limiteBonif) {
                 const b = +(saldo * P.bonifPronto / 100).toFixed(2);
-                add('Menos: bonificación por pronto pago (' + P.bonifPronto + ' %)', -b, 'Declarar y pagar hasta el 28 de febrero de ' + (Number(anio) + 1));
+                add('Menos: bonificación por pronto pago (' + P.bonifPronto + ' %) — SOLO pronto pago', -b, 'Solo procede si declaras y pagas antes del 28 de febrero de ' + (Number(anio) + 1) + '; se aplica sobre el importe a pagar, ya descontados los pagos a cuenta. Sin pago en ese término, no procede');
                 saldo -= b;
             }
             if (saldo > 0 && man.canalElectronico) {
                 const b = +(saldo * P.bonifElec / 100).toFixed(2);
-                add('Menos: bonificación por canales electrónicos (' + P.bonifElec + ' %)', -b, 'Pago por Transfermóvil / EnZona u otro canal electrónico');
+                add('Menos: bonificación por canales electrónicos (' + P.bonifElec + ' %) — SOLO pago electrónico', -b, 'Solo procede si pagas esta DJ por canales electrónicos (Transfermóvil / EnZona), sobre el importe a pagar (Res. 271/2024, Art. 7). Es un beneficio distinto del de pronto pago: cada uno exige su condición y ninguno se aplica sin cumplirla');
                 saldo -= b;
             }
             saldo = +saldo.toFixed(2);
@@ -8160,7 +8288,7 @@ function mjPermisos(rol,modulo){ const M={
             const base = Math.max(0, utilidad - man.perdidas - man.reservas);
             add('Base imponible', base, '', 'subtotal');
             const impuesto = +(base * P.tipoUtilidades / 100).toFixed(2);
-            add('Impuesto sobre Utilidades (' + P.tipoUtilidades + ' %)', impuesto, 'Tipo fijo del año');
+            add('Impuesto sobre Utilidades (' + P.tipoUtilidades + ' %) ⚠ SIN VERIFICAR — provisional', impuesto, 'Tipo editable del año. SIN VERIFICAR: ninguna norma oficial disponible lo fija para las MIPYME (el paquete ONAT 2024 remite a la legislación específica del MFP). Contrástalo antes de presentar la DJ-01');
             const pcManual = man.pagosCuenta.reduce((a,x) => a + x, 0);
             const pcDetectado = datos.trib.pago_cuenta_utilidades || 0;
             const pc = pcManual > 0 ? pcManual : pcDetectado;
@@ -8186,16 +8314,70 @@ function mjPermisos(rol,modulo){ const M={
             const limiteBonif = (Number(anio) + 1) + '-02-28';
             if (saldo > 0 && man.fechaPago && man.fechaPago <= limiteBonif) {
                 const b = +(saldo * P.bonifPronto / 100).toFixed(2);
-                add('Menos: bonificación por pronto pago (' + P.bonifPronto + ' %)', -b, 'Declarar y pagar hasta el 28 de febrero de ' + (Number(anio) + 1));
+                add('Menos: bonificación por pronto pago (' + P.bonifPronto + ' %) — SOLO pronto pago', -b, 'Solo procede si declaras y pagas antes del 28 de febrero de ' + (Number(anio) + 1) + ', sobre el importe a pagar. Sin pago en ese término, no procede');
                 saldo -= b;
             }
             if (saldo > 0 && man.canalElectronico) {
                 const b = +(saldo * P.bonifElec / 100).toFixed(2);
-                add('Menos: bonificación por canales electrónicos (' + P.bonifElec + ' %)', -b, 'Pago por canal electrónico');
+                add('Menos: bonificación por canales electrónicos (' + P.bonifElec + ' %) — SOLO pago electrónico', -b, 'Solo procede si pagas esta DJ por canales electrónicos, sobre el importe a pagar (Res. 271/2024, Art. 7). Beneficio distinto del de pronto pago: cada uno exige su condición');
                 saldo -= b;
             }
             saldo = +saldo.toFixed(2);
             add(saldo >= 0 ? 'IMPORTE A PAGAR' : 'SALDO A FAVOR', saldo, 'DJ del socio por dividendos', 'total');
+            return { lineas: L, base: base, impuesto: esc.total, resultado: saldo };
+        }
+        /* Núcleo puro de la DJ-08 de GRATIFICACIONES (régimen propio,
+           planilla e Instructivo DJ-08 Gratificaciones): escala de 10
+           tramos (5 % → 50 %), gastos deducibles SOLO el 10 % de los
+           asociados a la actividad, mínimo exento SOLO si el contribuyente
+           no ejerce otra actividad (si la ejerce, el exento va en su
+           DJ-08 general y presenta 2 DJ) y conversión de la gratificación
+           en divisa a la tasa de cambio publicada por el BCC. Las
+           Secciones F, H e I no proceden en esta DJ. */
+        function djCoreGrat(datos, P, man, anio){
+            const L = [];
+            const add = (etiqueta, importe, origen, clase) => L.push({ etiqueta: etiqueta, importe: importe == null ? null : +Number(importe).toFixed(2), origen: origen || '', clase: clase || '' });
+            const g = man.grat || { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, fechaPago: '', canalElectronico: false };
+            let ingresos = datos.ingresos, origenIng = 'Movimientos operacionales del año (actividad de gratificaciones)';
+            if (g.divisa > 0 && g.tasaBCC > 0) {
+                ingresos = +(g.divisa * g.tasaBCC).toFixed(2);
+                origenIng = 'Gratificación en divisa convertida a la tasa del BCC: ' + moneda(g.divisa) + ' × ' + g.tasaBCC + ' = ' + moneda(ingresos);
+            }
+            add('Ingresos por gratificaciones del año', ingresos, origenIng);
+            let exento = 0;
+            if (g.sinOtraActividad) {
+                exento = P.exentoIIP;
+                add('Menos: mínimo exento', -exento, 'Procede porque NO ejerces otra actividad (Instructivo DJ-08 Gratificaciones)');
+            } else {
+                add('Menos: mínimo exento', 0, 'NO procede en esta DJ: si ejerces otra actividad, el exento se descuenta en tu DJ-08 general y debes presentar las 2 DJ');
+            }
+            const dedGastos = +(0.10 * (Number(datos.gastos) || 0)).toFixed(2);
+            add('Menos: gastos deducibles (10 % de los asociados a la actividad)', -dedGastos, 'Régimen de gratificaciones: solo se descuenta hasta el 10 % de los gastos asociados (planilla oficial); NO se aplica la regla general de justificación del 80 %');
+            const base = Math.max(0, ingresos - exento - dedGastos);
+            add('Base imponible', base, 'Ingresos − exento (si procede) − gastos (10 %)', 'subtotal');
+            const esc = djAplicarEscala(base, P.escalaGrat);
+            esc.detalle.forEach(d => add('Escala ' + d.tasa + ' % sobre ' + moneda(d.base), d.importe, 'Tramo ' + moneda(d.desde) + ' – ' + (isFinite(d.hasta) ? moneda(d.hasta) : 'en adelante')));
+            add('Impuesto determinado (escala de gratificaciones)', esc.total, 'Escala propia de 10 tramos: 5 % hasta 25 000 … 50 % en exceso', 'subtotal');
+            add('Menos: pagos a cuenta del IIP — fila 22 (NO son bonificación)', -datos.trib.anticipo_iip, 'Anticipos clasificados por código 0510122: minoran el impuesto, NO la base');
+            let saldo = esc.total - datos.trib.anticipo_iip;
+            if (g.retenciones > 0) {
+                add('Menos: retenciones acreditadas — fila 24', -g.retenciones, 'Retenciones practicadas por las entidades; se especifican en Observaciones de la DJ');
+                saldo -= g.retenciones;
+            }
+            const fPago = g.fechaPago || man.fechaPago || '', canal = g.canalElectronico || man.canalElectronico;
+            const limiteBonif = (Number(anio) + 1) + '-02-28';
+            if (saldo > 0 && fPago && fPago <= limiteBonif) {
+                const b = +(saldo * P.bonifPronto / 100).toFixed(2);
+                add('Menos: bonificación por pronto pago (' + P.bonifPronto + ' %) — SOLO pronto pago', -b, 'Solo procede si declaras y pagas antes del 28 de febrero de ' + (Number(anio) + 1) + ', sobre el importe a pagar');
+                saldo -= b;
+            }
+            if (saldo > 0 && canal) {
+                const b = +(saldo * P.bonifElec / 100).toFixed(2);
+                add('Menos: bonificación por canales electrónicos (' + P.bonifElec + ' %) — SOLO pago electrónico', -b, 'Solo procede si pagas esta DJ por canales electrónicos, sobre el importe a pagar (Res. 271/2024, Art. 7)');
+                saldo -= b;
+            }
+            saldo = +saldo.toFixed(2);
+            add(saldo >= 0 ? 'IMPORTE A PAGAR' : 'SALDO A FAVOR', saldo, 'DJ-08 de gratificaciones (actividad 877)', 'total');
             return { lineas: L, base: base, impuesto: esc.total, resultado: saldo };
         }
         /* Sección I de la DJ-08: solo meses con nómina guardada de verdad
@@ -8273,6 +8455,7 @@ function mjPermisos(rol,modulo){ const M={
                 document.getElementById('djParExentoDiv').value = P.exentoDiv;
                 document.getElementById('djParEscalaDiv').value = djEscalaTexto(P.escalaDiv);
                 document.getElementById('djParRetDiv').value = P.retencionDiv;
+                document.getElementById('djParEscalaGrat').value = djEscalaTexto(P.escalaGrat);
                 document.getElementById('djParFuenteVerif').value = P.fuenteVerif || '';
                 document.getElementById('djParFechaVerif').value = P.fechaVerif || '';
                 document.getElementById('djParVigenciaVerif').value = P.vigenciaVerif || '';
@@ -8289,8 +8472,15 @@ function mjPermisos(rol,modulo){ const M={
                 document.getElementById('djPC1').value = man.pagosCuenta[0] || '';
                 document.getElementById('djPC2').value = man.pagosCuenta[1] || '';
                 document.getElementById('djPC3').value = man.pagosCuenta[2] || '';
+                document.getElementById('djGratDivisa').value = man.grat.divisa || '';
+                document.getElementById('djGratTasa').value = man.grat.tasaBCC || '';
+                document.getElementById('djGratRet').value = man.grat.retenciones || '';
+                document.getElementById('djGratFechaPago').value = man.grat.fechaPago || '';
+                document.getElementById('djGratSinOtra').checked = !!man.grat.sinOtraActividad;
+                document.getElementById('djGratCanalElec').checked = !!man.grat.canalElectronico;
             }
             renderDJCalculo();
+            try { wireDjImport(); renderDjPresentadas(); } catch(e) {}
             if (!djWired) {
                 djWired = true;
                 sel.addEventListener('change', () => { djAnioSel = Number(sel.value); renderDJ(); });
@@ -8311,6 +8501,7 @@ function mjPermisos(rol,modulo){ const M={
                     P.exentoDiv = parseFloat(document.getElementById('djParExentoDiv').value);
                     P.escalaDiv = djParseEscala(document.getElementById('djParEscalaDiv').value, DJ_PARAMS_DEF.escalaDiv);
                     P.retencionDiv = parseFloat(document.getElementById('djParRetDiv').value);
+                    P.escalaGrat = djParseEscala(document.getElementById('djParEscalaGrat').value, DJ_PARAMS_DEF.escalaGrat);
                     P.fuenteVerif = document.getElementById('djParFuenteVerif').value.trim();
                     P.fechaVerif = document.getElementById('djParFechaVerif').value;
                     P.vigenciaVerif = document.getElementById('djParVigenciaVerif').value.trim();
@@ -8357,6 +8548,22 @@ function mjPermisos(rol,modulo){ const M={
                     socios.splice(Number(btn.dataset.socioDel), 1);
                     saveDJ(dd); renderDJCalculo();
                 });
+                const guardarGrat = () => {
+                    const dd = getDJ(); if (!dd.manual[djAnioSel]) dd.manual[djAnioSel] = {};
+                    dd.manual[djAnioSel].grat = {
+                        divisa: parseFloat(document.getElementById('djGratDivisa').value) || 0,
+                        tasaBCC: parseFloat(document.getElementById('djGratTasa').value) || 0,
+                        retenciones: parseFloat(document.getElementById('djGratRet').value) || 0,
+                        fechaPago: document.getElementById('djGratFechaPago').value,
+                        sinOtraActividad: document.getElementById('djGratSinOtra').checked,
+                        canalElectronico: document.getElementById('djGratCanalElec').checked
+                    };
+                    saveDJ(dd); renderDJCalculo();
+                };
+                ['djGratDivisa','djGratTasa','djGratRet','djGratFechaPago','djGratSinOtra','djGratCanalElec'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('change', guardarGrat);
+                });
             }
         }
         function renderDJCalculo(){
@@ -8364,8 +8571,10 @@ function mjPermisos(rol,modulo){ const M={
             const regimen = document.getElementById('djFichaRegimen').value || f.regimen || (getEntityType() === 'mipyme' ? 'mipyme' : 'tcp_general');
             const anio = Number(djAnioSel), P = djParamsAnio(anio), man = djManualAnio(anio), datos = djDatosAnio(anio);
             const esMipyme = regimen === 'mipyme';
-            document.getElementById('djCalcTCP').style.display = esMipyme ? 'none' : 'block';
+            const esGrat = regimen === 'tcp_gratificaciones';
+            document.getElementById('djCalcTCP').style.display = (esMipyme || esGrat) ? 'none' : 'block';
             document.getElementById('djCalcMIPYME').style.display = esMipyme ? 'block' : 'none';
+            document.getElementById('djCalcGRAT').style.display = esGrat ? 'block' : 'none';
             /* Avisos de plazo */
             const hoyStr = hoy();
             const mk = (fecha, txt) => {
@@ -8380,7 +8589,10 @@ function mjPermisos(rol,modulo){ const M={
             if (datos.trib.otros > 0) avisos += '<div class="alert alert-warning py-2 px-3 mb-2 small"><i class="bi bi-exclamation-triangle me-1"></i>Hay ' + moneda(datos.trib.otros) + ' en pagos ONAT sin categoría DJ identificada: no se incluyeron en el cálculo. Revísalos en Fiscal.</div>';
             if (datos.trib.liquidacion > 0) avisos += '<div class="alert alert-info py-2 px-3 mb-2 small"><i class="bi bi-info-circle me-1"></i>Pagos por liquidación anual detectados (' + moneda(datos.trib.liquidacion) + '): corresponden a la DJ de un año anterior y no entran en este cálculo.</div>';
             document.getElementById('djAvisos').innerHTML = avisos;
-            if (!esMipyme) {
+            if (esGrat) {
+                const rg = djCoreGrat(datos, P, man, anio);
+                document.getElementById('djLineasGRAT').innerHTML = djLineasHTML(rg.lineas);
+            } else if (!esMipyme) {
                 document.getElementById('djTituloTCP').textContent = regimen === 'tcp_simplificado' ? 'DJ-08 · Régimen simplificado (control)' : 'DJ-08 · Impuesto sobre Ingresos Personales';
                 let html = '';
                 if (regimen === 'tcp_simplificado' && datos.ingresos <= P.topeSimplificado) {
@@ -8415,6 +8627,569 @@ function mjPermisos(rol,modulo){ const M={
                 }
             }
         }
+        /* ===== IMPORTAR DJ (presentada) — espejo del Vector Fiscal =====
+           Subir la DJ oficial ya llenada (PDF o Excel), leerla sola,
+           validarla contra el negocio abierto y registrarla en su
+           expediente (slot dj, clave presentadas[]). Diseño:
+           DJ-IMPORT-DESIGN.md. Decisiones de Leonardo (2026-10-25):
+           PDF escaneado sin texto → registro manual con el archivo como
+           referencia; la importada manda como «presentada» y el cálculo
+           queda de contraste; guardado forzado con NIT distinto solo con
+           confirmación y marca en el registro. El lector se ancla en
+           ETIQUETAS de concepto, no en números de fila (la planilla PDF
+           y el Excel difieren: total 35 vs 36, F 43 vs 44, G 49 vs 50). */
+        let _xlsxCargando = null;
+        function cargarSheetJS(){
+            if (window.XLSX) return Promise.resolve(window.XLSX);
+            if (_xlsxCargando) return _xlsxCargando;
+            _xlsxCargando = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = () => res(window.XLSX); s.onerror = () => rej(new Error('CDN no disponible')); document.head.appendChild(s); });
+            return _xlsxCargando;
+        }
+        /* Extracción de líneas de un PDF con pdf.js, agrupadas por
+           coordenada Y (factorizado del importador del Vector). */
+        async function pdfLineasDe(file){
+            if (!window.pdfjsLib) throw new Error('sin-pdfjs');
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            const buf = await file.arrayBuffer(), pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise, lines = [];
+            for (let p = 1; p <= pdf.numPages; p++) {
+                const page = await pdf.getPage(p), tc = await page.getTextContent(), map = {};
+                for (const it of tc.items) { const y = Math.round(it.transform[5]); (map[y] || (map[y] = [])).push({ x: it.transform[4], s: it.str }); }
+                for (const y of Object.keys(map).map(Number).sort((a, b) => b - a)) { const line = map[y].sort((a, b) => a.x - b.x).map(x => x.s).join(' ').replace(/\s+/g, ' ').trim(); if (line) lines.push(line); }
+            }
+            return lines;
+        }
+        /* --- Utilidades de lectura de grids (arreglos de filas) --- */
+        function djNum(v){
+            if (v == null || v === '') return null;
+            if (typeof v === 'number') return isFinite(v) ? v : null;
+            let s = String(v).replace(/[\s$]/g, '');
+            if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '').replace(',', '.');
+            else s = s.replace(',', '.');
+            const n = parseFloat(s);
+            return isFinite(n) ? n : null;
+        }
+        function djTxt(v){ return v == null ? '' : String(v).trim(); }
+        function djRefCol(ref){ const m = /^([A-Z]+)/.exec(ref); let n = 0; for (const c of m[1]) n = n * 26 + (c.charCodeAt(0) - 64); return n - 1; }
+        function djRefFila(ref){ const m = /(\d+)$/.exec(ref); return parseInt(m[1], 10) - 1; }
+        function djCelda(grid, ref){ if (!grid) return null; const f = grid[djRefFila(ref)]; if (!f) return null; const v = f[djRefCol(ref)]; return (v === undefined || v === '') ? null : v; }
+        function djDerecha(grid, filaIdx, colDesde){
+            const f = (grid || [])[filaIdx]; if (!f) return null;
+            for (let c = colDesde; c < f.length; c++) { if (f[c] != null && String(f[c]).trim() !== '') return f[c]; }
+            return null;
+        }
+        function djTrasEtiqueta(grid, filaIdx, texto){
+            const f = (grid || [])[filaIdx] || [], t = normTxt(texto);
+            for (let c = 0; c < f.length; c++) { if (f[c] != null && normTxt(f[c]).indexOf(t) >= 0) { const d = djDerecha(grid, filaIdx, c + 1); return d == null ? '' : djTxt(d); } }
+            return '';
+        }
+        function djNombreFila(grid, filaIdx){
+            const f = (grid || [])[filaIdx] || [];
+            for (let c = 0; c < f.length; c++) {
+                const v = djTxt(f[c]); if (!v) continue;
+                if (/nombre/i.test(v)) {
+                    if (v.indexOf(':') >= 0) { const tras = v.split(':').slice(1).join(':').trim(); if (tras && tras.length > 2) return tras; }
+                    const d = djDerecha(grid, filaIdx, c + 1); if (d != null) return djTxt(d);
+                }
+            }
+            return '';
+        }
+        /* Mini-recálculo de la DJ-08 cuando el archivo trae fórmulas sin
+           valores en caché: recompone la cadena documentada del modelo
+           (A totales, F44, B14←F44, B20, G50, C21←G50, C26/C27, E y
+           carátula) desde las casillas de entrada. */
+        function djRecalcular08(doc){
+            const S = doc.secciones || {}; let rec = false;
+            const num = v => (v == null ? 0 : Number(v) || 0);
+            if (S.F && S.F[44] == null) { const t = [37, 38, 39, 40, 41, 42, 43].reduce((a, k) => a + num(S.F[k]), 0); if (t) { S.F[44] = +t.toFixed(2); rec = true; } }
+            if (S.B) {
+                if (S.B[14] == null && S.F && S.F[44] != null) { S.B[14] = S.F[44]; rec = true; }
+                if (S.B[11] == null && doc.totalesA && doc.totalesA.ingresos != null) { S.B[11] = doc.totalesA.ingresos; rec = true; }
+                if (S.B[13] == null && doc.totalesA && doc.totalesA.gastos != null) { S.B[13] = doc.totalesA.gastos; rec = true; }
+                if (S.B[20] == null && S.B[11] != null) { S.B[20] = +Math.max(0, num(S.B[11]) - num(S.B[12]) - num(S.B[13]) - num(S.B[14]) - num(S.B[15]) - num(S.B[16]) - num(S.B[17]) - num(S.B[18]) - num(S.B[19])).toFixed(2); rec = true; }
+            }
+            if (S.D) {
+                if (S.D[30] == null && S.D[28] != null && S.D[29] != null) { S.D[30] = +Math.max(0, num(S.D[28]) - num(S.D[29])).toFixed(2); rec = true; }
+                if (S.D[31] == null && S.D[28] != null && S.D[29] != null) { S.D[31] = +Math.max(0, num(S.D[29]) - num(S.D[28])).toFixed(2); rec = true; }
+            }
+            const G = doc.seccionG || {};
+            const totalFilaG = doc.gTotalFila || 50;
+            if (G[totalFilaG] == null) {
+                const defs = doc.gTramos || [];
+                const partes = defs.map(t => t.fila).filter(k => G[k] != null);
+                if (partes.length) { G[totalFilaG] = +partes.reduce((a, k) => a + num(G[k]), 0).toFixed(2); rec = true; }
+                else if (defs.length && S.B && S.B[20] != null) {
+                    /* Los importes por tramo también vienen como fórmula sin
+                       caché: se recompone la escala desde la base con los
+                       rangos (desde/hasta/tipo) impresos en el modelo. */
+                    let suma = 0;
+                    for (const t of defs) {
+                        const ancho = (t.hasta != null) ? Math.max(0, t.hasta - (t.desde || 0)) : Infinity;
+                        const b = Math.max(0, Math.min(num(S.B[20]) - (t.desde || 0), ancho));
+                        const imp = +(b * (num(t.tipo) / 100)).toFixed(2);
+                        t.base = b; t.importe = imp; G[t.fila] = imp; suma += imp;
+                    }
+                    G[totalFilaG] = +suma.toFixed(2); rec = true;
+                }
+                doc.seccionG = G;
+            }
+            if (S.C) {
+                if (S.C[21] == null && G[totalFilaG] != null) { S.C[21] = G[totalFilaG]; rec = true; }
+                if (S.C[26] == null && S.C[21] != null) {
+                    const bruto = num(S.C[21]) - num(S.C[22]) - num(S.C[23]) - num(S.C[24]) - num(S.C[25]);
+                    if (bruto >= 0) { S.C[26] = +bruto.toFixed(2); if (S.C[27] == null) S.C[27] = 0; }
+                    else { S.C[26] = 0; if (S.C[27] == null) S.C[27] = +(-bruto).toFixed(2); }
+                    rec = true;
+                }
+            }
+            if (S.E) {
+                if (S.E[32] == null) { const hayD = S.D && Object.values(S.D).some(v => v != null && v !== 0); S.E[32] = hayD ? num(S.D && S.D[30]) : num(S.C && S.C[26]); rec = true; }
+                if (S.E[36] == null && S.E[32] != null) { S.E[36] = +(num(S.E[32]) - num(S.E[33]) - num(S.E[34]) + num(S.E[35])).toFixed(2); rec = true; }
+            }
+            if (doc.totalPagarCaratula == null && S.E && S.E[36] != null) { doc.totalPagarCaratula = S.E[36]; rec = true; }
+            if (rec) doc.recalculado = true;
+            return doc;
+        }
+        function parseDjGrids(grids, fileName){
+            const nombres = Object.keys(grids || {});
+            const g1 = grids[nombres[0]] || [];
+            let esDiv = false;
+            for (let i = 0; i < Math.min(3, g1.length); i++) { if (((g1[i] || []).join(' ') || '').toUpperCase().indexOf('DIVIDENDOS') >= 0) { esDiv = true; break; } }
+            return esDiv ? parseDjDividendosGrids(grids, fileName) : parseDj08Grids(grids, fileName);
+        }
+        function parseDj08Grids(grids, fileName){
+            const nombres = Object.keys(grids || {});
+            const g1 = grids[nombres[0]] || [], g2 = grids[nombres[1]] || [], g3 = grids[nombres[2]] || [], g4 = grids[nombres[3]] || [];
+            const doc = { tipo: 'dj08', fuente: 'xlsx', archivoNombre: fileName || '', recalculado: false, avisos: [] };
+            doc.anio = djNum(djCelda(g1, 'A8'));
+            let nit = djDerecha(g1, 6, 5);
+            if (nit == null) nit = djTrasEtiqueta(g1, 6, 'NIT');
+            doc.nit = djTxt(nit).replace(/[^0-9]/g, '');
+            doc.ci = djTxt(djDerecha(g1, 7, 5)).replace(/[^0-9]/g, '');
+            doc.nombre = djNombreFila(g1, 8);
+            doc.municipio = djTrasEtiqueta(g1, 11, 'Municipio');
+            doc.provincia = djTrasEtiqueta(g1, 11, 'Provincia');
+            doc.telefono = djTrasEtiqueta(g1, 13, 'Teléfono') || djTrasEtiqueta(g1, 13, 'Telefono');
+            doc.correo = djTrasEtiqueta(g1, 13, 'Correo');
+            doc.codigoTributo = djTxt(djCelda(g1, 'G20')).replace(/[^0-9]/g, '') || '0530222';
+            doc.codigoBanco = djTxt(djCelda(g1, 'T20'));
+            doc.totalPagarCaratula = djNum(djCelda(g1, 'T22'));
+            /* Sección A: actividad en C(2), Desde M(12), Hasta O(14),
+               ingresos Q(16), gastos R(17); totales en la fila hoja 15. */
+            doc.actividades = [];
+            for (let i = 5; i <= 13; i++) {
+                const f = g2[i] || [], act = djTxt(f[2]);
+                if (!act) continue;
+                const mm = act.match(/^\s*(\d{1,4})\s*-\s*(.*)$/);
+                doc.actividades.push({ codigo: mm ? mm[1] : '', nombre: mm ? mm[2] : act, desde: djTxt(f[12]), hasta: djTxt(f[14]), ingresos: djNum(f[16]) || 0, gastos: djNum(f[17]) || 0 });
+            }
+            const totA = g2[14] || [];
+            doc.totalesA = { ingresos: djNum(totA[16]), gastos: djNum(totA[17]) };
+            /* Si la fila de totales trae la fórmula sin caché, se deriva
+               sumando las actividades leídas (casillas de entrada). */
+            if (doc.totalesA.ingresos == null && doc.actividades.length) doc.totalesA.ingresos = +doc.actividades.reduce((a, x) => a + (x.ingresos || 0), 0).toFixed(2);
+            if (doc.totalesA.gastos == null && doc.actividades.length) doc.totalesA.gastos = +doc.actividades.reduce((a, x) => a + (x.gastos || 0), 0).toFixed(2);
+            if (doc.actividades.some(a => a.codigo === '877')) doc.tipo = 'dj08_grat';
+            /* Secciones por NÚMERO DE FILA OFICIAL (columna T=19 en
+               Hoja2/Hoja3), importes en S=18. La fila 38 de la F no
+               tiene etiqueta en la plantilla: se captura por número. */
+            const leerFilas = (grid, desde, hasta) => { const o = {}; for (let i = 0; i < (grid || []).length; i++) { const f = grid[i] || [], nf = djNum(f[19]); if (nf != null && nf >= desde && nf <= hasta) o[nf] = djNum(f[18]); } return o; };
+            doc.secciones = { B: leerFilas(g2, 11, 20), C: leerFilas(g2, 21, 27), D: leerFilas(g2, 28, 31), E: leerFilas(g2, 32, 36), F: leerFilas(g3, 37, 44) };
+            doc.seccionG = leerFilas(g3, 45, 55);
+            /* Definiciones de tramos de la Sección G impresas en el modelo
+               (desde C=2, hasta F=5, base H=7, tipo P=15): en Gratificaciones
+               son 10 tramos (45–54) y el total es la fila 55; en la DJ-08
+               normal, 5 tramos (45–49) y total en la fila 50. */
+            doc.gTotalFila = (doc.tipo === 'dj08_grat') ? 55 : 50;
+            doc.gTramos = [];
+            for (let i = 0; i < g3.length; i++) { const f = g3[i] || [], nf = djNum(f[19]); if (nf != null && nf >= 45 && nf < doc.gTotalFila && djNum(f[15]) != null) doc.gTramos.push({ fila: nf, desde: djNum(f[2]), hasta: djNum(f[5]), tipo: djNum(f[15]), base: djNum(f[7]), importe: djNum(f[18]) }); }
+            doc.seccionFEtiquetas = {};
+            for (let i = 0; i < g3.length; i++) { const f = g3[i] || [], nf = djNum(f[19]); if (nf != null && nf >= 37 && nf <= 44) doc.seccionFEtiquetas[nf] = djTxt(f[2]); }
+            /* Sección I (Hoja4): C actividad(2), F nombre(5), K/M
+               período(10/12), O municipio(14), Q NIT(16), AB salario(27). */
+            doc.trabajadores = [];
+            for (let i = 6; i < Math.min(g4.length, 24); i++) {
+                const f = g4[i] || [], nom = djTxt(f[5]);
+                if (!nom) continue;
+                doc.trabajadores.push({ nombre: nom, nit: djTxt(f[16]).replace(/[^0-9]/g, ''), municipio: djTxt(f[14]), periodo: (djTxt(f[10]) + ' – ' + djTxt(f[12])).replace(/^\s*–\s*$/, ''), salario: djNum(f[27]) || 0 });
+            }
+            doc.trabajadoresTotal = djNum((g4[24] || [])[27]);
+            const dVals = Object.values(doc.secciones.D || {}).some(v => v != null && v !== 0);
+            /* Marca oficial de rectificación: «x» en Hoja1!T8 — la lee la
+               propia fórmula del modelo (Hoja2!S46 = IF(Hoja1!T8="x",…)). */
+            let marcaRect = false;
+            const f8 = g1[7] || [];
+            for (let c = 19; c < f8.length; c++) if (djTxt(f8[c]).toUpperCase() === 'X') marcaRect = true;
+            doc.rectificada = !!(marcaRect || dVals);
+            djRecalcular08(doc);
+            const B = doc.secciones.B, C = doc.secciones.C, E = doc.secciones.E, F = doc.secciones.F;
+            doc.totales = {
+                ingresos: (B[11] != null ? B[11] : doc.totalesA.ingresos) || 0,
+                gastos: (B[13] != null ? B[13] : doc.totalesA.gastos) || 0,
+                base: B[20] || 0,
+                impuesto: (C[21] != null ? C[21] : doc.seccionG[doc.gTotalFila || 50]) || 0,
+                totalPagar: (E[36] != null ? E[36] : doc.totalPagarCaratula) || 0,
+                aDevolver: C[27] || 0,
+                tributosF: F[44] || 0,
+                impuestoEscala: doc.seccionG[doc.gTotalFila || 50] || 0
+            };
+            /* Controles de cordura (ámbar, no bloquean: manda el documento) */
+            if (doc.totalPagarCaratula != null && E[36] != null && Math.abs(doc.totalPagarCaratula - E[36]) > 0.01) doc.avisos.push('El TOTAL A PAGAR de la carátula (' + moneda(doc.totalPagarCaratula) + ') no coincide con el de la Sección E (' + moneda(E[36]) + ').');
+            if (B[11] != null && doc.totalesA.ingresos != null && Math.abs(B[11] - doc.totalesA.ingresos) > 0.01) doc.avisos.push('Los ingresos de la Sección B (' + moneda(B[11]) + ') no coinciden con el total de la Sección A (' + moneda(doc.totalesA.ingresos) + ').');
+            return doc;
+        }
+        function parseDjDividendosGrids(grids, fileName){
+            const nombres = Object.keys(grids || {});
+            const g1 = grids[nombres[0]] || [];
+            const doc = { tipo: 'dividendos', fuente: 'xlsx', archivoNombre: fileName || '', recalculado: false, avisos: [], actividades: [], trabajadores: [] };
+            doc.anio = djNum(djCelda(g1, 'A7'));
+            doc.nit = djTxt(djDerecha(g1, 5, 5)).replace(/[^0-9]/g, '');
+            doc.nombre = djNombreFila(g1, 7);
+            doc.nombreMipyme = djTrasEtiqueta(g1, 5, 'MIPYME') || djTxt(djDerecha(g1, 5, 20));
+            doc.municipio = '', doc.provincia = '';
+            doc.codigoTributo = djTxt(djCelda(g1, 'G16')).replace(/[^0-9]/g, '') || '0530222';
+            doc.codigoBanco = djTxt(djCelda(g1, 'T16'));
+            /* Determinación: importes en S(18), fila oficial en V(21). */
+            const det = {};
+            for (let i = 0; i < g1.length; i++) { const f = g1[i] || [], nf = djNum(f[21]); if (nf != null && nf >= 1 && nf <= 12) det[nf] = djNum(f[18]); }
+            if (det[3] == null && det[1] != null) { det[3] = Math.max(0, (det[1] || 0) - (det[2] || 0)); doc.recalculado = true; }
+            /* Filas 4–8: tramos de la escala impresos en el propio modelo
+               (desde C=2, hasta F=5, tipo P=15); la fila 9 es su total. */
+            const divTramos = [];
+            for (let i = 0; i < g1.length; i++) { const f = g1[i] || [], nf = djNum(f[21]); if (nf != null && nf >= 4 && nf <= 8 && djNum(f[15]) != null) divTramos.push({ fila: nf, desde: djNum(f[2]), hasta: djNum(f[5]), tipo: djNum(f[15]) }); }
+            if (det[9] == null && det[3] != null && divTramos.length) { let suma = 0; for (const t of divTramos) { const ancho = (t.hasta != null) ? Math.max(0, t.hasta - (t.desde || 0)) : Infinity; const b = Math.max(0, Math.min(det[3] - (t.desde || 0), ancho)); suma += b * (t.tipo / 100); } det[9] = +suma.toFixed(2); doc.recalculado = true; }
+            if (det[10] == null && det[9] != null) { det[10] = det[9]; doc.recalculado = true; }
+            if (det[10] == null && det[3] != null) { det[10] = djAplicarEscala(det[3], DJ_PARAMS_DEF.escalaDiv).total; doc.recalculado = true; }
+            if (det[12] == null && det[10] != null) { det[12] = +((det[10] || 0) - (det[11] || 0)).toFixed(2); doc.recalculado = true; }
+            doc.detalleDiv = det;
+            let total = djNum(djCelda(g1, 'T18'));
+            if (total == null && det[12] != null) { total = det[12]; doc.recalculado = true; }
+            doc.totalPagarCaratula = total;
+            doc.totales = { ingresos: det[1] || 0, gastos: 0, base: det[3] || 0, impuesto: det[10] || 0, totalPagar: total || 0, aDevolver: 0, tributosF: 0, impuestoEscala: det[10] || 0 };
+            doc.retencionesDiv = det[11] || 0;
+            return doc;
+        }
+        /* Parser del PDF de la planilla: alcance reducido (identidad,
+           año, código y totales por ETIQUETA de concepto). Los valores
+           llenados a mano no son legibles; sin capa de texto no hay
+           lectura posible (sin OCR) → registro manual. */
+        function parseDjPdfLines(lines, fileName){
+            const L = (lines || []).map(x => String(x || '').replace(/\s+/g, ' ').trim()).filter(Boolean);
+            const full = L.join('\n');
+            const doc = { tipo: 'dj08', fuente: 'pdf', archivoNombre: fileName || '', recalculado: false, avisos: [], actividades: [], trabajadores: [], secciones: null };
+            const anioM = full.match(/Liquidaci[oó]n a[nñ]o\s*(\d{4})/i) || full.match(/A[nñ]o fiscal\D{0,12}(\d{4})/i);
+            doc.anio = anioM ? parseInt(anioM[1], 10) : null;
+            if (doc.anio == null) { /* En la planilla impresa el año va en su propia casilla, unas líneas bajo «Liquidación año». */
+                for (let i = 0; i < Math.min(12, L.length); i++) { const ym = L[i].match(/\b(19|20)\d{2}\b/); if (ym) { doc.anio = parseInt(ym[0], 10); break; } }
+            }
+            doc.nit = '', doc.ci = '', doc.nombre = '', doc.municipio = '', doc.provincia = '';
+            for (let i = 0; i < L.length; i++) {
+                if (/\bNIT\b/.test(L[i])) {
+                    const digs = (L[i].match(/\d/g) || []).join('');
+                    if (digs.length >= 11) doc.nit = digs.slice(0, 11);
+                    else { const sig = (L[i + 1] || '').replace(/\D/g, ''); if (sig.length >= 11) doc.nit = sig.slice(0, 11); }
+                    if (doc.nit) break;
+                }
+            }
+            for (let i = 0; i < L.length; i++) {
+                if (/Nombre \(s\) y apellidos/i.test(L[i])) {
+                    const partes = L[i].split(':');
+                    doc.nombre = (partes.length > 1 && partes.slice(1).join(':').trim().length > 2) ? partes.slice(1).join(':').trim() : (L[i + 1] || '');
+                    break;
+                }
+            }
+            doc.nombre = (doc.nombre || '').trim();
+            if (doc.nombre && !/[A-Za-zÁÉÍÓÚÑáéíóúñ]{3,}/.test(doc.nombre)) doc.nombre = ''; /* ruido de casillas, no un nombre */
+            const plano = full.replace(/(\d)\s+(?=\d)/g, '$1');
+            doc.codigoTributo = /0530222/.test(plano) ? '0530222' : '';
+            const barra = full.match(/RC-04A\D*(\d{6,})/i);
+            if (barra) doc.codigoBarraVector = barra[1];
+            if (/gratificaciones/i.test(full)) doc.tipo = 'dj08_grat';
+            const importeLinea = (re) => { for (const ln of L) { if (re.test(ln)) { if (/\(fila/i.test(ln)) continue; /* línea del instructivo con la fórmula «(fila 32 – fila 33…)»: no es la casilla */ const limpia = ln.replace(/fila\s*\d+/gi, ''); const nums = limpia.match(/-?\d{1,3}(?:[ .]\d{3})+(?:,\d{1,2})?|-?\d+(?:,\d{1,2})?/g); if (nums && nums.length) { const v = djNum(nums[nums.length - 1]); if (v != null && Math.abs(v) >= 100) return v; } } } return null; }; /* <100 = nº de fila de la anotación, no un importe */
+            const totalPagar = importeLinea(/TOTAL,?\s*A PAGAR/i);
+            const base = importeLinea(/Base Imponible/i);
+            const impPagar = importeLinea(/Impuesto a pagar/i);
+            doc.totales = { ingresos: 0, gastos: 0, base: base || 0, impuesto: 0, totalPagar: (totalPagar != null ? totalPagar : (impPagar || 0)), aDevolver: 0, tributosF: 0, impuestoEscala: 0 };
+            doc.totalPagarCaratula = totalPagar;
+            if (!doc.nit && !doc.nombre && !totalPagar && !doc.codigoTributo) doc.sinTextoUtil = true;
+            return doc;
+        }
+        /* --- Validación de correspondencia con el actor (el negocio
+           cuyo espacio está abierto) --- */
+        function djActorActual(){
+            let f = {}, vf = null;
+            try { f = (getDJ().ficha || {}); } catch (e) {}
+            try { vf = getFiscal(); } catch (e) {}
+            return {
+                nitFicha: (f.nit || '').replace(/[^0-9]/g, ''), nombreFicha: f.nombre || '',
+                nitVector: (vf && vf.meta && vf.meta.nit || '').replace(/[^0-9]/g, ''), razonVector: (vf && vf.meta && vf.meta.razon) || ''
+            };
+        }
+        function djNombreCoincide(a, b){
+            const na = normTxt(a), nb = normTxt(b);
+            if (!na || !nb) return null;
+            if (na.indexOf(nb) >= 0 || nb.indexOf(na) >= 0) return true;
+            const toks = s => new Set(s.toLowerCase().split(/[^a-záéíóúñü]+/i).filter(w => w.length > 2));
+            const pa = toks(na), pb = toks(nb);
+            if (!pa.size || !pb.size) return false;
+            let comunes = 0; pa.forEach(w => { if (pb.has(w)) comunes++; });
+            return (comunes / Math.max(pa.size, pb.size)) >= 0.8;
+        }
+        function validarActorDoc(doc, actor){
+            actor = actor || djActorActual();
+            const refs = [];
+            if (actor.nitFicha) refs.push({ nit: actor.nitFicha, nombre: actor.nombreFicha, fuente: 'la ficha fiscal' });
+            if (actor.nitVector) refs.push({ nit: actor.nitVector, nombre: actor.razonVector, fuente: 'el Vector Fiscal' });
+            const nombresRef = [actor.nombreFicha, actor.razonVector].filter(Boolean);
+            const nitDoc = (doc.nit || '').replace(/[^0-9]/g, ''), ciDoc = (doc.ci || '').replace(/[^0-9]/g, '');
+            const res = { nivel: 'ok', mensajes: [] };
+            if (!refs.length) {
+                if (nitDoc) { res.nivel = 'info'; res.mensajes.push('Este negocio aún no tiene identidad fiscal registrada: al guardar, la ficha se completa desde este documento.'); }
+                else { res.nivel = 'sin-nit'; res.mensajes.push('Este negocio no tiene identidad previa y el documento no trae NIT legible: quedará registrado «sin verificar».'); }
+                return res;
+            }
+            if (doc.tipo === 'dividendos') {
+                const mipymeOk = doc.nombreMipyme ? nombresRef.some(nr => djNombreCoincide(doc.nombreMipyme, nr) === true) : false;
+                const socioOk = !!nitDoc && refs.some(r => r.nit === nitDoc);
+                if (mipymeOk || socioOk) { res.nivel = 'ok'; res.mensajes.push(mipymeOk ? 'La MIPYME del documento coincide con este negocio; el socio queda registrado como contraparte.' : 'El socio del documento coincide con la identidad de este negocio.'); return res; }
+                if (!nitDoc && !doc.nombreMipyme) { res.nivel = 'sin-nit'; res.mensajes.push('El documento no trae identidad legible del socio ni de la MIPYME: quedará «sin verificar».'); return res; }
+                res.nivel = 'bloqueo'; res.mensajes.push('Ni el socio (NIT ' + (nitDoc || '—') + ') ni la MIPYME («' + (doc.nombreMipyme || '—') + '») coinciden con este negocio. No se guarda salvo forzado explícito.');
+                return res;
+            }
+            if (!nitDoc) { res.nivel = 'sin-nit'; res.mensajes.push('El documento no trae NIT legible: puedes teclearlo en la vista previa para validar, o guardar marcado «sin verificar» (nunca se marcará como verificado).'); return res; }
+            const nitOk = refs.some(r => r.nit === nitDoc || (ciDoc && r.nit === ciDoc));
+            let nombreOk = null;
+            if (doc.nombre) { for (const nr of nombresRef) { const c = djNombreCoincide(doc.nombre, nr); if (c === true) { nombreOk = true; break; } if (c === false) nombreOk = false; } }
+            if (nitOk && nombreOk !== false) { res.nivel = 'ok'; res.mensajes.push('Corresponde a este negocio: el NIT coincide con ' + refs.filter(r => r.nit === nitDoc || (ciDoc && r.nit === ciDoc)).map(r => r.fuente).join(' y ') + '.'); return res; }
+            if (nitOk && nombreOk === false) { res.nivel = 'aviso'; res.mensajes.push('El NIT coincide, pero el nombre del documento («' + doc.nombre + '») difiere mucho del registrado («' + (nombresRef[0] || '') + '»). Revisa antes de guardar: guardar exige confirmación y quedará marcado.'); return res; }
+            if (nombreOk === true) { res.nivel = 'aviso'; res.mensajes.push('El nombre coincide, pero el NIT del documento (' + nitDoc + ') difiere del registrado (' + refs.map(r => r.nit).join(' / ') + '). Guardar exige confirmación y quedará marcado.'); return res; }
+            res.nivel = 'bloqueo';
+            res.mensajes.push('El NIT del documento (' + nitDoc + ') NO coincide con el de este negocio (' + refs.map(r => r.nit + ' · ' + r.fuente).join('; ') + '). No se guarda salvo forzado explícito, que quedará registrado.');
+            return res;
+        }
+        /* --- Expediente: guardar y pintar las DJ presentadas --- */
+        function djTipoNombre(t){ return { dj08: 'DJ-08', dj08_grat: 'DJ-08 · Gratificaciones', dividendos: 'DJ Dividendos de socios' }[t] || t; }
+        function guardarDjPresentada(doc, validacion){
+            const d = getDJ();
+            if (!Array.isArray(d.presentadas)) d.presentadas = [];
+            const rec = {
+                id: 'djp_' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36),
+                tipo: doc.tipo, anio: doc.anio || Number(djAnioSel) || (new Date().getFullYear() - 1),
+                rectificada: !!doc.rectificada,
+                nit: doc.nit || '', nombre: doc.nombre || '', ci: doc.ci || '',
+                municipio: doc.municipio || '', provincia: doc.provincia || '',
+                nombreMipyme: doc.nombreMipyme || '',
+                socioNit: doc.tipo === 'dividendos' ? (doc.nit || '') : '', socioNombre: doc.tipo === 'dividendos' ? (doc.nombre || '') : '',
+                actividades: doc.actividades || [], trabajadores: doc.trabajadores || [],
+                totales: doc.totales || {}, secciones: doc.secciones || null, detalleDiv: doc.detalleDiv || null,
+                codigoTributo: doc.codigoTributo || '0530222', codigoBanco: doc.codigoBanco || '',
+                archivo: { nombre: doc.archivoNombre || '', formato: doc.fuente || '' },
+                importadaEn: new Date().toISOString(), origen: 'Importar DJ',
+                validacion: validacion, recalculado: !!doc.recalculado, manual: !!doc.manual
+            };
+            d.presentadas.forEach(p => { if (p.tipo === rec.tipo && Number(p.anio) === Number(rec.anio) && !p.sustituidaPor) p.sustituidaPor = rec.id; });
+            d.presentadas.push(rec);
+            let fichaNueva = false;
+            if (rec.tipo === 'dividendos' && rec.nombreMipyme) { if (!d.ficha.nombre) { d.ficha.nombre = rec.nombreMipyme; fichaNueva = true; } }
+            else {
+                if (!d.ficha.nit && rec.nit) { d.ficha.nit = rec.nit; fichaNueva = true; }
+                if (!d.ficha.nombre && rec.nombre) { d.ficha.nombre = rec.nombre; fichaNueva = true; }
+            }
+            if (!d.ficha.municipio && rec.municipio) { d.ficha.municipio = rec.municipio; fichaNueva = true; }
+            saveDJ(d);
+            return { rec: rec, fichaNueva: fichaNueva };
+        }
+        function djPresentadaContraste(p){
+            try {
+                const anio = Number(p.anio), P = djParamsAnio(anio), man = djManualAnio(anio);
+                if (p.tipo === 'dividendos') {
+                    const socios = man.socios || [];
+                    const s = socios.find(x => (x.nit || '') === (p.socioNit || p.nit || '')) || socios[0];
+                    return s ? djCoreDiv(s, P, man, anio).resultado : null;
+                }
+                if (p.tipo === 'dj08_grat') return djCoreGrat(djDatosAnio(anio), P, man, anio).resultado;
+                return djCore08(djDatosAnio(anio), P, man, anio).resultado;
+            } catch (e) { return null; }
+        }
+        function djPresentadaPagoVector(p){
+            try {
+                const f = getFiscal();
+                const obs = (f.obligaciones || []).filter(o => codigoAporteNorm(o.codigo || '') === '0530222');
+                if (!obs.length) return null;
+                let pagado = 0;
+                obs.forEach(o => { pagado += pagosObligacion(o.id); });
+                return { pagado: pagado };
+            } catch (e) { return null; }
+        }
+        function renderDjPresentadas(){
+            const box = document.getElementById('djPresentadasBox'); if (!box) return;
+            const d = getDJ(), lista = (d.presentadas || []).slice().sort((a, b) => String(b.importadaEn).localeCompare(String(a.importadaEn)));
+            const badge = document.getElementById('djImportBadge');
+            if (badge) { const ult = lista.find(p => !p.sustituidaPor); badge.textContent = ult ? (djTipoNombre(ult.tipo) + ' ' + ult.anio + ' · registrada') : 'Sin DJ importada'; }
+            const cnt = document.getElementById('djPresentadasCount'); if (cnt) cnt.textContent = lista.length;
+            const vacio = document.getElementById('djPresentadasVacio'); if (vacio) vacio.style.display = lista.length ? 'none' : 'block';
+            box.innerHTML = lista.map(p => {
+                const vigente = !p.sustituidaPor;
+                const calc = vigente ? djPresentadaContraste(p) : null;
+                const totP = Number(p.totales && p.totales.totalPagar || 0);
+                const dif = (calc != null) ? +(totP - Number(calc)).toFixed(2) : null;
+                const pv = vigente ? djPresentadaPagoVector(p) : null;
+                const estadoPago = !pv ? '<span class="badge bg-soft-secondary">sin obligación 0530222 en el Vector</span>' : (totP > 0 && pv.pagado >= totP ? '<span class="badge bg-success">pagada según movimientos</span>' : '<span class="badge bg-warning text-dark">pendiente de pago</span>');
+                const valBadge = p.validacion === 'ok' ? '<span class="badge bg-success">validada</span>' : (p.validacion === 'forzada' ? '<span class="badge bg-danger">guardada forzada</span>' : '<span class="badge bg-warning text-dark">sin verificar</span>');
+                return '<div class="border rounded p-3 mb-2' + (vigente ? '' : ' opacity-50') + '">' +
+                    '<div class="d-flex justify-content-between flex-wrap gap-2"><div><b>' + esc(djTipoNombre(p.tipo)) + ' · ' + esc(p.anio) + '</b>' + (p.rectificada ? ' <span class="badge bg-info text-dark">rectificada</span>' : '') + (vigente ? '' : ' <span class="badge bg-secondary">sustituida</span>') + ' ' + valBadge + '</div>' +
+                    '<div class="text-end"><b>' + moneda(totP) + '</b> <span class="small text-secondary">a pagar</span></div></div>' +
+                    '<div class="small text-secondary mt-1">' + esc(p.nombre || '—') + ' · NIT ' + esc(p.nit || '—') + (p.nombreMipyme ? ' · MIPYME: ' + esc(p.nombreMipyme) : '') + ' · Archivo: ' + esc((p.archivo && p.archivo.nombre) || '—') + ' · Importada: ' + esc(String(p.importadaEn || '').slice(0, 10)) + (p.recalculado ? ' · totales recalculados por la app' : '') + (p.manual ? ' · registro manual' : '') + '</div>' +
+                    (vigente ? '<div class="small mt-1">' + estadoPago + (calc != null ? ' <span class="ms-2">Calculada por la app: <b>' + moneda(calc) + '</b>' + (dif !== null && dif !== 0 ? ' · <span class="text-warning fw-semibold">Diferencia: ' + moneda(dif) + '</span>' : ' · sin diferencia') + '</span>' : '') + '</div>' : '') +
+                    '<div class="mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" data-djp-detalle="' + esc(p.id) + '">Ver detalle</button></div>' +
+                '</div>';
+            }).join('');
+            box.querySelectorAll('[data-djp-detalle]').forEach(b => b.addEventListener('click', () => mostrarDjPresentadaDetalle(b.dataset.djpDetalle)));
+        }
+        function mostrarDjPresentadaDetalle(id){
+            const d = getDJ(), p = (d.presentadas || []).find(x => x.id === id); if (!p) return;
+            const t = p.totales || {};
+            const filas = [
+                ['Tipo', djTipoNombre(p.tipo)], ['Año fiscal', p.anio], ['Rectificada', p.rectificada ? 'Sí' : 'No'],
+                ['Contribuyente', p.nombre || '—'], ['NIT', p.nit || '—'], ['Municipio', p.municipio || '—'],
+                ['Ingresos', moneda(t.ingresos || 0)], ['Gastos', moneda(t.gastos || 0)],
+                ['Base imponible', moneda(t.base || 0)], ['Impuesto', moneda(t.impuesto || 0)],
+                ['TOTAL A PAGAR', moneda(t.totalPagar || 0)], ['A devolver', moneda(t.aDevolver || 0)],
+                ['Validación contra el negocio', p.validacion], ['Archivo de referencia', (p.archivo && p.archivo.nombre) || '—'], ['Importada el', p.importadaEn || '']
+            ];
+            document.getElementById('djImportBody').innerHTML = '<h6 class="fw-semibold">Detalle de la DJ importada (presentada)</h6>' + filas.map(f => '<div class="aporte-line"><span>' + esc(f[0]) + '</span><b>' + esc(f[1]) + '</b></div>').join('') +
+                ((p.actividades && p.actividades.length) ? '<h6 class="fw-semibold mt-3">Sección A · Actividades</h6>' + p.actividades.map(a => '<div class="aporte-line"><span>' + esc((a.codigo ? a.codigo + ' - ' : '') + (a.nombre || '')) + '</span><b>' + moneda(a.ingresos || 0) + '</b></div>').join('') : '') +
+                ((p.trabajadores && p.trabajadores.length) ? '<h6 class="fw-semibold mt-3">Sección I · Trabajadores contratados</h6>' + p.trabajadores.map(w => '<div class="aporte-line"><span>' + esc(w.nombre || '') + '</span><b>' + moneda(w.salario || 0) + '</b></div>').join('') : '');
+            document.getElementById('btnDjImportGuardar').style.display = 'none';
+            new bootstrap.Modal(document.getElementById('djImportModal')).show();
+        }
+        /* --- Flujo de importación: archivo → vista previa → guardar --- */
+        let djImportPendiente = null, djImportWired = false;
+        async function importarDjArchivo(file){
+            if (!file) return;
+            const nombre = file.name || '';
+            if (/\.xlsx$/i.test(nombre)) {
+                let XLSX;
+                try { XLSX = await cargarSheetJS(); } catch (e) { alert('Sin conexión para cargar el lector de Excel (SheetJS). Inténtalo con conexión o registra la DJ manualmente.'); return; }
+                try {
+                    const buf = await file.arrayBuffer();
+                    const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+                    const grids = {};
+                    wb.SheetNames.forEach(n => { grids[n] = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, defval: null }); });
+                    abrirDjImportPreview(parseDjGrids(grids, nombre));
+                } catch (e) { console.error(e); alert('No se pudo leer ese Excel. Verifica que sea el modelo oficial de la DJ de la ONAT.'); }
+                return;
+            }
+            if (/\.pdf$/i.test(nombre)) {
+                if (!window.pdfjsLib) { alert('No se pudo cargar el lector PDF. Revisa la conexión a Internet.'); return; }
+                try {
+                    const lines = await pdfLineasDe(file);
+                    const doc = parseDjPdfLines(lines, nombre);
+                    if (doc.sinTextoUtil || lines.length < 5) { abrirDjRegistroManual(nombre); return; }
+                    abrirDjImportPreview(doc);
+                } catch (e) { console.error(e); alert('No se pudo leer ese PDF.'); }
+                return;
+            }
+            alert('Formato no admitido: sube el PDF o el Excel (.xlsx) del modelo oficial de la DJ.');
+        }
+        function abrirDjImportPreview(doc){
+            djImportPendiente = { doc: doc, manual: false };
+            pintarDjImportPreview();
+            document.getElementById('btnDjImportGuardar').style.display = '';
+            new bootstrap.Modal(document.getElementById('djImportModal')).show();
+        }
+        function pintarDjImportPreview(){
+            const doc = djImportPendiente.doc;
+            const val = validarActorDoc(doc);
+            djImportPendiente.validacion = val;
+            const colores = { ok: 'alert-success', info: 'alert-info', aviso: 'alert-warning', 'sin-nit': 'alert-warning', bloqueo: 'alert-danger' };
+            const iconos = { ok: '✅', info: 'ℹ️', aviso: '⚠️', 'sin-nit': '⚠️', bloqueo: '⛔' };
+            let h = '<div class="alert ' + (colores[val.nivel] || 'alert-secondary') + ' py-2 px-3 small mb-3">' + (iconos[val.nivel] || '') + ' ' + val.mensajes.map(esc).join('<br>') + '</div>';
+            if (doc.anio && Number(doc.anio) !== Number(djAnioSel)) h += '<div class="alert alert-warning py-2 px-3 small">El documento es del año <b>' + esc(doc.anio) + '</b> y la pestaña muestra ' + esc(djAnioSel) + ': se guardará bajo el año del documento.</div>';
+            if (doc.recalculado) h += '<div class="alert alert-info py-2 px-3 small">El archivo traía fórmulas sin valores guardados: la app recalculó los totales desde las casillas de entrada.</div>';
+            (doc.avisos || []).forEach(a => { h += '<div class="alert alert-warning py-2 px-3 small">⚠️ ' + esc(a) + '</div>'; });
+            h += '<h6 class="fw-semibold">Identidad leída del documento</h6>';
+            h += '<div class="aporte-line"><span>Tipo</span><b>' + esc(djTipoNombre(doc.tipo)) + (doc.rectificada ? ' · rectificada' : '') + '</b></div>';
+            h += '<div class="aporte-line"><span>Año fiscal</span><b>' + esc(doc.anio || '—') + '</b></div>';
+            h += '<div class="aporte-line"><span>Nombre</span><b>' + esc(doc.nombre || '—') + '</b></div>';
+            if (doc.tipo === 'dividendos') h += '<div class="aporte-line"><span>MIPYME</span><b>' + esc(doc.nombreMipyme || '—') + '</b></div>';
+            h += '<div class="aporte-line"><span>NIT</span><b>' + esc(doc.nit || '—') + '</b></div>';
+            if (doc.municipio) h += '<div class="aporte-line"><span>Municipio</span><b>' + esc(doc.municipio) + '</b></div>';
+            if (val.nivel === 'sin-nit') h += '<div class="row g-2 mt-2"><div class="col-md-6"><label class="form-label small mb-1">NIT (tecléalo para validar contra este negocio)</label><input id="djImportNitManual" class="form-control form-control-sm" inputmode="numeric"></div></div>';
+            h += '<h6 class="fw-semibold mt-3">Importes clave</h6>';
+            const t = doc.totales || {};
+            h += '<div class="aporte-line"><span>Ingresos</span><b>' + moneda(t.ingresos || 0) + '</b></div>';
+            h += '<div class="aporte-line"><span>Gastos</span><b>' + moneda(t.gastos || 0) + '</b></div>';
+            h += '<div class="aporte-line"><span>Base imponible</span><b>' + moneda(t.base || 0) + '</b></div>';
+            h += '<div class="aporte-line"><span>Impuesto</span><b>' + moneda(t.impuesto || 0) + '</b></div>';
+            h += '<div class="aporte-line"><span><b>TOTAL A PAGAR</b></span><b>' + moneda(t.totalPagar || 0) + '</b></div>';
+            if (t.aDevolver) h += '<div class="aporte-line"><span>A devolver</span><b>' + moneda(t.aDevolver) + '</b></div>';
+            if ((doc.actividades || []).length) h += '<h6 class="fw-semibold mt-3">Sección A · Actividades</h6>' + doc.actividades.map(a => '<div class="aporte-line"><span>' + esc((a.codigo ? a.codigo + ' - ' : '') + (a.nombre || '')) + '</span><b>' + moneda(a.ingresos || 0) + '</b></div>').join('');
+            if (val.nivel === 'bloqueo' || val.nivel === 'aviso') h += '<div class="form-check mt-3"><input class="form-check-input" type="checkbox" id="djImportForzar"><label class="form-check-label small" for="djImportForzar">Sé que este documento puede ser de otro contribuyente o que hay un error en la ficha; guardar de todas formas (quedará registrado como forzado).</label></div>';
+            document.getElementById('djImportBody').innerHTML = h;
+            const nm = document.getElementById('djImportNitManual');
+            if (nm) nm.addEventListener('change', () => { doc.nit = nm.value.replace(/[^0-9]/g, ''); pintarDjImportPreview(); });
+            const fz = document.getElementById('djImportForzar');
+            if (fz) fz.addEventListener('change', actualizarBtnDjImportGuardar);
+            actualizarBtnDjImportGuardar();
+        }
+        function actualizarBtnDjImportGuardar(){
+            const btn = document.getElementById('btnDjImportGuardar');
+            if (!btn || !djImportPendiente || djImportPendiente.manual) return;
+            const nivel = djImportPendiente.validacion && djImportPendiente.validacion.nivel;
+            const fz = document.getElementById('djImportForzar');
+            btn.disabled = (nivel === 'bloqueo' || nivel === 'aviso') && !(fz && fz.checked);
+        }
+        /* PDF sin texto legible (escaneado): registro manual con el
+           archivo como referencia (decisión de Leonardo). */
+        function abrirDjRegistroManual(nombreArchivo){
+            djImportPendiente = { doc: { tipo: 'dj08', anio: Number(djAnioSel) || (new Date().getFullYear() - 1), nit: '', ci: '', nombre: '', municipio: '', provincia: '', rectificada: false, totales: { ingresos: 0, gastos: 0, base: 0, impuesto: 0, totalPagar: 0, aDevolver: 0 }, archivoNombre: nombreArchivo, fuente: 'pdf', manual: true, actividades: [], trabajadores: [] }, manual: true };
+            document.getElementById('djImportBody').innerHTML = '<div class="alert alert-warning py-2 px-3 small">Este PDF no trae texto legible (parece escaneado o una foto) y la app no tiene lector de imágenes. Puedes registrar la DJ a mano: el archivo queda como referencia del registro.</div>' +
+                '<div class="row g-2">' +
+                '<div class="col-md-4"><label class="form-label small mb-1">Tipo</label><select id="djManTipo" class="form-select form-select-sm"><option value="dj08">DJ-08</option><option value="dj08_grat">DJ-08 · Gratificaciones</option><option value="dividendos">DJ Dividendos de socios</option></select></div>' +
+                '<div class="col-md-4"><label class="form-label small mb-1">Año fiscal</label><input id="djManAnio" type="number" class="form-control form-control-sm" value="' + esc(djImportPendiente.doc.anio) + '"></div>' +
+                '<div class="col-md-4"><label class="form-label small mb-1">NIT</label><input id="djManNit" class="form-control form-control-sm" inputmode="numeric"></div>' +
+                '<div class="col-md-8"><label class="form-label small mb-1">Nombre del contribuyente</label><input id="djManNombre" class="form-control form-control-sm"></div>' +
+                '<div class="col-md-4"><label class="form-label small mb-1">¿Es rectificada?</label><select id="djManRect" class="form-select form-select-sm"><option value="">No</option><option value="1">Sí</option></select></div>' +
+                '<div class="col-md-6"><label class="form-label small mb-1">Total a pagar (CUP)</label><input id="djManTotal" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>' +
+                '<div class="col-md-6"><label class="form-label small mb-1">Total a devolver (CUP)</label><input id="djManDevolver" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>' +
+                '</div><p class="small text-secondary mt-2 mb-0">Archivo de referencia: <b>' + esc(nombreArchivo) + '</b>. Al guardar, el NIT se valida contra este negocio igual que en la importación automática.</p>';
+            const btn = document.getElementById('btnDjImportGuardar');
+            btn.style.display = ''; btn.disabled = false;
+            new bootstrap.Modal(document.getElementById('djImportModal')).show();
+        }
+        function wireDjImport(){
+            if (djImportWired) return; djImportWired = true;
+            const inp = document.getElementById('djImportInput');
+            if (inp) inp.addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if (f) importarDjArchivo(f); e.target.value = ''; });
+            const btn = document.getElementById('btnDjImportGuardar');
+            if (btn) btn.addEventListener('click', () => {
+                if (!djImportPendiente) return;
+                let doc = djImportPendiente.doc, validacion;
+                if (djImportPendiente.manual) {
+                    doc.tipo = document.getElementById('djManTipo').value;
+                    doc.anio = parseInt(document.getElementById('djManAnio').value, 10) || doc.anio;
+                    doc.nit = document.getElementById('djManNit').value.replace(/[^0-9]/g, '');
+                    doc.nombre = document.getElementById('djManNombre').value.trim();
+                    doc.rectificada = document.getElementById('djManRect').value === '1';
+                    doc.totales = { ingresos: 0, gastos: 0, base: 0, impuesto: 0, totalPagar: parseFloat(document.getElementById('djManTotal').value) || 0, aDevolver: parseFloat(document.getElementById('djManDevolver').value) || 0 };
+                    const v = validarActorDoc(doc);
+                    if (v.nivel === 'bloqueo' || v.nivel === 'aviso') {
+                        if (!confirm('⚠️ ' + v.mensajes.join(' ') + '\n\n¿Guardar de todas formas? Quedará registrado como forzado.')) return;
+                        validacion = 'forzada';
+                    } else validacion = (v.nivel === 'sin-nit' ? 'sin-nit' : 'ok');
+                } else {
+                    const nivel = djImportPendiente.validacion && djImportPendiente.validacion.nivel;
+                    validacion = (nivel === 'bloqueo' || nivel === 'aviso') ? 'forzada' : (nivel === 'sin-nit' ? 'sin-nit' : 'ok');
+                }
+                const r = guardarDjPresentada(doc, validacion);
+                const inst = bootstrap.Modal.getInstance(document.getElementById('djImportModal'));
+                if (inst) inst.hide();
+                djImportPendiente = null;
+                try { renderDJ(); } catch (e) {}
+                alert('✅ DJ registrada en el expediente del contribuyente.\n\nTipo: ' + djTipoNombre(r.rec.tipo) + '\nAño: ' + r.rec.anio + '\nTotal a pagar: ' + moneda(r.rec.totales.totalPagar || 0) + '\nValidación: ' + r.rec.validacion + (r.fichaNueva ? '\nLa ficha fiscal se completó desde el documento.' : ''));
+            });
+        }
+
         /* Registro QR: selector de mes + tabla (mes en curso o cerrado) */
         let qrMesSelVal = '', qrWired = false;
         function renderRegistroQR(){
@@ -9677,7 +10452,7 @@ function mjPermisos(rol,modulo){ const M={
                 const datos=djDatosAnio(anio), man=djManualAnio(anio), T=datos.gastos, J=man.gastosJustificados;
                 const pct=(J==null||T<=0)?null:+(Math.min(Math.max(0,J),T)/T*100).toFixed(1);
                 box.innerHTML=`<div class="card p-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div class="fw-semibold"><i class="bi bi-pie-chart me-2"></i>Justificación de gastos ${anio} (regla del 80 % de la DJ-08)</div>${pct===null?'<span class="badge bg-soft-secondary">Sin capturar</span>':pct<80?'<span class="badge bg-danger">Bajo la meta</span>':'<span class="badge bg-success">Meta cumplida</span>'}</div>
-                ${pct===null?'<div class="small text-secondary mt-1">Captura el «Monto de gastos con justificante» en los datos manuales de esta DJ para ver el indicador. Gastos deducibles del año: <b>'+moneda(T)+'</b>.</div>':`<div class="d-flex justify-content-between small mt-2"><span>Justificado: ${moneda(Math.min(Math.max(0,J),T))} de ${moneda(T)}</span><b>${pct} %</b></div><div class="just-bar ${pct<80?'bajo':''} mt-1"><div style="width:${Math.min(100,pct)}%"></div></div>${pct<80?'<div class="small text-danger fw-semibold mt-1">⚠️ Por debajo del 80 %: en la DJ-08 solo se reconoce lo justificado + hasta un 20 % sin justificar.</div>':'<div class="small text-success mt-1">En o sobre la meta del 80 %.</div>'}`}
+                ${pct===null?'<div class="small text-secondary mt-1">Captura el «Monto de gastos con justificante» en los datos manuales de esta DJ para ver el indicador. Gastos deducibles del año: <b>'+moneda(T)+'</b>.</div>':`<div class="d-flex justify-content-between small mt-2"><span>Justificado: ${moneda(Math.min(Math.max(0,J),T))} de ${moneda(T)}</span><b>${pct} %</b></div><div class="just-bar ${pct<80?'bajo':''} mt-1"><div style="width:${Math.min(100,pct)}%"></div></div>${pct<80?'<div class="small text-danger fw-semibold mt-1">⚠️ Por debajo del 80 %: en la DJ-08 solo se reconoce lo justificado + hasta un 20 % sin justificar.</div>':'<div class="small text-success mt-1">En o sobre la meta del 80 %: los gastos autorizados se deducen al 100 %.</div>'}`}
                 </div>`;
             }catch(e){ box.innerHTML=''; }
         }
@@ -9687,7 +10462,7 @@ function mjPermisos(rol,modulo){ const M={
             tcp: [
                 {codigo:'0114022', nombre:'Impuesto sobre las Ventas', frec:'mensual'},
                 {codigo:'0510122', nombre:'Anticipo a cuenta del IIP (5 %)', frec:'mensual'},
-                {codigo:'0610322', nombre:'Impuesto por la Utilización de la Fuerza de Trabajo', frec:'mensual'},
+                {codigo:'0610322', nombre:'Impuesto por la Utilización de la Fuerza de Trabajo (TCP: trimestral)', frec:'trimestral'},
                 {codigo:'0810132', nombre:'Contribución a la Seguridad Social (empleador)', frec:'mensual'},
                 {codigo:'0820132', nombre:'Contribución a la Seguridad Social (propia del TCP)', frec:'trimestral'},
                 {codigo:'0530222', nombre:'Liquidación del IIP (DJ-08 anual)', frec:'anual'}
@@ -9797,14 +10572,15 @@ function mjPermisos(rol,modulo){ const M={
             gestorPeriodosDisponibles(doc).slice().reverse().forEach(p=>{ const r=gResumenPeriodo(doc,p); filasRes.push([p, r.ingresos, r.gastos, r.onat, r.utilidad, r.saldoTotal].map(csvEscape).join(',')); });
             const csvRes=filasRes.join('\n');
             const vectorJson=JSON.stringify(doc.fiscal||{}, null, 2);
+            const djPresentadasJson=JSON.stringify(((doc.dj||{}).presentadas||[]), null, 2);
             const contaJson=JSON.stringify(doc.conta||{}, null, 2);
             const djHtml=gestorDjHTML(n, doc);
-            const leeme='Respaldo del negocio «'+n+'» generado desde Finanzas el '+new Date().toISOString()+'.\n\nContenido:\n- datos.json: copia completa de los datos del negocio (movimientos, mes abierto, historial, Vector Fiscal, nómina y DJ).\n- movimientos.csv: todos los movimientos registrados.\n- resumen_mensual.csv: totales por mes.\n- vector_fiscal.json: Vector Fiscal (RC-04A) y obligaciones.\n- dj_ultima.html: última Declaración Jurada calculada (borrador imprimible).\n- conta.json: contabilidad completa (plan de cuentas, asientos, submayores, inventario, reglas y bandeja).\n\nEste paquete sirve también como entrega al cliente si deja el servicio.';
+            const leeme='Respaldo del negocio «'+n+'» generado desde Finanzas el '+new Date().toISOString()+'.\n\nContenido:\n- datos.json: copia completa de los datos del negocio (movimientos, mes abierto, historial, Vector Fiscal, nómina y DJ).\n- movimientos.csv: todos los movimientos registrados.\n- resumen_mensual.csv: totales por mes.\n- vector_fiscal.json: Vector Fiscal (RC-04A) y obligaciones.\n- dj_ultima.html: última Declaración Jurada CALCULADA por la app (borrador imprimible).\n- dj_presentadas.json: Declaraciones Juradas importadas como PRESENTADAS ante la ONAT (expediente), si las hay.\n- conta.json: contabilidad completa (plan de cuentas, asientos, submayores, inventario, reglas y bandeja).\n\nEste paquete sirve también como entrega al cliente si deja el servicio.';
             const base='respaldo_'+n.replace(/[^a-zA-Z0-9_-]+/g,'_');
             try{
                 const JSZip=await cargarJSZip();
                 const zip=new JSZip();
-                zip.file('datos.json', datosJson); zip.file('movimientos.csv', csvMov); zip.file('resumen_mensual.csv', csvRes); zip.file('vector_fiscal.json', vectorJson); zip.file('dj_ultima.html', djHtml); zip.file('conta.json', contaJson); zip.file('LEEME.txt', leeme);
+                zip.file('datos.json', datosJson); zip.file('movimientos.csv', csvMov); zip.file('resumen_mensual.csv', csvRes); zip.file('vector_fiscal.json', vectorJson); zip.file('dj_ultima.html', djHtml); zip.file('dj_presentadas.json', djPresentadasJson); zip.file('conta.json', contaJson); zip.file('LEEME.txt', leeme);
                 const blob=await zip.generateAsync({type:'blob'});
                 descargarBlob(blob, base+'.zip');
             }catch(e){
@@ -9813,6 +10589,7 @@ function mjPermisos(rol,modulo){ const M={
                 descargarBlob(new Blob([csvRes],{type:'text/csv'}), base+'_resumen_mensual.csv');
                 descargarBlob(new Blob([vectorJson],{type:'application/json'}), base+'_vector_fiscal.json');
                 descargarBlob(new Blob([djHtml],{type:'text/html'}), base+'_dj.html');
+                descargarBlob(new Blob([djPresentadasJson],{type:'application/json'}), base+'_dj_presentadas.json');
                 descargarBlob(new Blob([contaJson],{type:'application/json'}), base+'_conta.json');
                 alert('Sin conexión con el CDN de compresión: se descargaron los archivos por separado.');
             }
@@ -12239,7 +13016,8 @@ function mjPermisos(rol,modulo){ const M={
          'docOrdenProduccionPrint','docIPVPrint','docConsignacionPrint','docUtilesPrint','docPanelGestorPrint'
         ].forEach(function(n){ try { var f = eval(n); if (typeof f === 'function') window[n] = f; } catch(e) {} });
         // Ganchos de prueba (node) para el módulo DJ
-        window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
+        window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, DJ_FUENTES_DEF: DJ_FUENTES_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCoreGrat: djCoreGrat, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
+        window.__djImportTest = { parseDjGrids: parseDjGrids, parseDj08Grids: parseDj08Grids, parseDjDividendosGrids: parseDjDividendosGrids, parseDjPdfLines: parseDjPdfLines, validarActorDoc: validarActorDoc, djRecalcular08: djRecalcular08, djNombreCoincide: djNombreCoincide, djNum: djNum };
         api('me').then(async r => { if (r.ok) { await cargar(r); handleLogin({preventDefault(){}}); } });
         
     })();
