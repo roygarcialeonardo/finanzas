@@ -10458,7 +10458,42 @@ function mjPermisos(rol,modulo){ const M={
         function printBtnHTML(target){
             return `<button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="${target}" title="Exportar a PDF / imprimir"><i class="bi bi-printer me-1"></i>PDF</button>`;
         }
+        /* Aislamiento determinista de impresión: el CSS @media print muestra
+           el panel ancestro del .print-target (:has) pero NO oculta el resto
+           de su contenido, y el PDF salía con el panel entero (23 páginas)
+           en vez de solo el documento. Al imprimir, se recorren los
+           ancestros del objetivo hasta body y se ocultan sus hermanos con
+           display:none inline !important (excepto #printHeader), guardando
+           el display original (valor y prioridad) en data-print-iso-* para
+           restaurarlo EXACTO en afterprint y al inicio de cada printPane. */
+        function restaurarAislamientoImpresion(){
+            document.querySelectorAll('[data-print-iso-display]').forEach(sib=>{
+                const v=sib.getAttribute('data-print-iso-display');
+                const p=sib.getAttribute('data-print-iso-priority')||'';
+                if(v) sib.style.setProperty('display',v,p);
+                else sib.style.removeProperty('display');
+                sib.removeAttribute('data-print-iso-display');
+                sib.removeAttribute('data-print-iso-priority');
+            });
+        }
+        function aislarParaImprimir(el){
+            restaurarAislamientoImpresion();
+            let node=el;
+            while(node && node!==document.body){
+                const parent=node.parentElement;
+                if(!parent) break;
+                Array.from(parent.children).forEach(sib=>{
+                    if(sib===node || sib.id==='printHeader') return;
+                    if(sib.hasAttribute('data-print-iso-display')) return;
+                    sib.setAttribute('data-print-iso-display',sib.style.getPropertyValue('display'));
+                    sib.setAttribute('data-print-iso-priority',sib.style.getPropertyPriority('display'));
+                    sib.style.setProperty('display','none','important');
+                });
+                node=parent;
+            }
+        }
         function printPane(targetId, tituloLibre){
+            restaurarAislamientoImpresion();
             document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
             const el=document.getElementById(targetId);
             if(!el) return;
@@ -10470,11 +10505,13 @@ function mjPermisos(rol,modulo){ const M={
             ph.innerHTML=`<h4 class="fw-bold mb-1">${neg} — ${(tituloLibre||titles[targetId]||'').replace(/</g,'&lt;')}</h4><div class="text-secondary small">Generado el ${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}</div>`;
             el.classList.add('print-target');
             document.body.classList.add('printing');
+            aislarParaImprimir(el);
             setTimeout(()=>window.print(),80);
         }
         window.addEventListener('afterprint',()=>{
             document.body.classList.remove('printing');
             document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
+            restaurarAislamientoImpresion();
         });
         document.addEventListener('click',e=>{
             const b=e.target.closest('.btn-print-pane');
