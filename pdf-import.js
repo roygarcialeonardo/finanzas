@@ -39,6 +39,9 @@ function API() {
    1) «transferencia entre cuentas» → transferencia entre cuentas
       propias: no cuenta como ingreso ni gasto, pero mueve el saldo.
    2) «comercio electrónico» → marca QR en el movimiento.
+   2b) «CREDITO RECIBIDO POR CORREO ELECTRONICO» → marca QR
+       (pedido de Leonardo 2026-10-24: todo crédito con ese concepto
+       bancario es un cobro por QR; solo la marca, sin tocar la clase).
    3) Pago de impuestos con el CÓDIGO del tributo en el concepto →
       «Pago de ONAT» vinculado a las obligaciones del Vector Fiscal;
       alimenta la Declaración Jurada (tributos por concepto).
@@ -135,6 +138,17 @@ function clasificarOperacion(op) {
     var res = { clase: 'normal', qr: false, onat: null, sospechaOnat: false };
     if (/transferencia entre cuentas|traspaso entre cuentas/.test(t)) res.clase = 'transferencia';
     if (/comercio electronico/.test(t)) res.qr = true;
+    /* Pedido de Leonardo (2026-10-24): todo movimiento cuyo concepto
+       diga «CREDITO RECIBIDO POR CORREO ELECTRONICO» es un cobro por
+       QR. Solo pone la marca (mov.qr → Registro QR del cierre); NO
+       toca la clase ni el resto de reglas. Las comisiones bancarias
+       dicen «DEBITO RECIBIDO POR CORREO ELECTRONICO» y quedan fuera.
+       Se prueba con los espacios colapsados y también sin espacios,
+       por si BANDEC parte una palabra de la frase entre dos líneas y
+       unirLinea la deja separada («ELECTRO NICO»). */
+    var tCol = t.replace(/\s+/g, ' ');
+    if (/credito recibido por correo electronico/.test(tCol) ||
+        tCol.replace(/ /g, '').indexOf('creditorecibidoporcorreoelectronico') >= 0) res.qr = true;
     var cods = extraerCodigosConcepto(op.concepto || '');
     for (var i = 0; i < cods.length; i++) {
         var r = resolverCodigoPdf(cods[i]);
