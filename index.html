@@ -450,10 +450,18 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
 html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color:#fff}
         .print-only-header{display:none}
         @media print{
+          /* Al imprimir no hay animaciones ni transiciones: las de entrada
+             (fadeIn/fadeUp, .fade de Bootstrap) parten de opacity:0 y el
+             navegador puede componer la página en ese estado — el documento
+             salía EN BLANCO (pasaba al imprimir justo tras cambiar de
+             pestaña o generar el documento). La opacidad del panel que
+             contiene el objetivo y la del propio objetivo se fuerzan a 1
+             por la misma razón (un .fade sin .show vale opacity:0). */
+          body.printing *,body.printing *::before,body.printing *::after{animation:none!important;transition:none!important}
           body.printing #loginContainer,body.printing .app-hero,body.printing .nav-tabs,body.printing .tab-pane{display:none!important}
           body.printing .tab-pane.print-target{display:block!important}
-          body.printing .tab-pane:has(.print-target){display:block!important}
-          body.printing .print-target{display:block!important}
+          body.printing .tab-pane:has(.print-target){display:block!important;opacity:1!important}
+          body.printing .print-target{display:block!important;opacity:1!important}
           body.printing .btn-print-pane,body.printing .no-print{display:none!important}
           body.printing .print-only-header{display:block!important;margin-bottom:1rem}
           body.printing .modal.print-target{display:block!important;position:static!important;opacity:1!important}
@@ -462,7 +470,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
           body.printing .card{box-shadow:none!important}
         }
         /* ===== MODELO SC-4-06 (nómina y pre-nómina: documento oficial B/N) ===== */
-        .sc406{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;font-size:11px;line-height:1.25;page:sc406land}
+        .sc406{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;font-size:11px;line-height:1.25}
         .sc406 table{border-collapse:collapse;width:100%}
         .sc406-cab td{vertical-align:top;padding:0}
         .sc406-izq{width:52%;padding-right:1rem!important}
@@ -484,14 +492,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         .sc406-area td{font-weight:bold;background:#e9e9e9}
         .sc406-totarea td{font-weight:bold}
         .sc406-total td{font-weight:bold;border-top:2.5px solid #000}
-        @page sc406land{size:A4 landscape;margin:8mm}
         /* ===== DOCUMENTOS OFICIALES (andamiaje común: arqueo SC-1-03,
            conciliación CON-02, talón, certificado y plantillas internas) =====
            Un solo esqueleto de documento para todas las salidas impresas:
            entidad, título/modelo, campos de encabezado, tablas con bordes,
            fila de totales y firmas Elaborado/Revisado/Aprobado. Solo cambia
            la PLANTILLA: los datos salen de lo que la app ya muestra. */
-        .docof{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;font-size:11px;line-height:1.3;page:docofA4}
+        .docof{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;font-size:11px;line-height:1.3}
         .docof table{border-collapse:collapse;width:100%}
         .docof-sup{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.15rem}
         .docof-cab{border-bottom:2.5px solid #000;padding-bottom:.35rem;margin-bottom:.5rem}
@@ -516,7 +523,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         .docof-fir{border-top:1px solid #000;margin-top:2rem;padding-top:2px}
         .docof-pie{font-size:9.5px;margin-top:.55rem}
         .docof-pag{text-align:right;font-size:10px;margin-top:.3rem}
-        @page docofA4{size:A4 portrait;margin:10mm}
 .app-hero .badge{background:rgba(255,255,255,.12)!important;color:#e6fffb!important;font-weight:600}
 .app-hero .btn{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.25)!important;color:#fff!important;border-radius:999px;font-weight:600}
 .app-hero .btn:hover{background:rgba(255,255,255,.2)!important}
@@ -10492,7 +10498,30 @@ function mjPermisos(rol,modulo){ const M={
                 node=parent;
             }
         }
+        /* Tamaño/orientación de la hoja al imprimir: ANTES los documentos
+           usaban «páginas con nombre» (page:docofA4 / page:sc406land con sus
+           @page con nombre). Eso rompía la salida en dos sitios: (1) el
+           #printHeader no tenía propiedad page → el navegador forzaba un
+           salto y la página 1 salía SOLO con el encabezado, con el documento
+           empezando en la 2; (2) Edge descartaba el contenido de la página
+           con nombre apaisada del SC-4-06 (página en blanco). Ahora hay UNA
+           sola @page global, inyectada por printPane según el contenido del
+           objetivo (apaisada SOLO si el documento es un .sc406; los paneles y
+           modales siempre en vertical) y retirada en afterprint. */
+        function quitarEstiloPaginaImpresion(){
+            const s=document.getElementById('printPageStyle');
+            if(s) s.remove();
+        }
+        function fijarEstiloPaginaImpresion(el){
+            quitarEstiloPaginaImpresion();
+            const apaisado=!!el && !el.classList.contains('tab-pane') && !el.classList.contains('modal') && !!el.querySelector('.sc406');
+            const st=document.createElement('style');
+            st.id='printPageStyle';
+            st.textContent=apaisado?'@page{size:A4 landscape;margin:8mm}':'@page{size:A4 portrait;margin:10mm}';
+            document.head.appendChild(st);
+        }
         function printPane(targetId, tituloLibre){
+            quitarEstiloPaginaImpresion();
             restaurarAislamientoImpresion();
             document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
             const el=document.getElementById(targetId);
@@ -10505,6 +10534,7 @@ function mjPermisos(rol,modulo){ const M={
             ph.innerHTML=`<h4 class="fw-bold mb-1">${neg} — ${(tituloLibre||titles[targetId]||'').replace(/</g,'&lt;')}</h4><div class="text-secondary small">Generado el ${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}</div>`;
             el.classList.add('print-target');
             document.body.classList.add('printing');
+            fijarEstiloPaginaImpresion(el);
             aislarParaImprimir(el);
             setTimeout(()=>window.print(),80);
         }
@@ -10512,6 +10542,7 @@ function mjPermisos(rol,modulo){ const M={
             document.body.classList.remove('printing');
             document.querySelectorAll('.print-target').forEach(el=>el.classList.remove('print-target'));
             restaurarAislamientoImpresion();
+            quitarEstiloPaginaImpresion();
         });
         document.addEventListener('click',e=>{
             const b=e.target.closest('.btn-print-pane');
