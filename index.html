@@ -1003,7 +1003,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="chequera"><i class="bi bi-file-check"></i> ONAT</button>
                     </div>
                 </div>
-                <div class="small text-secondary mb-2" id="bancoInfo-chequera" style="display:none"></div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <div class="small text-secondary" id="bancoInfo-chequera" style="display:none"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('chequera')" title="Completar o corregir los datos del banco de esta cuenta"><i class="bi bi-pencil-square me-1"></i>Datos del banco</button>
+                </div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-chequera">$0.00</span></span>
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">💰 Saldo Actual: <span id="saldo-chequera">$0.00</span></span>
@@ -1030,7 +1033,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_cup"><i class="bi bi-file-check"></i> ONAT</button>
                     </div>
                 </div>
-                <div class="small text-secondary mb-2" id="bancoInfo-tarjeta_cup" style="display:none"></div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <div class="small text-secondary" id="bancoInfo-tarjeta_cup" style="display:none"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('tarjeta_cup')" title="Completar o corregir los datos del banco de esta cuenta"><i class="bi bi-pencil-square me-1"></i>Datos del banco</button>
+                </div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_cup">$0.00</span></span>
                     <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_cup">$0.00</span></span>
@@ -1057,7 +1063,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <button class="btn btn-sm btn-warning btn-onat-cuenta" data-cuenta="tarjeta_usd"><i class="bi bi-file-check"></i> ONAT</button>
                     </div>
                 </div>
-                <div class="small text-secondary mb-2" id="bancoInfo-tarjeta_usd" style="display:none"></div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <div class="small text-secondary" id="bancoInfo-tarjeta_usd" style="display:none"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="editarDatosBancoCuenta('tarjeta_usd')" title="Completar o corregir los datos del banco de esta cuenta"><i class="bi bi-pencil-square me-1"></i>Datos del banco</button>
+                </div>
                 <div class="d-flex flex-wrap gap-3 mb-3">
                     <span class="badge bg-soft-secondary px-3 py-2">📌 Saldo Inicial: <span id="saldoInicial-tarjeta_usd">$0.00 USD</span></span>
                     <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">💰 Saldo Actual: <span id="saldo-tarjeta_usd">$0.00 USD</span></span>
@@ -2263,6 +2272,26 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="modal-header"><h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i>Cálculo ONAT</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body" id="onatModalBody"></div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button type="button" class="btn btn-primary-custom" id="btnAgregarOnatDesdeModal"><i class="bi bi-arrow-right-circle me-1"></i> Abrir Fiscal</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="bancoCuentaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title"><i class="bi bi-bank me-2"></i>Datos del banco · <span id="bancoCuentaNombre"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="bancoCuentaClave">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Banco</label><input id="bancoCuentaBanco" class="form-control" maxlength="40" placeholder="Ej. BANDEC"></div>
+                    <div class="col-md-6"><label class="form-label">Sucursal</label><input id="bancoCuentaSucursal" class="form-control" maxlength="20" placeholder="Ej. 3801"></div>
+                    <div class="col-12"><label class="form-label">Titular</label><input id="bancoCuentaTitular" class="form-control" maxlength="120"></div>
+                    <div class="col-md-6"><label class="form-label">N.º de cuenta</label><input id="bancoCuentaNumero" class="form-control" maxlength="24" inputmode="numeric"></div>
+                    <div class="col-md-6"><label class="form-label">N.º de tarjeta</label><input id="bancoCuentaTarjeta" class="form-control" maxlength="24" inputmode="numeric"></div>
+                </div>
+                <p class="small text-secondary mt-3 mb-0">Estos datos se capturan del encabezado del estado de cuenta al importarlo; aquí puedes completarlos o corregirlos (la sucursal de las tarjetas no viene en el estado). Se muestran bajo el nombre de la cuenta y en los documentos que piden datos bancarios (conciliación CON-02, documentos de cuenta, registro QR). Dejar un campo en blanco lo borra.</p>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-primary" onclick="guardarBancoCuentaDesdeModal()">Guardar</button></div>
         </div>
     </div>
 </div>
@@ -3845,6 +3874,61 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         /* Gancho del importador PDF (pdf-import.js): guarda la cabecera
            del estado en la cuenta destino al confirmar la importación. */
         window.__cuentaGuardarDatosBanco=function(clave, cab){ try { return guardarDatosBancoCuenta(clave, cab); } catch(e) { return false; } };
+        /* ===== EDICIÓN MANUAL DE LOS DATOS BANCARIOS (pedido de Leonardo,
+           2026-10-25) =====
+           La sucursal de las tarjetas NO viene en el estado de cuenta y
+           Leonardo quiere verla en el panel y en los modelos: cada cuenta
+           tiene un botón «Datos del banco» junto a su línea bancaria que
+           abre un formulario con lo guardado. A diferencia de la
+           IMPORTACIÓN (que nunca sobrescribe con vacíos, para que un
+           estado sin sucursal no borre la capturada de otro), la edición
+           manual SÍ respeta los blancos: lo que el usuario deje vacío en
+           el formulario se borra. Persiste en el mismo sitio de siempre
+           (slot fiscal, clave «cuentasBanco»), así que el panel, la
+           CON-02 y los documentos de cuenta — que ya leen de ahí —
+           reflejan lo editado sin tocar nada más. */
+        const NOMBRES_CUENTA_BANCO={chequera:'Chequera',tarjeta_cup:'Tarjeta CUP',tarjeta_usd:'Tarjeta USD'};
+        function guardarDatosBancoCuentaManual(clave, datos){
+            if(!clave) return false;
+            try {
+                const f=getFiscal();
+                if(!f.cuentasBanco || typeof f.cuentasBanco!=='object' || Array.isArray(f.cuentasBanco)) f.cuentasBanco={};
+                const next={};
+                ['titular','banco','sucursal','numeroCuenta','numeroTarjeta'].forEach(function(k){
+                    const v=(datos && datos[k]!=null)?String(datos[k]).trim():'';
+                    if(v) next[k]=v;   /* campo en blanco = borrado explícito */
+                });
+                if(Object.keys(next).length) f.cuentasBanco[clave]=next; else delete f.cuentasBanco[clave];
+                saveFiscal(f);
+                return true;
+            } catch(e) { return false; }
+        }
+        function editarDatosBancoCuenta(clave){
+            if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const d=getDatosBancoCuenta(clave);
+            document.getElementById('bancoCuentaClave').value=clave;
+            document.getElementById('bancoCuentaNombre').textContent=NOMBRES_CUENTA_BANCO[clave]||clave;
+            document.getElementById('bancoCuentaBanco').value=d.banco||'';
+            document.getElementById('bancoCuentaSucursal').value=d.sucursal||'';
+            document.getElementById('bancoCuentaTitular').value=d.titular||'';
+            document.getElementById('bancoCuentaNumero').value=d.numeroCuenta||'';
+            document.getElementById('bancoCuentaTarjeta').value=d.numeroTarjeta||'';
+            new bootstrap.Modal(document.getElementById('bancoCuentaModal')).show();
+        }
+        function guardarBancoCuentaDesdeModal(){
+            const clave=document.getElementById('bancoCuentaClave').value;
+            const datos={
+                banco:document.getElementById('bancoCuentaBanco').value,
+                sucursal:document.getElementById('bancoCuentaSucursal').value,
+                titular:document.getElementById('bancoCuentaTitular').value,
+                numeroCuenta:document.getElementById('bancoCuentaNumero').value,
+                numeroTarjeta:document.getElementById('bancoCuentaTarjeta').value
+            };
+            if(!guardarDatosBancoCuentaManual(clave, datos)){ alert('No se pudieron guardar los datos del banco.'); return; }
+            const inst=bootstrap.Modal.getInstance(document.getElementById('bancoCuentaModal'));
+            if(inst) inst.hide();
+            renderAll();
+        }
         function getAFTKey(){return `finanzas_aft_${getCurrentUser()}`;}
         function getAFT(){const x=Store.getItem(getAFTKey());if(!x)return {politica:{umbral:1000},activos:[],depreciaciones:{}};try{const d=JSON.parse(x)||{};if(!d.politica)d.politica={umbral:1000};if(!Array.isArray(d.activos))d.activos=[];if(!d.depreciaciones||Array.isArray(d.depreciaciones))d.depreciaciones={};return d;}catch(e){return {politica:{umbral:1000},activos:[],depreciaciones:{}};}}
         function saveAFT(d){Store.setItem(getAFTKey(),JSON.stringify(d));}
@@ -11090,6 +11174,7 @@ function mjPermisos(rol,modulo){ const M={
          'mjContratoCrearUI','mjUtilCrearUI','mjTraspasoUI','mjOrdenTerminarUI','mjOrdenCrearUI','mjCreditoDevengoUI',
          'mjCreditoCrearUI','mjSaldoDivisaUI','mjRevalAmpliaUI','mjConsignacionRecibirUI','mjConsignacionVentaUI',
          'guardarParamsFiscalesNomina','docCuentaPrint','docQRPrint',
+         'editarDatosBancoCuenta','guardarBancoCuentaDesdeModal',
          'docResumenPrint','docNominaSubmayoresPrint','docTrimestresPrint','docOnatPrint','docCierreAnualPrint','docBalanceAperturaPrint',
          'docProgramadorPrint','docMotorTributosPrint','docCalendarioPrint','docGestorCalendarioPrint','docBancarizacionPrint',
          'docExpedientePrint','docKYCPrint','docPresupuestoPrint','docFlujoProyectadoPrint','docIndicadoresPrint',

@@ -635,6 +635,13 @@ function mostrarVistaPrevia(ops, infos) {
         return pdfEsc(r.nombre) + (r.cuenta ? ' → cuenta …' + pdfEsc(r.cuenta.slice(-4)) : '') +
                (r.periodo ? ' (' + pdfEsc(r.periodo) + ')' : '');
     }).join('<br>');
+    /* ¿El lote trae datos bancarios en algún encabezado? Si no hay
+       operaciones nuevas pero sí cabecera, el botón de confirmar queda
+       habilitado como «Guardar datos del banco»: reimportar un estado
+       ya importado (todo duplicado) también debe guardarlos. */
+    var hayCabeceras = (infos || []).some(function (r) {
+        return r && r.cabecera && (r.cabecera.titular || r.cabecera.banco || r.cabecera.numeroCuenta || r.cabecera.numeroTarjeta);
+    });
 
     var nombresCuenta = { chequera: 'Chequera', tarjeta_cup: 'Tarjeta CUP', tarjeta_usd: 'Tarjeta USD' };
     var filasHtml = filas.map(function (f, idxFila) {
@@ -723,8 +730,10 @@ function mostrarVistaPrevia(ops, infos) {
           '</div>' +
           '<div class="modal-footer">' +
             '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>' +
-            '<button type="button" class="btn btn-primary" id="pdfImportConfirm" ' + (nuevas ? '' : 'disabled') + '>' +
-            '<i class="bi bi-download me-1"></i> Importar ' + nuevas + ' operaciones</button>' +
+            '<button type="button" class="btn btn-primary" id="pdfImportConfirm" ' + ((nuevas || hayCabeceras) ? '' : 'disabled') + '>' +
+            (nuevas
+                ? '<i class="bi bi-download me-1"></i> Importar ' + nuevas + ' operaciones</button>'
+                : '<i class="bi bi-bank me-1"></i> Guardar datos del banco</button>') +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -742,11 +751,38 @@ function mostrarVistaPrevia(ops, infos) {
     modal.show();
 }
 
+/* Guarda en la cuenta destino los datos bancarios capturados de los
+   encabezados de los estados del lote (titular, banco, sucursal y
+   número de cuenta/tarjeta), vía el gancho de la app (que fusiona sin
+   sobrescribir con vacíos). Se llama al CONFIRMAR la importación,
+   ANTES de cualquier retorno de importarLote: también cuando todas
+   las operaciones ya estaban importadas (duplicadas) o se importa en
+   modo edición. Antes el guardado vivía al final de importarLote,
+   tras esos retornos, y reimportar un estado ya importado — el caso
+   típico al estrenar esta función — nunca guardaba los datos: la
+   tarjeta CUP se quedaba sin banco en su panel y en la CON-02
+   (reporte de Leonardo, 2026-10-25). */
+function guardarCabecerasImportadas(cuenta) {
+    try {
+        if (window.__cuentaGuardarDatosBanco && ultimosInfos.length) {
+            ultimosInfos.forEach(function (info) {
+                if (info && info.cabecera) window.__cuentaGuardarDatosBanco(cuenta, info.cabecera);
+            });
+        }
+    } catch (e) { /* la importación sigue; los datos del banco se capturan en la próxima */ }
+}
+
 /* ---------------- Importación ---------------- */
 function importarLote(cuenta) {
     var api = API();
+    /* Datos bancarios del encabezado: primero que nada, para que se
+       guarden también sin operaciones nuevas o en modo edición. */
+    guardarCabecerasImportadas(cuenta);
     var nuevas = ultimoLote.filter(function (f) { return f.estado === 'nueva' && f.destino; });
-    if (!nuevas.length) return;
+    if (!nuevas.length) {
+        alert('ℹ️ No hay operaciones nuevas en el estado (ya estaban importadas).\nLos datos del banco del encabezado (titular, banco, sucursal y número de cuenta/tarjeta) sí quedaron guardados en la cuenta destino.');
+        return;
+    }
 
     var enEdicion = api.enEdicion();
     var actual = api.periodoNominaActual();
@@ -855,20 +891,9 @@ function importarLote(cuenta) {
     }
     api.renderAll();
 
-    /* Datos bancarios del encabezado (pedido de Leonardo, 2026-10-24):
-       el titular, el banco, la sucursal y el número de cuenta/tarjeta
-       que trae el estado se guardan en la cuenta financiera destino
-       para mostrarlos debajo de su nombre en el panel de Cuentas y en
-       los documentos que piden datos bancarios (CON-02, documentos de
-       cuenta). El gancho de la app fusiona sin sobrescribir con vacíos:
-       un estado sin sucursal (tarjetas) no borra la ya guardada. */
-    try {
-        if (window.__cuentaGuardarDatosBanco && ultimosInfos.length) {
-            ultimosInfos.forEach(function (info) {
-                if (info && info.cabecera) window.__cuentaGuardarDatosBanco(cuenta, info.cabecera);
-            });
-        }
-    } catch (e) { /* la importación ya quedó guardada; los datos del banco se capturan en la próxima */ }
+    /* Los datos bancarios del encabezado ya se guardaron al inicio de
+       importarLote (guardarCabecerasImportadas): aquí no hace falta
+       repetirlo. */
 
     /* Conciliación (ronda 7): cada estado importado se registra con su
        saldo final según banco y sus operaciones referenciadas, para que
