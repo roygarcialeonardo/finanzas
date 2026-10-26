@@ -921,11 +921,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         </form>
         <!-- Instalación inicial (solo versión sin conexión, primera vez) -->
         <div id="instalacionBox" class="d-none text-start">
-            <div class="alert alert-info py-2 small">👋 <b>Primera vez en esta máquina.</b> Vamos a instalar tu copia: dime tu negocio y crea tu contraseña. Solo se hace una vez.</div>
+            <div class="alert alert-info py-2 small">👋 <b>Primera vez en esta máquina.</b> Vamos a instalar tu copia: dime cómo la vas a usar y crea tu contraseña. Solo se hace una vez.</div>
+            <div class="mb-2"><label class="form-label small" for="instModo">¿Qué vas a llevar con esta copia?</label><select class="form-select" id="instModo"><option value="negocio">Un negocio (TCP, MIPYME o PDL)</option><option value="tenedor">Soy tenedor de libros: llevaré varios negocios</option></select><div class="form-text" id="instModoAyuda">Esta copia queda fijada a tu único negocio.</div></div>
+            <div id="instNegocioWrap">
             <div class="mb-2"><label class="form-label small" for="instNegocio">Nombre de tu negocio</label><input type="text" class="form-control" id="instNegocio" placeholder="Ej.: Mi Negocio" autocomplete="off"></div>
             <div class="row g-2 mb-2">
                 <div class="col-7"><label class="form-label small" for="instTipo">Tipo de negocio</label><select class="form-select" id="instTipo"><option value="tcp">TCP (trabajador por cuenta propia)</option><option value="mipyme">MIPYME</option><option value="pdl">PDL (proyecto de desarrollo local)</option></select></div>
                 <div class="col-5"><label class="form-label small" for="instSocios">Socios (MIPYME)</label><input type="number" class="form-control" id="instSocios" min="0" max="99" value="1"></div>
+            </div>
             </div>
             <div class="mb-2"><label class="form-label small" for="instRuta">Carpeta donde se guardan tus datos</label><input type="text" class="form-control" id="instRuta" autocomplete="off" spellcheck="false"><div class="form-text">Elige una carpeta segura y que vaya a estar siempre en esta computadora (por ejemplo, dentro de Documentos). Ahí vivirá tu base de datos <b>finanzas.db</b> con todo tu negocio.</div></div>
             <div class="alert alert-warning py-2 small">⚠️ <b>Tu base de datos es tu responsabilidad.</b> Todo tu negocio — cuentas, movimientos, nómina — queda en un solo archivo (<b>finanzas.db</b>) dentro de la carpeta que elijas. <b>Hazle copias de seguridad con frecuencia</b> en otro lugar (una memoria USB, otra carpeta, la nube): si el archivo se pierde o se daña y no tienes copia, <b>nadie podrá recuperar tu información</b>, ni siquiera tu proveedor.</div>
@@ -5356,13 +5359,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             <div class="usuario-info">
                                 <div class="avatar" style="background:${avatarColor};">${initials}</div>
                                 <div>
-                                    <div class="fw-semibold">${esc(username)} ${isCurrent ? '👈' : ''}</div>
+                                    <div class="fw-semibold">${esc(username)} ${isCurrent ? '👈' : ''} ${user.disabled ? '<span class="badge bg-secondary">inhabilitado</span>' : ''}</div>
                                     <small class="text-muted">${rolLabel} · ${entityLabel} · 🏢 ${esc(negocioLabel)}</small>
                                 </div>
                             </div>
                             <div class="d-flex gap-1">
                                 <button class="btn btn-sm btn-outline-primary editar-usuario" data-user="${esc(username)}" title="Editar usuario">
                                     <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm ${user.disabled ? 'btn-outline-success' : 'btn-outline-warning'} toggle-usuario" data-user="${esc(username)}" title="${user.disabled ? 'Volver a habilitar' : 'Inhabilitar: no podrá entrar y su rastro se conserva'}">
+                                    <i class="bi ${user.disabled ? 'bi-person-check' : 'bi-person-slash'}"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger eliminar-usuario" data-user="${esc(username)}" title="Eliminar usuario">
                                     <i class="bi bi-trash3"></i>
@@ -5392,20 +5398,41 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 });
             });
 
-            // Eventos de eliminar usuario
-            document.querySelectorAll('.eliminar-usuario').forEach(btn => {
-                btn.addEventListener('click', function() {
+            // Eventos de inhabilitar / rehabilitar usuario (licencias F1)
+            document.querySelectorAll('.toggle-usuario').forEach(btn => {
+                btn.addEventListener('click', async function() {
                     const user = this.getAttribute('data-user');
-                    if (confirm(`¿Eliminar al usuario "${user}" y todos sus datos?`)) {
+                    const users = getUsuarios();
+                    if (!users[user]) return;
+                    users[user].disabled = !users[user].disabled;
+                    await saveUsuarios(users);
+                    renderAdminPanel();
+                });
+            });
+
+            // Eventos de eliminar usuario: el servidor protege a quien
+            // tenga actividad en los datos (guardia de borrado seguro):
+            // si rechaza, se restaura la fila y queda el aviso del error.
+            document.querySelectorAll('.eliminar-usuario').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const user = this.getAttribute('data-user');
+                    if (confirm(`¿Eliminar al usuario "${user}"?\n\nSi tiene actividad registrada en los datos, el servidor NO lo borrará: su rastro es la prueba de quién hizo qué. En ese caso inhabilítalo: no podrá entrar y todo queda conservado.`)) {
                         const users = getUsuarios();
+                        const copia = users[user];
                         // Limpiar datos del usuario
                         Store.removeItem(`finanzas_movimientos_${user}`);
                         Store.removeItem(`finanzas_mes_${user}`);
                         Store.removeItem(`finanzas_historial_${user}`);
                         delete users[user];
-                        saveUsuarios(users);
-                        renderAdminPanel();
-                        alert(`Usuario "${user}" eliminado.`);
+                        const r = await saveUsuarios(users);
+                        if (r && r.ok) {
+                            renderAdminPanel();
+                            alert(`Usuario "${user}" eliminado.`);
+                        } else {
+                            users[user] = copia;
+                            USERS = users;
+                            renderAdminPanel();
+                        }
                     }
                 });
             });
@@ -6171,21 +6198,41 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const chk = document.getElementById('instCrearTrabajo');
             const wrap = document.getElementById('instTrabajoWrap');
             if (chk && wrap) chk.addEventListener('change', () => { wrap.style.display = chk.checked ? '' : 'none'; });
+            /* Modo de instalación (licencias): un negocio o tenedor de
+               libros. El tenedor no nace con negocio: los crea dentro
+               de la app; su cuenta administradora es su cuenta de
+               trabajo, así que se ocultan el negocio y el usuario
+               de trabajo. */
+            const modoSel = document.getElementById('instModo');
+            const negWrap = document.getElementById('instNegocioWrap');
+            const modoAyuda = document.getElementById('instModoAyuda');
+            const aplicarModo = () => {
+                const esTenedor = !!(modoSel && modoSel.value === 'tenedor');
+                if (negWrap) negWrap.style.display = esTenedor ? 'none' : '';
+                if (modoAyuda) modoAyuda.textContent = esTenedor
+                    ? 'Podrás crear varios negocios dentro de la app. Cada negocio paga su propia licencia, y tu licencia de tenedor suma el 10 % de lo que declares cobrar a cada uno. Los negocios nacen bloqueados hasta que su mes esté pagado y validado por tu proveedor.'
+                    : 'Esta copia queda fijada a tu único negocio.';
+                const chkDiv = chk ? chk.closest('.form-check') : null;
+                if (chkDiv) chkDiv.style.display = esTenedor ? 'none' : '';
+                if (wrap) wrap.style.display = esTenedor ? 'none' : (chk && chk.checked ? '' : 'none');
+            };
+            if (modoSel) { modoSel.addEventListener('change', aplicarModo); aplicarModo(); }
             const btn = document.getElementById('btnInstalar');
             if (!btn || btn.dataset.listo) return;
             btn.dataset.listo = '1';
             btn.addEventListener('click', async () => {
                 const msg = document.getElementById('instMsg');
-                const negocio = document.getElementById('instNegocio').value.trim();
+                const esTenedor = (document.getElementById('instModo') || {}).value === 'tenedor';
+                const negocio = esTenedor ? '' : document.getElementById('instNegocio').value.trim();
                 const tipo = document.getElementById('instTipo').value;
                 const socios = parseInt(document.getElementById('instSocios').value, 10) || 0;
                 const adminUser = document.getElementById('instAdminUser').value.trim();
-                const crearTrabajo = document.getElementById('instCrearTrabajo').checked;
+                const crearTrabajo = !esTenedor && document.getElementById('instCrearTrabajo').checked;
                 const trabajoUser = document.getElementById('instTrabajoUser').value.trim();
                 const pw = document.getElementById('instPass').value;
                 const pw2 = document.getElementById('instPass2').value;
                 const falla = t => { msg.innerHTML = '<span class="text-danger">' + esc(t) + '</span>'; };
-                if (!negocio) return falla('Escribe el nombre de tu negocio.');
+                if (!esTenedor && !negocio) return falla('Escribe el nombre de tu negocio.');
                 if (!adminUser) return falla('Escribe el usuario administrador.');
                 if (crearTrabajo && !trabajoUser) return falla('Escribe tu usuario de trabajo (o desmarca la casilla).');
                 if (crearTrabajo && trabajoUser.toLowerCase() === adminUser.toLowerCase()) return falla('El usuario de trabajo debe ser distinto del administrador.');
@@ -6217,7 +6264,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     }
                     const users = [{ username: adminUser, hash: await hashPwLocal(pw), role: 'admin', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio }];
                     if (crearTrabajo) users.push({ username: trabajoUser, hash: await hashPwLocal(pw), role: 'editor', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio });
-                    const r = await api('setup', { users, config: {}, bloqueos: {}, negocios: [{ negocio, doc: { _info: { tipo, creado: new Date().toISOString() } } }] });
+                    const r = await api('setup', { users, config: {}, bloqueos: {}, modo: esTenedor ? 'tenedor' : 'negocio', negocios: esTenedor ? [] : [{ negocio, doc: { _info: { tipo, creado: new Date().toISOString() } } }] });
                     if (!r || !r.ok) { btn.disabled = false; return falla((r && r.error) || 'No se pudo instalar.'); }
                     msg.innerHTML = '<span class="text-success fw-semibold">✅ Instalación completa. Entrando a tu pantalla de acceso…</span>';
                     setTimeout(() => location.reload(), 900);
@@ -14874,7 +14921,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function getUsuarios() { return USERS; }
         function saveUsuarios(u) {
             USERS = u;
-            Q = Q.then(() => api('users_save', {users: u})).then(r => { if (!r.ok) alert('⚠️ ' + (r.error || 'No se pudo guardar')); Object.values(USERS).forEach(x => delete x.password); });
+            Q = Q.then(() => api('users_save', {users: u})).then(r => { if (!r.ok) alert('⚠️ ' + (r.error || 'No se pudo guardar')); Object.values(USERS).forEach(x => delete x.password); return r; });
+            return Q;
         }
         function getNegocios() { const o = {}; Object.values(USERS).forEach(u => { if (u.role !== 'admin' && u.negocio) o[u.negocio] = {tipo: u.entityType, socios: u.socios}; }); return o; }
         function saveNegocios() {}
@@ -15181,7 +15229,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-19';
+        var MANUAL_VERSION = 'v2026.10.26-20';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -15211,7 +15259,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>Tras publicar una actualización de la app, <b>cierra la pestaña por completo y vuelve a abrirla con conexión</b>: si solo recargas, el teléfono puede seguir mostrándote la versión anterior.</li></ol>'},
         {id:'instalacion-offline', modulo:'empezar', titulo:'Primera vez sin conexión: instalar tu copia', html:
             '<p>Solo en la <b>versión sin conexión</b>: la primera vez que abres el programa en una máquina, en vez de la pantalla de entrada sale el <b>formulario de instalación</b>. Se hace una sola vez:</p>' +
-            '<ol><li>Escribe el <b>nombre de tu negocio</b> y su <b>tipo</b> (TCP, MIPYME o PDL; en la MIPYME, también el número de socios).</li>' +
+            '<ol><li>Primero lo primero: <b>¿qué vas a llevar con esta copia?</b> Si es <b>un negocio</b> (TCP, MIPYME o PDL), la copia queda fijada a ese único negocio y no podrás crear otros: para eso hace falta la licencia de tenedor. Si eres <b>tenedor de libros</b>, elige esa opción: la copia nace sin negocio y los creas dentro de la app; cada negocio paga su propia licencia y la tuya suma el 10 % de lo que declares cobrar a cada uno. <b>Todo negocio nace bloqueado</b>: se activa cuando su mes está pagado y tu proveedor lo valida en línea.</li>' +
+            '<li>Escribe el <b>nombre de tu negocio</b> y su <b>tipo</b> (TCP, MIPYME o PDL; en la MIPYME, también el número de socios). Si elegiste tenedor, este paso no aparece.</li>' +
             '<li><b>Elige la carpeta donde se guardarán tus datos</b>: ahí vivirá el archivo <b>finanzas.db</b> con todo tu negocio. Elige un sitio seguro y permanente de tu computadora (por ejemplo, dentro de Documentos). Si cambias la carpeta sugerida, la app se rearranca sola en su sitio: espera unos segundos.</li>' +
             '<li>Lee la advertencia amarilla y marca que la entiendes: <b>las copias de seguridad de tu base de datos son tu responsabilidad</b>. Sin una copia en otro lugar (memoria USB, otra carpeta, la nube), una pérdida del archivo no tiene recuperación posible.</li>' +
             '<li>Deja el <b>usuario administrador</b> («admin» o el que prefieras): es la cuenta dueña de la copia, para gestionar usuarios y configuración.</li>' +
@@ -15222,6 +15271,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
             '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
             '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
+            '<li><b>Inhabilitar un usuario:</b> en la lista de usuarios, el botón de la persona tachada lo <b>inhabilita</b>: no podrá entrar (ni siquiera con una sesión abierta) y su rastro queda guardado. El mismo botón lo rehabilita. Es la forma de «quitar» a alguien sin borrar la historia.</li>' +
+            '<li><b>Borrar un usuario está protegido:</b> solo se puede borrar a quien <b>no tenga actividad registrada</b> en los datos. Si ya escribió movimientos o configuró algo, el servidor se niega a borrarlo — su nombre es la prueba de quién hizo qué — y te manda a inhabilitarlo.</li>' +
+            '<li><b>Un negocio por copia:</b> en una instalación de negocio no se pueden crear más negocios; llevar varios es cosa de la licencia de <b>tenedor de libros</b>.</li>' +
             '<li><b>La cuenta administradora tiene su propia vista:</b> su menú solo muestra <b>Gestor</b> y <b>Configuración</b>; los apartados de trabajo de cada negocio (DJ, Contabilidad, Gestión+) y los de consulta (Ayuda e Instrucciones) no aparecen en esa cuenta, porque viven dentro de cada negocio.</li>' +
             '<li>La ficha de cada negocio guarda su nombre, su NIT y su tipo (TCP, MIPYME o PDL); ese dato manda en la DJ y en las validaciones.</li>' +
             '<li><b>Proyectos de Desarrollo Local (PDL):</b> son el tercer tipo de cliente y se eligen como tipo al crear el negocio o el usuario: en el editor de negocios, en el alta rápida del Gestor y en la gestión de usuarios. El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la vigencia de 5 años desde su aprobación, la evaluación semestral y la ejecución por fuentes de financiamiento, todo en su ficha del Panel del Gestor.</li></ul>'},

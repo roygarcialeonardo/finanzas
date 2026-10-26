@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.26-19",
-  "publicada": "2026-10-26 20:57",
-  "notas": "Cuentas activas por negocio, instalación inicial y ruta elegible de la base de datos",
-  "requiereServidor": "0.3.0",
-  "migracionDatos": 1,
+  "version": "v2026.10.26-20",
+  "publicada": "2026-10-26 23:22",
+  "notas": "Licencias diferenciadas (1ª parte): modo de instalación negocio o tenedor, negocios que nacen bloqueados hasta pagar su mes, usuarios con inhabilitar y borrado protegido.",
+  "requiereServidor": "0.4.0",
+  "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "1a33961c8f78c357d1af00514bce472a985b362298f1ab312ebb5d52f511bfae",
-      "bytes": 1560449
+      "sha256": "be8561a7870da6d4e4f24c530f81def1d9518502091e6e270a89511358f9cd48",
+      "bytes": 1565791
     },
     {
       "ruta": "pdf-import.js",
