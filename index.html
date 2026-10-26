@@ -996,6 +996,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link fiscal" id="tab-fiscal" data-bs-toggle="tab" data-bs-target="#pane-fiscal"><span class="icono-anim me-1" data-icono="doc-check"></span> Fiscal</button></li>
         <li class="nav-item"><button class="nav-link registro" id="tab-registro" data-bs-toggle="tab" data-bs-target="#pane-registro"><span class="icono-anim me-1" data-icono="libro"></span> Registro</button></li>
         <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><span class="icono-anim me-1" data-icono="doc"></span> DJ</button></li>
+        <li class="nav-item"><button class="nav-link ideas" id="tab-ideas" data-bs-toggle="tab" data-bs-target="#pane-ideas">💡 Ideas</button></li>
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><span class="icono-anim me-1" data-icono="intercambio"></span> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><span class="icono-anim me-1" data-icono="monitor"></span> Activos</button></li>
         <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><span class="icono-anim me-1" data-icono="libro"></span> Contabilidad <span id="tabContaPend" class="badge bg-danger" style="display:none"></span></button></li>
@@ -1504,6 +1505,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <p class="small text-secondary">Las DJ oficiales ya presentadas que importaste con «Importar DJ» (PDF o Excel del modelo oficial). La importada manda como «presentada» en el expediente; el cálculo de la app queda como contraste visible. Se guardan los datos leídos y el nombre del archivo de referencia, no el archivo.</p>
                 <div id="djPresentadasBox"></div>
                 <div id="djPresentadasVacio" class="text-muted small">Sin declaraciones importadas todavía.</div>
+            </div>
+        </div>
+
+        <!-- IDEAS 💡 · OPTIMIZACIÓN FISCAL LEGAL POR NEGOCIO -->
+        <div class="tab-pane fade" id="pane-ideas">
+            <div class="card p-3 p-md-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <h5 class="fw-semibold mb-0">💡 Ideas: paga lo justo, ni un peso más</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="form-label small mb-0" for="ideasAnio">Año</label>
+                        <select id="ideasAnio" class="form-select form-select-sm" style="width:auto"></select>
+                    </div>
+                </div>
+                <p class="small text-secondary">Recomendaciones calculadas con los datos reales de ESTE negocio: solo vías confirmadas en norma, cada una con su comparativa — lo que pagas hoy, lo que pagarías con el consejo y lo que te ahorras. Lo que aún no está confirmado en la norma va aparte, en la zona de consulta, y no se recomienda hasta confirmarlo.</p>
+                <div id="ideasBox"></div>
             </div>
         </div>
 
@@ -2274,6 +2290,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <li>Lo que ocurra <b>fuera del banco</b> (efectivo) se añade con la <b>anotación manual</b>: fecha, concepto, tipo y monto.</li>
                     <li>La cabecera compara tus ingresos del año con el límite de 500 000 CUP: al superarlo corresponde llevar la contabilidad completa (NCIF), y este Registro queda como historial.</li>
                     <li>El botón <b>Imprimir</b> genera el libro del año. El formato oficial lo fija el Jefe de la ONAT; la salida de la app sigue la letra de la Res. 272/2024.</li>
+                </ul>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-ideas">
+                <h6 class="fw-semibold mb-2">💡 Ideas: optimización fiscal legal</h6>
+                <p class="small mb-1">Recomendaciones calculadas con los datos reales de tu negocio para pagar lo justo: cada idea muestra lo que pagas hoy, lo que pagarías con el consejo y lo que te ahorras, con su fundamento en la norma. Solo entran vías <b>confirmadas</b>; lo que depende de tu caso o de una confirmación oficial va en la <b>zona de consulta</b> y no se recomienda hasta verificarlo.</p>
+                <ul class="small mb-0">
+                    <li>El total del año separa el <b>impuesto</b> que dejas de pagar del <b>flujo</b> que liberas (dinero que dejaste de adelantar).</li>
+                    <li>El botón <b>«Ir a aplicarlo»</b> de cada idea te lleva a la pantalla donde se aplica.</li>
                 </ul>
             </div>
 
@@ -7748,8 +7773,8 @@ function mjExpedienteActorClave(){
   const A=(typeof window!=='undefined'&&window.ACTOR_NEGOCIO)||null;
   if(A&&A.tipo==='pdl') return 'pdl';
   if(A&&A.tipo==='mipyme') return 'mipyme';
-  let actividad=''; try{ const dj=(typeof getDJ==='function')?getDJ():null; actividad=(dj&&dj.ficha&&dj.ficha.actividad)||''; }catch(e){}
-  if(actividad==='gratificaciones') return 'gratificaciones';
+  let regimen=''; try{ const dj=(typeof getDJ==='function')?getDJ():null; regimen=(dj&&dj.ficha&&dj.ficha.regimen)||''; }catch(e){}
+  if(regimen==='tcp_gratificaciones') return 'gratificaciones';
   if(A&&A.tipo==='tcp') return A.pleno?'tcp_ncif':'tcp_registro';
   return 'mipyme';
 }
@@ -9029,6 +9054,75 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             });
             return { ingresos: +ingresos.toFixed(2), gastos: +gastos.toFixed(2), trib: trib };
         }
+        /* ===== IDEAS 💡 — optimización fiscal legal por negocio =====
+           Motor puro: recibe el contexto ya calculado (datos DJ del año,
+           parámetros, datos manuales, ingresos por mes, base de SS) y
+           devuelve las ideas APLICABLES a ese negocio, cada una con su
+           comparativa numérica (hoy vs con el consejo) y su fundamento.
+           Solo entran palancas confirmadas en norma (CN); lo no
+           verificado va a la «zona de consulta», nunca como consejo. */
+        function mjIdeas(ctx){
+            const ideas = [], consulta = [];
+            const R = x => +Number(x || 0).toFixed(2);
+            const datos = ctx.datos || { ingresos: 0, gastos: 0, trib: {} }, P = ctx.P, man = ctx.man || {}, anio = ctx.anio;
+            const trib = datos.trib || {};
+            if (ctx.tipo === 'tcp' && !ctx.grat) {
+                const manBase = Object.assign({}, man, { fechaPago: '', canalElectronico: false });
+                const rHoy = djCore08(datos, P, manBase, anio);
+                if (rHoy.resultado > 0) {
+                    const rOpt = djCore08(datos, P, Object.assign({}, manBase, { fechaPago: (Number(anio) + 1) + '-02-15', canalElectronico: true }), anio);
+                    const ahorro = R(rHoy.resultado - rOpt.resultado);
+                    if (ahorro > 0) ideas.push({ id: 'bonif_dj08', titulo: 'Bonificaciones de la DJ-08: pronto pago + canal electrónico', texto: 'Si declaras y pagas la DJ-08 de ' + anio + ' antes del 28 de febrero de ' + (Number(anio) + 1) + ' y lo haces por un canal electrónico (Transfermóvil o EnZona), la cuota baja dos veces: ' + P.bonifPronto + ' % por pronto pago y ' + P.bonifElec + ' % por el canal, cada una sobre el importe a pagar.', hoy: R(rHoy.resultado), optimizado: R(rOpt.resultado), ahorro: ahorro, tipo: 'impuesto', fundamento: 'Planillas oficiales DJ-08 e Instructivo; Res. 271/2024, art. 7', destino: 'tab-dj' });
+                }
+                if (man.gastosJustificados != null && datos.gastos > 0) {
+                    const J = Number(man.gastosJustificados) || 0;
+                    if (J < 0.8 * datos.gastos) {
+                        const rH = djCore08(datos, P, man, anio), rO = djCore08(datos, P, Object.assign({}, man, { gastosJustificados: datos.gastos }), anio);
+                        const ahorro = R(rH.resultado - rO.resultado);
+                        if (ahorro > 0) ideas.push({ id: 'gastos_80', titulo: 'Justifica el 80 % de tus gastos y dedúcelos al 100 %', texto: 'Hoy constan justificados ' + moneda(J) + ' de ' + moneda(datos.gastos) + ' (el ' + Math.round(J / datos.gastos * 100) + ' %). Sin llegar al 80 % solo deduces lo justificado más el 20 %; justificando el 80 % o más, la norma te deja deducir el 100 % de los gastos autorizados.', hoy: R(rH.resultado), optimizado: R(rO.resultado), ahorro: ahorro, tipo: 'impuesto', fundamento: 'Instructivo DJ-08, Sección A (justificación del 80 %)', destino: 'tab-dj' });
+                    }
+                } else if (datos.gastos > 0) {
+                    const rSin = djCore08(datos, P, Object.assign({}, manBase, { gastosJustificados: 0 }), anio);
+                    const dif = R(rSin.resultado - rHoy.resultado);
+                    if (dif > 0) consulta.push({ titulo: 'Tus gastos, sin justificantes capturados', texto: 'La app aún no tiene capturado cuánto de tus ' + moneda(datos.gastos) + ' de gastos tiene justificante. Si no justificaras nada, la DJ-08 te costaría hasta ' + moneda(dif) + ' más: la norma exige justificar el 80 % para deducir el 100 %. Captura el monto justificado en la pestaña DJ.' });
+                }
+                let correcto = 0; (ctx.ingresosMes || []).forEach(x => { correcto += 0.05 * Math.max(0, (Number(x) || 0) - 3260); });
+                const pagado = Number(trib.anticipo_iip) || 0;
+                if (pagado > correcto + 1) ideas.push({ id: 'anticipo_exceso', titulo: 'Anticipos del 5 %: solo sobre lo que pase de 3 260 al mes', texto: 'Este año constan anticipos por ' + moneda(pagado) + ' y lo correcto era ' + moneda(correcto) + '. La diferencia no es un impuesto perdido — minora tu DJ-08 — pero es dinero adelantado que pudiste estar usando en el negocio.', hoy: R(pagado), optimizado: R(correcto), ahorro: R(pagado - correcto), tipo: 'flujo', fundamento: 'Res. 271/2024, art. 20', destino: 'tab-fiscal' });
+                const ssB = Number(ctx.ssBase) || 0;
+                if (ssB > 2000) { const hoySS = R(ssB * 0.20 * 12), optSS = R(2000 * 0.20 * 12); ideas.push({ id: 'ss_base', titulo: 'Tu base de Seguridad Social es tu elección', texto: 'Aportas sobre una base de ' + moneda(ssB) + ' al mes. La escala te deja elegir entre 2 000 y 9 500: con la base mínima liberarías este flujo cada año. Ojo: la base también fija tu pensión y tus subsidios futuros — bájala solo si el flujo te importa más que esa cobertura.', hoy: hoySS, optimizado: optSS, ahorro: R(hoySS - optSS), tipo: 'flujo', fundamento: 'DL 92/2024, art. 9.1 (base elegible 2 000–9 500)', destino: 'tab-dj' }); }
+                consulta.push({ titulo: 'Beneficios según tu caso (Res. 271/2024, arts. 14-15)', texto: 'Si eres recién graduado, el primer año de actividad puede estar exonerado; y las actividades en zonas rurales o de montaña aprobadas por el CAM pueden tener una reducción de hasta el 35 %. Dependen de tu caso concreto: confírmalos en tu ONAT antes de aplicarlos.' });
+            }
+            if (ctx.tipo === 'mipyme') {
+                const rHoy01 = djCore01(datos, P, man);
+                const utilPrev = ctx.datosPrev ? (ctx.datosPrev.ingresos - ctx.datosPrev.gastos) : 0;
+                if (utilPrev < 0 && (Number(man.perdidas) || 0) < -utilPrev) {
+                    const rO = djCore01(datos, P, Object.assign({}, man, { perdidas: -utilPrev }));
+                    const ahorro = R(rHoy01.resultado - rO.resultado);
+                    if (ahorro > 0) ideas.push({ id: 'perdidas', titulo: 'Arrastra la pérdida del año pasado', texto: 'El año ' + (Number(anio) - 1) + ' cerró con pérdida de ' + moneda(-utilPrev) + ' según tus movimientos, y en la DJ-01 constan arrastrados ' + moneda(Number(man.perdidas) || 0) + '. Arrastrarla completa baja la base de utilidades de este año.', hoy: R(rHoy01.resultado), optimizado: R(rO.resultado), ahorro: ahorro, tipo: 'impuesto', fundamento: 'DJ-01: pérdidas fiscales de años anteriores', destino: 'tab-dj' });
+                }
+                const socios = Array.isArray(man.socios) ? man.socios : [];
+                let tHoy = 0, tOpt = 0, hayDiv = false;
+                socios.forEach(s => { const div = Number(s.dividendos) || 0; if (div > 0) { hayDiv = true; tHoy += djAplicarEscala(Math.max(0, div - P.exentoDiv), P.escalaDiv).total; tOpt += 2 * djAplicarEscala(Math.max(0, div / 2 - P.exentoDiv), P.escalaDiv).total; } });
+                if (hayDiv && R(tHoy - tOpt) > 100) ideas.push({ id: 'dividendos_split', titulo: 'Divide los dividendos entre dos ejercicios', texto: 'La escala de dividendos es progresiva (del 3 % al 20 %) y el mínimo exento se aplica CADA año: repartir lo mismo en dos ejercicios seguidos, en vez de todo en uno, baja el impuesto total de los socios. La distribución la acuerda la junta: es una decisión de momento, no de monto.', hoy: R(tHoy), optimizado: R(tOpt), ahorro: R(tHoy - tOpt), tipo: 'impuesto', fundamento: 'Escala de dividendos y mínimo exento anual (parámetros DJ)', destino: 'tab-dj' });
+                const utilidad = datos.ingresos - datos.gastos;
+                if (utilidad > 0 && (Number(man.reservas) || 0) < 0.10 * utilidad) {
+                    const rRes = djCore01(datos, P, Object.assign({}, man, { reservas: R(0.10 * utilidad) }));
+                    const dif = R(rHoy01.impuesto - rRes.impuesto);
+                    if (dif > 0) consulta.push({ titulo: 'Reserva de Contingencias en la DJ-01', texto: 'Dotar la Reserva (obligatoria: se nutre con el 10 % de las utilidades) podría además bajar el impuesto en unos ' + moneda(dif) + '. La deducibilidad está «por verificar en el Instructivo DJ-01»: confírmala en la ONAT antes de aplicarla.' });
+                }
+            }
+            if (ctx.tipo === 'pdl') {
+                if (datos.ingresos > 0) { const hoyV = R(datos.ingresos * 0.10), optV = R(datos.ingresos * 0.05); ideas.push({ id: 'pdl_alimentos', titulo: 'Alimentos de minindustrias al detalle: 5 %, no 10 %', texto: 'El impuesto sobre ventas del proyecto es el 10 %, PERO las ventas al detalle de alimentos producidos por minindustrias tributan al 5 %. La comparativa supone que TODAS tus ventas del año (' + moneda(datos.ingresos) + ') fueran de ese tipo; tu ahorro real es la mitad del impuesto de la parte que sí lo sea: 500 por cada 10 000.', hoy: hoyV, optimizado: optV, ahorro: R(hoyV - optV), tipo: 'impuesto', condicional: true, fundamento: 'Res. 202/2026, párrafo 0114822', destino: 'tab-fiscal' }); }
+                consulta.push({ titulo: 'Tus trabajadores no presentan DJ por el proyecto', texto: 'Los ingresos que tus contratados reciben del proyecto están exonerados de su Declaración Jurada anual (Res. 202/2026, art. 12): un trámite menos para tu equipo, y un argumento para contratar.' });
+                consulta.push({ titulo: 'Utilidades y divisa del PDL: pendientes de la norma', texto: 'El tipo del impuesto sobre utilidades del PDL quedó con una inconsistencia en la propia Resolución 202/2026 («treinta y cinco por ciento (30 %)») y la norma no fija un % de retención de la divisa: la app no calcula ninguno de los dos hasta que salga la corrección oficial.' });
+            }
+            if (ctx.grat) consulta.push({ titulo: 'Gratificaciones: el exento no se duplica', texto: 'Si además de las gratificaciones ejerces otra actividad, el mínimo exento se descuenta en la DJ-08 general y presentas DOS declaraciones (Instructivo DJ-08 de gratificaciones).' });
+            consulta.push({ titulo: 'Paga siempre en fecha', texto: 'Un pago fuera de fecha expone a recargo por mora y a multas (Ley 113 y DL 91/2024), y ningún recargo es deducible: el calendario de la pestaña Fiscal te avisa antes de cada vencimiento.' });
+            const totalImpuesto = R(ideas.filter(i => i.tipo === 'impuesto').reduce((a, i) => a + i.ahorro, 0));
+            const totalFlujo = R(ideas.filter(i => i.tipo === 'flujo').reduce((a, i) => a + i.ahorro, 0));
+            return { ideas: ideas, consulta: consulta, totalImpuesto: totalImpuesto, totalFlujo: totalFlujo };
+        }
         /* Núcleo puro de la DJ-08 (sin DOM): datos = djDatosAnio() */
         function djCore08(datos, P, man, anio){
             const L = [];
@@ -9426,6 +9520,62 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 }
             }
         }
+        /* ===== IDEAS 💡 · capa de aplicación ===== */
+        function ideasIngresosMes(anio){
+            const out = new Array(12).fill(0);
+            allMovimientos().forEach(m => {
+                if (String(m.fecha || '').slice(0, 4) !== String(anio)) return;
+                if (!clasifEnTotales(m.clasificacion || 'operacional')) return;
+                if (m.tipo === 'ingreso') { const ix = Number(String(m.fecha).slice(5, 7)) - 1; if (ix >= 0 && ix < 12) out[ix] += getMontoMovimientoCUP(m); }
+            });
+            return out.map(x => +x.toFixed(2));
+        }
+        function ideasBarraHTML(etiqueta, valor, maximo, clase){
+            const w = Math.max(2, Math.min(100, (Number(valor) || 0) / Math.max(1, maximo) * 100));
+            return '<div class="small mb-1">' + etiqueta + ' <b>' + moneda(valor) + '</b></div><div class="progress mb-2" style="height:14px"><div class="progress-bar ' + clase + '" role="progressbar" style="width:' + w.toFixed(1) + '%"></div></div>';
+        }
+        function renderIdeas(){
+            const box = document.getElementById('ideasBox'); if (!box) return;
+            const sel = document.getElementById('ideasAnio');
+            if (sel && !sel.options.length) { const y0 = new Date().getFullYear(); for (let y = y0; y >= y0 - 3; y--) { const o = document.createElement('option'); o.value = String(y); o.textContent = String(y); sel.appendChild(o); } sel.value = String(y0); }
+            const anio = Number(sel && sel.value) || new Date().getFullYear();
+            const a = (typeof ACTOR_NEGOCIO !== 'undefined' && ACTOR_NEGOCIO) || actorDelNegocio();
+            const dj = getDJ();
+            const ctx = { tipo: a.tipo, grat: a.tipo === 'tcp' && !!(dj.ficha && dj.ficha.regimen === 'tcp_gratificaciones'), anio: anio,
+                datos: djDatosAnio(anio), datosPrev: djDatosAnio(anio - 1), P: djParamsAnio(anio), man: djManualAnio(anio),
+                ingresosMes: ideasIngresosMes(anio), ssBase: a.tipo === 'tcp' ? ssBaseTitularTCP() : 0 };
+            const r = mjIdeas(ctx);
+            let h = '';
+            if (r.totalImpuesto > 0 || r.totalFlujo > 0) {
+                h += '<div class="alert alert-success py-2 px-3 small">Con los datos de ' + anio + ', este negocio puede ahorrarse ' +
+                    (r.totalImpuesto > 0 ? 'hasta <b>' + moneda(r.totalImpuesto) + '</b> en impuestos' : '') +
+                    (r.totalImpuesto > 0 && r.totalFlujo > 0 ? ' y ' : '') +
+                    (r.totalFlujo > 0 ? 'liberar <b>' + moneda(r.totalFlujo) + '</b> de flujo' : '') +
+                    ' al año, usando solo lo que la norma permite.</div>';
+            }
+            if (!r.ideas.length) h += '<div class="alert alert-info py-2 px-3 small">Con los datos de ' + anio + ' no detecto ahorros calculables por ahora: importa tus estados de cuenta y captura tus datos de la DJ para que las ideas trabajen con tus números reales.</div>';
+            h += r.ideas.map(i => {
+                const max = Math.max(i.hoy, i.optimizado, 1);
+                return '<div class="card p-3 mb-3"><div class="d-flex justify-content-between align-items-start gap-2"><h6 class="fw-semibold mb-1">💡 ' + esc(i.titulo) + '</h6>' +
+                    (i.condicional ? '<span class="badge bg-warning text-dark">según tu mezcla</span>' : '') + '</div>' +
+                    '<p class="small mb-2">' + esc(i.texto) + '</p>' +
+                    ideasBarraHTML('Hoy', i.hoy, max, 'bg-danger') +
+                    ideasBarraHTML('Con el consejo', i.optimizado, max, 'bg-success') +
+                    '<div class="mt-1">Te ahorras <b class="text-success fs-5">' + moneda(i.ahorro) + '</b> <span class="text-secondary small">(' + (i.tipo === 'flujo' ? 'flujo liberado' : 'impuesto') + ')</span></div>' +
+                    '<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2"><span class="text-secondary small">Fundamento: ' + esc(i.fundamento) + '</span>' +
+                    '<button type="button" class="btn btn-sm btn-outline-primary" data-ideas-ir="' + i.destino + '">Ir a aplicarlo</button></div></div>';
+            }).join('');
+            if (r.consulta.length) {
+                h += '<h6 class="fw-semibold mt-4">🔎 Zona de consulta — verifícalo antes de aplicarlo</h6>' +
+                    '<p class="small text-secondary">Estas vías existen, pero dependen de tu caso o de una confirmación oficial: no se recomiendan hasta verificarlas (en tu ONAT o en la norma).</p>' +
+                    r.consulta.map(c => '<div class="card p-3 mb-2 border-warning"><h6 class="fw-semibold mb-1 small">' + esc(c.titulo) + '</h6><p class="small mb-0">' + esc(c.texto) + '</p></div>').join('');
+            }
+            box.innerHTML = h;
+            box.querySelectorAll('[data-ideas-ir]').forEach(b => b.addEventListener('click', () => { const t = document.getElementById(b.dataset.ideasIr); if (t) { t.click(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }));
+        }
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-ideas') renderIdeas(); });
+        document.addEventListener('change', e => { if (e.target && e.target.id === 'ideasAnio') renderIdeas(); });
+
         /* ===== IMPORTAR DJ (presentada) — espejo del Vector Fiscal =====
            Subir la DJ oficial ya llenada (PDF o Excel), leerla sola,
            validarla contra el negocio abierto y registrarla en su
@@ -14171,7 +14321,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-5';
+        var MANUAL_VERSION = 'v2026.10.26-6';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14190,7 +14340,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             {id:'gestion', titulo:'15 · Gestión+ (herramientas ampliadas)'},
             {id:'libro', titulo:'16 · Herramientas del Libro: costos, precios y tablero'},
             {id:'impresion', titulo:'17 · Documentos oficiales e impresión'},
-            {id:'respaldo', titulo:'18 · Respaldo, Historial y Configuración'}
+            {id:'respaldo', titulo:'18 · Respaldo, Historial y Configuración'},
+            {id:'ideas', titulo:'19 · Ideas 💡: pagar lo justo, ni un peso más'}
         ];
         var MANUAL_SECCIONES = [
         {id:'acceso-sesion', modulo:'empezar', titulo:'Entrar a la app y la sesión de 30 días', html:
@@ -14426,6 +14577,11 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>Las operaciones <b>fuera del banco</b> (efectivo) se añaden con la <b>anotación manual</b>: fecha, concepto, tipo y monto; quedan marcadas como manuales y puedes borrarlas.</li>' +
             '<li>La cabecera compara tus ingresos del año con el límite: si superas los 500 000 CUP, corresponde pasar a la contabilidad completa (NCIF) y el Registro queda como historial.</li>' +
             '<li>El botón <b>Imprimir</b> genera el libro del año con el contribuyente, su NIT y los totales. El diseño oficial del Registro lo fija el Jefe de la ONAT; la salida de la app sigue la letra de la norma mientras no se publique un modelo.</li></ul>'},
+        {id:'ideas', modulo:'ideas', titulo:'Ideas 💡: optimización fiscal legal con tus números', html:
+            '<p>La pestaña <b>Ideas 💡</b> estudia los datos reales de tu negocio y te propone vías <b>legales</b> de pagar menos, cada una con su comparativa: <b>hoy pagas X → con el consejo pagarías Y → te ahorras Z</b>, con sus barras y el botón que te lleva a donde se aplica.</p>' +
+            '<ul><li>Solo entran palancas <b>confirmadas en la norma</b> (bonificaciones de la DJ-08, la regla del 80 % de gastos justificados, el anticipo solo sobre el exceso de 3 260, la base elegible de tu Seguridad Social, el arrastre de pérdidas, el momento de los dividendos, el 5 % de los alimentos de minindustria del PDL…), calculadas con TUS movimientos y TU DJ.</li>' +
+            '<li>El resumen separa el <b>impuesto</b> que dejas de pagar del <b>flujo</b> que liberas: no es lo mismo ahorrar que dejar de adelantar, y aquí no se mezclan.</li>' +
+            '<li>Lo que depende de tu caso o de una confirmación oficial va a la <b>zona de consulta</b>: existe, pero no se recomienda hasta verificarlo en tu ONAT o en la norma. Nada de atajos: un ahorro que una fiscalización deshace no es un ahorro.</li></ul>'},
         {id:'creditos-314', modulo:'creditos', titulo:'Créditos: alta, tabla y la cuenta 314-000', html:
             '<p>En Gestión+ das de alta el crédito con su importe, tasa y tabla de amortización (sistema francés). El <b>principal</b> vive en la cuenta del crédito y los <b>intereses por pagar</b> en su subcuenta propia: <b>314-000 · Intereses por Pagar (Créditos Bancarios)</b>.</p>' +
             '<p>La 314-000 exige como auxiliar <b>el propio crédito</b>: el validador comprueba que ese crédito existe en el registro antes de aceptar el asiento. Así el interés queda separado del principal y asociado exactamente a su deuda, sin atajos.</p>'},
