@@ -1016,6 +1016,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div id="alertaFinanciera" class="alerta-financiera"></div>
             <div id="alertaTrimestral" class="alerta-financiera mt-3"></div>
             <div id="alertaSalarioNomina" class="mt-3"></div>
+            <div id="avisosInicioBox" class="mt-3"></div>
             <div class="row g-3 mb-4" id="resumenCuentas"></div>
             <div id="docResumenBox" class="d-none"></div>
             <div id="docOnatBox" class="d-none"></div>
@@ -1570,7 +1571,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Plantillas de contrapartida</h6><div id="contaPlantillasBox"></div><button type="button" class="btn btn-sm btn-primary mt-2" onclick="contaSavePlantillas()">Guardar plantillas</button></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Centros de costo</h6><div id="contaCentrosBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-3"><input id="contaCentroNombre" class="form-control form-control-sm" placeholder="Nombre del centro"></div><div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaAddCentro()">Crear centro</button></div></div><p class="small text-secondary mt-2 mb-0">El centro se elige en cada movimiento (campo «Centro de costo») y se hereda a sus asientos; el Estado de Resultados se puede filtrar por centro arriba.</p></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-files me-2"></i>Comprobantes patrón</h6><div id="contaPatronesBox"></div></div>
-            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lock me-2"></i>Cierre con candados <span class="small text-secondary">(verificaciones previas al cierre de mes)</span></h6><div id="contaCandadosBox"></div><p class="small text-secondary mt-2 mb-0">Orden de la cadena (modelo del Versat): comprobantes asentados → subsistemas → saldos inversos → transitorias → valuación de divisa → cuadres → depreciación → pendientes → nómina.</p></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lock me-2"></i>Cierre con candados <span class="small text-secondary">(verificaciones previas al cierre de mes)</span></h6><div id="contaCandadosBox"></div><div class="mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="mjPrepararCierreUI()"><i class="bi bi-lightning-charge me-1"></i>Preparar cierre (todo en cadena)</button></div><p class="small text-secondary mt-2 mb-0">«Preparar cierre» ejecuta solo la cadena previa: genera la contabilidad, aplica los patrones recurrentes, revaloriza la divisa y contabiliza la depreciación, y te dice qué candados quedan en rojo. El cierre en sí lo confirmas tú, como siempre. Orden de la cadena (modelo del Versat): comprobantes asentados → subsistemas → saldos inversos → transitorias → valuación de divisa → cuadres → depreciación → pendientes → nómina.</p></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Cierre contable anual y Balance de Apertura</h6><div id="contaCierresBox" class="mb-2"></div><div class="row g-2 align-items-end"><div class="col-md-2"><label class="form-label mb-1 small">Año a cerrar</label><input id="contaCierreAnio" type="number" class="form-control form-control-sm" placeholder="2026"></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-danger" onclick="contaCierreBtn()"><i class="bi bi-lock me-1"></i> Cerrar año contable</button></div><div class="col-md-7 d-flex justify-content-end gap-2 flex-wrap"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docCierreAnualPrint()"><i class="bi bi-printer me-1"></i>Imprimir cierre anual</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docBalanceAperturaPrint()"><i class="bi bi-printer me-1"></i>Imprimir Balance de Apertura</button></div></div><div id="docCierreBox" class="d-none"></div></div>
         </div>
 
@@ -1790,7 +1791,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="intercambio" style="color:#0369a1"></span>Tasas de cambio</h5><div class="small text-secondary">Consulta la tasa del Banco Central de Cuba por fecha y moneda.</div></div>
             <div class="row g-3 mb-3">
                 <div class="col-lg-5"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-3">Consultar Banco Central de Cuba</h6><div class="row g-2"><div class="col-6"><label class="form-label">Fecha</label><input type="date" class="form-control" id="fxFecha"></div><div class="col-3"><label class="form-label">Moneda</label><select class="form-select" id="fxMoneda"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>MXN</option><option>RUB</option><option>CNY</option><option>JPY</option></select></div><div class="col-3"><label class="form-label">Segmento</label><select class="form-select" id="fxSegmento"><option value="III">III</option><option value="II">II</option><option value="I">I</option></select></div><div class="col-12 d-grid mt-2"><button class="btn btn-primary" id="btnConsultarBCC"><span class="icono-anim me-1" data-icono="descargar"></span> Consultar tasa</button></div></div><div class="fx-note mt-2">Segmento III seleccionado por defecto.</div></div></div>
-                <div class="col-lg-7"><div class="fx-result h-100 d-flex flex-column justify-content-center"><small class="text-muted">Resultado de la consulta</small><div class="fx-rate-big" id="fxResultado">—</div><div id="fxResultadoMeta" class="small text-secondary mt-1">Selecciona fecha y consulta.</div><div class="mt-3 d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-success" id="btnUsarTasaUSDIngreso" disabled><span class="icono-anim me-1" data-icono="flecha-arriba-circulo"></span> Ingreso USD</button><button class="btn btn-sm btn-outline-danger" id="btnUsarTasaUSDGasto" disabled><span class="icono-anim me-1" data-icono="flecha-abajo-circulo"></span> Gasto USD</button></div></div></div>
+                <div class="col-lg-7"><div class="fx-result h-100 d-flex flex-column justify-content-center"><small class="text-muted">Resultado de la consulta</small><div class="fx-rate-big" id="fxResultado">—</div><div id="fxResultadoMeta" class="small text-secondary mt-1">Selecciona fecha y consulta.</div><div class="mt-3 d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-success" id="btnUsarTasaUSDIngreso" disabled><span class="icono-anim me-1" data-icono="flecha-arriba-circulo"></span> Ingreso USD</button><button class="btn btn-sm btn-outline-danger" id="btnUsarTasaUSDGasto" disabled><span class="icono-anim me-1" data-icono="flecha-abajo-circulo"></span> Gasto USD</button><button class="btn btn-sm btn-outline-primary" id="btnUsarTasaMes" disabled><span class="icono-anim me-1" data-icono="calendario"></span> Usar como tasa del mes</button></div></div></div>
             </div>
             <div class="card p-3 p-md-4 mb-3"><div class="d-flex flex-wrap justify-content-between align-items-center gap-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="banco"></span>Banco Central de Cuba</h6><a class="btn btn-outline-primary" href="https://www.bc.gob.cu/tasas-de-cambio" target="_blank" rel="noopener"><span class="icono-anim me-1" data-icono="flecha-der"></span>Ver tasas en BCC</a></div></div>
             <div class="card p-3 p-md-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="reloj"></span>Tasas utilizadas y guardadas</h6><span class="badge bg-soft-info">Guardadas</span></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Moneda</th><th>Segmento</th><th class="text-end">CUP / 1 unidad</th><th>Fuente</th></tr></thead><tbody id="fxHistBody"></tbody></table></div><div id="fxHistVacio" class="text-muted text-center py-4" style="display:none">Todavía no hay tasas guardadas.</div></div>
@@ -4200,7 +4201,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const _ca={}, _comp={};
             COMP_DEF.forEach(c=>{ const _el=document.getElementById('trab-comp-'+c.id), _on=_el?_el.checked:false; _ca[c.id]=_on; if(_on) Object.assign(_comp, leerCamposConcepto(c.id)); });
             Object.assign(_comp, leerControlDias());
-            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim(),numSegSocial:document.getElementById('trabNumSS').value.trim(),centroCosto:document.getElementById('trabCentroCosto').value.trim(),contrato:{tipo:document.getElementById('trabContratoTipo').value||'indeterminado',fecha:document.getElementById('trabContratoFecha').value||'',fechaFin:document.getElementById('trabContratoFin').value||'',lugar:document.getElementById('trabLugar').value.trim(),jornada:document.getElementById('trabJornada').value.trim()}};
+            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim(),numSegSocial:document.getElementById('trabNumSS').value.trim(),centroCosto:document.getElementById('trabCentroCosto').value.trim(),contrato:{tipo:document.getElementById('trabContratoTipo').value||'indeterminado',fecha:document.getElementById('trabContratoFecha').value||document.getElementById('trabFechaAlta').value||'',fechaFin:document.getElementById('trabContratoFin').value||'',lugar:document.getElementById('trabLugar').value.trim(),jornada:document.getElementById('trabJornada').value.trim()}};
             let _wid=trabajadorEditId;
             if(_wid){ const i=d.trabajadores.findIndex(x=>String(x.id)===String(_wid)); if(i>=0)d.trabajadores[i]=Object.assign({},d.trabajadores[i],obj); }
             else { obj.id='w'+Date.now(); _wid=obj.id; d.trabajadores.push(obj); }
@@ -4877,7 +4878,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function editarImporteFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const actual=o.importeManual===null||o.importeManual===undefined?'':o.importeManual;const v=prompt('Importe CUP para esta obligación. Deja vacío para volver al cálculo automático:',actual);if(v===null)return;if(String(v).trim()==='')o.importeManual=null;else{const n=Number(v);if(!(n>=0)){alert('Importe inválido.');return;}o.importeManual=n;}saveFiscal(d);renderFiscal();}
         function borrarFiscalManual(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o||o.vector)return;if(!confirm('¿Eliminar esta obligación manual?'))return;d.obligaciones=d.obligaciones.filter(x=>x.id!==id);saveFiscal(d);renderFiscal();}
         function fisFmtFechaDMY(iso){const a=String(iso||'').split('-');return a.length===3?(a[2]+'/'+a[1]+'/'+a[0]):String(iso||'');}
-        function anotarObligacionFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const r=prompt('Responsable de esta obligación (quién la prepara y presenta):',o.responsable||'');if(r===null)return;const f=prompt('Fuente de verificación (dónde se comprobó: Gaceta Oficial, consulta en ONAT…):',o.fuenteVerificacion||'');if(f===null)return;const fv=prompt('Fecha de verificación (AAAA-MM-DD). Déjala vacía si aún no está verificada:',o.fechaVerificacion||'');if(fv===null)return;o.responsable=String(r).trim();o.fuenteVerificacion=String(f).trim();o.fechaVerificacion=String(fv).trim();saveFiscal(d);renderFiscal();}
+        function anotarObligacionFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;let ultResp='';try{ultResp=localStorage.getItem('finanzas_resp_fiscal')||'';}catch(e){}const r=prompt('Responsable de esta obligación (quién la prepara y presenta):',o.responsable||ultResp);if(r===null)return;const f=prompt('Fuente de verificación (dónde se comprobó: Gaceta Oficial, consulta en ONAT…):',o.fuenteVerificacion||'');if(f===null)return;const fv=prompt('Fecha de verificación (AAAA-MM-DD). Déjala vacía si aún no está verificada:',o.fechaVerificacion||hoy());if(fv===null)return;o.responsable=String(r).trim();o.fuenteVerificacion=String(f).trim();o.fechaVerificacion=String(fv).trim();try{if(o.responsable)localStorage.setItem('finanzas_resp_fiscal',o.responsable);}catch(e){}saveFiscal(d);renderFiscal();}
         function registrarPagoFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);if(c.importe===null){alert('Primero fija el importe de esta obligación.');return;}const rest=Math.max(0,c.importe-est.pagado);if(rest<=.005){alert('Esta obligación ya aparece pagada.');return;}abrirMovModal('onat','chequera',null);pendingFiscalLink={id:o.id,codigo:o.codigo,periodo:o.periodo,concepto:o.concepto};cargarAporteFiscalEnModal(pendingFiscalLink);document.getElementById('movMonto').value=rest.toFixed(2);}
         function guardarFiscalManual(){const codigo=document.getElementById('fisManCodigo').value.trim(),periodo=document.getElementById('fisManPeriodo').value.trim(),concepto=document.getElementById('fisManConcepto').value.trim(),vence=document.getElementById('fisManVence').value,raw=document.getElementById('fisManImporte').value,responsable=document.getElementById('fisManResponsable').value.trim(),fuenteVerificacion=document.getElementById('fisManFuenteVerif').value.trim(),fechaVerificacion=document.getElementById('fisManFechaVerif').value;if(!codigo||!periodo||!concepto){alert('Completa código, período y concepto.');return;}const d=getFiscal();d.obligaciones.push({id:'man_'+Date.now(),codigo,periodo,concepto,vence,vector:false,importeManual:raw===''?null:Math.max(0,Number(raw)||0),responsable:responsable,fuenteVerificacion:fuenteVerificacion,fechaVerificacion:fechaVerificacion});saveFiscal(d);fiscalManualModal.hide();renderFiscal();}
 
@@ -4892,7 +4893,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 return {fecha:f,moneda:m,segmento:seg,rate,source:j.source||'Banco Central de Cuba',endpoint:j.endpoint||'https://www.bc.gob.cu/tasas-de-cambio',segmentVerified:j.segment_verified!==false,via:j.via||'Servidor local → BCC'};
             }finally{clearTimeout(timer);}
         }
-        async function consultarBCCDesdePanel(){const fecha=document.getElementById('fxFecha').value||hoy(),moneda=document.getElementById('fxMoneda').value,segmento=document.getElementById('fxSegmento').value;document.getElementById('fxResultado').textContent='Consultando…';try{const r=await consultarBCC(fecha,moneda,segmento);lastFXResult=r;document.getElementById('fxResultado').textContent=`1 ${moneda} = ${r.rate.toFixed(4)} CUP`;document.getElementById('fxResultadoMeta').textContent=`Banco Central de Cuba · ${fecha} · Segmento ${segmento}`;document.getElementById('btnUsarTasaUSDIngreso').disabled=moneda!=='USD';document.getElementById('btnUsarTasaUSDGasto').disabled=moneda!=='USD';guardarTasaLocal({fecha,moneda,segmento,tasa:r.rate,fuente:'Banco Central de Cuba',endpoint:r.endpoint,guardada:new Date().toISOString()});}catch(e){console.warn('Consulta BCC:',e);lastFXResult=null;document.getElementById('fxResultado').textContent='No disponible';document.getElementById('fxResultadoMeta').textContent='No se pudo consultar el BCC. Puedes escribir la tasa manualmente.';document.getElementById('btnUsarTasaUSDIngreso').disabled=true;document.getElementById('btnUsarTasaUSDGasto').disabled=true;}}
+        async function usarTasaComoDelMes(){ if(!lastFXResult||!(lastFXResult.rate>0)){ alert('Primero consulta la tasa del BCC.'); return; } const per=periodoNominaActual(); CFG.tasasMes[per]=lastFXResult.rate; try{ const r=await api('config_set',{tasasMes:CFG.tasasMes}); if(!r.ok){ alert('No se pudo guardar la tasa del mes: '+(r.error||'error')); return; } alert('✅ Tasa del BCC ('+lastFXResult.rate+') guardada como tasa de '+per+'. Los resúmenes, la revalorización y la DJ de ese mes la usan desde ahora; puedes cambiarla en Configuración → Tasas por mes.'); }catch(e){ alert('No se pudo guardar la tasa del mes.'); } }
+        async function consultarBCCDesdePanel(){const fecha=document.getElementById('fxFecha').value||hoy(),moneda=document.getElementById('fxMoneda').value,segmento=document.getElementById('fxSegmento').value;document.getElementById('fxResultado').textContent='Consultando…';try{const r=await consultarBCC(fecha,moneda,segmento);lastFXResult=r;document.getElementById('fxResultado').textContent=`1 ${moneda} = ${r.rate.toFixed(4)} CUP`;document.getElementById('fxResultadoMeta').textContent=`Banco Central de Cuba · ${fecha} · Segmento ${segmento}`;document.getElementById('btnUsarTasaUSDIngreso').disabled=moneda!=='USD';document.getElementById('btnUsarTasaUSDGasto').disabled=moneda!=='USD';{const bm=document.getElementById('btnUsarTasaMes');if(bm)bm.disabled=moneda!=='USD';}guardarTasaLocal({fecha,moneda,segmento,tasa:r.rate,fuente:'Banco Central de Cuba',endpoint:r.endpoint,guardada:new Date().toISOString()});}catch(e){console.warn('Consulta BCC:',e);lastFXResult=null;document.getElementById('fxResultado').textContent='No disponible';document.getElementById('fxResultadoMeta').textContent='No se pudo consultar el BCC. Puedes escribir la tasa manualmente.';document.getElementById('btnUsarTasaUSDIngreso').disabled=true;document.getElementById('btnUsarTasaUSDGasto').disabled=true;}}
         function renderFX(){const d=getFX(),body=document.getElementById('fxHistBody');if(!body)return;body.innerHTML=d.rates.slice(0,80).map(r=>`<tr><td>${esc(r.fecha)}</td><td><b>${esc(r.moneda)}</b></td><td>${esc(r.segmento||'—')}</td><td class="text-end fw-semibold">${Number(r.tasa).toFixed(4)}</td><td><small>${esc(r.fuente||'Manual')}</small></td></tr>`).join('');document.getElementById('fxHistVacio').style.display=d.rates.length?'none':'block';}
         function usarTasaEnMovimiento(tipo){if(!lastFXResult||lastFXResult.moneda!=='USD')return;abrirMovModal(tipo,'tarjeta_usd',null);document.getElementById('movTasaUSD').value=lastFXResult.rate;movTasaSource=`${lastFXResult.source} · ${lastFXResult.fecha} · Segmento ${lastFXResult.segmento}`;document.getElementById('movTasaFuente').textContent=movTasaSource;actualizarEquivMov();}
         function actualizarEquivMov(){const m=Number(document.getElementById('movMonto').value)||0,t=Number(document.getElementById('movTasaUSD').value)||0;document.getElementById('movEquivCUP').value=(m*t).toFixed(2);}
@@ -8401,7 +8403,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             return ev; }
         function contaPreview(){ const c=getConta(); const clon=JSON.parse(JSON.stringify(c)); const r=ctaReconstruir(clon, contaEventos(true)); return {creados:r.creados, pendientes:r.pendientes, bandeja:clon.bandeja||[]}; }
         function contaGenerarSilencioso(){ const c=getConta(); if(!c.activa) return {omitido:true,razon:'inactiva'}; if(modoEdicionActivo) return {omitido:true,razon:'edicion'}; const r=ctaReconstruir(c, contaEventos(false)); saveConta(c); try{ saveMovimientos(movimientos); }catch(e){} return {creados:r.creados, pendientes:r.pendientes.length, ya:r.yaExistian}; }
-        window.__contaTrasImportar=function(){ try{ return contaGenerarSilencioso(); }catch(e){ return {omitido:true,razon:'error'}; } };
+        window.__contaTrasImportar=function(){ try{ const r=contaGenerarSilencioso(); try{ if(typeof mjPatronesAplicarTodos==='function') mjPatronesAplicarTodos(periodoNominaActual(),true); }catch(e){} return r; }catch(e){ return {omitido:true,razon:'error'}; } };
         window.__contaEvalImport=function(items){ try{ const c=getConta(); if(!c.activa||!Array.isArray(items)) return null;
             /* Para la vista previa, una transferencia sin otra cuenta se
                contrasta con los movimientos YA guardados en la app: si
@@ -8892,7 +8894,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(typeof mjGestionDe!=='function'){ box.innerHTML='<span class="text-muted small">Gestión+ no está disponible en esta vista.</span>'; return; }
             const g=mjGestionDe(c);
             box.innerHTML=((g.patrones&&g.patrones.length)?g.patrones.map(p=>`<div class="d-flex justify-content-between align-items-center gap-2 border-bottom py-1"><span>· <b>${esc(p.nombre)}</b> <span class="text-secondary">(${esc(p.frecuencia||'mensual')})</span> — ${(p.lineas||[]).map(l=>esc(l.cuenta)+' '+(Number(l.debe)>0?('D '+l.debe):('H '+l.haber))).join(' · ')}</span><button type="button" class="btn btn-sm btn-outline-primary text-nowrap" onclick="contaPatronAplicar('${p.id}')">Crear comprobante</button></div>`).join(''):'<span class="text-secondary small">Sin patrones todavía: crea el primero y reutilízalo cada mes en un toque.</span>')+
-            ' <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="contaPatronCrear()">Crear patrón</button><div class="small text-secondary mt-1">Es la misma lista de «Comprobantes patrones / recurrentes» de Gestión+: una sola lista para toda la app. Aplicar crea el comprobante del período actual y no se duplica dentro del mismo período.</div>'; }
+            ' <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="contaPatronCrear()">Crear patrón</button> <button type="button" class="btn btn-sm btn-primary mt-2" onclick="mjPatronesAplicarTodosUI()">Aplicar todos al período</button><div class="small text-secondary mt-1">Es la misma lista de «Comprobantes patrones / recurrentes» de Gestión+: una sola lista para toda la app. Aplicar crea el comprobante del período actual y no se duplica dentro del mismo período. Al importar un estado de cuenta, los patrones del período se aplican solos.</div>'; }
         function contaPatronAplicar(id){ if(typeof mjPatronAplicarUI==='function') mjPatronAplicarUI(id); else alert('Gestión+ no está disponible.'); }
         function contaPatronCrear(){ if(typeof mjPatronCrearUI!=='function'){ alert('Gestión+ no está disponible.'); return; } mjPatronCrearUI(); renderAll(); }
         function contaCandadosDatos(periodo,filasPre){ const c=getConta();
@@ -8935,6 +8937,14 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             return {ok:true,asumidos:r.asumidosUsados||[]}; }catch(e){ return {ok:true}; } };
 
         // ===== RENDER TODO =====
+        function renderAvisosInicio(){ const box=document.getElementById('avisosInicioBox'); if(!box) return; const avisos=[];
+            try{ const c=getConta(); if(c&&c.activa&&(c.bandeja||[]).length) avisos.push({n:(c.bandeja||[]).length, txt:'movimiento(s) en la bandeja «Por clasificar» de Contabilidad, en rojo, sin contabilizar'}); }catch(e){}
+            try{ const d=getFiscal(); const hoyT=hoy(); const limite=new Date(Date.parse(hoyT)+7*86400000).toISOString().slice(0,10);
+                const venc=(d.obligaciones||[]).filter(o=>{ if(!o.vence||o.vence>limite) return false; const cc=calcImporteObligacion(o); const est=estadoObligacion(o,cc.importe); return est.key!=='paid'; }).sort((a,b)=>String(a.vence).localeCompare(String(b.vence)));
+                if(venc.length) avisos.push({n:venc.length, txt:'obligación(es) ONAT vencida(s) o que vencen en 7 días (la próxima: '+venc[0].vence+')'}); }catch(e){}
+            try{ const ex=mjExpedienteLaboral(getRRHH()); if(ex.incompletos) avisos.push({n:ex.incompletos, txt:'expediente(s) laboral(es) incompleto(s) (Ley 189/2026)'}); }catch(e){}
+            try{ if(typeof isAdmin==='function'&&isAdmin()&&typeof subsDeNeg==='function'&&typeof subsMesActual==='function'){ const pend=Object.keys(CFG.negocios||{}).filter(n=>{ const s=subsDeNeg(n); return s&&s.activo!==false&&!(s.pagos&&s.pagos[subsMesActual()]); }); if(pend.length) avisos.push({n:pend.length, txt:'negocio(s) sin la suscripción del mes pagada: '+pend.join(', ')}); } }catch(e){}
+            box.innerHTML=avisos.length?('<div class="alert alert-warning py-2 px-3 small mb-0"><b>⚠ Avisos al entrar:</b> '+avisos.map(a=>'<b>'+a.n+'</b> '+esc(a.txt)).join(' · ')+'</div>'):''; }
         function renderAll() {
             _tvKey = null;
             const _safe = (fn, nombre) => { try { fn(); } catch(e){ console.warn('Render ['+nombre+']:', e); } };
@@ -8943,6 +8953,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             _safe(renderAlertaFinanciera,'alerta');
             _safe(renderAlertaTrimestral,'alerta-trimestral');
             _safe(renderAlertaSalarioNomina,'alerta-salario');
+            _safe(renderAvisosInicio,'avisos-inicio');
             ['chequera', 'tarjeta_cup', 'tarjeta_usd'].forEach(c => _safe(() => renderTablaCuenta(c),'cuenta-'+c));
             _safe(renderHistorial,'historial');
             _safe(renderSelTrab,'sel-trab');
@@ -10704,9 +10715,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function mjKYCEditar(nombre){ const d=mjGestorDoc(); const f=(d.kyc||{})[nombre]||{};
             const pedir=(etq,act)=>{ const v=prompt(etq,act||''); return v==null?null:v; };
             const nf={};
-            nf.identificacion=pedir('Identificación (CI/NIT del cliente):',f.identificacion); if(nf.identificacion==null) return;
+            const _cd=(typeof GDOCS!=='undefined'&&GDOCS)?GDOCS[nombre]:null; const _ficha=_cd&&_cd.dj&&_cd.dj.ficha?_cd.dj.ficha:null;
+            nf.identificacion=pedir('Identificación (CI/NIT del cliente):',f.identificacion||(_ficha?(_ficha.nit||_ficha.ruc||''):'')); if(nf.identificacion==null) return;
             nf.beneficiarioFinal=pedir('Beneficiario final del negocio:',f.beneficiarioFinal); if(nf.beneficiarioFinal==null) return;
-            nf.actividad=pedir('Actividad que realiza:',f.actividad); if(nf.actividad==null) return;
+            nf.actividad=pedir('Actividad que realiza:',f.actividad||(_ficha?(_ficha.actividad||_ficha.actividadPrincipal||''):'')); if(nf.actividad==null) return;
             nf.verificadoEn=pedir('Fecha de verificación de identidad (AAAA-MM-DD):',f.verificadoEn||hoy()); if(nf.verificadoEn==null) return;
             nf.diligenciaEn=pedir('Fecha de la debida diligencia (ANTES del servicio):',f.diligenciaEn||hoy()); if(nf.diligenciaEn==null) return;
             nf.inicioServicio=pedir('Fecha de inicio del servicio:',f.inicioServicio||''); if(nf.inicioServicio==null) return;
@@ -10750,7 +10762,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const r=mjDepreciacionMensualAsiento(c,(aft.activos||[]).map(a=>({id:a.id,nombre:a.nombre,costo:a.costo,valorResidual:0,vidaUtilAnios:Number(a.tasa)>0?100/Number(a.tasa):0,fechaAlta:a.fechaServicio||a.fechaAlta||'',estado:a.estado,metodo:a.metodoDepreciacion||'linea'})),per,fechaContablePeriodo(per),getCurrentUser());
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'La depreciación de '+per+' ya estaba asentada.':('✅ Depreciación de '+per+' asentada: '+moneda(r.total)+' (Dr 613-000 / Cr 253-000).')); }
         function mjRenderPatrones(){ const box=document.getElementById('mjPatronesBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
-            box.innerHTML='<b>Comprobantes patrones / recurrentes:</b> '+(g.patrones.length?g.patrones.map(p=>`<div>· ${esc(p.nombre)} (${esc(p.frecuencia)}) — ${p.lineas.map(l=>esc(l.cuenta)+' '+(l.debe?'D '+l.debe:'H '+l.haber)).join(' · ')} <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjPatronAplicarUI('${p.id}')">Aplicar al período</button></div>`).join(''):'<span class="text-secondary">ninguno.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjPatronCrearUI()">Crear patrón</button>';
+            box.innerHTML='<b>Comprobantes patrones / recurrentes:</b> '+(g.patrones.length?g.patrones.map(p=>`<div>· ${esc(p.nombre)} (${esc(p.frecuencia)}) — ${p.lineas.map(l=>esc(l.cuenta)+' '+(l.debe?'D '+l.debe:'H '+l.haber)).join(' · ')} <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjPatronAplicarUI('${p.id}')">Aplicar al período</button></div>`).join(''):'<span class="text-secondary">ninguno.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjPatronCrearUI()">Crear patrón</button>'+(g.patrones.length?' <button type="button" class="btn btn-sm btn-primary ms-2" onclick="mjPatronesAplicarTodosUI()">Aplicar todos al período</button>':'');
         }
         function mjPatronCrearUI(){ const nombre=prompt('Nombre del comprobante patrón (ej. Alquiler mensual):'); if(!nombre) return;
             const ctaD=prompt('Cuenta del Debe:','705-000'); if(!ctaD) return; const ctaH=prompt('Cuenta del Haber:','311-000'); if(!ctaH) return;
@@ -10779,6 +10791,21 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function mjPatronAplicarUI(id){ const c=getConta(); const g=mjGestionDe(c); const p=g.patrones.find(x=>x.id===id); if(!p) return;
             const per=periodoNominaActual(); const r=mjPatronAplicar(c,p,per,fechaContablePeriodo(per),getCurrentUser());
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'Ese patrón ya se aplicó en '+per+'.':'✅ Patrón aplicado en '+per+'.'); }
+        function mjPatronesAplicarTodos(periodo, silencioso){ const c=getConta(); const g=mjGestionDe(c); const per=periodo||periodoNominaActual(); let aplicados=0, ya=0; const motivos=[];
+            (g.patrones||[]).forEach(p=>{ const r=mjPatronAplicar(c,p,per,fechaContablePeriodo(per),getCurrentUser()); if(!r.ok) motivos.push((p.nombre||p.id)+': '+r.motivo); else if(r.ya) ya++; else aplicados++; });
+            if(aplicados) saveConta(c);
+            if(!silencioso){ renderAll(); mjRenderGestion(); alert('Patrones en '+per+': '+aplicados+' aplicado(s), '+ya+' ya estaban.'+(motivos.length?'\n⚠️ '+motivos.join('\n⚠️ '):'')); }
+            return {aplicados:aplicados, ya:ya, motivos:motivos, total:(g.patrones||[]).length}; }
+        function mjPatronesAplicarTodosUI(){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; } mjPatronesAplicarTodos(periodoNominaActual(), false); }
+        function mjPrepararCierreUI(){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const per=periodoNominaActual(); const pasos=[];
+            try{ const r=contaGenerarSilencioso(); pasos.push('Contabilidad generada: '+(r.creados||0)+' asiento(s) nuevo(s), '+(r.pendientes||0)+' pendiente(s) en la bandeja.'); }catch(e){ pasos.push('Contabilidad: no se pudo generar automática ('+(e&&e.message||'error')+').'); }
+            try{ const rp=mjPatronesAplicarTodos(per,true); if(rp.total) pasos.push('Patrones recurrentes: '+rp.aplicados+' aplicado(s), '+rp.ya+' ya estaban.'); }catch(e){}
+            try{ const c=getConta(); if(c.activa){ const tasa=(CFG.tasasMes&&Number(CFG.tasasMes[per])>0)?Number(CFG.tasasMes[per]):tasaVista(); const rv=ctaRevalorizacion(c,per,fechaContablePeriodo(per),tasa); if(rv.ok&&!rv.duplicado&&!rv.sinEfecto){ saveConta(c); pasos.push('Revalorización de divisa registrada (diferencia NO realizada a patrimonio, NCC 6).'); } } }catch(e){}
+            try{ const md=getMesActual(); const aft=getAFT(); const hayDep=!(md&&md.cerrado)&&!(aft.depreciaciones&&aft.depreciaciones[per])&&(aft.activos||[]).some(x=>Number(calcAFT(x,per).mes)>0); if(hayDep){ contabilizarDepreciacion(); pasos.push('Depreciación de AFT contabilizada.'); } }catch(e){}
+            renderAll();
+            const cand=(typeof window.__contaCandadosCierre==='function')?window.__contaCandadosCierre(per):null;
+            alert('Preparación del cierre de '+per+':\n\n· '+pasos.join('\n· ')+'\n\n'+(cand&&!cand.ok?('🔒 Aún bloquean el cierre:\n· '+((cand.motivos||[]).join('\n· '))):'✅ Los candados están en verde: ya puedes cerrar el mes desde la pestaña Cierre.')); }
         function mjRenderPresupuesto(){ const box=document.getElementById('mjPresupuestoBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
             const anio=new Date().getFullYear(); const vs=mjPresupuestoVsReal(c,g.presupuestos,anio);
             box.innerHTML=`<b>Presupuesto vs real ${anio}:</b> `+(vs.filas.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Cuenta</th><th class="text-end">Plan</th><th class="text-end">Real</th><th class="text-end">Desviación</th></tr></thead><tbody>${vs.filas.map(f=>`<tr><td>${esc(f.cuenta)} ${esc(f.centro||'')}</td><td class="text-end">${moneda(f.plan)}</td><td class="text-end">${moneda(f.real)}</td><td class="text-end ${Math.abs(f.desviacion)>0.005?'text-danger fw-semibold':''}">${moneda(f.desviacion)}${f.pct!=null?' ('+f.pct+' %)':''}</td></tr>`).join('')}</tbody></table></div>`:'<span class="text-secondary">sin presupuesto.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjPresupuestoAgregarUI()">Añadir línea de presupuesto</button>';
@@ -10970,8 +10997,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 gb.innerHTML='<b>Consignación (mercancía de terceros, fuera del inventario propio):</b> '+(liq.porDueno.length?liq.porDueno.map(d=>`<div>· ${esc(d.dueno)}: recibido ${d.recibido} · vendido ${d.vendido} · a liquidar <b>${moneda(d.liquidar)}</b></div>`).join(''):'<span class="text-secondary">sin movimientos.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjConsignacionRecibirUI()">Recibir mercancía</button> <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjConsignacionVentaUI()">Registrar venta</button><div class="text-secondary">'+esc(liq.nota)+'</div>'; }
         }
         function mjExpedienteDocUI(id){ if(!puedeEditar())return; const d=getRRHH(); const t=(d.trabajadores||[]).find(x=>String(x.id)===String(id)); if(!t) return;
-            const nombre=prompt('Nombre del documento del expediente de '+(t.nombre||'')+'\n(Ej.: Copia del documento de calificación formal · Dictamen de Peritaje Médico · Acta de entrega):'); if(!nombre||!nombre.trim()) return;
-            if(!Array.isArray(t.documentos)) t.documentos=[]; t.documentos.push({nombre:nombre.trim(), fecha:hoy()}); saveRRHH(d); mjRenderProfundidad();
+            let nombre='';
+            try{ const ex=mjExpedienteLaboral(d); const yo=ex.trabajadores.find(x=>String(x.id)===String(id)); const cands=(yo?yo.items.filter(i=>i.estado==='falta'||i.estado==='cuando'):[]).map(i=>i.nombre);
+                if(cands.length){ const r=prompt('Documento del expediente de '+(t.nombre||'')+'.\nEscribe el NÚMERO del documento de la lista (son los que la Ley 189 reconoce) o el nombre completo si es otro:\n'+cands.map((c,i)=>(i+1)+'. '+c).join('\n'));
+                    if(r===null||!String(r).trim()) return; const n=parseInt(r,10); nombre=(n>=1&&n<=cands.length)?cands[n-1]:String(r).trim(); } }catch(e){}
+            if(!nombre){ const r2=prompt('Nombre del documento del expediente de '+(t.nombre||'')+':'); if(!r2||!r2.trim()) return; nombre=r2.trim(); }
+            if(!Array.isArray(t.documentos)) t.documentos=[]; t.documentos.push({nombre:nombre, fecha:hoy()}); saveRRHH(d); mjRenderProfundidad();
             alert('✅ Documento registrado en el expediente de '+t.nombre+' con fecha de hoy. El archivo físico/digital vive fuera de la app.'); }
         function mjExpedienteRevisionUI(id){ if(!puedeEditar())return; const d=getRRHH(); const t=(d.trabajadores||[]).find(x=>String(x.id)===String(id)); if(!t) return;
             if(!confirm('¿Registrar la revisión anual del expediente de '+(t.nombre||'')+' como firmada hoy por el trabajador (art. 78, Ley 189/2026)?')) return;
@@ -10987,7 +11018,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             d.plantilla[cargo]=v; saveRRHH(d); renderPuestos(); }
         function mjTraspasoUI(){ const c=getConta(); const centros=(c.centros||[]).filter(x=>x&&x.tipo!=='indirecto');
             if(!centros.length){ alert('Define primero los centros de costo en Contabilidad.'); return; }
-            const total=Number(prompt('Total de gastos indirectos a repartir en el período:','0'))||0; if(!(total>0)) return;
+            const _mayorT=ctaMayor(c,{}); const _saldoOrigen=_mayorT['705-000']?Math.abs(_mayorT['705-000'].saldoFirmado):0;
+            const total=Number(prompt('Total de gastos indirectos a repartir en el período (precargado con el saldo de la cuenta 705-000 en el mayor; ajústalo si tu criterio reparte solo una parte):', _saldoOrigen?String(_saldoOrigen):'0'))||0; if(!(total>0)) return;
             const origen=prompt('Cuenta de origen de los indirectos:','705-000')||'705-000';
             const destinos=centros.map(x=>({centro:x.nombre||x.id,peso:1}));
             const per=periodoNominaActual();
@@ -11015,16 +11047,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'Los intereses de '+per+' ya estaban devengados.':'✅ Intereses de '+per+' devengados: '+moneda(r.interes)+' (Dr 710-000 / Cr 314-000 Intereses por Pagar).'); }
         function mjSaldoDivisaUI(){ const cuenta=prompt('Cuenta contable del saldo (ej. 131-000):','131-000'); if(!cuenta) return;
             const naturaleza=confirm('¿Es un PASIVO (Aceptar) o un ACTIVO (Cancelar)?')?'pasivo':'activo';
-            const monto=Number(prompt('Saldo en divisa:','0'))||0; const tasa=Number(prompt('Tasa a la que está registrado:','0'))||0;
+            const monto=Number(prompt('Saldo en divisa:','0'))||0; const tasa=Number(prompt('Tasa a la que está registrado:',String(tasaVista()||'')))||0;
             const c=getConta(); const g=mjGestionDe(c); g.saldosDivisa.push({cuenta:cuenta,naturaleza:naturaleza,montoDivisa:monto,tasa:tasa}); saveConta(c); mjRenderGestion(); }
-        function mjRevalAmpliaUI(){ const tasa=Number(prompt('Tasa nueva (CUP por divisa):','0'))||0; if(!(tasa>0)) return;
+        function mjRevalAmpliaUI(){ const tasa=Number(prompt('Tasa nueva (CUP por divisa):',String(tasaVista()||'')))||0; if(!(tasa>0)) return;
             const c=getConta(); const per=periodoNominaActual();
             const r=mjRevalorizacionAmplia(c,{periodo:per,fecha:fechaContablePeriodo(per),tasaNueva:tasa});
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.sinEfecto?'Sin diferencia que registrar.':('✅ Revalorización amplia registrada: diferencia NO realizada '+moneda(r.diferencial)+' a la cuenta de patrimonio (NCC 6).')); }
         function mjIPVUI(){ const c=getConta(); const fecha=mjVal('mjIpvFecha')||hoy(); const cajero=mjVal('mjIpvCajero')||'';
             const ipv=mjIPVTurno(c,{fecha:fecha,cajero:cajero});
             const contado=prompt('Efectivo contado por el cajero al cierre (CUP):',''); let cierreTxt='';
-            if(contado!=null&&contado!==''){ const ventasCaja=ipv.filas.reduce((s,f)=>s+0,0); const esp=Number(prompt('Efectivo esperado según ventas en efectivo del turno (CUP):','0'))||0; const ci=mjCierreCajero({esperado:esp,contado:Number(contado)||0,cajero:cajero,turno:fecha}); cierreTxt=`<div class="mt-1"><b>Cierre de cajero:</b> esperado ${moneda(ci.esperado)} · contado ${moneda(ci.contado)} · diferencia <b>${moneda(ci.diferencia)}</b> ${ci.cuadra?'<span class="badge bg-success">caja cuadrada</span>':'<span class="badge bg-danger">caja descuadrada</span>'}</div>`; }
+            if(contado!=null&&contado!==''){ const espCalc=(typeof allMovimientos==='function'?allMovimientos():[]).filter(m=>m&&m.fecha===fecha&&m.cuenta==='caja'&&m.tipo==='ingreso').reduce((s,m)=>s+(Number(m.monto)||0),0); const esp=Number(prompt('Efectivo esperado según ventas en efectivo del turno (CUP) — precargado con los ingresos en Caja de ese día:',String(espCalc||0)))||0; const ci=mjCierreCajero({esperado:esp,contado:Number(contado)||0,cajero:cajero,turno:fecha}); cierreTxt=`<div class="mt-1"><b>Cierre de cajero:</b> esperado ${moneda(ci.esperado)} · contado ${moneda(ci.contado)} · diferencia <b>${moneda(ci.diferencia)}</b> ${ci.cuadra?'<span class="badge bg-success">caja cuadrada</span>':'<span class="badge bg-danger">caja descuadrada</span>'}</div>`; }
             const box=document.getElementById('mjIpvBox'); if(box) box.innerHTML=`<b>IPV del turno ${esc(fecha)}</b> ${cajero?'· cajero '+esc(cajero):''}<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Producto</th><th class="text-end">Apertura</th><th class="text-end">Entradas</th><th class="text-end">Ventas</th><th class="text-end">Mermas</th><th class="text-end">Saldo</th></tr></thead><tbody>${ipv.filas.map(f=>`<tr><td>${esc(f.nombre)}</td><td class="text-end">${f.apertura}</td><td class="text-end">${f.entradas}</td><td class="text-end">${f.ventas}</td><td class="text-end">${f.mermas}</td><td class="text-end fw-semibold">${f.saldo}</td></tr>`).join('')||'<tr><td colspan="6" class="text-secondary">Sin movimientos de inventario ese día.</td></tr>'}</tbody></table></div><div class="text-secondary">${esc(ipv.nota)}</div>${cierreTxt}`;
         }
         function mjConsignacionRecibirUI(){ const dueno=prompt('Dueño de la mercancía:'); if(!dueno) return; const cant=Number(prompt('Cantidad recibida:','0'))||0;
@@ -11911,6 +11943,14 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopiar(txt,done)); }
             else fallbackCopiar(txt,done);
         }
+        function gInformesTodosDescargar(){
+            if(!GDOCS) return; const per=gestorInformePeriodo||periodoNominaActual();
+            const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
+            if(!nombres.length){ alert('No hay negocios cargados en el Gestor.'); return; }
+            const partes=nombres.map(n=>{ const doc=GDOCS[n]; const txt=gestorInformeTexto(n, gInformeMensual(doc,per,gestorOnatCfg(),gPdlFicha(doc,(getCobrosGestor().pdlFichas||{})[n]))); return '════════ '+n+' · '+per+' ════════\n\n'+txt; });
+            mjDescargar('informes-'+per.replace(/\s+/g,'-')+'.txt', partes.join('\n\n\n'), 'text/plain;charset=utf-8');
+            alert('✅ Informes de '+per+' descargados para '+nombres.length+' negocio(s) en un solo archivo de texto, listos para enviar a cada cliente por WhatsApp.');
+        }
         /* --- Cobro del gestor: UI --- */
         function renderGestorCobros(){
             const box=document.getElementById('gestorCobros'); if(!box||!GDOCS) return;
@@ -11923,7 +11963,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 <td class="text-end">${moneda(e.esperado)}</td><td class="text-end">${moneda(e.pagado)}</td><td class="text-end fw-bold">${moneda(e.pendiente)}</td>
                 <td><div class="d-flex gap-1 flex-wrap"><button class="btn btn-sm btn-outline-primary" data-cob-guardar="${esc(n)}">Guardar tarifa</button><button class="btn btn-sm btn-success" data-cob-pago="${esc(n)}">Registrar pago</button></div>
                 ${(c.pagos&&c.pagos.length)?`<div class="small text-secondary mt-1">${c.pagos.slice(-3).map(p=>esc(p.fecha||'')+': '+moneda(p.monto)+(p.nota?' ('+esc(p.nota)+')':'')).join('<br>')}</div>`:''}</td></tr>`; }).join('');
-            box.innerHTML=`<div class="small mb-2">Total pendiente de cobro (todos los clientes): <b>${moneda(totPend)}</b></div>
+            box.innerHTML=`<div class="small mb-2">Total pendiente de cobro (todos los clientes): <b>${moneda(totPend)}</b> <button type="button" class="btn btn-sm btn-success ms-2" onclick="gInformesTodosDescargar()"><i class="bi bi-whatsapp me-1"></i>Descargar informes del mes (todos)</button></div>
             <div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Negocio</th><th>Tarifa mensual / desde</th><th class="text-end">Esperado</th><th class="text-end">Pagado</th><th class="text-end">Pendiente</th><th>Acciones</th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="text-secondary">Sin negocios.</td></tr>'}</tbody></table></div>`;
             box.querySelectorAll('[data-cob-guardar]').forEach(b=>b.onclick=()=>guardarCobroTarifa(b.getAttribute('data-cob-guardar')));
             box.querySelectorAll('[data-cob-pago]').forEach(b=>b.onclick=()=>registrarCobroPago(b.getAttribute('data-cob-pago')));
@@ -11937,15 +11977,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             data.cobros[n]=cur; saveCobrosGestor(data); renderGestor();
             alert('Tarifa guardada para '+n+'.');
         }
-        function registrarCobroPago(n){
-            const montoTxt=prompt('Monto del pago de '+n+' (CUP):'); if(montoTxt===null) return;
-            const monto=Number(montoTxt); if(!(monto>0)){ alert('Monto inválido.'); return; }
-            const nota=prompt('Nota (opcional):')||'';
+        async function registrarCobroPago(n){
             const data=getCobrosGestor(); if(!data.cobros) data.cobros={};
             const cur=data.cobros[n]||{tarifa:0,desde:'',pagos:[]};
+            const montoTxt=prompt('Monto del pago de '+n+' (CUP):', cur.tarifa?String(cur.tarifa):''); if(montoTxt===null) return;
+            const monto=Number(montoTxt); if(!(monto>0)){ alert('Monto inválido.'); return; }
+            const nota=prompt('Nota (opcional):')||'';
             if(!Array.isArray(cur.pagos)) cur.pagos=[];
             cur.pagos.push({id:'p'+Date.now(), fecha:gHoyISOFecha(), monto:+monto.toFixed(2), nota:String(nota).slice(0,120)});
             data.cobros[n]=cur; saveCobrosGestor(data); renderGestor();
+            try{ if(typeof isAdmin==='function'&&isAdmin()&&typeof subsMesActual==='function'&&CFG.negocios&&CFG.negocios[n]){ const clave=subsMesActual(); const r=await api('subs_set',{negocio:n,pagos:{[clave]:true}}); if(r&&r.ok){ CFG.negocios[n].subs=r.subs; if(typeof renderSuscripciones==='function') renderSuscripciones(); alert('✅ Pago registrado y suscripción de '+clave+' marcada como pagada para '+n+'.'); } } }catch(e){}
         }
         /* --- Indicador de justificación del negocio abierto (pestaña DJ) --- */
         function renderJustificacionActual(){
@@ -14201,6 +14242,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         document.getElementById('btnConsultarBCC').addEventListener('click',consultarBCCDesdePanel);
         document.getElementById('btnUsarTasaUSDIngreso').addEventListener('click',()=>usarTasaEnMovimiento('ingreso'));
         document.getElementById('btnUsarTasaUSDGasto').addEventListener('click',()=>usarTasaEnMovimiento('gasto'));
+        { const bm=document.getElementById('btnUsarTasaMes'); if(bm) bm.addEventListener('click',usarTasaComoDelMes); }
+        { const mc=document.getElementById('movConcepto'); if(mc) mc.addEventListener('change',sugerirClasPorConcepto); }
         document.getElementById('btnNuevoActivo').addEventListener('click',()=>abrirActivo(null));
         document.getElementById('btnGuardarActivo').addEventListener('click',guardarActivo);
         document.getElementById('aftCategoria').addEventListener('change',aplicarTasaCategoriaAFT);
@@ -14347,6 +14390,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const r=periodoARango(link.periodo); if(r){$('movAporteDesde').value=r.desde;$('movAporteHasta').value=r.hasta;}
             if(link.concepto){$('movAporteNombre').textContent=link.concepto;$('movAporteNombre').className='form-control bg-light text-success fw-semibold';}
         }
+        function sugerirClasPorConcepto(){ try{ const inp=$('movConcepto'); if(!inp||movEditId) return; const norm=s=>String(s||'').toLowerCase().replace(/\s+/g,' ').trim(); const buscado=norm(inp.value); if(buscado.length<4) return;
+            const pools=[movimientos]; try{ getHistorial().forEach(h=>pools.push(h.movimientos||[])); }catch(e){}
+            for(const pool of pools){ for(let i=pool.length-1;i>=0;i--){ const m=pool[i]; if(m&&m.tipo===movTipo&&norm(m.concepto)===buscado&&m.clasificacion){ const sel=$('movClas'); if(sel) sel.value=m.clasificacion; return; } } }
+        }catch(e){} }
         function abrirMovModal(tipo, cuenta, id) {
             if(!openingSpecialMovement) pendingSpecialMovement = null;
             movTipo = tipo; movEditId = id; pendingFiscalLink = null;
@@ -14555,7 +14602,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-9';
+        var MANUAL_VERSION = 'v2026.10.26-10';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14724,10 +14771,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'cierre-candados', modulo:'contabilidad', titulo:'Cierre de mes con candados', html:
             '<p>La tarjeta <b>Cierre con candados</b> es la puerta previa al cierre, con la cadena de validaciones del Versat adaptada a la app:</p>' +
             '<ol><li>Todos los comprobantes del período asentados.</li><li>Sin saldos contrarios a su naturaleza.</li><li>Cuentas transitorias en cero.</li><li>Valuación de medios monetarios si hay divisa (en diciembre queda firme).</li><li>Panel de cuadres en verde.</li><li>Depreciación del mes ejecutada.</li><li>Bandeja «por clasificar» en cero.</li><li>Nómina del mes contabilizada.</li></ol>' +
-            '<p>Lo no cumplido <b>bloquea el cierre con el motivo visible</b>. Puedes <b>asumir</b> un candado concreto con el botón «Asumir»: la asunción es expresa, queda registrada con fecha y usuario en el cierre, y es tu responsabilidad.</p>'},
+            '<p>Lo no cumplido <b>bloquea el cierre con el motivo visible</b>. Puedes <b>asumir</b> un candado concreto con el botón «Asumir»: la asunción es expresa, queda registrada con fecha y usuario en el cierre, y es tu responsabilidad.</p>' +
+            '<p><b>«Preparar cierre» (todo en cadena):</b> el botón de la tarjeta ejecuta solo la cadena previa — genera la contabilidad, aplica los patrones recurrentes, revaloriza la divisa y contabiliza la depreciación — y te dice qué candados quedan en rojo. El cierre en sí lo sigues confirmando tú: la preparación es automática, el acto formal es tuyo.</p>'},
         {id:'patrones', modulo:'contabilidad', titulo:'Comprobantes patrón: un toque y listo', html:
             '<p>Los <b>Comprobantes patrón</b> son la lista ÚNICA de comprobantes modelo (la misma de Gestión+ → patrones/recurrentes): alquiler, servicios, cuotas y cualquier asiento que repites cada mes.</p>' +
-            '<ol><li>Crea el patrón una vez con sus líneas.</li><li>Desde Contabilidad, el botón aplicar lo convierte en un comprobante real del período, cuadrado y listo para asentar.</li></ol>'},
+            '<ol><li>Crea el patrón una vez con sus líneas.</li><li>Desde Contabilidad, el botón aplicar lo convierte en un comprobante real del período, cuadrado y listo para asentar.</li></ol>' +
+            '<p><b>Automático:</b> al importar un estado de cuenta, los patrones del período se aplican solos (sin duplicar: cada patrón entra una sola vez por período), y el botón <b>«Aplicar todos al período»</b> los aplica en un toque cuando quieras. El comprobante creado queda editable y anulable como cualquier otro.</p>'},
         {id:'ajustes-reasientos', modulo:'contabilidad', titulo:'Ajustes, anulaciones y reasientos', html:
             '<p>El <b>Editor de comprobantes</b> es solo para ajustes: crea comprobantes manuales cuadrados (si no cuadra, no se asienta). Anular un comprobante genera su <b>contraasiento</b>; la historia queda completa en el Diario.</p>' +
             '<p>Si editas un movimiento bancario ya contabilizado, la app hace el <b>reasiento</b> sola: contraasiento del viejo y asiento nuevo con tu imputación (ver «Editar un movimiento ya contabilizado»).</p>'},
@@ -14854,7 +14903,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>Si el cliente es un PDL y tiene fuentes cargadas, el informe incluye el bloque de fuentes con su ejecución.</p>'},
         {id:'gestor-calendario-cobro', modulo:'gestor', titulo:'Calendario de vencimientos y tu cobro como gestor', html:
             '<ul><li>El <b>calendario de vencimientos ONAT</b> junta las obligaciones de todos tus clientes con sus responsables y fuentes de verificación: qué vence, de quién y cuándo.</li>' +
-            '<li>El <b>control de tu cobro</b> registra cuánto te debe pagar cada cliente por la gestión y qué está cobrado o pendiente: tu negocio de gestor también se controla.</li></ul>'},
+            '<li>El <b>control de tu cobro</b> registra cuánto te debe pagar cada cliente por la gestión y qué está cobrado o pendiente: tu negocio de gestor también se controla.</li></ul>' +
+            '<p><b>Automático:</b> al registrar un pago, el monto viene <b>precargado con la tarifa</b> del cliente y, si el negocio tiene suscripción en la app, el mes en curso <b>se marca pagado solo</b> (ya no hay que marcarlo aparte en Suscripciones). El botón <b>«Descargar informes del mes (todos)»</b> genera los informes de WhatsApp de todos los clientes en un solo archivo de texto.</p>' +
+            '<p><b>Avisos al entrar:</b> el Panel muestra una franja de avisos con lo urgente del día: movimientos sin clasificar en la bandeja, obligaciones ONAT que vencen en 7 días, expedientes laborales incompletos y negocios sin la suscripción del mes. También: la tasa consultada al BCC se guarda como <b>tasa del mes</b> con un botón, el IPV precarga el efectivo esperado con los ingresos en Caja del día, el traspaso de indirectos precarga el saldo de la cuenta de origen, y al crear un movimiento manual la clasificación se sugiere desde tu historial si el mismo concepto ya se registró antes (siempre editable).</p>'},
         {id:'gestor-respaldo', modulo:'gestor', titulo:'Respaldo por negocio (ZIP) y paquete Res. 86/2026', html:
             '<p>Desde el Gestor exportas el <b>respaldo ZIP de un negocio</b> concreto (su expediente completo) para guardarlo o entregarlo. El paquete de la <b>Resolución 86/2026</b> reúne la documentación del gestor que esa norma exige, separada por cliente y confidencial: solo la ves tú.</p>'},
         {id:'gestion-recorrido', modulo:'gestion', titulo:'Gestión+ de un vistazo', html:
@@ -15032,6 +15083,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         ['nominaDocCompleta','nominaDocResumenContable','nominaDocListadoPago','nominaDocTalon','nominaDocCertificado',
          'nominaBancoDescargarUI','nominaBancoFilas','nominaBancoTexto',
          'nominaDocContrato','mjExpedienteDocUI','mjExpedienteRevisionUI','mjEvaluacionUI','mjPlantillaPlazasUI','getRRHH','saveRRHH','mjRenderProfundidad','renderPuestos',
+         'mjPatronesAplicarTodosUI','mjPrepararCierreUI','gInformesTodosDescargar','renderAvisosInicio',
          'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
          'contaGenerar','contaRevalBtn','compraDivisaRegistrarUI','getConta','ctaAgregarAsiento','ctaRevalorizacion','ctaMayor','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
          'contaArqueoBtn','contaAddProducto','contaInvEntrada','contaInvSalida','contaEdAddLinea','contaEdAsentar',
