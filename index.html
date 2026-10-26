@@ -1396,6 +1396,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div id="regTotales" class="mt-2"></div>
                 <p class="small text-secondary mt-2 mb-0">El diseño y formato oficiales de este Registro los fija el Jefe de la ONAT (Res. 272/2024, Disposición Final Primera); esta salida sigue la letra de la norma: anotación diaria, en español y en CUP, con los documentos justificantes conservados. Las transferencias entre tus propias cuentas no son ingresos ni gastos y no se anotan.</p>
             </div>
+            <div class="card p-3 p-md-4 mt-3">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-folder2-open me-1"></i>Expediente digital de fiscalización</h6>
+                <div id="registroExpedienteBox" class="small"></div>
+            </div>
             <div id="registroPrintBox" style="display:none"></div>
         </div>
 
@@ -4603,6 +4607,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const tI = filas.reduce((s, d) => s + d.ingresos, 0), tG = filas.reduce((s, d) => s + d.gastos, 0), tT = filas.reduce((s, d) => s + d.tributos, 0);
             document.getElementById('regTotales').innerHTML = filas.length ? '<div class="aporte-line"><span>Total de ingresos del año</span><b>' + moneda(tI) + '</b></div><div class="aporte-line"><span>Total de gastos del año</span><b>' + moneda(tG) + '</b></div><div class="aporte-line"><span>Total de tributos pagados</span><b>' + moneda(tT) + '</b></div><div class="aporte-line fw-bold"><span>Saldo del Registro (ingresos − gastos − tributos)</span><b>' + moneda(tI - tG - tT) + '</b></div>' : '';
             renderRegistroManuales(anio);
+            try { if (typeof window.mjRenderExpediente === 'function') window.mjRenderExpediente(); } catch (e) {}
         }
         function renderRegistroManuales(anio){
             const box = document.getElementById('regManualesBox'); if (!box) return;
@@ -7727,13 +7732,43 @@ function mjControlDividendos(gestion){ const porSocio={};
   for(const a of ((gestion&&gestion.anticiposDiv)||[])){ const s=porSocio[a.socio]||(porSocio[a.socio]={socio:a.socio,anticipos:0,retenciones:0,neto:0});
     s.anticipos=mjR2(s.anticipos+a.importe); s.retenciones=mjR2(s.retenciones+a.retencion); s.neto=mjR2(s.neto+a.neto); }
   return {porSocio:Object.values(porSocio),totalAnticipos:mjR2(Object.values(porSocio).reduce((s,x)=>s+x.anticipos,0))}; }
-const MJ_EXPEDIENTE_DEF=[['escritura','Escritura de constitución / documento de creación'],['registro_mercantil','Inscripción en el Registro Mercantil'],['estatutos','Estatutos sociales'],['libro_socios','Libro de registro de socios'],['control_interno','Manual de control interno'],['cert_cuentas','Certificación de cuentas bancarias'],['carne_onat','Carné de la ONAT y Vector Fiscal (RC-04A)'],['contratos','Contratos con clientes y proveedores'],['facturas','Facturas emitidas y recibidas'],['nominas','Nóminas y contratos de trabajo'],['aportes','Comprobantes de aportes al Presupuesto'],['eeff','Estados financieros del período'],['submayores','Submayores de ingresos, gastos y obligaciones'],['reserva_sm','Submayor de la Reserva para Pérdidas y Contingencias'],['cert_sistema','Certificado del sistema contable utilizado']];
-function mjExpedienteFiscalizacion(documentos){ documentos=documentos||{};
-  const filas=MJ_EXPEDIENTE_DEF.map(d=>({clave:d[0],nombre:d[1],presente:!!documentos[d[0]],vence:(documentos[d[0]]&&documentos[d[0]].vence)||''}));
+/* Expediente de fiscalización POR ACTOR (tarea 22, 2026-10-26; ver
+   AUDITORIA-EXPEDIENTE.md): la lista única anterior reproducía la guía
+   de la ONAT para SOCIEDADES y se aplicaba igual a todos. Cada actor
+   presenta lo suyo: el TCP no tiene escritura ni Registro Mercantil; el
+   PDL no presenta DJ ni tiene Vector; las gratificaciones tienen su
+   propio legajo. Los ids de los documentos comunes se conservan. */
+const MJ_EXPEDIENTE_DEF=[['escritura','Escritura de constitución / documento de creación'],['registro_mercantil','Inscripción en el Registro Mercantil'],['estatutos','Estatutos sociales'],['libro_socios','Libro de registro de socios'],['actas','Actas de los órganos de dirección y administración'],['control_interno','Manual de control interno'],['cert_cuentas','Certificación de cuentas bancarias'],['carne_onat','Carné de la ONAT y Vector Fiscal (RC-04A)'],['contratos','Contratos con clientes y proveedores'],['facturas','Facturas emitidas y recibidas'],['nominas','Nóminas y contratos de trabajo'],['aportes','Comprobantes de aportes al Presupuesto'],['eeff','Estados financieros del período'],['submayores','Submayores de ingresos, gastos y obligaciones'],['reserva_sm','Submayor de la Reserva para Pérdidas y Contingencias'],['cert_sistema','Certificado del sistema contable utilizado']];
+const MJ_EXPEDIENTE_TCP_REGISTRO=[['aprobacion_tcp','Certificación de aprobación de la actividad (licencia de TCP)'],['cuenta_fiscal','Certificación de la cuenta bancaria fiscal'],['carne_onat','Carné de contribuyente (ONAT) y Vector Fiscal vigente'],['registro_control','Registro de Control de Ingresos y Gastos y sus justificantes'],['facturas','Documentos primarios de ingresos y gastos'],['dj08','Declaración Jurada DJ-08 presentada y sus comprobantes'],['aportes','Comprobantes de pago de los tributos del período'],['ss_titular','Afiliación a la Seguridad Social del titular'],['contratos','Contratos con clientes y proveedores'],['nominas','Contratos y nóminas de trabajadores contratados (si los tiene)']];
+const MJ_EXPEDIENTE_TCP_NCIF_EXTRA=[['libros','Libro Diario y Libro Mayor (contabilidad NCIF)'],['submayores','Submayores de ingresos, gastos y obligaciones'],['eeff','Estados financieros del período']];
+const MJ_EXPEDIENTE_PDL=[['acuerdo_pdl','Acuerdo de aprobación del CAM / gobernador'],['expediente_pdl','Expediente del proyecto (Decreto 174/2026, art. 26.2)'],['carne_onat','Inscripción en el Registro de Contribuyentes y carné (contribuyente propio)'],['evaluaciones_pdl','Evaluaciones semestrales del CAM'],['contab_pdl','Contabilidad propia del proyecto (NCIF): libros y estados financieros'],['cert_cuentas','Certificación de la cuenta bancaria CUP del proyecto'],['fuentes_pdl','Documentos de las fuentes de financiamiento y su ejecución'],['aportes','Comprobantes de pago de sus tributos (Res. 202/2026)'],['nominas','Nóminas, contratos de trabajo y retenciones'],['reserva_sm','Reserva para Pérdidas y Contingencias: dotación y control'],['facturas','Documentos primarios de ingresos y gastos']];
+const MJ_EXPEDIENTE_GRAT=[['carne_onat','Carné de contribuyente (ONAT) y Vector Fiscal vigente'],['dj08_grat','DJ-08 de gratificaciones presentada (actividad 877) y comprobantes'],['ingresos_grat','Documentos que acreditan los ingresos por gratificaciones (contratos y recibos)'],['tasa_bcc','Constancia de la tasa de cambio del BCC aplicada'],['registro_control','Registro y justificantes de la actividad'],['ss_titular','Afiliación a la Seguridad Social del titular'],['aportes','Comprobantes de pago de los tributos del período']];
+const MJ_EXPEDIENTE_TITULOS={mipyme:'MIPYME',tcp_registro:'TCP · nivel Registro (hasta 500 000 CUP)',tcp_ncif:'TCP · contabilidad completa (NCIF)',pdl:'Proyecto de Desarrollo Local',gratificaciones:'TCP · gratificaciones'};
+function mjExpedienteActorClave(){
+  const A=(typeof window!=='undefined'&&window.ACTOR_NEGOCIO)||null;
+  if(A&&A.tipo==='pdl') return 'pdl';
+  if(A&&A.tipo==='mipyme') return 'mipyme';
+  let actividad=''; try{ const dj=(typeof getDJ==='function')?getDJ():null; actividad=(dj&&dj.ficha&&dj.ficha.actividad)||''; }catch(e){}
+  if(actividad==='gratificaciones') return 'gratificaciones';
+  if(A&&A.tipo==='tcp') return A.pleno?'tcp_ncif':'tcp_registro';
+  return 'mipyme';
+}
+function mjExpedienteLista(clave){
+  if(clave==='pdl') return MJ_EXPEDIENTE_PDL;
+  if(clave==='gratificaciones') return MJ_EXPEDIENTE_GRAT;
+  if(clave==='tcp_registro') return MJ_EXPEDIENTE_TCP_REGISTRO;
+  if(clave==='tcp_ncif') return MJ_EXPEDIENTE_TCP_REGISTRO.concat(MJ_EXPEDIENTE_TCP_NCIF_EXTRA);
+  return MJ_EXPEDIENTE_DEF;
+}
+function mjExpedienteFiscalizacion(documentos, clave){ documentos=documentos||{};
+  clave=clave||mjExpedienteActorClave();
+  const def=mjExpedienteLista(clave);
+  const filas=def.map(d=>({clave:d[0],nombre:d[1],presente:!!documentos[d[0]],vence:(documentos[d[0]]&&documentos[d[0]].vence)||''}));
   const faltantes=filas.filter(f=>!f.presente);
   return {filas:filas,faltantes:faltantes,total:filas.length,presentes:filas.length-faltantes.length,
     pct:mjR2((filas.length-faltantes.length)/filas.length*100),completo:faltantes.length===0,
-    nota:'Índice del expediente digital de fiscalización (guía ONAT): marca presente lo que ya está digitalizado por cliente y período'}; }
+    actorClave:clave,actorTitulo:MJ_EXPEDIENTE_TITULOS[clave]||'',
+    nota:'Índice del expediente digital de fiscalización del actor «'+(MJ_EXPEDIENTE_TITULOS[clave]||'')+'»: cada actor presenta su propia documentación (ver auditoría por actor); marca presente lo que ya está digitalizado por cliente y período'}; }
 /* --- Res. 86/2026: KYC, riesgo, señales, ROS, exclusión, archivo --- */
 function mjKYCValidar(ficha){ ficha=ficha||{}; const falt=[];
   if(!ficha.identificacion) falt.push('identificación del cliente');
@@ -10306,9 +10341,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function mjExportarEstadosCSV(){ const d=window.__mjUltimoFlujo; if(!d){ alert('Primero genera el Flujo de efectivo / Cambios en el patrimonio.'); return; }
             mjExportarCSV('estados-'+d.flujo.anio+'.csv',[['Estado de Flujo de Efectivo',d.flujo.anio],['Resultado',d.flujo.resultado],['Depreciación',d.flujo.depreciacion],['Flujo de operación',d.flujo.flujoOperacion],['Flujo de inversión',d.flujo.flujoInversion],['Flujo de financiamiento',d.flujo.flujoFinanciamiento],['Efectivo inicial',d.flujo.efectivoInicial],['Efectivo final',d.flujo.efectivoFinal],[],['Cambios en el Patrimonio'],['Cuenta','Inicial','Final'],...d.cambios.filas.map(f=>[f.cuenta,f.inicial,f.final])]);
             alert('✅ CSV descargado (se abre en Excel). Para PDF usa el botón Imprimir de la pestaña.'); }
-        function mjRenderExpediente(){ const box=document.getElementById('mjExpedienteBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
+        function mjRenderExpediente(){ const c=getConta(); const g=mjGestionDe(c);
             const ex=mjExpedienteFiscalizacion(g.expediente||{});
-            box.innerHTML=`<b>Expediente digital de fiscalización:</b> ${ex.presentes}/${ex.total} documentos (${ex.pct} %) ${ex.completo?'<span class="badge bg-success">completo</span>':'<span class="badge bg-warning text-dark">faltan '+ex.faltantes.length+'</span>'}<div class="mt-1">${ex.filas.map(f=>`<button type="button" class="btn btn-sm ${f.presente?'btn-success':'btn-outline-danger'} me-1 mb-1" onclick="mjExpedienteToggle('${f.clave}')">${f.presente?'✔':'✘'} ${esc(f.nombre)}</button>`).join('')}</div><div class="text-secondary">Toca un documento para marcarlo presente/faltante. El ZIP por negocio del panel del Gestor sigue siendo el respaldo completo.</div>`;
+            const html=`<b>Expediente digital de fiscalización · ${esc(ex.actorTitulo||'')}</b> <span class="text-secondary">(cada actor presenta su propia documentación)</span><br>${ex.presentes}/${ex.total} documentos (${ex.pct} %) ${ex.completo?'<span class="badge bg-success">completo</span>':'<span class="badge bg-warning text-dark">faltan '+ex.faltantes.length+'</span>'}<div class="mt-1">${ex.filas.map(f=>`<button type="button" class="btn btn-sm ${f.presente?'btn-success':'btn-outline-danger'} me-1 mb-1" onclick="mjExpedienteToggle('${f.clave}')">${f.presente?'✔':'✘'} ${esc(f.nombre)}</button>`).join('')}</div><div class="text-secondary">Toca un documento para marcarlo presente/faltante. El ZIP por negocio del panel del Gestor sigue siendo el respaldo completo.</div>`;
+            ['mjExpedienteBox','registroExpedienteBox'].forEach(id=>{ const box=document.getElementById(id); if(box) box.innerHTML=html; });
         }
         function mjExpedienteToggle(clave){ const c=getConta(); const g=mjGestionDe(c); g.expediente=g.expediente||{};
             if(g.expediente[clave]) delete g.expediente[clave]; else g.expediente[clave]={vence:''};
@@ -12597,7 +12633,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 + '<div class="docof-neto"><span>DOCUMENTOS PRESENTES</span><span>' + ex.presentes + ' de ' + ex.total + ' (' + docOficialNum(ex.pct) + ' %)</span></div>';
             const html = docOficialHTML({
                 titulo: 'EXPEDIENTE DE FISCALIZACIÓN',
-                subtitulo: 'Legajo documental ante inspección o auditoría.',
+                subtitulo: 'Legajo documental ante inspección o auditoría · ' + (ex.actorTitulo || ''),
                 campos: [
                     ['Entidad', esc(docOficialNegocio())],
                     ['NIT', esc(docOficialNIT() || '—')],
@@ -14135,7 +14171,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-4';
+        var MANUAL_VERSION = 'v2026.10.26-5';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14444,7 +14480,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Bancarización:</b> las operaciones en efectivo por encima de 5 000 CUP quedan bloqueadas con su aviso, según la norma de bancarización.</li>' +
             '<li><b>Flujo de Efectivo</b> y <b>Cambios en el Patrimonio</b> como estados complementarios.</li>' +
             '<li><b>Reserva para Pérdidas y Contingencias</b> con su submayor, alimentada desde las utilidades según lo acordado.</li>' +
-            '<li><b>Ficha Res. 148/2023</b> de costos y el <b>expediente laboral</b> completan el paquete de cumplimiento.</li></ul>'},
+            '<li><b>Ficha Res. 148/2023</b> de costos y el <b>expediente laboral</b> completan el paquete de cumplimiento.</li>' +
+            '<li><b>Expediente digital de fiscalización POR ACTOR:</b> cada negocio marca presente/faltante la documentación que le toca a SU tipo — el TCP de nivel Registro lleva su licencia, su cuenta bancaria fiscal, su Registro de Control con los justificantes, su DJ-08 y su afiliación a la Seguridad Social (sin escritura ni Registro Mercantil, que no le aplican); el TCP de contabilidad completa suma libros, submayores y estados financieros; la MIPYME lleva el legajo societario completo; y el PDL, su acuerdo del CAM, el expediente del proyecto y sus evaluaciones semestrales. El expediente del TCP de Registro está en su pestaña <b>Registro</b>; el de los demás, en Gestión+.</li></ul>'},
         {id:'ficha-costo', modulo:'libro', titulo:'Ficha de costo y depreciación', html:
             '<p>La tarjeta <b>«Costos, precios y equilibrio (guía del libro)»</b> (en Gestión+) arma la ficha de costo completa: costos directos e indirectos, cada indirecto con su criterio de reparto.</p>' +
             '<ul><li>La clave: el <b>costo unitario = costo total ÷ unidades VENDIBLES</b> (producidas − perdidas), no entre las producidas: las que se pierden las pagan las que se venden.</li>' +
@@ -14604,7 +14641,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'contaEdDelLinea','contaAsentar','contaAnular','contaClasificar','contaBorrarRegla',
          'mjDescargarCopiaUI','mjRestaurarCopiaUI','mjRestaurarServidorUI','mjAltaPrestamoUI','mjReabrirUI',
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
-         'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjKYCEditar',
+         'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
