@@ -90,7 +90,7 @@ var TABLA_TRIBUTOS_LOCAL = {
     '61012':  { codigo: '061012',  nombre: 'Impuesto por la Utilización de la Fuerza de Trabajo', cat: 'deducible', fuente: 'verificado' },
     '810132': { codigo: '0810132', nombre: 'Contribución a la Seguridad Social', cat: 'deducible', fuente: 'verificado' },
     '81013':  { codigo: '081013',  nombre: 'Contribución a la Seguridad Social', cat: 'deducible', fuente: 'verificado' },
-    '820132': { codigo: '0820132', nombre: 'Contribución Especial a la Seguridad Social (propia del TCP)', cat: 'deducible', fuente: 'verificado' },
+    '820132': { codigo: '0820132', nombre: 'Contribución a la Seguridad Social (propia del TCP)', cat: 'deducible', fuente: 'verificado' },
     '820232': { codigo: '0820232', nombre: 'Contribución Especial a la Seguridad Social (trabajadores)', cat: 'deducible', fuente: 'verificado' },
     '82023':  { codigo: '082023',  nombre: 'Contribución Especial a la Seguridad Social (trabajadores)', cat: 'deducible', fuente: 'verificado' },
     '730122': { codigo: '0730122', nombre: 'Impuesto sobre Documentos', cat: 'deducible', fuente: 'verificado' },

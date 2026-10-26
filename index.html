@@ -994,6 +994,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link nomina" id="tab-nomina" data-bs-toggle="tab" data-bs-target="#pane-nomina"><span class="icono-anim me-1" data-icono="usuarios"></span> Nómina</button></li>
         <li class="nav-item"><button class="nav-link utilidades" id="tab-utilidades" data-bs-toggle="tab" data-bs-target="#pane-utilidades"><span class="icono-anim me-1" data-icono="grafico"></span> Trimestres</button></li>
         <li class="nav-item"><button class="nav-link fiscal" id="tab-fiscal" data-bs-toggle="tab" data-bs-target="#pane-fiscal"><span class="icono-anim me-1" data-icono="doc-check"></span> Fiscal</button></li>
+        <li class="nav-item"><button class="nav-link registro" id="tab-registro" data-bs-toggle="tab" data-bs-target="#pane-registro"><span class="icono-anim me-1" data-icono="libro"></span> Registro</button></li>
         <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><span class="icono-anim me-1" data-icono="doc"></span> DJ</button></li>
         <li class="nav-item"><button class="nav-link tasas" id="tab-tasas" data-bs-toggle="tab" data-bs-target="#pane-tasas"><span class="icono-anim me-1" data-icono="intercambio"></span> Tasas</button></li>
         <li class="nav-item"><button class="nav-link aft" id="tab-aft" data-bs-toggle="tab" data-bs-target="#pane-aft"><span class="icono-anim me-1" data-icono="monitor"></span> Activos</button></li>
@@ -1370,6 +1371,34 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
         </div>
 
+        <!-- REGISTRO DE CONTROL DE INGRESOS Y GASTOS (TCP, Res. 272/2024) -->
+        <div class="tab-pane fade" id="pane-registro">
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="libro" style="color:#0f766e"></span>Registro de Control de Ingresos y Gastos</h5><div class="small text-secondary">El libro diario del TCP con ingresos de hasta 500 000 CUP al año (Res. 272/2024). Se arma solo desde tus movimientos importados; lo que pase fuera del banco se anota a mano.</div></div>
+                <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="regAnioSel">Año</label><select id="regAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary" id="btnRegistroPrint"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir</button></div>
+            </div>
+            <div id="regIndicadorBox" class="mb-3"></div>
+            <div class="card p-3 p-md-4 mb-3">
+                <h6 class="fw-semibold mb-2">Anotación manual (operaciones fuera de los estados de cuenta)</h6>
+                <div class="row g-2 align-items-end">
+                    <div class="col-6 col-md-2"><label class="form-label small mb-1">Fecha</label><input id="regManFecha" type="date" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-md-4"><label class="form-label small mb-1">Concepto</label><input id="regManConcepto" class="form-control form-control-sm" placeholder="Ej.: venta en efectivo, compra de insumos…"></div>
+                    <div class="col-6 col-md-2"><label class="form-label small mb-1">Tipo</label><select id="regManTipo" class="form-select form-select-sm"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select></div>
+                    <div class="col-6 col-md-2"><label class="form-label small mb-1">Monto (CUP)</label><input id="regManMonto" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                    <div class="col-12 col-md-2"><button type="button" class="btn btn-sm btn-primary w-100" id="btnRegManAdd">Anotar</button></div>
+                </div>
+                <div id="regManualesBox" class="mt-2"></div>
+            </div>
+            <div class="card p-3 p-md-4">
+                <h6 class="fw-semibold mb-2">Anotaciones por día</h6>
+                <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Detalle</th><th class="text-end">Ingresos</th><th class="text-end">Gastos</th><th class="text-end">Tributos</th><th class="text-end">Saldo</th></tr></thead><tbody id="regBody"></tbody></table></div>
+                <div class="text-center text-muted py-4" id="regVacio" style="display:none">Sin operaciones en el año seleccionado. Importa tus estados de cuenta o anota la primera operación a mano.</div>
+                <div id="regTotales" class="mt-2"></div>
+                <p class="small text-secondary mt-2 mb-0">El diseño y formato oficiales de este Registro los fija el Jefe de la ONAT (Res. 272/2024, Disposición Final Primera); esta salida sigue la letra de la norma: anotación diaria, en español y en CUP, con los documentos justificantes conservados. Las transferencias entre tus propias cuentas no son ingresos ni gastos y no se anotan.</p>
+            </div>
+            <div id="registroPrintBox" style="display:none"></div>
+        </div>
+
         <!-- DECLARACIÓN JURADA (DJ automática) -->
         <div class="tab-pane fade" id="pane-dj">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
@@ -1382,12 +1411,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3">
                 <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Ficha fiscal del negocio</h6>
                 <div class="row g-2">
-                    <div class="col-md-3"><label class="form-label small mb-1">Régimen</label><select id="djFichaRegimen" class="form-select form-select-sm"><option value="tcp_general">TCP · Régimen general</option><option value="tcp_simplificado">TCP · Régimen simplificado</option><option value="tcp_gratificaciones">TCP · Gratificaciones</option><option value="mipyme">MIPYME</option></select></div>
+                    <div class="col-md-3"><label class="form-label small mb-1">Régimen</label><select id="djFichaRegimen" class="form-select form-select-sm"><option value="tcp_general">TCP · Régimen general</option><option value="tcp_gratificaciones">TCP · Gratificaciones</option><option value="mipyme">MIPYME</option></select></div>
                     <div class="col-md-3"><label class="form-label small mb-1">NIT</label><input id="djFichaNIT" class="form-control form-control-sm" placeholder="NIT del contribuyente"></div>
                     <div class="col-md-6"><label class="form-label small mb-1">Nombre / Razón social</label><input id="djFichaNombre" class="form-control form-control-sm" placeholder="Nombre del contribuyente o la MIPYME"></div>
                     <div class="col-md-4"><label class="form-label small mb-1">Municipio de inscripción</label><input id="djFichaMunicipio" class="form-control form-control-sm"></div>
                     <div class="col-md-5"><label class="form-label small mb-1">Actividad</label><input id="djFichaActividad" class="form-control form-control-sm"></div>
                     <div class="col-md-3"><label class="form-label small mb-1">Fecha de inscripción</label><input id="djFichaFecha" type="date" class="form-control form-control-sm"></div>
+                    <div class="col-md-3"><label class="form-label small mb-1">Base de Seguridad Social del titular (CUP/mes)</label><select id="djFichaSsBase" class="form-select form-select-sm"><option value="0">Sin definir</option><option value="2000">2 000</option><option value="2500">2 500</option><option value="2700">2 700</option><option value="3000">3 000</option><option value="3500">3 500</option><option value="4000">4 000</option><option value="4500">4 500</option><option value="5000">5 000</option><option value="5500">5 500</option><option value="6000">6 000</option><option value="6500">6 500</option><option value="7000">7 000</option><option value="7500">7 500</option><option value="8000">8 000</option><option value="8500">8 500</option><option value="9000">9 000</option><option value="9500">9 500</option></select><div class="small text-secondary">Solo TCP: su cuota propia es el <b>20 % mensual</b> de esta base (DL 92/2024). Se elige en el modelo de afiliación.</div></div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"><span class="small text-secondary">Si ya importaste el Vector Fiscal (RC-04A), el NIT, el nombre y el municipio se toman de ahí.</span><button class="btn btn-sm btn-primary" id="btnDjGuardarFicha"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar ficha</button></div>
             </div>
@@ -1398,7 +1428,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Mínimo exento IIP (CUP)</label><input id="djParExento" type="number" min="0" step="1" class="form-control form-control-sm"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Bonif. pronto pago % (≤ 28 feb)</label><input id="djParBonifP" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Bonif. canales electrónicos %</label><input id="djParBonifE" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Tope régimen simplificado (CUP)</label><input id="djParTopeSimp" type="number" min="0" step="1" class="form-control form-control-sm"></div>
+
                     <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala IIP (tope:tasa% por tramo, último tramo con tope vacío)</label><input id="djParEscalaIIP" class="form-control form-control-sm" placeholder="10000:15, 20000:20, 30000:30, 50000:40, :50"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Impuesto sobre Utilidades % ⚠ sin verificar</label><input id="djParTipoUtil" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
                     <div class="col-6 col-md-3"><label class="form-label small mb-1">Exento dividendos socios (CUP)</label><input id="djParExentoDiv" type="number" min="0" step="1" class="form-control form-control-sm"></div>
@@ -1441,6 +1471,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <div class="col-6 col-md-3"><label class="form-label small mb-1">Gratificación en divisa (opcional)</label><input id="djGratDivisa" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Vacío = ingresos del año"></div>
                         <div class="col-6 col-md-3"><label class="form-label small mb-1">Tasa de cambio BCC (CUP por divisa)</label><input id="djGratTasa" type="number" min="0" step="0.0001" class="form-control form-control-sm"></div>
                         <div class="col-6 col-md-3"><label class="form-label small mb-1">Retenciones acreditadas · fila 24 (CUP)</label><input id="djGratRet" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Pagos a cuenta trimestrales 5 % · fila 22 (CUP)</label><input id="djGratPagos" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Solo lo no importado en estados"></div>
                         <div class="col-6 col-md-3"><label class="form-label small mb-1">Fecha prevista de pago</label><input id="djGratFechaPago" type="date" class="form-control form-control-sm"></div>
                         <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djGratSinOtra"><label class="form-check-label small" for="djGratSinOtra">No ejerzo otra actividad (el mínimo exento procede en esta DJ; si ejerces otra, el exento va en tu DJ-08 general y presentas 2 DJ)</label></div></div>
                         <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djGratCanalElec"><label class="form-check-label small" for="djGratCanalElec">Pago por canales electrónicos (bonificación 3 %, solo si pagas por esa vía)</label></div></div>
@@ -2015,7 +2046,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <p class="small mb-1">La nómina calculada del mes con los trabajadores vigentes.</p>
                     <ul class="small mb-0">
                         <li><b>Guardar nómina</b>: calcula y guarda la nómina del mes con los complementos marcados por trabajador, y alimenta los documentos y la Declaración Jurada.</li>
-                        <li><b>Complementos aplicables</b> (por trabajador): interruptores individuales —sin ninguno marcado, la nómina queda igual—: salario proporcional, vacaciones promedio de 12 meses, certificado por enfermedad 60/80/90 %, licencia de maternidad/paternidad 100 %, horas extras ×2, feriados trabajados, plus por antigüedad, pago por resultados, interrupción laboral 60 %, licencia no retribuida, finiquito, retenciones (judiciales, créditos, responsabilidad material), provisión de vacaciones 9.09 % (informativa), aviso de salario mínimo 2100 CUP y acumulado anual para la DJ.</li>
+                        <li><b>Complementos aplicables</b> (por trabajador): interruptores individuales —sin ninguno marcado, la nómina queda igual—: salario proporcional, vacaciones promedio de 12 meses, certificado por enfermedad 60/80/90 %, licencia de maternidad/paternidad 100 %, horas extras ×2, feriados trabajados, plus por antigüedad, pago por resultados, interrupción laboral 60 %, licencia no retribuida, finiquito, retenciones (judiciales, créditos, responsabilidad material), provisión de vacaciones 9.09 % (informativa), aviso de salario mínimo (2 100 CUP hasta julio de 2026 y 3 210 CUP desde agosto de 2026, Res. 14/2026 del MTSS) y acumulado anual para la DJ.</li>
                     </ul>
                 </div>
                 <div class="ayuda-sec" id="ayuda-nomina-2" data-ayuda-titulo="Documentos de nómina">
@@ -2145,7 +2176,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="ayuda-sec-tit">Códigos de párrafo: formas de 6 y 7 dígitos</div>
                     <p class="small mb-1">Las fuentes oficiales usan dos formas del mismo código y ambas son correctas:</p>
                     <ul class="small mb-0">
-                        <li><b>6 dígitos</b> en la Res. 271/2024 (Art. 13): 011402 Ventas/Servicios, 051012 cuotas del IIP, 052052 retención a trabajadores del TCP, 053022 liquidación adicional, 051052 régimen simplificado, 061032 IUFT, 082013 Contribución Especial a la Seguridad Social.</li>
+                        <li><b>6 dígitos</b> en la Res. 271/2024 (Art. 13): 011402 Ventas/Servicios, 051012 cuotas del IIP, 052052 retención a trabajadores del TCP, 053022 liquidación adicional, 051052 régimen simplificado (figura derogada en 2024 por el DL 93/2024: el párrafo subsiste en el catálogo, pero ya ningún TCP tributa en ese régimen), 061032 IUFT, 082013 Contribución a la Seguridad Social (la propia del titular; la «Especial» de los trabajadores es la 082023).</li>
                         <li><b>7 dígitos</b> (con subconcepto) en la planilla DJ-08 y el Vector Fiscal: 0114022, 0510122, 0530222, 0610322… La app usa esta forma, coherente con el Vector; no hay que «corregirla».</li>
                         <li><b>IUFT</b>: tipo único del 5 % (nuevo Art. 236 de la Ley 113). El TCP lo paga <b>trimestralmente</b>, en los primeros 20 días naturales del mes siguiente al trimestre vencido (Res. 271/2024, Art. 8), por el párrafo 061032.</li>
                     </ul>
@@ -2229,6 +2260,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Si la fecha es antigua, vuelve a comprobar</b>: las normas cambian; una verificación de hace meses no garantiza la vigencia de hoy. Sin verificación registrada, la app te avisa: comprueba los parámetros en fuente oficial (Gaceta/ONAT) antes de aplicarlos.</li>
                     </ul>
                 </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-registro">
+                <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="libro"></span>Registro de Control de Ingresos y Gastos (solo TCP)</h6>
+                <p class="small mb-1">Es el <b>único libro</b> que debe llevar el TCP con ingresos anuales de hasta 500 000 CUP (Res. 272/2024 del MFP): anotación <b>diaria</b> de sus ingresos y gastos, en español y en CUP, conservando los documentos justificantes. Tributariamente ya no existe un «régimen simplificado»: desde 2024 todo TCP tributa en <b>régimen general</b> (DL 93/2024); lo que cambia con el tamaño es solo su obligación contable.</p>
+                <ul class="small mb-0">
+                    <li>El Registro se <b>arma solo</b> desde tus movimientos importados (cuentas en CUP y en divisa convertidas a CUP); las transferencias entre tus propias cuentas no se anotan.</li>
+                    <li>Lo que ocurra <b>fuera del banco</b> (efectivo) se añade con la <b>anotación manual</b>: fecha, concepto, tipo y monto.</li>
+                    <li>La cabecera compara tus ingresos del año con el límite de 500 000 CUP: al superarlo corresponde llevar la contabilidad completa (NCIF), y este Registro queda como historial.</li>
+                    <li>El botón <b>Imprimir</b> genera el libro del año. El formato oficial lo fija el Jefe de la ONAT; la salida de la app sigue la letra de la Res. 272/2024.</li>
+                </ul>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-tasas">
@@ -3640,11 +3682,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
           {id:'salarioMinimo',nombre:'Validar salario mínimo',desc:'Avisa si algún salario está bajo el mínimo'},
           {id:'acumuladoAnual',nombre:'Acumulado anual por trabajador',desc:'Tabla anual para la DJ del IIP'}
         ];
+        /* Salario mínimo vigente por período (AAAA-MM): 2 100 CUP hasta
+           julio de 2026 y 3 210 CUP desde los pagos de agosto de 2026
+           (Res. 14/2026 del MTSS, Gaceta Oficial No. 60). Si el negocio
+           fijó otro valor a mano en los parámetros, manda el suyo. */
+        function salarioMinimoVigente(periodo){
+          let p = String(periodo || '');
+          if (!p) { const h = new Date(); p = h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0'); }
+          return p >= '2026-08' ? 3210 : 2100;
+        }
+        function compSalarioMinimo(cfg, periodo){ return (cfg && cfg.minExplicito) ? cfg.params.salarioMinimo : salarioMinimoVigente(periodo); }
         function getCompCfg(){
           const d=getRRHH()||{}, g=d.compCfg||{};
-          const activos={}, params=Object.assign({enfComun:60,enfAccidente:80,enfProfesional:90,divisorHoras:240,provVac:9.09,salarioMinimo:2100},g.params||{});
+          const activos={}, params=Object.assign({enfComun:60,enfAccidente:80,enfProfesional:90,divisorHoras:240,provVac:9.09,salarioMinimo:salarioMinimoVigente()},g.params||{});
           COMP_DEF.forEach(c=>{ activos[c.id]=!!(g.activos&&g.activos[c.id]); });
-          return {activos,params};
+          return {activos,params,minExplicito: !!(g.params && g.params.salarioMinimo !== undefined && g.params.salarioMinimo !== '')};
         }
         function saveCompCfg(cfg){ const d=getRRHH(); d.compCfg=cfg; saveRRHH(d); }
         function compAlgunoTiene(cid){ const d=getRRHH(); return (d.trabajadores||[]).some(t=>t.compAplica&&!!t.compAplica[cid]); }
@@ -3801,9 +3853,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('btnNuevoTrabajador').style.display = editable ? '' : 'none';
             document.getElementById('btnGuardarNomina').style.display = editable ? '' : 'none';
             document.getElementById('nominaVacia').style.display = d.lineas.length ? 'none' : 'block';
-            const _cc=getCompCfg();
+            const _cc=getCompCfg(); const _minEf=compSalarioMinimo(_cc, periodoNominaActual());
             body.innerHTML = d.lineas.map(({t,salario,otras,comp,calc}) => {
-                const warnMin=!!(t.compAplica&&t.compAplica.salarioMinimo) && (salario+otras)>0 && (salario+otras)<_cc.params.salarioMinimo;
+                const warnMin=!!(t.compAplica&&t.compAplica.salarioMinimo) && (salario+otras)>0 && (salario+otras)<_minEf;
                 const compTotal=calc.extra+calc.subsidios-calc.deducciones-(calc.descAdelanto||0);
                 const compTitle=calc.detalle.map(dd=>dd[0]+': '+moneda(dd[1])).join('\n');
                 return `
@@ -4110,7 +4162,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function renderCompParams() {
             const card = document.getElementById('cardCompParams');
             if (!card) return;
-            const P = getCompCfg().params, editable = puedeEditar(), dis = editable ? '' : 'disabled';
+            const cfgPC = getCompCfg(); const P = Object.assign({}, cfgPC.params, { salarioMinimo: compSalarioMinimo(cfgPC, periodoNominaActual()) }), editable = puedeEditar(), dis = editable ? '' : 'disabled';
             const pnum = (key, label, val, step) => `<div class="col-6 col-md-4 col-lg-3"><label class="form-label small mb-1">${label}</label><input type="number" min="0" step="${step || '0.01'}" class="form-control form-control-sm comp-param" data-param="${key}" value="${val}" ${dis}></div>`;
             const det = [];
             if (compAlgunoTiene('salarioMinimo')) {
@@ -4496,7 +4548,83 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             return {periodo, lineas, tot};
         }
         function getResumenPeriodo(periodo){const movs=getMovimientosPeriodo(periodo);const h=getHistorial().find(x=>x.mes===periodo);return calcularResumen(movs,{tasa:h&&h.tasa?h.tasa:tasaVista(),saldoInicial:h&&h.saldoInicial?h.saldoInicial:(periodo===periodoNominaActual()?getSaldoInicial():{chequera:0,tarjeta_cup:0,tarjeta_usd:0}),saldoInicialTasaUSD:h&&h.saldoInicialTasaUSD?h.saldoInicialTasaUSD:undefined});}
-        function calcFiscalPeriodo(periodo){const res=getResumenPeriodo(periodo),nom=obtenerNominaParaPeriodo(periodo).tot,tipo=getEntityType()||'tcp';return {periodo,tipo,ingresos:res.ingresos,utilidad:res.utilidad,ventas:res.ingresos*(Number(CFG.onat.ventas)||0)/100,territorial:tipo==='mipyme'?res.ingresos*(Number(CFG.onat.desarrolloLocal)||0)/100:null,pagoCuentaTCP:tipo==='tcp'?Math.max(0,res.ingresos-3260)*.05:null,utilidades:tipo==='mipyme'&&res.utilidad>0?res.utilidad*(Number(CFG.onat.utilidades)||0)/100:null,nom};}
+        function ssBaseTitularTCP(){ try { const d = JSON.parse(Store.getItem('finanzas_dj_' + getCurrentUser()) || '{}'); return Number(d && d.ficha && d.ficha.ssBase) || 0; } catch(e) { return 0; } }
+        /* ===== REGISTRO DE CONTROL DE INGRESOS Y GASTOS (TCP) =====
+           Res. 272/2024: el TCP con ingresos anuales inferiores a
+           500 000 CUP lleva SOLO este registro, con anotación diaria.
+           Se genera desde los movimientos importados + las anotaciones
+           manuales (guardadas junto a la DJ, clave registroManual) y
+           es imprimible. Al superar el límite manda la Contabilidad y
+           el Registro queda como historial. */
+        let regAnioSel = null;
+        function regStoreGet(){ try { return JSON.parse(Store.getItem('finanzas_dj_' + getCurrentUser()) || '{}') || {}; } catch(e) { return {}; } }
+        function regStoreSave(d){ Store.setItem('finanzas_dj_' + getCurrentUser(), JSON.stringify(d)); }
+        function getRegistroManual(){ const d = regStoreGet(); return Array.isArray(d.registroManual) ? d.registroManual : []; }
+        function regAniosOpciones(){ const ys = new Set(); allMovimientos().forEach(m => { const y = String(m.fecha || '').slice(0, 4); if (y) ys.add(y); }); const h = new Date().getFullYear(); ys.add(String(h)); ys.add(String(h - 1)); return [...ys].sort().reverse(); }
+        function renderRegistro(){
+            const pane = document.getElementById('pane-registro'); if (!pane) return;
+            const sel = document.getElementById('regAnioSel');
+            if (!regAnioSel) regAnioSel = new Date().getFullYear();
+            sel.innerHTML = regAniosOpciones().map(y => '<option value="' + y + '"' + (Number(y) === Number(regAnioSel) ? ' selected' : '') + '>' + y + '</option>').join('');
+            const mf = document.getElementById('regManFecha'); if (mf && !mf.value) mf.value = hoy();
+            const anio = String(regAnioSel);
+            const ind = mjRegistroControl(allMovimientos(), anio, 500000);
+            document.getElementById('regIndicadorBox').innerHTML = '<div class="card p-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div class="fw-semibold"><i class="bi bi-journal-check me-2"></i>Ingresos del año frente al límite del Registro</div>' +
+                (ind.supera ? '<span class="badge bg-danger">Superó 500 000: corresponde contabilidad NCIF</span>' : ind.alerta80 ? '<span class="badge bg-warning text-dark">Cerca del límite (80 %)</span>' : '<span class="badge bg-success">Dentro del Registro</span>') + '</div>' +
+                '<div class="d-flex justify-content-between small mt-2"><span>Ingresos ' + anio + ': ' + moneda(ind.ingresos) + ' de ' + moneda(ind.umbral) + '</span><b>' + ind.pct + ' %</b></div>' +
+                '<div class="just-bar mt-1"><div style="width:' + Math.min(100, ind.pct) + '%"></div></div>' +
+                '<div class="small text-secondary mt-1">Modo: ' + esc(ind.modo) + '.</div></div>';
+            const dias = {};
+            const addDia = (fecha, campo, monto, detalle) => { if (!fecha) return; const d = dias[fecha] || (dias[fecha] = { fecha, ingresos: 0, gastos: 0, tributos: 0, detalles: [] }); d[campo] += Number(monto) || 0; if (detalle) d.detalles.push(detalle); };
+            allMovimientos().filter(m => String(m.fecha || '').slice(0, 4) === anio).forEach(m => {
+                if (!clasifEnTotales(m.clasificacion || 'operacional')) return;
+                const cup = ctaMontoCUP(m, Number(m.tasaCambio) || 0);
+                if (m.tipo === 'ingreso') addDia(m.fecha, 'ingresos', cup, m.concepto);
+                else if (m.tipo === 'gasto') addDia(m.fecha, 'gastos', cup, m.concepto);
+                else if (m.tipo === 'onat') addDia(m.fecha, 'tributos', cup, m.concepto);
+            });
+            getRegistroManual().filter(x => String(x.fecha || '').slice(0, 4) === anio).forEach(x => {
+                addDia(x.fecha, x.tipo === 'gasto' ? 'gastos' : 'ingresos', x.monto, (x.concepto || 'Anotación manual') + ' (manual)');
+            });
+            const filas = Object.values(dias).sort((a, b) => a.fecha.localeCompare(b.fecha));
+            let saldo = 0;
+            document.getElementById('regBody').innerHTML = filas.map(d => { saldo += d.ingresos - d.gastos - d.tributos; return '<tr><td>' + String(d.fecha).split('-').reverse().join('/') + '</td><td class="small text-secondary">' + esc(d.detalles.slice(0, 4).join(' · ')) + (d.detalles.length > 4 ? ' · …' : '') + '</td><td class="text-end">' + (d.ingresos ? moneda(d.ingresos) : '—') + '</td><td class="text-end">' + (d.gastos ? moneda(d.gastos) : '—') + '</td><td class="text-end">' + (d.tributos ? moneda(d.tributos) : '—') + '</td><td class="text-end fw-semibold">' + moneda(saldo) + '</td></tr>'; }).join('');
+            document.getElementById('regVacio').style.display = filas.length ? 'none' : 'block';
+            const tI = filas.reduce((s, d) => s + d.ingresos, 0), tG = filas.reduce((s, d) => s + d.gastos, 0), tT = filas.reduce((s, d) => s + d.tributos, 0);
+            document.getElementById('regTotales').innerHTML = filas.length ? '<div class="aporte-line"><span>Total de ingresos del año</span><b>' + moneda(tI) + '</b></div><div class="aporte-line"><span>Total de gastos del año</span><b>' + moneda(tG) + '</b></div><div class="aporte-line"><span>Total de tributos pagados</span><b>' + moneda(tT) + '</b></div><div class="aporte-line fw-bold"><span>Saldo del Registro (ingresos − gastos − tributos)</span><b>' + moneda(tI - tG - tT) + '</b></div>' : '';
+            renderRegistroManuales(anio);
+        }
+        function renderRegistroManuales(anio){
+            const box = document.getElementById('regManualesBox'); if (!box) return;
+            const lista = getRegistroManual().filter(x => String(x.fecha || '').slice(0, 4) === String(anio));
+            box.innerHTML = lista.length ? '<div class="small fw-semibold mt-2 mb-1">Anotaciones manuales de ' + anio + '</div>' + lista.map(x => '<div class="d-flex justify-content-between align-items-center gap-2 border-bottom py-1 small"><span>' + String(x.fecha).split('-').reverse().join('/') + ' · ' + esc(x.concepto || '') + ' · ' + (x.tipo === 'gasto' ? 'Gasto' : 'Ingreso') + ' · <b>' + moneda(x.monto) + '</b></span><button type="button" class="btn btn-sm btn-outline-danger" data-reg-del="' + x.id + '" title="Eliminar anotación"><i class="bi bi-trash3"></i></button></div>').join('') : '';
+            box.querySelectorAll('[data-reg-del]').forEach(b => b.addEventListener('click', () => { const d = regStoreGet(); d.registroManual = (d.registroManual || []).filter(x => String(x.id) !== String(b.dataset.regDel)); regStoreSave(d); renderRegistro(); }));
+        }
+        function regManualAdd(){
+            const fecha = document.getElementById('regManFecha').value, concepto = document.getElementById('regManConcepto').value.trim(), tipo = document.getElementById('regManTipo').value, monto = parseFloat(document.getElementById('regManMonto').value) || 0;
+            if (!fecha || !concepto || !(monto > 0)) { alert('Completa la fecha, el concepto y un monto mayor que cero.'); return; }
+            const d = regStoreGet(); if (!Array.isArray(d.registroManual)) d.registroManual = [];
+            d.registroManual.push({ id: 'rm' + Date.now(), fecha, concepto, tipo: tipo === 'gasto' ? 'gasto' : 'ingreso', monto: +monto.toFixed(2) });
+            regStoreSave(d);
+            document.getElementById('regManConcepto').value = ''; document.getElementById('regManMonto').value = '';
+            regAnioSel = Number(fecha.slice(0, 4)); renderRegistro();
+        }
+        function imprimirRegistro(){
+            const anio = String(regAnioSel || new Date().getFullYear());
+            const f = regStoreGet().ficha || {};
+            const box = document.getElementById('registroPrintBox'); if (!box) return;
+            box.innerHTML = '<div style="font-family:Arial,sans-serif;color:#000;max-width:800px;margin:0 auto">' +
+                '<h3 style="text-align:center;margin-bottom:2px">Registro de Control de Ingresos y Gastos</h3>' +
+                '<p style="text-align:center;margin:0 0 4px">Trabajador por cuenta propia · Resolución 272/2024 del MFP</p>' +
+                '<p style="margin:0 0 12px"><b>Contribuyente:</b> ' + esc(f.nombre || '—') + ' · <b>NIT:</b> ' + esc(f.nit || '—') + ' · <b>Año:</b> ' + anio + '</p>' +
+                '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%;font-size:12px"><thead><tr><th>Fecha</th><th>Detalle</th><th>Ingresos</th><th>Gastos</th><th>Tributos</th><th>Saldo</th></tr></thead><tbody>' + document.getElementById('regBody').innerHTML + '</tbody></table>' +
+                document.getElementById('regTotales').innerHTML +
+                '<p style="font-size:11px;margin-top:10px">Anotación diaria de las operaciones del año, en CUP. Las transferencias entre cuentas propias no se anotan. Los documentos justificantes se conservan. El formato oficial de este Registro lo establece el Jefe de la ONAT (Res. 272/2024, Disposición Final Primera).</p></div>';
+            printPane('registroPrintBox');
+        }
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-registro') renderRegistro(); });
+        (function(){ const b = document.getElementById('btnRegManAdd'); if (b) b.addEventListener('click', regManualAdd); const p = document.getElementById('btnRegistroPrint'); if (p) p.addEventListener('click', imprimirRegistro); const s = document.getElementById('regAnioSel'); if (s) s.addEventListener('change', () => { regAnioSel = Number(s.value); renderRegistro(); }); })();
+        function calcFiscalPeriodo(periodo){const res=getResumenPeriodo(periodo),nom=obtenerNominaParaPeriodo(periodo).tot,tipo=getEntityType()||'tcp';return {periodo,tipo,ingresos:res.ingresos,utilidad:res.utilidad,ventas:res.ingresos*(Number(CFG.onat.ventas)||0)/100,territorial:tipo==='mipyme'?res.ingresos*(Number(CFG.onat.desarrolloLocal)||0)/100:null,pagoCuentaTCP:tipo==='tcp'?Math.max(0,res.ingresos-3260)*.05:null,ssTitular:tipo==='tcp'?+(ssBaseTitularTCP()*0.20).toFixed(2):0,utilidades:tipo==='mipyme'&&res.utilidad>0?res.utilidad*(Number(CFG.onat.utilidades)||0)/100:null,nom};}
         function calcImporteObligacion(o){if(Number(o.importeManual)>=0&&o.importeManual!==''&&o.importeManual!==null&&o.importeManual!==undefined)return {importe:Number(o.importeManual)||0,origen:'Manual'};const c=calcFiscalPeriodo(o.periodo),t=normTxt(o.concepto),code=String(o.codigo||'');if(/ventas|servicios/.test(t))return {importe:c.ventas,origen:`Ingresos × ${CFG.onat.ventas}%`};if(/fuerza.*trabajo/.test(t))return {importe:c.nom.fuerza||0,origen:'Nómina · 5%'};if(/especial.*trabajador|trabajador.*seg.*social.*retenc/.test(t))return {importe:c.nom.segTrab||0,origen:'Retención nómina'};if(/seguridad social/.test(t)&&!/especial|trabajador/.test(t))return {importe:c.nom.ssPresupuesto||0,origen:'Nómina · aporte al Presupuesto'};if(/ingresos pers|ingresos personales/.test(t)){if(/liquid|declaracion|anual|adicional/.test(t))return {importe:null,origen:'Liquidación anual / DJ'};if(/retenc|trabajador/.test(t))return {importe:c.nom.iip||0,origen:'Retención nómina'};if(c.tipo==='tcp')return {importe:c.pagoCuentaTCP||0,origen:'TCP · 5% del ingreso mensual que excede 3.260 CUP'};return {importe:null,origen:'Manual / según Vector'};}if(/territorial/.test(t)&&c.territorial!==null)return {importe:c.territorial,origen:`Ingresos × ${CFG.onat.desarrolloLocal}%`};if(/utilidad/.test(t))return {importe:null,origen:'Liquidación / pago a cuenta'};return {importe:null,origen:'Manual / según Vector'};}
         function allMovimientos(){const actual=periodoNominaActual(),arr=[];for(const h of getHistorial())if(h.mes!==actual&&Array.isArray(h.movimientos))arr.push(...h.movimientos);arr.push(...movimientos);return arr;}
 
@@ -4642,7 +4770,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             alert(`✅ Vector Fiscal importado correctamente.\n\nObligaciones: ${obligaciones.length}\nTributos: ${Object.keys(tributos).length}\nActividades: ${d.actividades.length}\nAño: ${meta.anio||'—'}${vecForzado?'\n\n⚠️ Guardado FORZADO: el documento no coincidía con la identidad registrada de este negocio.':''}`);
         }
         async function importarVectorPDF(file){if(!file)return;if(!window.pdfjsLib){alert('No se pudo cargar el lector PDF. Revisa la conexión a Internet o añade la obligación manualmente.');return;}try{const lines=await pdfLineasDe(file);parseVectorLines(lines,file.name);}catch(e){console.error(e);alert('No se pudo leer ese PDF. Puedes añadir las obligaciones manualmente.');}}
-        function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}${(o.responsable||o.fuenteVerificacion||o.fechaVerificacion)?`<div class="small text-secondary">Resp.: ${esc(o.responsable||'—')} · Fuente: ${esc(o.fuenteVerificacion||'—')}${o.fechaVerificacion?' ('+fisFmtFechaDMY(o.fechaVerificacion)+')':''}</div>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button><button class="btn btn-outline-primary fiscal-anotar" data-id="${o.id}" title="Anotar responsable y verificación">Anotar</button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}<div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo (desde nómina)</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Contribución a la Seguridad Social al Presupuesto (desde nómina)</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Contribución Especial a la Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));document.querySelectorAll('.fiscal-anotar').forEach(b=>b.onclick=()=>anotarObligacionFiscal(b.dataset.id));}
+        function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}${(o.responsable||o.fuenteVerificacion||o.fechaVerificacion)?`<div class="small text-secondary">Resp.: ${esc(o.responsable||'—')} · Fuente: ${esc(o.fuenteVerificacion||'—')}${o.fechaVerificacion?' ('+fisFmtFechaDMY(o.fechaVerificacion)+')':''}</div>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button><button class="btn btn-outline-primary fiscal-anotar" data-id="${o.id}" title="Anotar responsable y verificación">Anotar</button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}${cf.ssTitular>0?`<div class="aporte-line"><span>Seguridad Social del titular · 20 % de su base elegida (082013)</span><b>${moneda(cf.ssTitular)}</b></div>`:''}<div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo (desde nómina)</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Contribución a la Seguridad Social al Presupuesto (desde nómina)</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Contribución Especial a la Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));document.querySelectorAll('.fiscal-anotar').forEach(b=>b.onclick=()=>anotarObligacionFiscal(b.dataset.id));}
         function editarImporteFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const actual=o.importeManual===null||o.importeManual===undefined?'':o.importeManual;const v=prompt('Importe CUP para esta obligación. Deja vacío para volver al cálculo automático:',actual);if(v===null)return;if(String(v).trim()==='')o.importeManual=null;else{const n=Number(v);if(!(n>=0)){alert('Importe inválido.');return;}o.importeManual=n;}saveFiscal(d);renderFiscal();}
         function borrarFiscalManual(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o||o.vector)return;if(!confirm('¿Eliminar esta obligación manual?'))return;d.obligaciones=d.obligaciones.filter(x=>x.id!==id);saveFiscal(d);renderFiscal();}
         function fisFmtFechaDMY(iso){const a=String(iso||'').split('-');return a.length===3?(a[2]+'/'+a[1]+'/'+a[0]):String(iso||'');}
@@ -5237,7 +5365,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     const exNeg = extrasDeNeg(neg);
                     const tipoNeg = m.tipo || 'tcp';
                     const extrasHtml = tipoNeg === 'tcp' ? `<div class="border-top pt-2 mt-2">
-                            <div class="small fw-semibold mb-1">Cuentas de este TCP <span class="text-muted fw-normal">(un TCP no las ve salvo que las tenga de verdad: actívalas aquí y le aparecen al momento)</span></div>
+                            <div class="small fw-semibold mb-1">Cuentas de este TCP <span class="text-muted fw-normal">(un TCP no las ve salvo que las tenga de verdad: actívalas aquí y le aparecen al momento. Su cuenta fiscal —la tarjeta CUP— siempre está visible y es obligatoria: no depende de estos interruptores)</span></div>
                             <label class="form-check form-switch mb-0 me-3"><input class="form-check-input" type="checkbox" data-extras="${esc(neg)}" data-extras-campo="chequera" ${exNeg.chequera ? 'checked' : ''}> <span class="form-check-label small">Chequera</span></label>
                             <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-extras="${esc(neg)}" data-extras-campo="usd" ${exNeg.usd ? 'checked' : ''}> <span class="form-check-label small">Tarjeta USD</span></label>
                         </div>` : tipoNeg === 'pdl' ? `<div class="border-top pt-2 mt-2">
@@ -5318,9 +5446,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             tabOcultaActor('tab-aft', tcp || pdl);
             tabOcultaActor('tab-conta', tcp && !a.pleno);
             tabOcultaActor('tab-gestion', tcp && !a.pleno);
+            tabOcultaActor('tab-registro', !tcp);
             try {
                 if (pdl) userTypeBadge.textContent = '🏛️ PDL · Proyecto de Desarrollo Local';
-                else if (tcp) userTypeBadge.textContent = a.pleno ? '📋 TCP · Régimen general (superó 500 000)' : '📋 TCP · Régimen simplificado';
+                else if (tcp) userTypeBadge.textContent = a.pleno ? '📋 TCP · Contabilidad completa (superó 500 000)' : '📋 TCP · Registro de Control (hasta 500 000)';
             } catch (e) {}
             if (pdl) { renderPanelPdl(); renderFiscalPdl(); }
             if (tcp && a.pleno) avisoTcpPleno(a.ingresos);
@@ -5332,7 +5461,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const d = document.createElement('div');
             d.id = 'avisoTcpPleno';
             d.className = 'alert alert-info py-2 px-3 small mb-3';
-            d.innerHTML = 'ℹ️ <b>Este TCP superó los 500 000 CUP de ingresos en el año</b> (' + moneda(ingresos) + '): salió del régimen simplificado, por lo que ya tiene activas la Contabilidad y la Gestión+ adecuadas al TCP. La marca no se quita sola aunque los ingresos bajen después: la decide el gestor.';
+            d.innerHTML = 'ℹ️ <b>Este TCP superó los 500 000 CUP de ingresos en el año</b> (' + moneda(ingresos) + '): ya no le basta el Registro de Control, por lo que ya tiene activas la Contabilidad y la Gestión+ adecuadas al TCP. La marca no se quita sola aunque los ingresos bajen después: la decide el gestor.';
             pane.insertBefore(d, pane.firstChild);
         }
         function renderPanelPdl() {
@@ -5422,6 +5551,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             oc('ayuda-menu-aft', tcp || pdl);
             oc('ayuda-menu-conta', tcp && !a.pleno);
             oc('ayuda-menu-gestion', tcp && !a.pleno);
+            oc('ayuda-menu-registro', !tcp);
         }
         document.addEventListener('shown.bs.tab', e => {
             if (e.target && e.target.id === 'tab-dj' && ACTOR_NEGOCIO && ACTOR_NEGOCIO.tipo === 'pdl') renderPanelPdl();
@@ -7383,9 +7513,9 @@ function mjMotorTributos(datos){ datos=datos||{}; const tipo=datos.tipo==='mipym
   const cfg=Object.assign({ventas:10,iuft:5,css:14,cssPresupuesto:12.5,cssProvision:1.5,territorial:1,utilidades:35},datos.cfg||{});
   const periodo=String(datos.periodo||'');
   const items=[];
-  const add=(concepto,base,tasa,cuenta)=>{ if(base>0&&tasa>0) items.push({concepto:concepto,periodo:periodo,base:mjR2(base),tasa:tasa,importe:mjR2(base*tasa/100),cuenta:cuenta,diaVencimiento:diaV,frecuencia:'mensual'}); };
+  const add=(concepto,base,tasa,cuenta,frec)=>{ if(base>0&&tasa>0) items.push({concepto:concepto,periodo:periodo,base:mjR2(base),tasa:tasa,importe:mjR2(base*tasa/100),cuenta:cuenta,diaVencimiento:diaV,frecuencia:frec||'mensual'}); };
   add('Impuesto sobre las ventas / servicios',ing,cfg.ventas,'341-000');
-  add('Impuesto por la utilización de la fuerza de trabajo',bruto,cfg.iuft,'334-000');
+  add(tipo==='tcp'?'Impuesto por la utilización de la fuerza de trabajo (TCP: se paga por trimestre)':'Impuesto por la utilización de la fuerza de trabajo',bruto,cfg.iuft,'334-000',tipo==='tcp'?'trimestral':'mensual');
   add('Contribución a la seguridad social (al Presupuesto)',bruto,cfg.cssPresupuesto,'333-000');
   add('Contribución a la seguridad social (provisión de prestaciones)',bruto,cfg.cssProvision,'333-000');
   if(tipo==='mipyme'&&!datos.exentoTerritorial) add('Contribución territorial para el desarrollo local',ing,cfg.territorial,'343-000');
@@ -8582,14 +8712,25 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            Todos los parámetros son editables por año fiscal en la interfaz. */
         const DJ_PARAMS_DEF = {
             exentoIIP: 39120,
+            /* Escala del IIP para liquidar HASTA 2023. Desde los
+               ingresos de 2024 rige la de la Ley 174/2024 (Art. 65):
+               ver DJ_ESCALA_IIP_2024 y djEscalaIIPDefecto(). */
             escalaIIP: [[10000,15],[20000,20],[30000,30],[50000,40],[Infinity,50]],
             bonifPronto: 5, bonifElec: 3,
             tipoUtilidades: 35,
             escalaDiv: [[75000,3],[150000,5],[250000,10],[350000,15],[Infinity,20]],
             exentoDiv: 39120, retencionDiv: 5,
-            topeSimplificado: 200000,
             escalaGrat: [[25000,5],[50000,10],[100000,15],[200000,20],[350000,25],[500000,30],[650000,35],[800000,40],[1000000,45],[Infinity,50]]
         };
+        /* Escala del IIP desde los ingresos de 2024 (Ley 174/2024,
+           Art. 65; Instructivo DJ-08 Campaña 2025, Sección G): 10
+           tramos, 5 % hasta 25 000 y 50 % en exceso de 1 000 000.
+           El «régimen simplificado» tributario fue DEROGADO por el
+           DL 93/2024 (deroga los Arts. 60-65 de la Ley 113) y la
+           Res. 271/2024 (Art. 3) pone a TODO TCP en régimen general
+           desde el 1-ene-2024: ya no hay opción ni tope simplificado. */
+        const DJ_ESCALA_IIP_2024 = [[25000,5],[50000,10],[100000,15],[200000,20],[350000,25],[500000,30],[650000,35],[800000,40],[1000000,45],[Infinity,50]];
+        function djEscalaIIPDefecto(anio){ return Number(anio) >= 2024 ? DJ_ESCALA_IIP_2024 : DJ_PARAMS_DEF.escalaIIP; }
         /* Fuentes oficiales que verifican los parámetros, por año
            liquidado (ficha de verificación normativa precargada; el
            usuario puede sobrescribirla en la tarjeta de parámetros).
@@ -8600,6 +8741,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 fuente: 'Modelos oficiales ONAT: Excel DJ-08 2024 y planilla DJ-08 Campaña 2024 (Instructivo DJ-08, p. 1); Excel de Dividendos de socios; GOC-2024-o78 (Res. 271/2024, Arts. 7, 8 y 20; DL 93/2024). Estudio: ONAT-APUNTES.md (2026-10-25)',
                 fecha: '2026-10-25',
                 vigencia: 'Parámetros de la Campaña 2024 (liquida el año 2023) verificados contra el modelo oficial; re-verificar cada año según la Ley del Presupuesto. El tipo de utilidades (DJ-01) NO está en estas fuentes: sigue sin verificar.'
+            },
+            '2024': {
+                fuente: 'Ley 174/2024 del Presupuesto del Estado (Art. 65: escala del IIP de 10 tramos para los ingresos de 2024); Instructivo DJ-08 Campaña 2025, Sección G; DL 93/2024 y Res. 271/2024 (régimen general para todo TCP). Estudio: AUDITORIA-TCP.md (2026-10-26)',
+                fecha: '2026-10-26',
+                vigencia: 'Escala verificada para liquidar 2024. El régimen simplificado tributario quedó derogado (DL 93/2024): todo TCP liquida en régimen general.'
+            },
+            '2025': {
+                fuente: 'Por continuidad: Ley 174/2024, Art. 65 (escala dictada para los ingresos de 2024)',
+                fecha: '',
+                vigencia: 'PENDIENTE de verificar contra la Ley del Presupuesto de 2026: la escala y el exento para liquidar 2025 NO están confirmados en fuente primaria. No presentes la DJ-08 de 2025 sin confirmarlos antes en la ONAT o en la Gaceta.'
             }
         };
         /* Tabla código de tributo → categoría DJ. Códigos verificados contra
@@ -8624,7 +8775,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             ['061012','deducible','Impuesto por la Utilización de la Fuerza de Trabajo'],
             ['0810132','deducible','Contribución a la Seguridad Social'],
             ['081013','deducible','Contribución a la Seguridad Social'],
-            ['0820132','deducible','Contribución Especial a la Seguridad Social (propia del TCP)'],
+            ['0820132','deducible','Contribución a la Seguridad Social (propia del TCP)'],
             ['0820232','deducible','Contribución Especial a la Seguridad Social (trabajadores)'],
             ['082023','deducible','Contribución Especial a la Seguridad Social (trabajadores)'],
             ['0730122','deducible','Impuesto sobre Documentos'],
@@ -8642,6 +8793,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             let d = {};
             try { d = JSON.parse(Store.getItem(getDJKey()) || '{}') || {}; } catch(e) { d = {}; }
             if (!d.ficha || typeof d.ficha !== 'object') d.ficha = {};
+            /* Migración (2026-10-26): el régimen simplificado tributario
+               fue derogado (DL 93/2024); las fichas que lo traigan pasan
+               a régimen general, que es lo que la norma exige desde 2024. */
+            if (d.ficha.regimen === 'tcp_simplificado') d.ficha.regimen = 'tcp_general';
             if (!d.params || typeof d.params !== 'object') d.params = {};
             if (!d.manual || typeof d.manual !== 'object') d.manual = {};
             if (!Array.isArray(d.presentadas)) d.presentadas = [];
@@ -8654,12 +8809,11 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 exentoIIP: DJ_PARAMS_DEF.exentoIIP, bonifPronto: DJ_PARAMS_DEF.bonifPronto,
                 bonifElec: DJ_PARAMS_DEF.bonifElec, tipoUtilidades: DJ_PARAMS_DEF.tipoUtilidades,
                 exentoDiv: DJ_PARAMS_DEF.exentoDiv, retencionDiv: DJ_PARAMS_DEF.retencionDiv,
-                topeSimplificado: DJ_PARAMS_DEF.topeSimplificado,
-                escalaIIP: DJ_PARAMS_DEF.escalaIIP.map(t => t.slice()),
+                escalaIIP: djEscalaIIPDefecto(anio).map(t => t.slice()),
                 escalaDiv: DJ_PARAMS_DEF.escalaDiv.map(t => t.slice()),
                 escalaGrat: DJ_PARAMS_DEF.escalaGrat.map(t => t.slice())
             };
-            ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv','topeSimplificado'].forEach(k => {
+            ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv'].forEach(k => {
                 if (g[k] !== undefined && g[k] !== '' && !isNaN(Number(g[k]))) P[k] = Number(g[k]);
             });
             if (Array.isArray(g.escalaIIP) && g.escalaIIP.length) P.escalaIIP = g.escalaIIP;
@@ -8689,8 +8843,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 grat: (m.grat && typeof m.grat === 'object') ? {
                     divisa: Number(m.grat.divisa) || 0, tasaBCC: Number(m.grat.tasaBCC) || 0,
                     sinOtraActividad: !!m.grat.sinOtraActividad, retenciones: Number(m.grat.retenciones) || 0,
+                    pagosCuenta: Number(m.grat.pagosCuenta) || 0,
                     fechaPago: m.grat.fechaPago || '', canalElectronico: !!m.grat.canalElectronico
-                } : { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, fechaPago: '', canalElectronico: false }
+                } : { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, pagosCuenta: 0, fechaPago: '', canalElectronico: false }
             };
         }
         function djEscalaTexto(esc){ return esc.map(t => (isFinite(t[0]) ? t[0] : '') + ':' + t[1]).join(', '); }
@@ -8860,7 +9015,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function djCoreGrat(datos, P, man, anio){
             const L = [];
             const add = (etiqueta, importe, origen, clase) => L.push({ etiqueta: etiqueta, importe: importe == null ? null : +Number(importe).toFixed(2), origen: origen || '', clase: clase || '' });
-            const g = man.grat || { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, fechaPago: '', canalElectronico: false };
+            const g = man.grat || { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, pagosCuenta: 0, fechaPago: '', canalElectronico: false };
             let ingresos = datos.ingresos, origenIng = 'Movimientos operacionales del año (actividad de gratificaciones)';
             if (g.divisa > 0 && g.tasaBCC > 0) {
                 ingresos = +(g.divisa * g.tasaBCC).toFixed(2);
@@ -8881,8 +9036,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const esc = djAplicarEscala(base, P.escalaGrat);
             esc.detalle.forEach(d => add('Escala ' + d.tasa + ' % sobre ' + moneda(d.base), d.importe, 'Tramo ' + moneda(d.desde) + ' – ' + (isFinite(d.hasta) ? moneda(d.hasta) : 'en adelante')));
             add('Impuesto determinado (escala de gratificaciones)', esc.total, 'Escala propia de 10 tramos: 5 % hasta 25 000 … 50 % en exceso', 'subtotal');
-            add('Menos: pagos a cuenta del IIP — fila 22 (NO son bonificación)', -datos.trib.anticipo_iip, 'Anticipos clasificados por código 0510122: minoran el impuesto, NO la base');
-            let saldo = esc.total - datos.trib.anticipo_iip;
+            const pagosCuenta22 = +(datos.trib.anticipo_iip + (Number(g.pagosCuenta) || 0)).toFixed(2);
+            add('Menos: pagos a cuenta del IIP — fila 22 (NO son bonificación)', -pagosCuenta22, 'Anticipos clasificados por código 0510122' + (g.pagosCuenta > 0 ? ' + pagos a cuenta trimestrales declarados a mano (' + moneda(g.pagosCuenta) + ')' : '') + ': minoran el impuesto, NO la base');
+            let saldo = esc.total - pagosCuenta22;
             if (g.retenciones > 0) {
                 add('Menos: retenciones acreditadas — fila 24', -g.retenciones, 'Retenciones practicadas por las entidades; se especifican en Observaciones de la DJ');
                 saldo -= g.retenciones;
@@ -8967,12 +9123,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 document.getElementById('djFichaMunicipio').value = f.municipio || '';
                 document.getElementById('djFichaActividad').value = f.actividad || '';
                 document.getElementById('djFichaFecha').value = f.fechaInscripcion || '';
+                document.getElementById('djFichaSsBase').value = f.ssBase || 0;
                 const P = djParamsAnio(djAnioSel);
                 document.getElementById('djParAnio').textContent = '· ' + djAnioSel;
                 document.getElementById('djParExento').value = P.exentoIIP;
                 document.getElementById('djParBonifP').value = P.bonifPronto;
                 document.getElementById('djParBonifE').value = P.bonifElec;
-                document.getElementById('djParTopeSimp').value = P.topeSimplificado;
                 document.getElementById('djParEscalaIIP').value = djEscalaTexto(P.escalaIIP);
                 document.getElementById('djParTipoUtil').value = P.tipoUtilidades;
                 document.getElementById('djParExentoDiv').value = P.exentoDiv;
@@ -8998,6 +9154,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 document.getElementById('djGratDivisa').value = man.grat.divisa || '';
                 document.getElementById('djGratTasa').value = man.grat.tasaBCC || '';
                 document.getElementById('djGratRet').value = man.grat.retenciones || '';
+                document.getElementById('djGratPagos').value = man.grat.pagosCuenta || '';
                 document.getElementById('djGratFechaPago').value = man.grat.fechaPago || '';
                 document.getElementById('djGratSinOtra').checked = !!man.grat.sinOtraActividad;
                 document.getElementById('djGratCanalElec').checked = !!man.grat.canalElectronico;
@@ -9009,7 +9166,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 sel.addEventListener('change', () => { djAnioSel = Number(sel.value); renderDJ(); });
                 document.getElementById('btnDjGuardarFicha').addEventListener('click', () => {
                     const dd = getDJ();
-                    dd.ficha = { regimen: document.getElementById('djFichaRegimen').value, nit: document.getElementById('djFichaNIT').value.trim(), nombre: document.getElementById('djFichaNombre').value.trim(), municipio: document.getElementById('djFichaMunicipio').value.trim(), actividad: document.getElementById('djFichaActividad').value.trim(), fechaInscripcion: document.getElementById('djFichaFecha').value };
+                    dd.ficha = { regimen: document.getElementById('djFichaRegimen').value, nit: document.getElementById('djFichaNIT').value.trim(), nombre: document.getElementById('djFichaNombre').value.trim(), municipio: document.getElementById('djFichaMunicipio').value.trim(), actividad: document.getElementById('djFichaActividad').value.trim(), fechaInscripcion: document.getElementById('djFichaFecha').value, ssBase: Number(document.getElementById('djFichaSsBase').value) || 0 };
                     saveDJ(dd); renderDJ(); alert('✅ Ficha fiscal guardada.');
                 });
                 document.getElementById('btnDjGuardarParams').addEventListener('click', () => {
@@ -9018,8 +9175,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                     P.exentoIIP = parseFloat(document.getElementById('djParExento').value);
                     P.bonifPronto = parseFloat(document.getElementById('djParBonifP').value);
                     P.bonifElec = parseFloat(document.getElementById('djParBonifE').value);
-                    P.topeSimplificado = parseFloat(document.getElementById('djParTopeSimp').value);
-                    P.escalaIIP = djParseEscala(document.getElementById('djParEscalaIIP').value, DJ_PARAMS_DEF.escalaIIP);
+                    P.escalaIIP = djParseEscala(document.getElementById('djParEscalaIIP').value, djEscalaIIPDefecto(djAnioSel));
                     P.tipoUtilidades = parseFloat(document.getElementById('djParTipoUtil').value);
                     P.exentoDiv = parseFloat(document.getElementById('djParExentoDiv').value);
                     P.escalaDiv = djParseEscala(document.getElementById('djParEscalaDiv').value, DJ_PARAMS_DEF.escalaDiv);
@@ -9077,13 +9233,14 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                         divisa: parseFloat(document.getElementById('djGratDivisa').value) || 0,
                         tasaBCC: parseFloat(document.getElementById('djGratTasa').value) || 0,
                         retenciones: parseFloat(document.getElementById('djGratRet').value) || 0,
+                        pagosCuenta: parseFloat(document.getElementById('djGratPagos').value) || 0,
                         fechaPago: document.getElementById('djGratFechaPago').value,
                         sinOtraActividad: document.getElementById('djGratSinOtra').checked,
                         canalElectronico: document.getElementById('djGratCanalElec').checked
                     };
                     saveDJ(dd); renderDJCalculo();
                 };
-                ['djGratDivisa','djGratTasa','djGratRet','djGratFechaPago','djGratSinOtra','djGratCanalElec'].forEach(id => {
+                ['djGratDivisa','djGratTasa','djGratRet','djGratPagos','djGratFechaPago','djGratSinOtra','djGratCanalElec'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.addEventListener('change', guardarGrat);
                 });
@@ -9109,6 +9266,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if (esMipyme) avisos += mk((anio + 1) + '-03-31', 'Plazo DJ-01 de utilidades ' + anio + ':');
             else avisos += mk((anio + 1) + '-04-30', 'Plazo DJ-08 ' + anio + ':');
             avisos += mk((anio + 1) + '-02-28', 'Bonificación por pronto pago si declaras y pagas antes del:');
+            if (!esMipyme && anio >= 2025 && !(P.fechaVerif || '').trim()) avisos += '<div class="alert alert-danger py-2 px-3 mb-2 small"><i class="bi bi-exclamation-triangle me-1"></i><b>Parámetros de ' + anio + ' sin verificar en fuente primaria:</b> la escala aplicada es la de 2024 (Ley 174/2024) por continuidad. Confírmala contra la Ley del Presupuesto de ' + anio + ' antes de presentar esta DJ.</div>';
             if (datos.trib.otros > 0) avisos += '<div class="alert alert-warning py-2 px-3 mb-2 small"><i class="bi bi-exclamation-triangle me-1"></i>Hay ' + moneda(datos.trib.otros) + ' en pagos ONAT sin categoría DJ identificada: no se incluyeron en el cálculo. Revísalos en Fiscal.</div>';
             if (datos.trib.liquidacion > 0) avisos += '<div class="alert alert-info py-2 px-3 mb-2 small"><i class="bi bi-info-circle me-1"></i>Pagos por liquidación anual detectados (' + moneda(datos.trib.liquidacion) + '): corresponden a la DJ de un año anterior y no entran en este cálculo.</div>';
             document.getElementById('djAvisos').innerHTML = avisos;
@@ -9116,17 +9274,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 const rg = djCoreGrat(datos, P, man, anio);
                 document.getElementById('djLineasGRAT').innerHTML = djLineasHTML(rg.lineas);
             } else if (!esMipyme) {
-                document.getElementById('djTituloTCP').textContent = regimen === 'tcp_simplificado' ? 'DJ-08 · Régimen simplificado (control)' : 'DJ-08 · Impuesto sobre Ingresos Personales';
-                let html = '';
-                if (regimen === 'tcp_simplificado' && datos.ingresos <= P.topeSimplificado) {
-                    html = '<div class="aporte-line"><span>Ingresos brutos del año<div class="small text-secondary fw-normal">Régimen simplificado: la DJ-08 se presenta como control; solo hay liquidación adicional si los ingresos superan ' + moneda(P.topeSimplificado) + '</div></span><b>' + moneda(datos.ingresos) + '</b></div>' +
-                           '<div class="aporte-line fw-bold"><span>IMPORTE A PAGAR (liquidación)</span><b>' + moneda(0) + '</b></div>';
-                } else {
-                    const r = djCore08(datos, P, man, anio);
-                    if (regimen === 'tcp_simplificado') html += '<div class="alert alert-warning py-2 px-3 small">Los ingresos superan el tope del régimen simplificado (' + moneda(P.topeSimplificado) + '): se liquida como régimen general y corresponde migrar de régimen.</div>';
-                    html += djLineasHTML(r.lineas);
-                }
-                document.getElementById('djLineasTCP').innerHTML = html;
+                document.getElementById('djTituloTCP').textContent = 'DJ-08 · Impuesto sobre Ingresos Personales';
+                const r = djCore08(datos, P, man, anio);
+                document.getElementById('djLineasTCP').innerHTML = djLineasHTML(r.lineas);
                 const sec = djSeccionI(anio);
                 document.getElementById('djSeccionIBody').innerHTML = sec.map(w => '<tr><td>' + esc(w.nombre) + '</td><td>' + esc(w.nit || '—') + '</td><td>' + esc(w.municipio || '—') + '</td><td>' + esc(w.periodo) + '</td><td class="text-end">' + moneda(w.remuneracion) + '</td></tr>').join('');
                 document.getElementById('djSeccionIVacio').style.display = sec.length ? 'none' : 'block';
@@ -10611,7 +10761,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 ]};
         }
         /* --- Nómina parametrizada por doc (clon de obtenerNominaParaPeriodo/calcLineaNominaExt) --- */
-        function gCompCfg(rrhh){const g=(rrhh&&rrhh.compCfg)||{};return {params:Object.assign({enfComun:60,enfAccidente:80,enfProfesional:90,divisorHoras:240,provVac:9.09,salarioMinimo:2100},g.params||{})};}
+        function gSalarioMinimoVigente(periodo){ let p = String(periodo || ''); if (!p) { const h = new Date(); p = h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0'); } return p >= '2026-08' ? 3210 : 2100; }
+        function gCompCfg(rrhh){const g=(rrhh&&rrhh.compCfg)||{};return {params:Object.assign({enfComun:60,enfAccidente:80,enfProfesional:90,divisorHoras:240,provVac:9.09,salarioMinimo:gSalarioMinimoVigente()},g.params||{})};}
         function gPromDiario(rrhh,workerId,periodo,meses){
             const noms=(rrhh&&rrhh.nominas)||{}, p=periodoParts(periodo); if(!p) return 0;
             let total=0,n=0,mi=p.mi-1,y=p.y;
@@ -10873,8 +11024,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         }
         function gDjParams(doc,anio){
             const d=(doc&&doc.dj)||{}, g=(d.params&&d.params[anio])||{};
-            const P={exentoIIP:DJ_PARAMS_DEF.exentoIIP, bonifPronto:DJ_PARAMS_DEF.bonifPronto, bonifElec:DJ_PARAMS_DEF.bonifElec, tipoUtilidades:DJ_PARAMS_DEF.tipoUtilidades, exentoDiv:DJ_PARAMS_DEF.exentoDiv, retencionDiv:DJ_PARAMS_DEF.retencionDiv, topeSimplificado:DJ_PARAMS_DEF.topeSimplificado, escalaIIP:DJ_PARAMS_DEF.escalaIIP.map(t=>t.slice()), escalaDiv:DJ_PARAMS_DEF.escalaDiv.map(t=>t.slice()), fuenteVerif:String(g.fuenteVerif||''), fechaVerif:String(g.fechaVerif||''), vigenciaVerif:String(g.vigenciaVerif||'')};
-            ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv','topeSimplificado'].forEach(k=>{ if(g[k]!==undefined&&g[k]!==''&&!isNaN(Number(g[k]))) P[k]=Number(g[k]); });
+            const P={exentoIIP:DJ_PARAMS_DEF.exentoIIP, bonifPronto:DJ_PARAMS_DEF.bonifPronto, bonifElec:DJ_PARAMS_DEF.bonifElec, tipoUtilidades:DJ_PARAMS_DEF.tipoUtilidades, exentoDiv:DJ_PARAMS_DEF.exentoDiv, retencionDiv:DJ_PARAMS_DEF.retencionDiv, escalaIIP:djEscalaIIPDefecto(anio).map(t=>t.slice()), escalaDiv:DJ_PARAMS_DEF.escalaDiv.map(t=>t.slice()), fuenteVerif:String(g.fuenteVerif||''), fechaVerif:String(g.fechaVerif||''), vigenciaVerif:String(g.vigenciaVerif||'')};
+            ['exentoIIP','bonifPronto','bonifElec','tipoUtilidades','exentoDiv','retencionDiv'].forEach(k=>{ if(g[k]!==undefined&&g[k]!==''&&!isNaN(Number(g[k]))) P[k]=Number(g[k]); });
             if(Array.isArray(g.escalaIIP)&&g.escalaIIP.length) P.escalaIIP=g.escalaIIP;
             if(Array.isArray(g.escalaDiv)&&g.escalaDiv.length) P.escalaDiv=g.escalaDiv;
             return P;
@@ -11213,7 +11364,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 {codigo:'0510122', nombre:'Anticipo a cuenta del IIP (5 %)', frec:'mensual'},
                 {codigo:'0610322', nombre:'Impuesto por la Utilización de la Fuerza de Trabajo (TCP: trimestral)', frec:'trimestral'},
                 {codigo:'0810132', nombre:'Contribución a la Seguridad Social (empleador)', frec:'mensual'},
-                {codigo:'0820132', nombre:'Contribución a la Seguridad Social (propia del TCP)', frec:'trimestral'},
+                {codigo:'0820132', nombre:'Contribución a la Seguridad Social (propia del TCP)', frec:'mensual'},
                 {codigo:'0530222', nombre:'Liquidación del IIP (DJ-08 anual)', frec:'anual'}
             ],
             mipyme: [
@@ -13764,7 +13915,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-2';
+        var MANUAL_VERSION = 'v2026.10.26-3';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -13777,12 +13928,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             {id:'nomina', titulo:'9 · Nómina'},
             {id:'fiscal', titulo:'10 · Fiscal: Vector y obligaciones'},
             {id:'dj', titulo:'11 · Declaraciones Juradas (DJ)'},
-            {id:'creditos', titulo:'12 · Créditos e intereses'},
-            {id:'gestor', titulo:'13 · Gestor de clientes'},
-            {id:'gestion', titulo:'14 · Gestión+ (herramientas ampliadas)'},
-            {id:'libro', titulo:'15 · Herramientas del Libro: costos, precios y tablero'},
-            {id:'impresion', titulo:'16 · Documentos oficiales e impresión'},
-            {id:'respaldo', titulo:'17 · Respaldo, Historial y Configuración'}
+            {id:'registro', titulo:'12 · Registro de Control de Ingresos y Gastos'},
+            {id:'creditos', titulo:'13 · Créditos e intereses'},
+            {id:'gestor', titulo:'14 · Gestor de clientes'},
+            {id:'gestion', titulo:'15 · Gestión+ (herramientas ampliadas)'},
+            {id:'libro', titulo:'16 · Herramientas del Libro: costos, precios y tablero'},
+            {id:'impresion', titulo:'17 · Documentos oficiales e impresión'},
+            {id:'respaldo', titulo:'18 · Respaldo, Historial y Configuración'}
         ];
         var MANUAL_SECCIONES = [
         {id:'acceso-sesion', modulo:'empezar', titulo:'Entrar a la app y la sesión de 30 días', html:
@@ -13796,7 +13948,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
             '<li><b>La cuenta administradora tiene su propia vista:</b> su menú solo muestra <b>Gestor</b> y <b>Configuración</b>; los apartados de trabajo de cada negocio (DJ, Contabilidad, Gestión+) y los de consulta (Ayuda e Instrucciones) no aparecen en esa cuenta, porque viven dentro de cada negocio.</li>' +
             '<li>La ficha de cada negocio guarda su nombre, su NIT y su tipo (TCP, MIPYME o PDL); ese dato manda en la DJ y en las validaciones.</li>' +
-            '<li><b>Proyectos de Desarrollo Local (PDL):</b> son el tercer tipo de cliente y se eligen como tipo al crear el negocio o el usuario: en el editor de negocios, en el alta rápida del Gestor y en la gestión de usuarios. El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la vigencia de 5 años desde su aprobación, la evaluación anual y la ejecución por fuentes de financiamiento, todo en su ficha del Panel del Gestor.</li></ul>'},
+            '<li><b>Proyectos de Desarrollo Local (PDL):</b> son el tercer tipo de cliente y se eligen como tipo al crear el negocio o el usuario: en el editor de negocios, en el alta rápida del Gestor y en la gestión de usuarios. El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la vigencia de 5 años desde su aprobación, la evaluación semestral y la ejecución por fuentes de financiamiento, todo en su ficha del Panel del Gestor.</li></ul>'},
         {id:'navegar', modulo:'empezar', titulo:'Moverte por la app: menú, submenú de secciones y los «?»', html:
             '<p>A la izquierda está el menú principal con todos los módulos. Al abrir uno, a su derecha aparece el <b>submenú de secciones</b> con las tarjetas de ese módulo: un clic muestra <b>solo</b> esa sección y «👁 Ver todo» las muestra todas otra vez.</p>' +
             '<ul><li>El botón azul pulsante <b>«?»</b> de cada panel y de cada tarjeta te lleva directo a su explicación en el menú <b>Ayuda</b>.</li>' +
@@ -13804,7 +13956,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>El distintivo rojo junto a <b>Contabilidad</b> (● N por clasificar) te dice cuántos movimientos esperan por ti en la bandeja.</li></ul>'},
         {id:'actores-visibilidad', modulo:'empezar', titulo:'Qué ve cada negocio según su tipo (TCP, MIPYME, PDL)', html:
             '<p>Cada negocio ve <b>solo las opciones de su actor económico</b>: lo que no le corresponde no aparece, para que nadie se pierda en módulos que no son suyos.</p>' +
-            '<ul><li><b>TCP en régimen simplificado</b> (hasta 500 000 CUP de ingresos en el año): Resumen, cuentas, importar, Nómina, Fiscal y su DJ-08 con el Registro de Control. <b>No</b> ve Contabilidad ni Gestión+.</li>' +
+            '<ul><li><b>TCP con Registro de Control</b> (hasta 500 000 CUP de ingresos en el año): Resumen, cuentas, importar, Nómina, Fiscal, el Registro de Control y su DJ-08 (todo TCP tributa en régimen general desde 2024). <b>No</b> ve Contabilidad ni Gestión+.</li>' +
             '<li><b>TCP que supera los 500 000 CUP</b>: la app lo detecta sola desde sus movimientos, le avisa en el Resumen y le activa la Contabilidad y la Gestión+ <b>adecuadas al TCP</b>. La marca no se quita sola si los ingresos bajan: la decide el gestor.</li>' +
             '<li><b>El TCP no ve la Chequera ni la tarjeta USD</b> salvo que de verdad las tenga: en ese caso el gestor las activa para ese negocio en <b>Configuración → Suscripciones</b> (interruptores «Chequera» y «Tarjeta USD» dentro del negocio) y le aparecen al momento.</li>' +
             '<li><b>Trimestres y Activos son solo de las MIPYME</b>: ningún TCP ni PDL los ve.</li>' +
@@ -13993,8 +14145,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>La tarjeta <b>Parámetros del año fiscal</b> (menú DJ) guarda por año el mínimo exento (39 120 CUP), las escalas y las bonificaciones, junto a su <b>Fuente de verificación</b>, <b>Fecha de verificación</b> y <b>Vigencia comprobada</b>. Si un año no tiene verificación registrada, la app te avisa para que lo compruebes en la Gaceta o la ONAT antes de declarar.</p>' +
             '<p>Los parámetros son <b>editables y versionados por año</b>: la campaña de cada año liquida el año anterior con SUS parámetros.</p>'},
         {id:'dj08', modulo:'dj', titulo:'DJ-08 del TCP (y la regla del 80 % bien explicada)', html:
-            '<p>La <b>DJ-08</b> se calcula desde tus datos: ingresos, gastos autorizados y la Sección I desde la nómina. Plazo: <b>30 de abril</b>. Escala del impuesto: 15/20/30/40/50 % por tramos, sobre el mínimo exento de 39 120 CUP.</p>' +
+            '<p>La <b>DJ-08</b> se calcula desde tus datos: ingresos, gastos autorizados y la Sección I desde la nómina. Plazo: <b>30 de abril</b>. Todo TCP liquida en <b>régimen general</b> (el régimen simplificado tributario fue derogado en 2024 por el DL 93/2024). La <b>escala depende del año que se liquida</b>: hasta 2023, 15/20/30/40/50 % por tramos; desde los ingresos de 2024, la escala de 10 tramos de la Ley 174/2024 (5 % hasta 25 000 … 50 % en exceso de 1 000 000), sobre el mínimo exento de 39 120 CUP. Si un año no tiene su escala verificada en fuente primaria, la app te lo advierte en rojo antes de que presentes.</p>' +
             '<ul><li><b>La regla del 80 % NO es un tope sobre los ingresos:</b> se deducen los gastos autorizados al 100 % si justificas el 80 % de ellos; si no llegas a justificar ese 80 %, se deduce el 20 % de los gastos más los que sí estén documentados.</li>' +
+            '<li>La <b>Seguridad Social propia del titular</b> (20 % mensual de la base que eligió en su modelo de afiliación, entre 2 000 y 9 500 CUP, DL 92/2024) se captura en la ficha de la DJ y su importe aparece cada mes en los cálculos de la pestaña <b>Fiscal</b>; los pagos se clasifican por el código 082013 y deducen en esta DJ. El IUFT del TCP se paga <b>trimestralmente</b> (Res. 271/2024).</li>' +
             '<li>Bonificaciones: 5 % por pronto pago (antes del 28 de febrero, sobre el importe a pagar) y 3 % por canales electrónicos; <b>no</b> son un paquete automático, cada una tiene su condición.</li>' +
             '<li>El anticipo del 5 % grava solo los ingresos mensuales que excedan 3 260 CUP; el Impuesto sobre Ventas (10 %) es otro tributo.</li>' +
             '<li>Las <b>gratificaciones</b> tienen régimen propio (su escala, gastos deducibles del 10 % y exento condicionado) y su propia variante de la DJ-08.</li></ul>'},
@@ -14010,6 +14163,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>La app la lee con el mismo patrón del Vector: identifica modelo, año e importes y la registra en el expediente como <b>«presentada»</b>; el cálculo de la app queda como contraste.</li>' +
             '<li><b>Validación de identidad:</b> si el NIT o el nombre del documento no coinciden con el negocio seleccionado, la app te avisa. Puedes corregir el negocio o, si es correcto, guardar de forma forzada con confirmación: queda marcado en el registro.</li>' +
             '<li>Un PDF escaneado sin texto se registra a mano con el archivo de referencia adjunto.</li></ol>'},
+        {id:'registro-control', modulo:'registro', titulo:'El Registro de Control del TCP (Res. 272/2024)', html:
+            '<p>El TCP con ingresos anuales de hasta <b>500 000 CUP</b> no lleva contabilidad completa: su única obligación contable es el <b>Registro de Control de Ingresos y Gastos</b>, con anotación <b>diaria</b> de las operaciones, en español y en CUP, conservando los documentos justificantes (Res. 272/2024 del MFP). Ojo: esto es una simplificación <b>contable</b>, no tributaria — desde 2024 todo TCP tributa en <b>régimen general</b> (el antiguo régimen simplificado de tributación fue derogado por el DL 93/2024).</p>' +
+            '<ul><li>La pestaña <b>Registro</b> se arma sola desde tus movimientos importados: por día verás ingresos, gastos, tributos y el saldo acumulado del año. Las transferencias entre tus propias cuentas no se anotan.</li>' +
+            '<li>Las operaciones <b>fuera del banco</b> (efectivo) se añaden con la <b>anotación manual</b>: fecha, concepto, tipo y monto; quedan marcadas como manuales y puedes borrarlas.</li>' +
+            '<li>La cabecera compara tus ingresos del año con el límite: si superas los 500 000 CUP, corresponde pasar a la contabilidad completa (NCIF) y el Registro queda como historial.</li>' +
+            '<li>El botón <b>Imprimir</b> genera el libro del año con el contribuyente, su NIT y los totales. El diseño oficial del Registro lo fija el Jefe de la ONAT; la salida de la app sigue la letra de la norma mientras no se publique un modelo.</li></ul>'},
         {id:'creditos-314', modulo:'creditos', titulo:'Créditos: alta, tabla y la cuenta 314-000', html:
             '<p>En Gestión+ das de alta el crédito con su importe, tasa y tabla de amortización (sistema francés). El <b>principal</b> vive en la cuenta del crédito y los <b>intereses por pagar</b> en su subcuenta propia: <b>314-000 · Intereses por Pagar (Créditos Bancarios)</b>.</p>' +
             '<p>La 314-000 exige como auxiliar <b>el propio crédito</b>: el validador comprueba que ese crédito existe en el registro antes de aceptar el asiento. Así el interés queda separado del principal y asociado exactamente a su deuda, sin atajos.</p>'},
@@ -14239,7 +14398,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'docOrdenProduccionPrint','docIPVPrint','docConsignacionPrint','docUtilesPrint','docPanelGestorPrint'
         ].forEach(function(n){ try { var f = eval(n); if (typeof f === 'function') window[n] = f; } catch(e) {} });
         // Ganchos de prueba (node) para el módulo DJ
-        window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, DJ_FUENTES_DEF: DJ_FUENTES_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCoreGrat: djCoreGrat, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
+        window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, DJ_FUENTES_DEF: DJ_FUENTES_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCoreGrat: djCoreGrat, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP, djEscalaIIPDefecto: djEscalaIIPDefecto, DJ_ESCALA_IIP_2024: DJ_ESCALA_IIP_2024 };
         window.__djImportTest = { parseDjGrids: parseDjGrids, parseDj08Grids: parseDj08Grids, parseDjDividendosGrids: parseDjDividendosGrids, parseDjPdfLines: parseDjPdfLines, validarActorDoc: validarActorDoc, djRecalcular08: djRecalcular08, djNombreCoincide: djNombreCoincide, djNum: djNum };
         api('me').then(async r => { if (r.ok && await cargar(r) !== false) { handleLogin({preventDefault(){}}); } });
         
