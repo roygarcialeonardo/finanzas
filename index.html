@@ -2907,7 +2907,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         const alert = toast;
         // ===== CAPA SERVIDOR =====
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxnsS1IaVCWfv-qio1Hd9FStbvT_HMcJaI466ozn7MVq4ZiavQZonprPh31LEtgmwZcEQ/exec';
+        const API_URL = window.FINANZAS_API_URL || 'https://script.google.com/macros/s/AKfycbxnsS1IaVCWfv-qio1Hd9FStbvT_HMcJaI466ozn7MVq4ZiavQZonprPh31LEtgmwZcEQ/exec';
         let ME = null, USERS = {}, BLOQ = {}, CACHE = {}, Q = Promise.resolve();
         /* Sesión persistente (pedido de Leonardo 2026-10-24): el token vive en
            localStorage, no en sessionStorage, para que actualizar la página,
