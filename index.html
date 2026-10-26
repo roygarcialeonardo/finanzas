@@ -1579,6 +1579,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-gestion">
             <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="cuadricula" style="color:#0f766e"></span>Gestión ampliada</h5><div class="small text-secondary">Blindaje de datos, cumplimiento (Res. 86/2026, ONAT), gestión tipo Versat y profundidad. Todo nace de los estados de cuenta, los submayores y el mayor: sin pasos manuales nuevos en el flujo normal.</div></div>
 
+            <div class="card p-2 mb-4" id="mjIndiceGestion"><div class="small fw-semibold mb-1">🗂️ En esta pestaña (toca un tema para ir directo):</div><div class="d-flex flex-wrap gap-1">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="irASeccionGestion('mjBlindajeCard')">🛡️ Blindaje y respaldo</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="irASeccionGestion('mjCumplCard')">✅ Cumplimiento y expediente</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="irASeccionGestion('mjKycCard')">🔎 Conoce a tu cliente</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="irASeccionGestion('mjGestionCard')">🧾 Día a día: facturas, patrones, contratos</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="irASeccionGestion('mjProfCard')">🏭 Producción, créditos y personal</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="irASeccionGestion('lbCalcCard')">💲 Ficha de costo y precios</button>
+            </div><div class="small text-secondary mt-1">Cada tarjeta es un tema; si una no aparece en tu lista es porque tu tipo de negocio no la usa.</div></div>
+
             <div class="card p-3 p-md-4 mb-4" id="mjBlindajeCard">
                 <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="escudo"></span>Blindaje de datos (ronda 10)</h6>
                 <div id="mjTamanoBox" class="small mb-3">Calculando tamaño del documento…</div>
@@ -8944,6 +8953,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function toggleModoSimple(on){ try{ localStorage.setItem('finanzas_modo_'+(getCurrentUser()||''), on?'simple':'completo'); }catch(e){} aplicarModoSimple(); }
         function irAPestana(tabId){ if(!tabId) return; if(document.body.classList.contains('modo-simple') && TABS_AVANZADAS.includes(tabId)) toggleModoSimple(false);
             const t=document.getElementById(tabId); if(t){ t.click(); window.scrollTo({top:0, behavior:'smooth'}); } }
+        function irASeccionGestion(id){ const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior:'smooth', block:'start'});
+            el.classList.add('border-primary','shadow'); setTimeout(()=>el.classList.remove('border-primary','shadow'), 1600); }
         (function(){ const st=document.createElement('style'); st.textContent='body.modo-simple #tab-conta,body.modo-simple #tab-gestion,body.modo-simple #tab-aft,body.modo-simple #tab-tasas,body.modo-simple #tab-utilidades,body.modo-simple #tab-ideas{display:none!important}'; document.head.appendChild(st); })();
         function renderAvisosInicio(){ const box=document.getElementById('avisosInicioBox'); if(!box) return; const filas=[];
             try{ const c=getConta(); if(c&&c.activa&&(c.bandeja||[]).length) filas.push({t:'danger', icono:'🧾', txt:`Tienes <b>${(c.bandeja||[]).length} movimiento(s) sin clasificar</b> en la bandeja de Contabilidad: no se contabilizan hasta que digas de qué son.`, tab:'tab-conta', btn:'Clasificarlos'}); }catch(e){}
@@ -14671,7 +14682,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-12';
+        var MANUAL_VERSION = 'v2026.10.26-13';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14976,7 +14987,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p><b>Automático:</b> al registrar un pago, el monto viene <b>precargado con la tarifa</b> del cliente y, si el negocio tiene suscripción en la app, el mes en curso <b>se marca pagado solo</b> (ya no hay que marcarlo aparte en Suscripciones). El botón <b>«Descargar informes del mes (todos)»</b> genera los informes de WhatsApp de todos los clientes en un solo archivo de texto.</p>' +
             '<p><b>Avisos al entrar:</b> el Panel muestra una franja de avisos con lo urgente del día: movimientos sin clasificar en la bandeja, obligaciones ONAT que vencen en 7 días, expedientes laborales incompletos y negocios sin la suscripción del mes. También: la tasa consultada al BCC se guarda como <b>tasa del mes</b> con un botón, el IPV precarga el efectivo esperado con los ingresos en Caja del día, el traspaso de indirectos precarga el saldo de la cuenta de origen, y al crear un movimiento manual la clasificación se sugiere desde tu historial si el mismo concepto ya se registró antes (siempre editable).</p>' +
             '<p><b>«Qué toca hoy» y modo simple:</b> el Panel abre con una tarjeta-guía que lista tus pendientes reales — movimientos sin clasificar, impuestos que vencen, la pre-nómina por aprobar, el mes de trabajo atrasado, expedientes incompletos y suscripciones por cobrar — cada uno con su botón para ir directo a resolverlo; si no hay nada, te lo dice («Todo al día») y te ofrece los accesos rápidos. El <b>modo simple</b> (activado por defecto, interruptor en la propia tarjeta) muestra solo las pestañas esenciales del día a día y esconde las avanzadas (Contabilidad, Gestión+, AFT, Tasas, Utilidades e Ideas); desactívalo para ver todo, y tu elección se recuerda en este equipo. Si un pendiente te lleva a una pestaña avanzada, el modo completo se activa solo para que puedas resolverlo.</p>' +
-            '<p><b>Formularios en vez de ventanitas:</b> en Gestión+, registrar un <b>contrato</b> (la contraparte se elige de tus contrapartes de Contabilidad o se escribe una nueva), crear una <b>orden de producción</b> (el insumo se elige del inventario, sin listas numeradas), registrar <b>consignación</b> (el dueño se autocompleta con los ya registrados) y crear un <b>talonario</b> (el número inicial viene sugerido con el siguiente libre) se hace ahora en formularios visibles dentro de cada tarjeta, sin preguntas en cadena.</p>'},
+            '<p><b>Formularios en vez de ventanitas:</b> en Gestión+, registrar un <b>contrato</b> (la contraparte se elige de tus contrapartes de Contabilidad o se escribe una nueva), crear una <b>orden de producción</b> (el insumo se elige del inventario, sin listas numeradas), registrar <b>consignación</b> (el dueño se autocompleta con los ya registrados) y crear un <b>talonario</b> (el número inicial viene sugerido con el siguiente libre) se hace ahora en formularios visibles dentro de cada tarjeta, sin preguntas en cadena. Gestión+ abre además con un <b>índice por temas</b> («En esta pestaña») que te lleva directo a cada bloque sin recorrerla entera.</p>'},
         {id:'gestor-respaldo', modulo:'gestor', titulo:'Respaldo por negocio (ZIP) y paquete Res. 86/2026', html:
             '<p>Desde el Gestor exportas el <b>respaldo ZIP de un negocio</b> concreto (su expediente completo) para guardarlo o entregarlo. El paquete de la <b>Resolución 86/2026</b> reúne la documentación del gestor que esa norma exige, separada por cliente y confidencial: solo la ves tú.</p>'},
         {id:'gestion-recorrido', modulo:'gestion', titulo:'Gestión+ de un vistazo', html:
@@ -15155,7 +15166,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'nominaBancoDescargarUI','nominaBancoFilas','nominaBancoTexto',
          'nominaDocContrato','mjExpedienteDocUI','mjExpedienteRevisionUI','mjEvaluacionUI','mjPlantillaPlazasUI','getRRHH','saveRRHH','mjRenderProfundidad','renderPuestos',
          'mjPatronesAplicarTodosUI','mjPrepararCierreUI','gInformesTodosDescargar','renderAvisosInicio',
-         'irAPestana','toggleModoSimple','aplicarModoSimple',
+         'irAPestana','toggleModoSimple','aplicarModoSimple','irASeccionGestion',
          'mjContratoGuardarForm','mjInstrumentoGuardarForm','mjOrdenGuardarForm','mjConsignacionGuardarForm',
          'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
          'contaGenerar','contaRevalBtn','compraDivisaRegistrarUI','getConta','ctaAgregarAsiento','ctaRevalorizacion','ctaMayor','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
