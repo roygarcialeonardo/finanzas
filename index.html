@@ -1342,6 +1342,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
         <!-- FISCAL / VECTOR ONAT -->
         <div class="tab-pane fade" id="pane-fiscal">
+            <div id="fiscalPdlBox" style="display:none"></div>
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                 <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="doc-check" style="color:#7c3aed"></span>Vector Fiscal y obligaciones ONAT</h5></div>
                 <div class="d-flex gap-2 flex-wrap"><span class="badge bg-soft-secondary px-3 py-2" id="vectorEstadoBadge">Sin vector</span><label class="btn btn-sm btn-primary mb-0" for="vectorPdfInput"><span class="icono-anim me-1" data-icono="doc"></span> Importar RC-04A</label><input id="vectorPdfInput" type="file" accept="application/pdf" hidden><button class="btn btn-sm btn-outline-secondary" id="btnFiscalManual"><span class="icono-anim me-1" data-icono="mas"></span> Obligación manual</button></div>
@@ -5234,9 +5235,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         return `<button type="button" class="btn btn-sm ${on ? 'btn-success' : 'btn-outline-danger'} m-1" data-subs-mes="${esc(neg)}" data-subs-clave="${clave}">${on ? '✅' : '🚫'} ${mn}</button>`;
                     }).join('');
                     const exNeg = extrasDeNeg(neg);
-                    const extrasHtml = ((m.tipo || 'tcp') === 'tcp') ? `<div class="border-top pt-2 mt-2">
+                    const tipoNeg = m.tipo || 'tcp';
+                    const extrasHtml = tipoNeg === 'tcp' ? `<div class="border-top pt-2 mt-2">
                             <div class="small fw-semibold mb-1">Cuentas de este TCP <span class="text-muted fw-normal">(un TCP no las ve salvo que las tenga de verdad: actívalas aquí y le aparecen al momento)</span></div>
                             <label class="form-check form-switch mb-0 me-3"><input class="form-check-input" type="checkbox" data-extras="${esc(neg)}" data-extras-campo="chequera" ${exNeg.chequera ? 'checked' : ''}> <span class="form-check-label small">Chequera</span></label>
+                            <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-extras="${esc(neg)}" data-extras-campo="usd" ${exNeg.usd ? 'checked' : ''}> <span class="form-check-label small">Tarjeta USD</span></label>
+                        </div>` : tipoNeg === 'pdl' ? `<div class="border-top pt-2 mt-2">
+                            <div class="small fw-semibold mb-1">Cuenta en divisa de este PDL <span class="text-muted fw-normal">(el PDL solo abre cuenta en divisas si accede a fuentes lícitas en divisa, Res. 118/2026 del BCC: actívala aquí y le aparece la Tarjeta USD)</span></div>
                             <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-extras="${esc(neg)}" data-extras-campo="usd" ${exNeg.usd ? 'checked' : ''}> <span class="form-check-label small">Tarjeta USD</span></label>
                         </div>` : '';
                     cuerpo = `<div class="border-top pt-2 mt-2">
@@ -5308,17 +5313,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             ACTOR_NEGOCIO = a; window.ACTOR_NEGOCIO = a;
             const tcp = a.tipo === 'tcp', pdl = a.tipo === 'pdl';
             tabOcultaActor('tab-chequera', tcp && !a.extras.chequera);
-            tabOcultaActor('tab-tarjeta_usd', tcp && !a.extras.usd);
+            tabOcultaActor('tab-tarjeta_usd', (tcp || pdl) && !a.extras.usd);
             tabOcultaActor('tab-utilidades', tcp || pdl);
             tabOcultaActor('tab-aft', tcp || pdl);
             tabOcultaActor('tab-conta', tcp && !a.pleno);
             tabOcultaActor('tab-gestion', tcp && !a.pleno);
-            tabOcultaActor('tab-fiscal', pdl);
             try {
                 if (pdl) userTypeBadge.textContent = '🏛️ PDL · Proyecto de Desarrollo Local';
                 else if (tcp) userTypeBadge.textContent = a.pleno ? '📋 TCP · Régimen general (superó 500 000)' : '📋 TCP · Régimen simplificado';
             } catch (e) {}
-            if (pdl) renderPanelPdl();
+            if (pdl) { renderPanelPdl(); renderFiscalPdl(); }
             if (tcp && a.pleno) avisoTcpPleno(a.ingresos);
             filtrarAyudaActor();
         }
@@ -5346,7 +5350,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try { ficha = (typeof gPdlFicha === 'function') ? gPdlFicha(CACHE) : null; } catch (e) {}
             if (ficha) { try { fuentes = gPdlFuentes(ficha); al = gPdlAlertas(ficha, new Date().toISOString().slice(0, 10)); } catch (e) {} }
             if (!ficha) {
-                panel.innerHTML = '<div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Control del PDL</h6><p class="small mb-0">Este negocio es un Proyecto de Desarrollo Local (Decreto 174/2026): <b>no presenta Declaración Jurada</b>. Su ficha aún no tiene datos: el gestor la completa desde su panel (fecha de aprobación, entidad ejecutora y fuentes de financiamiento) y aquí verás su vigencia, su evaluación anual y la ejecución por fuentes.</p></div>';
+                panel.innerHTML = '<div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Control del PDL</h6><p class="small mb-0">Este negocio es un Proyecto de Desarrollo Local (Decreto 174/2026): <b>no presenta Declaración Jurada</b>. Su ficha aún no tiene datos: el gestor la completa desde su panel (fecha de aprobación, entidad ejecutora y fuentes de financiamiento) y aquí verás su vigencia, su evaluación anual y la ejecución por fuentes. Sus tributos propios (Resolución 202/2026 del MFP) están en la pestaña <b>Fiscal</b>.</p></div>';
                 return;
             }
             const filas = (fuentes && fuentes.hayDatos)
@@ -5376,7 +5380,35 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 + '</div>'
                 + alertas
                 + '<h6 class="fw-semibold mb-2">Ejecución por fuentes de financiamiento</h6>' + filas
-                + '<p class="small text-secondary mt-3 mb-0">El PDL <b>no presenta DJ-08 ni DJ-01</b>: su control es la vigencia de 5 años, la evaluación anual y la ejecución por fuentes. La ficha se completa y se corrige desde el panel del gestor.</p>'
+                + '<p class="small text-secondary mt-3 mb-0">El PDL <b>no presenta DJ-08 ni DJ-01</b>: su control es la vigencia de 5 años, la evaluación anual y la ejecución por fuentes. La ficha se completa y se corrige desde el panel del gestor. Sus tributos propios (Resolución 202/2026) están en la pestaña <b>Fiscal</b>.</p>'
+                + '</div>';
+        }
+        function renderFiscalPdl() {
+            const box = document.getElementById('fiscalPdlBox'); if (!box) return;
+            // El PDL no tiene Vector Fiscal RC-04A: su módulo fiscal es el
+            // de la Resolución 202/2026 del MFP (Gaceta 87/2026). Se
+            // oculta la maquinaria del Vector y se muestra su tarjeta.
+            ['#pane-fiscal > .module-hero', '#vectorMetaBox', '#vectorCatalogos', '#pane-fiscal > .row', '#pane-fiscal > .card'].forEach(sel => {
+                document.querySelectorAll(sel).forEach(el => { el.style.display = 'none'; });
+            });
+            box.style.display = '';
+            const filas = [
+                ['Impuesto sobre Ventas y Servicios', '10 % del total de ventas y servicios (5 % en la venta minorista de alimentos de minindustrias)', '0114822', 'El MFP puede exonerarlo o bonificarlo a solicitud del CAM o del consejo provincial'],
+                ['Impuesto sobre Utilidades', '⚠️ «Treinta y cinco por ciento (30 %)» — ver el aviso', '040012', 'Anual, sobre la utilidad del ejercicio'],
+                ['Impuesto por la Utilización de la Fuerza de Trabajo', '5 % de las remuneraciones mensuales', '061012', 'Mensual'],
+                ['Contribución a la Seguridad Social', '14 % de las remuneraciones (12,5 % al Presupuesto y 1,5 % aprovisionado)', '081013', 'Mensual'],
+                ['Retenciones del Impuesto sobre Ingresos Personales', 'Escala progresiva, retenido al pagar a los trabajadores', '052042', 'Dentro de los primeros 10 días hábiles de cada mes'],
+                ['Contribución Especial a la Seguridad Social', 'Retención: 5 % hasta 15 000 CUP y 10 % el exceso', '082023', 'Dentro de los primeros 10 días hábiles de cada mes'],
+                ['Tasa de radicación y anuncio comercial', 'Según la legislación tributaria', '090012', 'Según la legislación tributaria']
+            ];
+            box.innerHTML = '<div class="card p-3 p-md-4 mb-3">'
+                + '<h6 class="fw-semibold mb-2">Fiscal del Proyecto de Desarrollo Local</h6>'
+                + '<p class="small">El PDL es <b>contribuyente propio</b>: tributa de forma independiente de sus titulares y debe regularizar su condición ante el Registro de Contribuyentes de la ONAT. No tiene Vector Fiscal RC-04A: sus tributos son los de la <b>Resolución 202/2026 del MFP</b> (Gaceta Oficial 87/2026), con estos párrafos del Clasificador de Recursos Financieros:</p>'
+                + '<div class="table-responsive"><table class="table table-sm align-middle mb-2"><thead><tr><th>Tributo</th><th>Tipo</th><th>Párrafo</th><th>Cuándo</th></tr></thead><tbody>'
+                + filas.map(f => '<tr><td>' + f[0] + '</td><td>' + f[1] + '</td><td>' + f[2] + '</td><td>' + f[3] + '</td></tr>').join('')
+                + '</tbody></table></div>'
+                + '<div class="alert alert-warning py-2 px-3 small mb-2">⚠️ <b>Impuesto sobre Utilidades sin tipo seguro:</b> el artículo 7 de la Resolución 202/2026 dice en letras «treinta y cinco por ciento» pero entre paréntesis «(30 %)». Mientras el MFP no publique la corrección, la app <b>no calcula este impuesto automáticamente</b>: se liquida a mano con el tipo que confirme la ONAT.</div>'
+                + '<p class="small text-secondary mb-0">La <b>contribución territorial no la paga el PDL</b>: la recibe como fuente de financiamiento a través del Fondo para el Desarrollo Local. Los trabajadores están exonerados de la Declaración Jurada anual por los ingresos del proyecto (se les retiene al pagar); los titulares sí tributan por sus ingresos personales tras las utilidades, con liquidación anual. La utilidad después de impuestos queda a disposición del proyecto.</p>'
                 + '</div>';
         }
         function filtrarAyudaActor() {
@@ -5385,12 +5417,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             oc('ayuda-menu-gestor', true);
             const tcp = a.tipo === 'tcp', pdl = a.tipo === 'pdl';
             oc('ayuda-menu-chequera', tcp && !a.extras.chequera);
-            oc('ayuda-menu-tarjeta_usd', tcp && !a.extras.usd);
+            oc('ayuda-menu-tarjeta_usd', (tcp || pdl) && !a.extras.usd);
             oc('ayuda-menu-utilidades', tcp || pdl);
             oc('ayuda-menu-aft', tcp || pdl);
             oc('ayuda-menu-conta', tcp && !a.pleno);
             oc('ayuda-menu-gestion', tcp && !a.pleno);
-            oc('ayuda-menu-fiscal', pdl);
         }
         document.addEventListener('shown.bs.tab', e => {
             if (e.target && e.target.id === 'tab-dj' && ACTOR_NEGOCIO && ACTOR_NEGOCIO.tipo === 'pdl') renderPanelPdl();
@@ -7897,20 +7928,22 @@ function mjPermisos(rol,modulo){ const M={
    entrar (null en la sesión administradora, que ni ve esta pestaña).
    La tarjeta del Gestor (Res. 86/2026) sale de los negocios: vive solo
    en la vista de la administradora. TCP pleno y PDL comparten la
-   Gestión+ «adecuada»: sin DJ de Utilidades PJ, sin reserva de
-   contingencias, sin depreciación de AFT, sin revalorización, sin
-   órdenes de producción y sin consignación; el PDL suma: sin Registro
-   Control, sin motor de tributos ONAT, sin calendario ONAT y sin IPV;
-   el TCP suma: sin centros de costo. */
+   Gestión+ «adecuada»: sin DJ de Utilidades PJ, sin depreciación de
+   AFT, sin revalorización, sin órdenes de producción y sin
+   consignación; el TCP suma: sin reserva de contingencias y sin
+   centros de costo; el PDL MANTIENE la Reserva — la suya es
+   obligatoria: Reserva para Pérdidas y Contingencias, arts. 17-20 de
+   la Res. 202/2026 del MFP — y suma: sin Registro Control, sin motor
+   de tributos ONAT, sin calendario ONAT y sin IPV. */
 function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
   const oc=(id,h)=>{ const el=document.getElementById(id); if(el) el.style.display=h?'none':''; };
   oc('mjKycCard', true);
   const tcp=A.tipo==='tcp', pdl=A.tipo==='pdl';
   if(tcp||pdl){
-    oc('mjBtnDJUtil',true); oc('mjBtnReserva',true); oc('mjDepAftBtn',true);
+    oc('mjBtnDJUtil',true); oc('mjDepAftBtn',true);
     oc('mjRevalBox',true); oc('mjOrdenesBox',true); oc('mjConsignacionBox',true);
   }
-  if(tcp) oc('mjCentrosBox',true);
+  if(tcp){ oc('mjBtnReserva',true); oc('mjCentrosBox',true); }
   if(pdl){
     oc('mjRegistroBox',true); oc('mjMotorBox',true); oc('mjCalendarioBox',true); oc('mjIpvBox',true);
     const f=document.getElementById('mjIpvFecha'); if(f){ const r=f.closest('.row'); if(r) r.style.display='none'; }
@@ -10511,6 +10544,21 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 };
                 mk('Evaluación anual del PDL', al.proximaEvaluacion, al.diasEvaluacion, 30);
                 mk('Vencimiento de la vigencia del PDL (5 años)', al.venceVigencia, al.diasVigencia, 90);
+                // Vencimientos fiscales mensuales del PDL (Res. 202/2026
+                // del MFP): las retenciones del IIP y la Contribución
+                // Especial se aportan dentro de los primeros 10 días
+                // hábiles de cada mes y la Seguridad Social es mensual.
+                // Se generan el mes en curso y el siguiente (hábiles de
+                // lunes a viernes, sin feriados).
+                const hab10=(y,m)=>{ const d=new Date(Date.UTC(y,m,1)); let n=0;
+                    for(;;){ const wd=d.getUTCDay(); if(wd>=1&&wd<=5) n++;
+                        if(n===10) return d.toISOString().slice(0,10);
+                        d.setUTCDate(d.getUTCDate()+1); } };
+                const hoyD=new Date(hoyISO+'T00:00:00Z');
+                [0,1].forEach(off=>{ const b=new Date(Date.UTC(hoyD.getUTCFullYear(),hoyD.getUTCMonth()+off,1));
+                    const f=hab10(b.getUTCFullYear(),b.getUTCMonth());
+                    const dias=Math.round((new Date(f+'T00:00:00Z')-hoyD)/86400000);
+                    mk('Retenciones y Seguridad Social del PDL (primeros 10 días hábiles)', f, dias, 10); });
             });
             out.sort((a,b)=>String(a.obligacion.vence||'9999').localeCompare(String(b.obligacion.vence||'9999')));
             return out;
@@ -13716,7 +13764,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-1';
+        var MANUAL_VERSION = 'v2026.10.26-2';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -13761,7 +13809,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>El TCP no ve la Chequera ni la tarjeta USD</b> salvo que de verdad las tenga: en ese caso el gestor las activa para ese negocio en <b>Configuración → Suscripciones</b> (interruptores «Chequera» y «Tarjeta USD» dentro del negocio) y le aparecen al momento.</li>' +
             '<li><b>Trimestres y Activos son solo de las MIPYME</b>: ningún TCP ni PDL los ve.</li>' +
             '<li><b>MIPYME</b>: ve todo, incluida su DJ-01 y la DJ de socios por dividendos.</li>' +
-            '<li><b>PDL</b> (Proyecto de Desarrollo Local): no presenta DJ-08 ni DJ-01; su pestaña de DJ se convierte en el <b>panel de control del PDL</b> (ficha, vigencia de 5 años, evaluación anual y ejecución por fuentes, Decreto 174/2026) y su Gestión+ va adecuada. Tampoco ve la pestaña Fiscal: sus hitos son los del propio panel.</li>' +
+            '<li><b>PDL</b> (Proyecto de Desarrollo Local): es <b>contribuyente propio</b> (Resolución 202/2026 del MFP): no presenta DJ-08 ni DJ-01, pero su pestaña <b>Fiscal</b> muestra sus tributos propios (ventas 10 %, IUFT, Seguridad Social, retenciones…) y su pestaña de DJ se convierte en el <b>panel de control del PDL</b> (ficha, vigencia de 5 años, evaluación y ejecución por fuentes, Decreto 174/2026). Su Gestión+ va adecuada e incluye su <b>Reserva para Pérdidas y Contingencias</b>, que para el PDL es obligatoria. Su cuenta en divisa, si la tiene, la activa el gestor desde Suscripciones igual que la del TCP.</li>' +
             '<li>Las herramientas <b>solo del gestor</b> (panel de clientes, Resolución 86/2026, suscripciones) viven únicamente en la cuenta administradora: dentro de un negocio no aparecen ni su documentación.</li></ul>'},
         {id:'que-es-automatico', modulo:'regla-oro', titulo:'Qué hace la app sola', html:
             '<p>La regla de oro de Finanzas es que <b>todo parte de subir los estados de cuenta</b> y que tú intervengas solo en lo obligatorio. La app hace sola, sin pedirte nada:</p>' +
