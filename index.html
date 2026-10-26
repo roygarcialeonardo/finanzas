@@ -1188,6 +1188,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocResumenContable()"><span class="icono-anim me-1" data-icono="doc"></span>Resumen para contabilidad</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocListadoPago()"><span class="icono-anim me-1" data-icono="tarjeta"></span>Listado para pago por tarjeta</button>
                 </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-1">
+                    <span class="small fw-semibold">🏦 Archivo para el banco:</span>
+                    <select id="nomBancoFormato" class="form-select form-select-sm" style="width:auto"><option value="txt">TXT (tabulador)</option><option value="csv">CSV (punto y coma)</option></select>
+                    <button type="button" class="btn btn-sm btn-success" onclick="nominaBancoDescargarUI()"><span class="icono-anim me-1" data-icono="descargar"></span>Descargar archivo de acreditación</button>
+                    <small class="text-muted">Una línea por trabajador: tarjeta/cuenta, CI, nombre y neto a acreditar. Acompáñalo con el «Listado para pago por tarjeta» impreso.</small>
+                </div>
+                <div id="nomBancoBox"></div>
                 <div class="row g-2">
                     <div class="col-md-6"><label class="form-label mb-1 small">Talón de pago individual</label><div class="input-group input-group-sm"><select id="talonTrabSel" class="form-select"></select><button type="button" class="btn btn-outline-primary" onclick="nominaDocTalon()"><span class="icono-anim me-1" data-icono="impresora"></span>Imprimir talón</button></div></div>
                     <div class="col-md-6"><label class="form-label mb-1 small">Certificado anual de ingresos y retenciones</label><div class="input-group input-group-sm"><select id="certAnioSel" class="form-select"></select><button type="button" class="btn btn-outline-primary" onclick="nominaDocCertificado()"><i class="bi bi-award me-1"></i>Imprimir certificados</button></div></div>
@@ -4586,6 +4593,46 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             tot.descAdelantos=lineas.filter(x=>(x.calc.descAdelanto||0)>0).map(x=>({id:x.t.id, nombre:x.t.nombre||'', monto:x.calc.descAdelanto}));
             return {periodo, lineas, tot};
         }
+        /* ===== ARCHIVO DE NÓMINA PARA EL BANCO (acreditación masiva) =====
+           Núcleo puro: de las líneas de la nómina del período sale la
+           relación de acreditación (destino = tarjeta o, en su defecto,
+           cuenta del trabajador; importe = neto). Quedan FUERA, con
+           aviso, los de neto en cero y los que no tienen destino en su
+           ficha: el banco no puede acreditar lo que no tiene destino. */
+        function nominaBancoFilas(lineas){
+            const filas = [], avisos = [];
+            (lineas || []).forEach(x => {
+                const t = x.t || {}, neto = +((Number((x.calc || {}).neto) || 0).toFixed(2));
+                const destino = String(t.tarjeta || '').replace(/\s+/g, '') || String(t.cuenta || '').replace(/\s+/g, '');
+                if (neto <= 0) { avisos.push({ nombre: t.nombre || '', motivo: 'neto en cero' }); return; }
+                if (!destino) { avisos.push({ nombre: t.nombre || '', motivo: 'sin tarjeta ni cuenta en su ficha' }); return; }
+                filas.push({ nombre: t.nombre || '', ci: String(t.ci || ''), destino: destino, neto: neto });
+            });
+            return { filas: filas, avisos: avisos, total: +(filas.reduce((a, f) => a + f.neto, 0).toFixed(2)) };
+        }
+        function nominaBancoTexto(filas, sep){
+            if (!filas.length) return '';
+            return filas.map(f => [f.destino, f.ci, f.nombre, f.neto.toFixed(2)].join(sep)).join('\r\n') + '\r\n';
+        }
+        function nominaBancoDatos(){ const per = periodoNominaActual(); const nom = obtenerNominaParaPeriodo(per); return { per: per, r: nominaBancoFilas(nom.lineas) }; }
+        function nominaBancoRenderBox(){
+            const box = document.getElementById('nomBancoBox'); if (!box) return;
+            const d = nominaBancoDatos();
+            box.innerHTML = '<div class="small">' + d.r.filas.length + ' trabajadores a acreditar · total <b>' + moneda(d.r.total) + '</b>' +
+                (d.r.avisos.length ? '<div class="text-danger mt-1">⚠ Quedan fuera del archivo: ' + d.r.avisos.map(a => esc(a.nombre) + ' (' + esc(a.motivo) + ')').join(' · ') + '</div>' : '') + '</div>';
+        }
+        function nominaBancoDescargarUI(){
+            const sel = document.getElementById('nomBancoFormato');
+            const fmt = sel ? sel.value : 'txt';
+            const d = nominaBancoDatos();
+            if (!d.r.filas.length) { alert('No hay trabajadores acreditables en ' + d.per + ': revisa los avisos de la tarjeta de documentos.'); return; }
+            const texto = nominaBancoTexto(d.r.filas, fmt === 'csv' ? ';' : '\t');
+            const nombre = 'nomina-banco-' + d.per + (fmt === 'csv' ? '.csv' : '.txt');
+            if (typeof mjDescargar === 'function') mjDescargar(nombre, texto);
+            else { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([texto], { type: 'text/plain;charset=utf-8' })); a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+            nominaBancoRenderBox();
+        }
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-nomina') setTimeout(nominaBancoRenderBox, 350); });
         function getResumenPeriodo(periodo){const movs=getMovimientosPeriodo(periodo);const h=getHistorial().find(x=>x.mes===periodo);return calcularResumen(movs,{tasa:h&&h.tasa?h.tasa:tasaVista(),saldoInicial:h&&h.saldoInicial?h.saldoInicial:(periodo===periodoNominaActual()?getSaldoInicial():{chequera:0,tarjeta_cup:0,tarjeta_usd:0}),saldoInicialTasaUSD:h&&h.saldoInicialTasaUSD?h.saldoInicialTasaUSD:undefined});}
         function ssBaseTitularTCP(){ try { const d = JSON.parse(Store.getItem('finanzas_dj_' + getCurrentUser()) || '{}'); return Number(d && d.ficha && d.ficha.ssBase) || 0; } catch(e) { return 0; } }
         /* ===== REGISTRO DE CONTROL DE INGRESOS Y GASTOS (TCP) =====
@@ -14321,7 +14368,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-6';
+        var MANUAL_VERSION = 'v2026.10.26-7';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14529,7 +14576,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>Los subsidios <b>no</b> inflan el bruto; las retenciones solo bajan el neto. La provisión mensual de vacaciones (9,09 %) es informativa.</li></ul>'},
         {id:'nomina-mes', modulo:'nomina', titulo:'La nómina del mes y sus documentos', html:
             '<p>Con los trabajadores del mes y sus complementos, la nómina se calcula sola y genera sus documentos: <b>nómina completa</b>, <b>resumen para contabilidad</b>, listado de pago, talones y certificados. Al contabilizarla, sus asientos (salarios, vacaciones devengadas, retenciones y aportes) alimentan el mayor y el Panel de cuadres.</p>' +
-            '<p>El <b>cruce salario ↔ nómina</b> detecta si un pago bancario de salarios no coincide con la nómina del mes.</p>'},
+            '<p>El <b>cruce salario ↔ nómina</b> detecta si un pago bancario de salarios no coincide con la nómina del mes.</p>' +
+            '<p><b>Archivo para el banco:</b> en la tarjeta de documentos, «Descargar archivo de acreditación» genera el fichero para acreditar los salarios por banca remota: una línea por trabajador con su <b>tarjeta</b> (o su cuenta, si no tiene tarjeta), su CI, su nombre y el <b>neto</b> a acreditar, en TXT (tabulador) o CSV (punto y coma). Los trabajadores con neto en cero o sin tarjeta ni cuenta en su ficha quedan <b>fuera y avisados</b> en la propia tarjeta. Acompaña el archivo con el «Listado para pago por tarjeta» impreso y firmado. Los bancos cubanos no publican un formato único de fichero: si tu sucursal te entrega su plantilla exacta, se adapta el archivo a esa plantilla.</p>'},
         {id:'prenomina', modulo:'nomina', titulo:'Pre-nómina y tarjeta de tiempo', html:
             '<p>La <b>Pre-nómina</b> es la tarjeta de tiempo formal por período: días trabajados, ausencias y horas que alimentan el cálculo. Se genera, se revisa y se <b>aprueba</b>; aprobada, es la base de la nómina del mes y de su documento oficial.</p>'},
         {id:'submayores-nomina', modulo:'nomina', titulo:'Submayores: vacaciones, adelantos y aportes', html:
@@ -14790,6 +14838,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            solo las hace alcanzables desde los atributos onclick/onchange/
            oninput, igual que ya se hacía con irAPestana o verMesDetalle. */
         ['nominaDocCompleta','nominaDocResumenContable','nominaDocListadoPago','nominaDocTalon','nominaDocCertificado',
+         'nominaBancoDescargarUI','nominaBancoFilas','nominaBancoTexto',
          'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
          'contaGenerar','contaRevalBtn','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
          'contaArqueoBtn','contaAddProducto','contaInvEntrada','contaInvSalida','contaEdAddLinea','contaEdAsentar',
