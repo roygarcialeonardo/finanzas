@@ -854,6 +854,29 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         #pane-ayuda .card{scroll-margin-top:1rem}
         #pane-ayuda .ayuda-sec{scroll-margin-top:1rem;margin-top:.85rem;padding-top:.85rem;border-top:1px dashed var(--line)}
         #pane-ayuda .ayuda-sec-tit{font-weight:700;font-size:.92rem;margin-bottom:.25rem}
+        /* ===== MANUAL / INSTRUCCIONES (pedido de Leonardo, 2026-10-25) ===== */
+        #pane-instrucciones .manual-modulo{scroll-margin-top:1rem}
+        .manual-seccion{scroll-margin-top:1rem}
+        .manual-cuerpo p{margin-bottom:.45rem}
+        .manual-cuerpo ul,.manual-cuerpo ol{margin-bottom:.45rem;padding-left:1.2rem}
+        .manual-flash{animation:manualFlash 1.6s ease}
+        @keyframes manualFlash{0%{background:rgba(13,110,253,.16)}100%{background:transparent}}
+        @media (prefers-reduced-motion: reduce){ .manual-flash{animation:none} }
+        /* Vista de impresión del manual (botón «Descargar PDF») */
+        .manual-doc{color:#000;font-size:11.5px;line-height:1.45}
+        .manual-doc p,.manual-doc li{font-size:11.5px;line-height:1.45}
+        .manual-doc ul,.manual-doc ol{padding-left:1.2rem}
+        .manual-portada{text-align:center;padding-top:32mm;page-break-after:always}
+        .manual-portada-tit{font-size:28px;font-weight:800;line-height:1.2}
+        .manual-portada-sub{font-size:14px;margin-top:4mm;color:#222}
+        .manual-portada-meta{margin-top:14mm;font-size:12px;color:#333}
+        .manual-portada-nota{margin:12mm auto 0;max-width:120mm;font-size:11px;color:#333;text-align:justify}
+        .manual-indice-print{page-break-after:always}
+        .manual-indice-print h2{font-size:19px;font-weight:800;margin-bottom:5mm}
+        .manual-idx-mod{font-weight:700;margin:3mm 0 1mm}
+        .manual-indice-print ul{margin-bottom:2mm}
+        .manual-h-modulo{page-break-before:always;font-size:19px;font-weight:800;border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:4mm}
+        .manual-sec-print h3{font-size:13.5px;font-weight:700;margin:5mm 0 2mm}
 
 </style>
 </head>
@@ -968,6 +991,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><span class="icono-anim me-1" data-icono="maletin"></span> Gestor</button></li>
         <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><span class="icono-anim me-1" data-icono="ajustes"></span> Configuración</button></li>
         <li class="nav-item"><button class="nav-link ayuda" id="tab-ayuda" data-bs-toggle="tab" data-bs-target="#pane-ayuda"><span class="icono-anim me-1" data-icono="ayuda"></span> Ayuda</button></li>
+        <li class="nav-item"><button class="nav-link instrucciones" id="tab-instrucciones" data-bs-toggle="tab" data-bs-target="#pane-instrucciones"><span class="icono-anim me-1" data-icono="info"></span> Instrucciones</button></li>
     </ul>
 
     <!-- CONTENIDO -->
@@ -2533,6 +2557,31 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <p class="small mb-0">Cada botón de mes bloquea o desbloquea ese mes en el servidor para impedir cambios.</p>
                 </div>
             </div>
+        </div>
+
+        <!-- INSTRUCCIONES · MANUAL COMPLETO (fuente única: MANUAL_SECCIONES) -->
+        <div class="tab-pane fade" id="pane-instrucciones">
+            <div class="card p-3 p-md-4 mb-4">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+                    <div>
+                        <h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="info"></span>Manual de Instrucciones</h5>
+                        <p class="text-secondary small mb-0">Todo el funcionamiento de Finanzas, módulo a módulo, en orden. <span id="manualVersionTxt"></span></p>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btnManualPDF" onclick="manualDescargarPDF()"><span class="icono-anim me-1" data-icono="descargar"></span>Descargar PDF</button>
+                </div>
+                <div class="input-group mt-3">
+                    <span class="input-group-text"><span class="icono-anim" data-icono="buscar"></span></span>
+                    <input id="manualBuscarInput" class="form-control" type="search" placeholder="Buscar en el manual (ej.: devengo, cuadre, PDL, bandeja…)" oninput="manualBuscar(this.value)">
+                    <button class="btn btn-outline-secondary" type="button" onclick="manualLimpiarBusqueda()">Limpiar</button>
+                </div>
+                <div id="manualSinResultados" class="alert alert-warning small mt-3 mb-0" style="display:none">Sin resultados para esa búsqueda. Prueba con otra palabra: una cuenta (417), un módulo (Gestor) o un trámite (importar).</div>
+            </div>
+            <div class="card p-3 p-md-4 mb-4">
+                <h6 class="fw-semibold mb-2">Índice del manual</h6>
+                <div id="manualIndice"></div>
+            </div>
+            <div id="manualContenido"></div>
+            <div id="manualPrintBox" class="d-none"></div>
         </div>
     </div>
     </div>
@@ -13262,6 +13311,436 @@ function mjPermisos(rol,modulo){ const M={
             fiscalTributos: function(){ try { const f = getFiscal(); return f.tributos || {}; } catch(e) { return {}; } },
             registroQRDeMovs: registroQRDeMovs
         };
+        /* ===== MANUAL DE INSTRUCCIONES (pedido de Leonardo, 2026-10-25) =====
+           FUENTE ÚNICA del manual completo de la app: el array
+           MANUAL_SECCIONES ({id, titulo, modulo, html}) alimenta LAS DOS
+           salidas — la vista del menú «Instrucciones» y la vista de
+           impresión con la que se descarga el PDF — para que nunca haya
+           dos textos distintos que mantener.
+           REGLA PARA LAS PRÓXIMAS RONDAS: toda ronda que añada o cambie
+           una función actualiza AQUÍ su sección (o crea la suya) y sube
+           MANUAL_VERSION en el mismo commit; el chequeo permanente
+           audit/check_instrucciones.js falla si algún módulo de la lista
+           vigente se queda sin sección. */
+        var MANUAL_VERSION = 'v2026.10.25-1';
+        var MANUAL_MODULOS = [
+            {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
+            {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
+            {id:'resumen', titulo:'3 · Resumen y saldos'},
+            {id:'cuentas', titulo:'4 · Cuentas: chequera y tarjetas'},
+            {id:'importar', titulo:'5 · Importar estados de cuenta BANDEC'},
+            {id:'motor', titulo:'6 · El motor automático y tus reglas'},
+            {id:'contabilidad', titulo:'7 · Contabilidad'},
+            {id:'tesoreria', titulo:'8 · Tesorería'},
+            {id:'nomina', titulo:'9 · Nómina'},
+            {id:'fiscal', titulo:'10 · Fiscal: Vector y obligaciones'},
+            {id:'dj', titulo:'11 · Declaraciones Juradas (DJ)'},
+            {id:'creditos', titulo:'12 · Créditos e intereses'},
+            {id:'gestor', titulo:'13 · Gestor de clientes'},
+            {id:'gestion', titulo:'14 · Gestión+ (herramientas ampliadas)'},
+            {id:'libro', titulo:'15 · Herramientas del Libro: costos, precios y tablero'},
+            {id:'impresion', titulo:'16 · Documentos oficiales e impresión'},
+            {id:'respaldo', titulo:'17 · Respaldo, Historial y Configuración'}
+        ];
+        var MANUAL_SECCIONES = [
+        {id:'acceso-sesion', modulo:'empezar', titulo:'Entrar a la app y la sesión de 30 días', html:
+            '<p>Abre la app y entra con tu usuario y contraseña. La sesión queda guardada en este equipo durante <b>30 días</b>: cerrar la pestaña o la app <b>no</b> te desconecta.</p>' +
+            '<ol><li>Escribe tu usuario y tu contraseña y pulsa <b>Ingresar</b>.</li>' +
+            '<li>Arriba verás el indicador de conexión: en verde, la app está hablando con el servidor; si sale en rojo, trabaja igualmente y sincroniza al volver la conexión.</li>' +
+            '<li>Tras publicar una actualización de la app, <b>cierra la pestaña por completo y vuelve a abrirla con conexión</b>: si solo recargas, el teléfono puede seguir mostrándote la versión anterior.</li></ol>'},
+        {id:'negocios-usuarios', modulo:'empezar', titulo:'Negocios, usuarios y roles', html:
+            '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
+            '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
+            '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
+            '<li>La ficha de cada negocio guarda su nombre, su NIT y su régimen (TCP o MIPYME); ese dato manda en la DJ y en las validaciones.</li></ul>'},
+        {id:'navegar', modulo:'empezar', titulo:'Moverte por la app: menú, submenú de secciones y los «?»', html:
+            '<p>A la izquierda está el menú principal con todos los módulos. Al abrir uno, a su derecha aparece el <b>submenú de secciones</b> con las tarjetas de ese módulo: un clic muestra <b>solo</b> esa sección y «👁 Ver todo» las muestra todas otra vez.</p>' +
+            '<ul><li>El botón azul pulsante <b>«?»</b> de cada panel y de cada tarjeta te lleva directo a su explicación en el menú <b>Ayuda</b>.</li>' +
+            '<li>Este menú <b>Instrucciones</b> es el manual completo y ordenado; el de <b>Ayuda</b> sigue siendo el acceso rápido por tarjeta.</li>' +
+            '<li>El distintivo rojo junto a <b>Contabilidad</b> (● N por clasificar) te dice cuántos movimientos esperan por ti en la bandeja.</li></ul>'},
+        {id:'que-es-automatico', modulo:'regla-oro', titulo:'Qué hace la app sola', html:
+            '<p>La regla de oro de Finanzas es que <b>todo parte de subir los estados de cuenta</b> y que tú intervengas solo en lo obligatorio. La app hace sola, sin pedirte nada:</p>' +
+            '<ul><li>Lee el estado de cuenta BANDEC (los dos formatos) y detecta duplicados por referencia.</li>' +
+            '<li>Clasifica y <b>contabiliza</b> cada movimiento que entiende: ventas por correo a la 801-000, transferencias entre tus cuentas emparejadas, pagos a la ONAT por su código, extracciones, salarios, depreciación y más.</li>' +
+            '<li>Encadena los saldos entre meses, cuadra submayores contra el mayor y concilia contra el banco.</li>' +
+            '<li>Calcula la DJ con los parámetros oficiales del año y genera los documentos con su formato.</li></ul>'},
+        {id:'bandeja', modulo:'regla-oro', titulo:'La bandeja: lo único que te toca a ti', html:
+            '<p>Lo que la app no entiende <b>no se contabiliza</b>: queda en la bandeja «por clasificar», en rojo, con el motivo escrito («naturaleza no clara», «hay 2 candidatos con el mismo importe»…). Nada entra a los libros a ciegas.</p>' +
+            '<ol><li>Abre la bandeja desde la vista previa de la importación o desde el aviso de <b>Contabilidad</b>.</li>' +
+            '<li>Elige la cuenta de cada movimiento. Si marcas <b>«Recordar esta cuenta como regla»</b>, la app lo aprende: la próxima vez que vea la misma descripción, lo resuelve sola y ese concepto no vuelve a molestarte.</li>' +
+            '<li>Las descripciones pobres o ambiguas quedan manuales a propósito: ahí tu criterio es obligatorio.</li></ol>'},
+        {id:'precedencia', modulo:'regla-oro', titulo:'El orden en que mandan las reglas', html:
+            '<p>Cuando varias reglas podrían aplicar a un mismo movimiento, manda siempre la primera de esta lista:</p>' +
+            '<ol><li><b>Lo estructural y fiscal:</b> transferencias, ONAT (y la sospecha de ONAT), extracciones, documentos, créditos, inventario, depreciación, utilidades y salarios. Esto nunca lo pisa una regla aprendida.</li>' +
+            '<li><b>Tu imputación manual</b> en ese movimiento concreto.</li>' +
+            '<li><b>Las reglas que le enseñaste</b> y, tras ellas, los <b>conceptos de tesorería</b> configurados.</li>' +
+            '<li><b>Las reglas genéricas</b>, como la venta por correo a la 801-000.</li></ol>' +
+            '<p>Toda imputación automática sigue siendo editable después: al editar un movimiento contabilizado, la app anula su asiento con un contraasiento y lo regenera con tu cuenta nueva.</p>'},
+        {id:'panel-saldos', modulo:'resumen', titulo:'El panel Resumen y los saldos', html:
+            '<p>El menú <b>Resumen</b> es la foto del mes: una tarjeta por cuenta con su <b>Saldo</b> en tiempo real (el acumulado cronológico desde el saldo inicial), los totales de ingresos, gastos y ONAT, la utilidad y las alertas del mes.</p>' +
+            '<ul><li>Los saldos negativos salen en <b>rojo</b>.</li>' +
+            '<li>La tabla <b>Todos los movimientos</b> junta las tres cuentas con su tipo, clasificación y cuenta.</li>' +
+            '<li>Las alertas financieras y trimestrales aparecen arriba cuando algo requiere tu atención.</li></ul>'},
+        {id:'saldo-encadenado', modulo:'resumen', titulo:'El saldo encadenado entre meses', html:
+            '<p>El saldo final de cada cuenta <b>pasa solo</b> a ser el saldo inicial del mes siguiente, en cascada hasta el mes en curso (también de diciembre a enero). No tienes que copiar ningún número a mano.</p>' +
+            '<p>El encadenado se dispara al guardar o editar un mes cerrado, al eliminar un mes y al importar un PDF a un mes cerrado. En los meses cerrados, «Saldo Actual» muestra siempre el saldo real, no una foto vieja.</p>'},
+        {id:'movimientos-alertas', modulo:'resumen', titulo:'Movimientos manuales desde el Resumen y las alertas', html:
+            '<p>Desde cada cuenta puedes registrar movimientos a mano con los botones <b>Ingreso</b>, <b>Gasto</b> y <b>ONAT</b>. Para el trabajo diario, lo normal es que casi todo entre por la importación del estado de cuenta (menú Importar de cada cuenta) y solo corrijas excepciones.</p>' +
+            '<p>Si falta clasificar algo, el distintivo de <b>Contabilidad</b> y las alertas del Resumen te lo recuerdan; nada queda escondido.</p>'},
+        {id:'cuentas-vista', modulo:'cuentas', titulo:'Chequera, Tarjeta CUP y Tarjeta USD', html:
+            '<p>Cada cuenta tiene su propio menú con su lista de movimientos, su saldo y sus botones. La chequera y la tarjeta CUP se unen en la cuenta contable <b>110-010</b> en el mayor; la tarjeta USD va a la <b>110-020</b> con su divisa.</p>' +
+            '<ul><li>Usa el mes contable de la parte superior para moverte entre meses; los meses cerrados no se editan hasta desbloquearlos.</li>' +
+            '<li>El botón <b>PDF</b> de cada cuenta genera su documento de estado de cuenta.</li></ul>'},
+        {id:'datos-banco', modulo:'cuentas', titulo:'Datos del banco de cada cuenta', html:
+            '<p>Al importar un estado, la app lee de su encabezado el <b>titular, el banco, la sucursal, el número de cuenta y la tarjeta</b> y los guarda en esa cuenta. Con el botón <b>«Datos del banco»</b> puedes verlos y corregirlos a mano cuando el estado no los trae (por ejemplo, la sucursal).</p>' +
+            '<p>Regla de protección: <b>la importación nunca borra un dato que escribiste a mano</b>; solo completa los que falten.</p>'},
+        {id:'movs-manuales', modulo:'cuentas', titulo:'Registrar ingresos, gastos y pagos ONAT a mano', html:
+            '<ol><li>Entra a la cuenta y pulsa <b>Ingreso</b>, <b>Gasto</b> u <b>ONAT</b>.</li>' +
+            '<li>Escribe fecha, concepto e importe. En pagos ONAT, si escribes el <b>código de tributo</b>, la app lo vincula con la obligación del Vector Fiscal y lo lleva a su cuenta contable (ver «Pagos a la ONAT por su código»).</li>' +
+            '<li>Guarda: el movimiento entra al mes y, si está claro, también a la contabilidad.</li></ol>'},
+        {id:'importar-pasos', modulo:'importar', titulo:'Importar un estado de cuenta, paso a paso', html:
+            '<ol><li>Entra a la cuenta (Chequera, CUP o USD) y pulsa el botón <b>PDF</b> de importar.</li>' +
+            '<li>Elige el PDF del estado de cuenta BANDEC. La app reconoce los <b>dos formatos</b> del banco y lee también el encabezado con los datos del banco.</li>' +
+            '<li>Revisa la <b>vista previa</b>: lo resuelto aparece colapsado con su vía («regla», «ONAT», «transferencia»…) y la tabla muestra <b>solo lo que te necesita</b>.</li>' +
+            '<li>Confirma la importación. Los duplicados se saltan solos: la app deduplica por referencia corriente y de origen, así puedes subir el mismo estado dos veces sin duplicar operaciones.</li></ol>'},
+        {id:'vista-previa', modulo:'importar', titulo:'La vista previa: qué se resolvió solo y qué llega a la bandeja', html:
+            '<p>La vista previa parte la importación en dos: lo que el motor resolvió (puedes desplegarlo para curiosear o corregir la cuenta antes de confirmar) y la tabla de movimientos que <b>necesitan tu decisión</b>.</p>' +
+            '<ul><li>Si un pago «parece ONAT» pero <b>no trae código</b>, no se fuerza: llega como sospecha pendiente para que lo confirmes tú.</li>' +
+            '<li>Al confirmar, cada movimiento resuelto genera su asiento contable en el momento; los pendientes quedan en la bandeja sin contabilizar.</li></ul>'},
+        {id:'duplicados-saldo', modulo:'importar', titulo:'Duplicados, formatos y el saldo que cuadra', html:
+            '<p>El importador está contrastado operación por operación contra estados reales: el número de operaciones, el neto y el <b>saldo final impreso</b> tienen que coincidir; si algo no cuadra, la app lo muestra en vez de esconderlo.</p>' +
+            '<ul><li>Las comisiones «DÉBITO RECIBIDO…» no se marcan como ventas QR: quedan fuera de esa regla.</li>' +
+            '<li>La frase de la venta por correo se tolera con acentos y partida entre líneas.</li>' +
+            '<li>Si un estado trae un formato nuevo del banco, sube el archivo igualmente: lo no reconocido llega a la bandeja, no se pierde.</li></ul>'},
+        {id:'como-clasifica', modulo:'motor', titulo:'Cómo clasifica cada movimiento', html:
+            '<p>El motor lee la <b>descripción</b> de cada operación del estado y decide su clase y su cuenta: ingreso normal, transferencia entre tus cuentas, pago ONAT, extracción, documento de cobro o pago, crédito… Con la cuenta elegida genera el asiento en partida doble contra la cuenta de banco que corresponda (110-010 en CUP, 110-020 en USD).</p>' +
+            '<p>La decisión queda registrada con su vía («manual», «regla aprendida», «concepto de tesorería», «genérica»…), así siempre puedes auditar por qué un movimiento fue a esa cuenta.</p>'},
+        {id:'ventas-correo-qr', modulo:'motor', titulo:'Ventas por correo y registro QR', html:
+            '<p>Todo ingreso con el concepto <b>«CRÉDITO RECIBIDO POR CORREO ELECTRÓNICO»</b> se contabiliza en la cuenta <b>801-000 · Ingresos por ventas de mercancía y productos</b>. Además, esos cobros llevan la marca <b>QR</b> y alimentan el <b>Registro de pagos por comercio electrónico (QR)</b>, que se congela tal cual al cerrar el mes.</p>' +
+            '<ul><li>Las transferencias entre tus propias cuentas <b>no</b> llevan marca QR.</li>' +
+            '<li>Si imputaste un movimiento a mano a otra cuenta, tu imputación manda sobre la regla.</li></ul>'},
+        {id:'transferencias', modulo:'motor', titulo:'Transferencias entre tus cuentas', html:
+            '<p>Una transferencia entre tus cuentas <b>mueve saldo pero no es ingreso ni gasto</b>: no suma en los totales. La app busca la otra pata de la transferencia (misma referencia de origen, o misma fecha e importe con tipo opuesto en otra cuenta) y, si hay <b>una única candidata</b>, las empareja y genera el asiento Dr cuenta destino / Cr cuenta origen.</p>' +
+            '<ul><li>Si hay cero o dos candidatas posibles, no adivina: queda pendiente con el motivo.</li>' +
+            '<li>Las transferencias <b>CUP ↔ USD no se contabilizan solas</b>, porque la app no inventa un tipo de cambio: quedan pendientes para que registres la tasa.</li></ul>'},
+        {id:'onat-codigos', modulo:'motor', titulo:'Pagos a la ONAT por su código', html:
+            '<p>Cuando el pago trae su código de tributo, la app lo lleva a su cuenta y lo vincula con la obligación del Vector Fiscal:</p>' +
+            '<ul><li><b>0114822</b> Impuesto sobre ventas y servicios MIPYME y <b>0114022</b> ventas TCP → cuenta de ventas (341-000).</li>' +
+            '<li><b>0740122</b> Contribución Territorial → 343-000 (es el 10 % del impuesto de ventas).</li>' +
+            '<li><b>0520322</b> Impuesto sobre Ingresos Personales → 345-000. <b>0610122</b> IUFT → 334-000. <b>0810132 / 0820232</b> Seguridad Social → 333-000.</li>' +
+            '<li><b>0510122</b> anticipo del 5 %: minora, no deduce. <b>0530222</b> liquidación de la DJ-08. <b>040072</b> utilidades de la MIPYME.</li></ul>' +
+            '<p>Un pago ONAT <b>sin código</b> va a la genérica 341-000 sin netear nada, y si «parece ONAT» queda como sospecha en la bandeja. Las formas jurídicas de 7 dígitos se infieren; cualquier imputación se puede corregir después.</p>'},
+        {id:'ensenar', modulo:'motor', titulo:'Enseñarle a la app: clasificar a mano y recordar la regla', html:
+            '<ol><li>En la bandeja o en la vista previa, elige la cuenta del movimiento.</li>' +
+            '<li>Marca <b>«Recordar esta cuenta como regla»</b> si quieres que aprenda: la regla guarda el patrón de la descripción normalizada y se aplica a los movimientos futuros iguales.</li>' +
+            '<li>Las reglas aprendidas se ven y se <b>borran</b> en Contabilidad (tarjeta de reglas): ninguna es invisible ni permanente.</li></ol>' +
+            '<p>Las reglas aprendidas nunca pisan lo estructural: un pago ONAT con código o una transferencia seguirán yendo a su cuenta aunque exista una regla.</p>'},
+        {id:'editar-contabilizado', modulo:'motor', titulo:'Editar un movimiento ya contabilizado', html:
+            '<p>Toda imputación automática sigue editable. Al editar un movimiento ya contabilizado:</p>' +
+            '<ol><li>La app <b>anula su asiento con un contraasiento</b> (queda el rastro en los libros, no se borra historia).</li>' +
+            '<li>Regenera el asiento con tu nueva imputación.</li>' +
+            '<li>Si fuiste tú quien anuló un asiento a mano, la app respeta esa anulación: no lo «resucita» al regenerar la contabilidad.</li></ol>'},
+        {id:'conta-flujo', modulo:'contabilidad', titulo:'Cómo nace la contabilidad: comprobantes', html:
+            '<p>Patrón heredado del Versat: <b>todo nace de un documento y los comprobantes los tributan los módulos</b>. Cada operación clara genera su comprobante numerado con sus líneas de Debe y Haber; el comprobante es la unidad que se asienta, se anula por contraasiento o se ajusta con otro comprobante.</p>' +
+            '<ul><li>Un documento <b>confirmado no se edita</b>: se cancela (contraasiento) o se ajusta (nota o comprobante de ajuste). Así los libros nunca pierden la historia.</li>' +
+            '<li>El botón <b>Generar</b> de Contabilidad reconstruye los asientos desde los movimientos respetando tus imputaciones manuales y tus anulaciones.</li></ul>'},
+        {id:'plan-cuentas', modulo:'contabilidad', titulo:'El plan de cuentas (tu clasificador)', html:
+            '<p>La app trabaja con <b>tu clasificador</b> de cuentas (84 cuentas), visible y editable en la tarjeta <b>Plan de cuentas</b>. De él salen el mayor, los balances y las validaciones: cada cuenta declara su naturaleza, si admite movimientos y qué <b>auxiliar</b> exige (socio, contraparte, crédito…).</p>' +
+            '<ul><li>Bancos: 110-010 (CUP) y 110-020 (USD). Ventas por correo: 801-000. Intereses por pagar de créditos: <b>314-000</b>. Dividendos por pagar: <b>417</b> por socio.</li>' +
+            '<li>El pago ONAT genérico va a la 341-000 <b>sin netear</b> contra otras cuentas.</li></ul>'},
+        {id:'diario-mayor-balance', modulo:'contabilidad', titulo:'Libro Diario, Libro Mayor y Balance de Comprobación', html:
+            '<ul><li><b>Libro Diario General:</b> los comprobantes en orden cronológico con sus líneas.</li>' +
+            '<li><b>Libro Mayor:</b> el movimiento de cada cuenta con su saldo.</li>' +
+            '<li><b>Balance de Comprobación:</b> el balance de 6 columnas (saldos iniciales, movimientos y saldos finales, Debe y Haber) generado desde los asientos: si no cuadra, se ve.</li></ul>' +
+            '<p>Los tres se generan solos desde los comprobantes; no se teclea nada en ellos.</p>'},
+        {id:'estados-financieros', modulo:'contabilidad', titulo:'Estados financieros', html:
+            '<p>Desde los mismos asientos salen el <b>Estado de Situación Financiera</b> y el <b>Estado de Resultados</b>, además de las notas a los estados (políticas contables del clasificador, método indirecto del flujo de efectivo, umbral del Registro Control y hechos posteriores), que se completan al imprimir.</p>' +
+            '<p>Si un estado no cuadra con un submayor, el <b>Panel de cuadres</b> te dice exactamente dónde está la diferencia antes de que imprimas nada.</p>'},
+        {id:'submayores', modulo:'contabilidad', titulo:'Submayores de Cuentas por Cobrar y por Pagar', html:
+            '<p>La tarjeta <b>Submayores</b> lleva el detalle por contraparte de lo que te deben (CxC) y lo que debes (CxP), con su <b>antigüedad</b> (al día, vencido por tramos). Cada documento de cobro o pago vive aquí con su saldo pendiente, y los cobros y pagos del banco se aplican contra él.</p>' +
+            '<p>El total del submayor tiene que ser el saldo de su cuenta del mayor: el Panel de cuadres lo vigila.</p>'},
+        {id:'cuadres', modulo:'contabilidad', titulo:'Panel de cuadres: submayor contra mayor', html:
+            '<p>La tarjeta <b>Panel de cuadres</b> compara por el período elegido, con semáforo y la diferencia exacta: bancos 110-010/110-020 contra los saldos por cuenta encadenados, CxC y CxP, inventarios contra la 188-000, activos fijos y su depreciación, y las vacaciones y retenciones <b>devengadas</b> según Nómina contra el mayor.</p>' +
+            '<ul><li><b>Verde:</b> cuadra. <b>Rojo:</b> hay diferencia y te dice de cuánto. <b>«No aplica»:</b> el negocio no tiene ese movimiento (p. ej., sin trabajadores); no es un error.</li>' +
+            '<li>Antes de cerrar el mes, todos los cuadres deben estar en verde o asumidos por ti en el cierre con candados.</li></ul>'},
+        {id:'documentos-estados', modulo:'contabilidad', titulo:'Documentos con estados: borrador, confirmado, cancelado', html:
+            '<p>Las facturas y los documentos de CxC/CxP siguen el circuito <b>borrador → confirmado → cancelado</b>:</p>' +
+            '<ul><li><b>Confirmación:</b> genera el asiento original.</li>' +
+            '<li><b>Ajuste:</b> un confirmado no se reescribe; se corrige con una nota de crédito o débito (ver Tesorería).</li>' +
+            '<li><b>Cancelación:</b> genera el contraasiento completo y devuelve el inventario si el documento lo había movido. El documento queda visible como CANCELADO, no desaparece.</li></ul>' +
+            '<p>Guardas: un documento con cobros o pagos aplicados exige anularlos primero, y con notas emitidas no se cancela.</p>'},
+        {id:'conceptos-tesoreria', modulo:'contabilidad', titulo:'Conceptos de tesorería: la contrapartida por catálogo', html:
+            '<p>Como en el Versat, la contabilización se parametriza en un <b>catálogo</b>, no en cada documento. En la tarjeta <b>Conceptos de tesorería</b> defines: patrón de la descripción → contrapartida, con su <b>uso</b> (cobro, pago o crear obligación), su <b>actividad</b>, la <b>variación del saldo</b> (+/− banco) y el tipo de comprobante.</p>' +
+            '<p>La contrapartida depende del <b>origen</b>: <b>Cuenta contable</b> (la única que admite una cuenta directa), <b>Cuenta bancaria</b> (traspaso a otra cuenta tuya: se clasifica como transferencia con destino), <b>Obligación</b> y <b>Crédito bancario</b> (sin cuenta directa: la contrapartida nace del documento o del crédito enlazado, ver «Auto-enlace»).</p>' +
+            '<p><b>Regla de integridad:</b> ningún cobro o pago se asienta sin contrapartida; si falta, queda en la bandeja. Ejemplos: «Intereses y comisiones bancarias» → 710-000; «Extraído para nóminas» → traspaso a Caja.</p>'},
+        {id:'cierre-candados', modulo:'contabilidad', titulo:'Cierre de mes con candados', html:
+            '<p>La tarjeta <b>Cierre con candados</b> es la puerta previa al cierre, con la cadena de validaciones del Versat adaptada a la app:</p>' +
+            '<ol><li>Todos los comprobantes del período asentados.</li><li>Sin saldos contrarios a su naturaleza.</li><li>Cuentas transitorias en cero.</li><li>Valuación de medios monetarios si hay divisa (en diciembre queda firme).</li><li>Panel de cuadres en verde.</li><li>Depreciación del mes ejecutada.</li><li>Bandeja «por clasificar» en cero.</li><li>Nómina del mes contabilizada.</li></ol>' +
+            '<p>Lo no cumplido <b>bloquea el cierre con el motivo visible</b>. Puedes <b>asumir</b> un candado concreto con el botón «Asumir»: la asunción es expresa, queda registrada con fecha y usuario en el cierre, y es tu responsabilidad.</p>'},
+        {id:'patrones', modulo:'contabilidad', titulo:'Comprobantes patrón: un toque y listo', html:
+            '<p>Los <b>Comprobantes patrón</b> son la lista ÚNICA de comprobantes modelo (la misma de Gestión+ → patrones/recurrentes): alquiler, servicios, cuotas y cualquier asiento que repites cada mes.</p>' +
+            '<ol><li>Crea el patrón una vez con sus líneas.</li><li>Desde Contabilidad, el botón aplicar lo convierte en un comprobante real del período, cuadrado y listo para asentar.</li></ol>'},
+        {id:'ajustes-reasientos', modulo:'contabilidad', titulo:'Ajustes, anulaciones y reasientos', html:
+            '<p>El <b>Editor de comprobantes</b> es solo para ajustes: crea comprobantes manuales cuadrados (si no cuadra, no se asienta). Anular un comprobante genera su <b>contraasiento</b>; la historia queda completa en el Diario.</p>' +
+            '<p>Si editas un movimiento bancario ya contabilizado, la app hace el <b>reasiento</b> sola: contraasiento del viejo y asiento nuevo con tu imputación (ver «Editar un movimiento ya contabilizado»).</p>'},
+        {id:'inventario-conta', modulo:'contabilidad', titulo:'Inventario integrado y costo promedio', html:
+            '<p>La tarjeta de <b>Inventario integrado</b> lleva las existencias con <b>costo promedio ponderado</b>: entradas y salidas por documento, y el valor total tiene que coincidir con la cuenta 188-000 del mayor (lo vigila el Panel de cuadres).</p>' +
+            '<p>Al cancelar un documento que movió inventario, la mercancía vuelve sola a su almacén con la reversión.</p>'},
+        {id:'centros-costo', modulo:'contabilidad', titulo:'Centros de costo', html:
+            '<p>La tarjeta <b>Centros de costo</b> reparte los gastos entre las áreas del negocio. La nómina también calcula el <b>costo laboral por centro de costo</b>, y las fichas de costo reparten los indirectos con su criterio (ver «Ficha de costo»).</p>'},
+        {id:'cierre-anual', modulo:'contabilidad', titulo:'Cierre anual y Balance de Apertura', html:
+            '<p>Al cerrar el año, la app genera el cierre de las cuentas nominales en el orden establecido y el <b>Balance de Apertura</b> del año siguiente como un comprobante: se valida, se termina y se asienta; asentado, es irreversible, como manda el procedimiento.</p>' +
+            '<p>En diciembre la valuación de medios monetarios queda firme dentro de la cadena de candados.</p>'},
+        {id:'conciliacion', modulo:'tesoreria', titulo:'Conciliación bancaria automática', html:
+            '<p>La conciliación se alimenta sola de los estados que importas: el saldo final según banco y las operaciones con sus referencias quedan guardados. La tarjeta cruza <b>libros contra banco por referencia</b> y lista las partidas conciliatorias.</p>' +
+            '<ul><li>Saldo según libros = la cadena de saldos de la app en ese período; saldo según banco = el del estado importado.</li>' +
+            '<li>Solo queda «Conciliada» si la diferencia es 0 o queda explicada por las partidas.</li>' +
+            '<li>El botón de la tarjeta imprime el documento de conciliación (CON-02).</li></ul>'},
+        {id:'arqueo', modulo:'tesoreria', titulo:'Arqueo de caja (SC-1-03)', html:
+            '<ol><li>Elige la cuenta de efectivo, la fecha y quién contó y quién revisó.</li>' +
+            '<li>El saldo según libros sale solo del mayor contable: el <b>único dato manual es el conteo físico</b>.</li>' +
+            '<li>Si hay diferencia, la app genera el asiento de ajuste (faltante a gasto/pérdida, sobrante a otros ingresos) y deja el documento SC-1-03 con sus firmas.</li></ol>'},
+        {id:'notas-cd', modulo:'tesoreria', titulo:'Notas de crédito y débito', html:
+            '<p>Un documento confirmado no se reescribe: se ajusta con una <b>nota de crédito o débito</b> sobre él. La nota genera su propio asiento y actualiza el saldo del documento y del submayor.</p>' +
+            '<p>Guarda: un documento con notas emitidas no se puede cancelar directamente; primero van las notas.</p>'},
+        {id:'programador-pagos', modulo:'tesoreria', titulo:'Programador de pagos', html:
+            '<p>El <b>Programador de pagos</b> organiza lo que hay que pagar y cuándo (obligaciones, documentos CxP, cuotas de crédito), para que ningún vencimiento te coja por sorpresa. Su documento se imprime con el botón PDF de la tarjeta.</p>'},
+        {id:'ficha-trabajador', modulo:'nomina', titulo:'La ficha del trabajador y los Trabajadores del mes', html:
+            '<p>En la ficha de cada trabajador guardas nombre, CI, sexo, tarjeta CUP, cuenta, municipio, provincia y dirección, su cargo (del catálogo <b>Puestos de trabajo</b> o libre) y los <b>complementos que le aplican</b>.</p>' +
+            '<ul><li>La tarjeta <b>Trabajadores del mes</b> dice quiénes están vigentes en cada mes; la lista viaja sola al mes siguiente y puedes quitar o añadir a quien sea ese mes.</li>' +
+            '<li>En un TCP, el tope es de <b>3 trabajadores</b>: la app te avisa si te pasas.</li></ul>'},
+        {id:'complementos', modulo:'nomina', titulo:'Los 16 complementos de la nómina', html:
+            '<p>La nómina trae <b>16 complementos opcionales por trabajador</b>: sin marcar ninguno, la nómina queda exactamente como la básica. Se activan en la ficha, en «Complementos aplicables», y la activación viaja al guardar, al cambiar de mes y en el arrastre de diciembre a enero.</p>' +
+            '<p>Incluyen: salario proporcional, vacaciones con promedio de 12 meses, certificado por enfermedad (60/80/90 % configurable), licencia de maternidad/paternidad al 100 %, horas extras ×2, feriados trabajados, plus por antigüedad, pago por resultados, interrupción laboral al 60 %, licencia no retribuida, finiquito, retenciones judiciales, créditos y responsabilidad material, salario mínimo de 2 100 CUP con aviso, y el acumulado anual por trabajador para la DJ.</p>' +
+            '<ul><li>La tarjeta <b>Parámetros de complementos</b> guarda los valores globales editables y los avisos.</li>' +
+            '<li>Los subsidios <b>no</b> inflan el bruto; las retenciones solo bajan el neto. La provisión mensual de vacaciones (9,09 %) es informativa.</li></ul>'},
+        {id:'nomina-mes', modulo:'nomina', titulo:'La nómina del mes y sus documentos', html:
+            '<p>Con los trabajadores del mes y sus complementos, la nómina se calcula sola y genera sus documentos: <b>nómina completa</b>, <b>resumen para contabilidad</b>, listado de pago, talones y certificados. Al contabilizarla, sus asientos (salarios, vacaciones devengadas, retenciones y aportes) alimentan el mayor y el Panel de cuadres.</p>' +
+            '<p>El <b>cruce salario ↔ nómina</b> detecta si un pago bancario de salarios no coincide con la nómina del mes.</p>'},
+        {id:'prenomina', modulo:'nomina', titulo:'Pre-nómina y tarjeta de tiempo', html:
+            '<p>La <b>Pre-nómina</b> es la tarjeta de tiempo formal por período: días trabajados, ausencias y horas que alimentan el cálculo. Se genera, se revisa y se <b>aprueba</b>; aprobada, es la base de la nómina del mes y de su documento oficial.</p>'},
+        {id:'submayores-nomina', modulo:'nomina', titulo:'Submayores: vacaciones, adelantos y aportes', html:
+            '<ul><li><b>Submayor de vacaciones:</b> lo devengado, disfrutado y pendiente por trabajador; alimenta el cuadre contra la cuenta 331-000.</li>' +
+            '<li><b>Adelantos a trabajadores (139-000):</b> cada adelanto nace con su asiento automático y se descuenta en nómina.</li>' +
+            '<li><b>Aportes derivados de la nómina:</b> los tributos y la seguridad social que la nómina genera, listos para vincular con sus pagos ONAT por código.</li></ul>'},
+        {id:'sc406', modulo:'nomina', titulo:'El modelo oficial SC-4-06', html:
+            '<p>La nómina y la pre-nómina se imprimen en el <b>modelo oficial SC-4-06</b>, en blanco y negro y apaisado, tal como el formato oficial: entidad, período, trabajadores, devengados, deducciones, neto y firmas de Elaborado, Revisado y Aprobado. Lo que ves en pantalla es el panel; el documento impreso es el modelo.</p>'},
+        {id:'parametros-nomina', modulo:'nomina', titulo:'Parámetros fiscales de la nómina por año', html:
+            '<p>La tarjeta <b>Parámetros fiscales de la nómina</b> guarda los valores del año (aportes, tipos, topes) <b>versionados por año</b>, con el mismo patrón que los parámetros de la DJ: cambiar el año no reescribe los cálculos de años anteriores. Las nóminas de ese año se recalculan con sus valores al guardar.</p>'},
+        {id:'vector', modulo:'fiscal', titulo:'El Vector Fiscal (RC-04A)', html:
+            '<ol><li>En el menú <b>Fiscal</b>, pulsa importar y sube el PDF del <b>Vector Fiscal RC-04A</b> de la ONAT.</li>' +
+            '<li>La app lee las obligaciones con sus códigos y vencimientos y las deja registradas en la ficha fiscal del negocio.</li>' +
+            '<li>Desde ese momento, cada pago ONAT importado con su código se <b>vincula solo</b> con su obligación: sabrás qué está pagado y qué falta sin cuadrar a mano.</li></ol>'},
+        {id:'obligaciones', modulo:'fiscal', titulo:'Obligaciones, calendario y responsables', html:
+            '<p>El menú Fiscal junta las obligaciones del Vector y las manuales con sus vencimientos. Cada obligación puede llevar <b>responsable</b>, <b>fuente de verificación</b> y <b>fecha de verificación</b> (con el botón «Anotar»), y así queda en la tabla fiscal y en el calendario del Gestor: quién responde de qué y contra qué fuente se comprobó.</p>' +
+            '<p>También puedes crear <b>obligaciones manuales</b> para lo que no venga en el Vector.</p>'},
+        {id:'trimestres', modulo:'fiscal', titulo:'Trimestres y utilidades', html:
+            '<p>El menú <b>Trimestres</b> resume las utilidades por trimestre y socio y prepara el pago de utilidades de la MIPYME (código 040072). Recuerda la regla: decretar utilidades crea la obligación en la <b>417 por socio</b> (ver «Dividendos a socios») y su pago baja esa cuenta, no la de resultados.</p>'},
+        {id:'parametros-dj', modulo:'dj', titulo:'Parámetros del año y su fuente de verificación', html:
+            '<p>La tarjeta <b>Parámetros del año fiscal</b> (menú DJ) guarda por año el mínimo exento (39 120 CUP), las escalas y las bonificaciones, junto a su <b>Fuente de verificación</b>, <b>Fecha de verificación</b> y <b>Vigencia comprobada</b>. Si un año no tiene verificación registrada, la app te avisa para que lo compruebes en la Gaceta o la ONAT antes de declarar.</p>' +
+            '<p>Los parámetros son <b>editables y versionados por año</b>: la campaña de cada año liquida el año anterior con SUS parámetros.</p>'},
+        {id:'dj08', modulo:'dj', titulo:'DJ-08 del TCP (y la regla del 80 % bien explicada)', html:
+            '<p>La <b>DJ-08</b> se calcula desde tus datos: ingresos, gastos autorizados y la Sección I desde la nómina. Plazo: <b>30 de abril</b>. Escala del impuesto: 15/20/30/40/50 % por tramos, sobre el mínimo exento de 39 120 CUP.</p>' +
+            '<ul><li><b>La regla del 80 % NO es un tope sobre los ingresos:</b> se deducen los gastos autorizados al 100 % si justificas el 80 % de ellos; si no llegas a justificar ese 80 %, se deduce el 20 % de los gastos más los que sí estén documentados.</li>' +
+            '<li>Bonificaciones: 5 % por pronto pago (antes del 28 de febrero, sobre el importe a pagar) y 3 % por canales electrónicos; <b>no</b> son un paquete automático, cada una tiene su condición.</li>' +
+            '<li>El anticipo del 5 % grava solo los ingresos mensuales que excedan 3 260 CUP; el Impuesto sobre Ventas (10 %) es otro tributo.</li>' +
+            '<li>Las <b>gratificaciones</b> tienen régimen propio (su escala, gastos deducibles del 10 % y exento condicionado) y su propia variante de la DJ-08.</li></ul>'},
+        {id:'dj01', modulo:'dj', titulo:'DJ-01 de la MIPYME', html:
+            '<p>La <b>DJ-01</b> liquida el impuesto sobre utilidades de la MIPYME sobre el resultado contable de la app: por eso importa que la contabilidad esté cerrada y cuadrada antes de calcularla. Las pérdidas y reservas se registran en la propia DJ, y los pagos a cuenta se toman de los pagos con el código 040072 o se escriben a mano.</p>'},
+        {id:'dividendos', modulo:'dj', titulo:'Dividendos a socios: la 417 por socio', html:
+            '<p>Al decretar dividendos, la app genera el asiento <b>Dr Utilidades Retenidas / Cr 417 · Dividendos y Participaciones por Pagar</b>, con <b>análisis por socio</b>, y aplica la escala de dividendos (3/5/10/15/20 %). La MIPYME retiene el 5 % de las distribuciones anticipadas.</p>' +
+            '<ul><li>La 417 es la cuenta oficial del Procedimiento Contable No. 28 del MFP porque los dividendos decretados son un <b>pasivo corriente exigible</b>: deuda aprobada por la Junta y pendiente de desembolso.</li>' +
+            '<li>Al pagar, el asiento es Dr 417 / Cr banco, por socio. Lo pagado con el concepto «utilidades» se clasifica solo contra la 417.</li>' +
+            '<li>La antigua 316-000 quedó solo como histórica: conserva los saldos ya asentados y no recibe dividendos nuevos.</li></ul>'},
+        {id:'importar-dj', modulo:'dj', titulo:'Importar la DJ ya presentada (PDF o Excel)', html:
+            '<ol><li>En el menú <b>DJ</b>, pulsa <b>Importar DJ</b> y sube la declaración oficial ya llenada (PDF o Excel).</li>' +
+            '<li>La app la lee con el mismo patrón del Vector: identifica modelo, año e importes y la registra en el expediente como <b>«presentada»</b>; el cálculo de la app queda como contraste.</li>' +
+            '<li><b>Validación de identidad:</b> si el NIT o el nombre del documento no coinciden con el negocio seleccionado, la app te avisa. Puedes corregir el negocio o, si es correcto, guardar de forma forzada con confirmación: queda marcado en el registro.</li>' +
+            '<li>Un PDF escaneado sin texto se registra a mano con el archivo de referencia adjunto.</li></ol>'},
+        {id:'creditos-314', modulo:'creditos', titulo:'Créditos: alta, tabla y la cuenta 314-000', html:
+            '<p>En Gestión+ das de alta el crédito con su importe, tasa y tabla de amortización (sistema francés). El <b>principal</b> vive en la cuenta del crédito y los <b>intereses por pagar</b> en su subcuenta propia: <b>314-000 · Intereses por Pagar (Créditos Bancarios)</b>.</p>' +
+            '<p>La 314-000 exige como auxiliar <b>el propio crédito</b>: el validador comprueba que ese crédito existe en el registro antes de aceptar el asiento. Así el interés queda separado del principal y asociado exactamente a su deuda, sin atajos.</p>'},
+        {id:'devengo', modulo:'creditos', titulo:'Devengar intereses sin duplicar gasto', html:
+            '<ol><li>Con el botón de <b>devengo</b> del crédito, la app genera Dr 710-000 (gasto financiero) / Cr 314-000 por el interés del mes, con el crédito como auxiliar.</li>' +
+            '<li>Al pagar la cuota, la app mira primero cuánto interés hay devengado y pendiente en la 314: esa parte <b>liquida el pasivo</b> (Dr 314-000) y solo el exceso va a gasto (Dr 710-000).</li>' +
+            '<li>Resultado: el interés se gasta <b>una sola vez</b>, lo hayas devengado antes o lo pagues directo.</li></ol>'},
+        {id:'autoenlace', modulo:'creditos', titulo:'Auto-enlace de contrapartidas: obligación y crédito', html:
+            '<p>Cuando un movimiento del banco corresponde a un concepto de tesorería tipo <b>Obligación</b> o <b>Crédito bancario</b>, la contrapartida nace del documento o del crédito. La app lo enlaza sola con el mismo criterio de las transferencias:</p>' +
+            '<ul><li>Importe exacto (±0,01) contra el <b>saldo pendiente</b> del documento o contra el principal/la cuota del crédito; sentido coherente (cobro↔CxC, pago↔CxP); ventana de fechas razonable; el nombre de la contraparte en el concepto desempata.</li>' +
+            '<li>Solo con <b>un único candidato</b> se enlaza y se asienta, quedando registrado que el enlace fue automático.</li>' +
+            '<li>Con cero o con dos candidatos, va a la bandeja con el motivo: ahí decides tú. Los anticipos (documento posterior al pago) también quedan para ti.</li></ul>'},
+        {id:'gestor-clientes', modulo:'gestor', titulo:'Tus clientes: TCP y MIPYME', html:
+            '<p>El menú <b>Gestor</b> (solo admin) es tu panel de tenedor de libros: todos tus negocios cliente con su <b>semáforo</b> de estado, para ver de un vistazo quién está al día y quién necesita atención.</p>' +
+            '<ul><li><b>Alta rápida con plantilla por actividad:</b> al crear un cliente, la plantilla deja su ficha fiscal y sus parámetros listos según su tipo y actividad.</li>' +
+            '<li><b>Indicador de justificación de gastos:</b> vigila la regla del 80 % de la DJ-08 en cada cliente TCP durante el año, no al final.</li>' +
+            '<li>Cada cliente es un negocio completo de la app: cambias a él y trabajas su contabilidad, nómina y DJ como en el tuyo.</li></ul>'},
+        {id:'gestor-pdl', modulo:'gestor', titulo:'Clientes PDL (Decreto 174/2026)', html:
+            '<p>Los <b>Proyectos de Desarrollo Local</b> son el tercer tipo de cliente del Gestor, con su ficha propia según el Decreto 174/2026:</p>' +
+            '<ul><li>Órgano aprobador (Consejo de la Administración Municipal) y estrategia a la que responde (EDM/EDP).</li>' +
+            '<li><b>Vigencia de 5 años</b> con la fecha de vencimiento calculada sola, y <b>evaluación anual</b> con su próxima fecha: el Gestor avisa en ámbar al acercarse y en rojo si venció.</li>' +
+            '<li><b>Fuentes de financiamiento por separado</b> (presupuesto local, donaciones, cooperación, otras), cada una con su monto y su ejecución sumada sola.</li>' +
+            '<li>Cuenta bancaria CUP por título del proyecto, número de contratados con <b>alerta al acercarse al tope de 100</b> (superarlo implica transformarse en empresa) y estado: activo, en liquidación, extinguido o convertido en actor económico.</li></ul>' +
+            '<p>Cautela: la contabilidad del PDL se lleva con el plan general. Las obligaciones contables y bancarias finas de las resoluciones nuevas (MFP 202/2026 y BCC 118/2026) están <b>pendientes de verificar</b> antes de codificarlas: la app no les inventa ninguna DJ ni cuenta específica.</p>'},
+        {id:'gestor-informe', modulo:'gestor', titulo:'El informe mensual para el cliente', html:
+            '<p>Para cada cliente generas su <b>informe mensual</b>: una hoja lista para enviar por WhatsApp con el resumen del mes y el movimiento de cada cuenta con <b>saldo inicial → saldo final</b>. Se imprime o se comparte con el botón PDF de la tarjeta.</p>' +
+            '<p>Si el cliente es un PDL y tiene fuentes cargadas, el informe incluye el bloque de fuentes con su ejecución.</p>'},
+        {id:'gestor-calendario-cobro', modulo:'gestor', titulo:'Calendario de vencimientos y tu cobro como gestor', html:
+            '<ul><li>El <b>calendario de vencimientos ONAT</b> junta las obligaciones de todos tus clientes con sus responsables y fuentes de verificación: qué vence, de quién y cuándo.</li>' +
+            '<li>El <b>control de tu cobro</b> registra cuánto te debe pagar cada cliente por la gestión y qué está cobrado o pendiente: tu negocio de gestor también se controla.</li></ul>'},
+        {id:'gestor-respaldo', modulo:'gestor', titulo:'Respaldo por negocio (ZIP) y paquete Res. 86/2026', html:
+            '<p>Desde el Gestor exportas el <b>respaldo ZIP de un negocio</b> concreto (su expediente completo) para guardarlo o entregarlo. El paquete de la <b>Resolución 86/2026</b> reúne la documentación del gestor que esa norma exige, separada por cliente y confidencial: solo la ves tú.</p>'},
+        {id:'gestion-recorrido', modulo:'gestion', titulo:'Gestión+ de un vistazo', html:
+            '<p>El menú <b>Gestión+</b> reúne las herramientas ampliadas del negocio, agrupadas en tarjetas: Blindaje de datos, Cumplimiento, Gestión (facturación y más) y Profundidad. Cada tarjeta tiene su explicación con el botón «?» y su documento imprimible cuando aplica.</p>' +
+            '<p>Las tarjetas que generan asientos lo hacen siempre por comprobantes: nada de Gestión+ toca los libros por la puerta de atrás.</p>'},
+        {id:'gestion-herramientas', modulo:'gestion', titulo:'Facturación, instrumentos, contratos y órdenes', html:
+            '<ul><li><b>Facturación integrada:</b> facturas con el circuito de estados (borrador → confirmada → cancelada por contraasiento, con devolución de inventario si aplica).</li>' +
+            '<li><b>Instrumentos de pago:</b> registro y uso de cheques y otros instrumentos con su anulación.</li>' +
+            '<li><b>Contratos:</b> registro de contratos del negocio y su expediente.</li>' +
+            '<li><b>Órdenes de producción:</b> con sus materiales, mano de obra y producción terminada; estados en edición → en ejecución → terminada → cerrada.</li>' +
+            '<li><b>Activos fijos y depreciación:</b> altas de AFT, su depreciación (también desde el menú Activos) y la revalorización cuando la pides.</li></ul>'},
+        {id:'gestion-control', modulo:'gestion', titulo:'Presupuesto, flujo proyectado e indicadores', html:
+            '<ul><li><b>Presupuesto vs. real:</b> compara lo planificado con lo ejecutado por cuenta o partida.</li>' +
+            '<li><b>Flujo de efectivo proyectado:</b> anticipa entradas y salidas con los vencimientos conocidos.</li>' +
+            '<li><b>Indicadores:</b> las razones financieras del negocio calculadas desde los estados.</li>' +
+            '<li><b>Crédito bancario:</b> alta de créditos con tabla francesa (ver el módulo «Créditos e intereses»).</li></ul>'},
+        {id:'cumplimiento', modulo:'gestion', titulo:'Cumplimiento: bancarización, Registro y reservas', html:
+            '<ul><li><b>Registro Control de operaciones:</b> la app vigila el umbral de 500 000 CUP del registro.</li>' +
+            '<li><b>Bancarización:</b> las operaciones en efectivo por encima de 5 000 CUP quedan bloqueadas con su aviso, según la norma de bancarización.</li>' +
+            '<li><b>Flujo de Efectivo</b> y <b>Cambios en el Patrimonio</b> como estados complementarios.</li>' +
+            '<li><b>Reserva para Pérdidas y Contingencias</b> con su submayor, alimentada desde las utilidades según lo acordado.</li>' +
+            '<li><b>Ficha Res. 148/2023</b> de costos y el <b>expediente laboral</b> completan el paquete de cumplimiento.</li></ul>'},
+        {id:'ficha-costo', modulo:'libro', titulo:'Ficha de costo y depreciación', html:
+            '<p>La tarjeta <b>«Costos, precios y equilibrio (guía del libro)»</b> (en Gestión+) arma la ficha de costo completa: costos directos e indirectos, cada indirecto con su criterio de reparto.</p>' +
+            '<ul><li>La clave: el <b>costo unitario = costo total ÷ unidades VENDIBLES</b> (producidas − perdidas), no entre las producidas: las que se pierden las pagan las que se venden.</li>' +
+            '<li>Valora la materia prima a <b>costo de reposición</b> y no olvides <b>tu propio trabajo</b> como costo directo: sin pagarte, el beneficio es ficticio.</li>' +
+            '<li>La mini-calculadora de <b>depreciación</b> (precio ÷ vida útil en meses) suma su resultado a los indirectos con un botón.</li>' +
+            '<li>Esta ficha convive con la «Ficha de costos 148/2023»: son dos instrumentos distintos.</li></ul>'},
+        {id:'precios-equilibrio', modulo:'libro', titulo:'Precios: margen no es recargo; punto de equilibrio', html:
+            '<ul><li><b>Precio por recargo:</b> costo × (1 + r/100). <b>Precio por margen:</b> costo ÷ (1 − m/100). La calculadora convierte entre ambos y te dice el margen y el recargo reales de un precio que escribas.</li>' +
+            '<li><b>Ojo:</b> un recargo del 40 % es un margen del 28,57 %, y un margen del 30 % es un recargo del 42,86 %. Confundirlos es el error de precios más caro.</li>' +
+            '<li><b>Punto de equilibrio:</b> unidades = costos fijos ÷ (precio − costo variable unitario), con su importe en CUP y el <b>margen de seguridad</b> si le das tus ventas reales. Si el margen de contribución es 0 o negativo, la app te lo dice claro: cada venta pierde dinero. Antes de aplicar un precio, verifica la normativa de precios vigente en la fuente oficial.</li></ul>'},
+        {id:'tablero', modulo:'libro', titulo:'Tablero de indicadores del mes', html:
+            '<p>La tarjeta <b>«Tablero de indicadores del mes»</b> muestra los 9 indicadores del libro con <b>este mes / mes anterior / diferencia / ¿cómo va?</b> (semáforo Bien, Revisar, Mal o Sin dato) y la señal general del mes.</p>' +
+            '<ul><li>Automáticos desde tus datos: ventas, efectivo, beneficio neto antes de impuestos, CxC y CxP (del submayor), inventario (del mayor) y beneficio bruto sugerido desde la cuenta de costo de ventas 695-000.</li>' +
+            '<li>Lo que la app sugiere queda <b>editable</b>: tus valores manuales se guardan por negocio y período.</li></ul>'},
+        {id:'imprimir-documentos', modulo:'impresion', titulo:'Imprimir y guardar en PDF cualquier documento', html:
+            '<ol><li>Ve a la tarjeta del documento y pulsa su botón <b>PDF</b>.</li>' +
+            '<li>La app aísla SOLO ese documento (con el encabezado de tu negocio y la fecha) y abre la impresión del navegador.</li>' +
+            '<li>Elige «Guardar como PDF» como destino. Todo es local: funciona sin conexión.</li></ol>' +
+            '<p>Este mismo mecanismo es el del botón <b>«Descargar PDF»</b> de este manual: genera el manual completo con su portada y lo manda a esa misma vista de impresión.</p>'},
+        {id:'formatos-oficiales', modulo:'impresion', titulo:'Los formatos oficiales y el aislamiento de impresión', html:
+            '<p>Los documentos con modelo oficial salen <b>como el modelo</b>, no como un volcado de la pantalla: SC-4-06 de nómina y pre-nómina (apaisado, B/N), documento de arqueo SC-1-03, conciliación CON-02, estados de cuenta por cuenta, el resumen de nómina para contabilidad, el registro QR y los informes del Gestor, entre otros.</p>' +
+            '<p>El aislamiento de impresión garantiza que el PDF trae únicamente el documento pedido (antes salía el panel entero). Si alguna vez ves páginas de más, vuelve a pulsar el botón PDF de la tarjeta: cada documento tiene el suyo.</p>'},
+        {id:'respaldo-copias', modulo:'respaldo', titulo:'Copias de seguridad y restauración', html:
+            '<ul><li>El <b>Blindaje de datos</b> (Gestión+) guarda la última versión buena, reintenta los guardados fallidos (×3) con copia local y protege contra duplicados con versión optimista.</li>' +
+            '<li>Desde ahí puedes <b>descargar una copia</b> de tus datos y <b>restaurarla</b> (desde el archivo o desde el servidor) si algo sale mal.</li>' +
+            '<li>Además, el respaldo general del negocio y el ZIP por negocio del Gestor (ver «Respaldo por negocio») cubren la entrega y el archivo externo.</li></ul>'},
+        {id:'historial-cierre', modulo:'respaldo', titulo:'Historial y bloqueo de meses', html:
+            '<p>El menú <b>Historial</b> es el cierre: desde ahí cierras el mes (pasando antes por el <b>Cierre con candados</b> de Contabilidad) y consultas los meses cerrados.</p>' +
+            '<ul><li>Un mes cerrado no se edita: para corregirlo se desbloquea desde Configuración (bloqueo de meses, en el servidor) y cualquier cambio vuelve a disparar el encadenado de saldos.</li>' +
+            '<li>El <b>cierre anual</b> y el Balance de Apertura viven en Contabilidad (ver su sección).</li></ul>'}
+        ];
+        function manualEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        function manualNorm(s){
+            return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        }
+        function manualTextoPlano(html){
+            const d = document.createElement('div');
+            d.innerHTML = html || '';
+            return d.textContent || '';
+        }
+        function manualRender(){
+            const ver = document.getElementById('manualVersionTxt');
+            if (ver) ver.textContent = 'Manual ' + MANUAL_VERSION + ' · se actualiza dentro de la app con cada mejora.';
+            const idx = document.getElementById('manualIndice');
+            const cont = document.getElementById('manualContenido');
+            if (!idx || !cont || cont.getAttribute('data-listo')) return;
+            cont.setAttribute('data-listo','1');
+            idx.innerHTML = MANUAL_MODULOS.map(function(m){
+                const secs = MANUAL_SECCIONES.filter(function(s){ return s.modulo === m.id; });
+                if (!secs.length) return '';
+                return '<div class="mb-2"><div class="fw-semibold">' + manualEsc(m.titulo) + '</div>' +
+                    '<div class="d-flex flex-wrap gap-1 mt-1">' + secs.map(function(s){
+                        return '<button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="manualIrSeccion(\'' + s.id + '\')">' + manualEsc(s.titulo) + '</button>';
+                    }).join('') + '</div></div>';
+            }).join('');
+            cont.innerHTML = MANUAL_MODULOS.map(function(m){
+                const secs = MANUAL_SECCIONES.filter(function(s){ return s.modulo === m.id; });
+                if (!secs.length) return '';
+                return '<div class="card p-3 p-md-4 mb-4 manual-modulo" data-manual-modulo="' + m.id + '">' +
+                    '<h5 class="fw-bold mb-2">' + manualEsc(m.titulo) + '</h5>' +
+                    secs.map(function(s){
+                        return '<div class="manual-seccion" id="manual-sec-' + s.id + '">' +
+                            '<h6 class="fw-semibold mt-3 mb-2">' + manualEsc(s.titulo) + '</h6>' +
+                            '<div class="manual-cuerpo small">' + s.html + '</div></div>';
+                    }).join('') + '</div>';
+            }).join('');
+        }
+        function manualIrSeccion(id){
+            const el = document.getElementById('manual-sec-' + id);
+            if (!el) return;
+            el.scrollIntoView({behavior:'smooth', block:'start'});
+            el.classList.remove('manual-flash');
+            void el.offsetWidth;
+            el.classList.add('manual-flash');
+        }
+        function manualBuscar(q){
+            const needle = manualNorm(q || '').trim();
+            let visibles = 0;
+            document.querySelectorAll('#manualContenido .manual-seccion').forEach(function(sec){
+                if (!needle) { sec.style.display = ''; visibles++; return; }
+                const s = MANUAL_SECCIONES.find(function(x){ return 'manual-sec-' + x.id === sec.id; });
+                const texto = manualNorm((s ? s.titulo : '') + ' ' + (s ? manualTextoPlano(s.html) : ''));
+                const ok = texto.indexOf(needle) !== -1;
+                sec.style.display = ok ? '' : 'none';
+                if (ok) visibles++;
+            });
+            document.querySelectorAll('#manualContenido .manual-modulo').forEach(function(card){
+                const alguna = Array.prototype.some.call(card.querySelectorAll('.manual-seccion'), function(sec){ return sec.style.display !== 'none'; });
+                card.style.display = (needle && !alguna) ? 'none' : '';
+            });
+            const sr = document.getElementById('manualSinResultados');
+            if (sr) sr.style.display = (needle && !visibles) ? '' : 'none';
+        }
+        function manualLimpiarBusqueda(){
+            const inp = document.getElementById('manualBuscarInput');
+            if (inp) inp.value = '';
+            manualBuscar('');
+            if (inp) inp.focus();
+        }
+        function manualDescargarPDF(){
+            const box = document.getElementById('manualPrintBox');
+            if (!box) return;
+            const hoy = new Date();
+            const fecha = String(hoy.getDate()).padStart(2,'0') + '/' + String(hoy.getMonth()+1).padStart(2,'0') + '/' + hoy.getFullYear();
+            let h = '<div class="manual-doc">';
+            h += '<div class="manual-portada"><div class="manual-portada-tit">Manual de Instrucciones — Finanzas</div>' +
+                '<div class="manual-portada-sub">Control financiero de tu negocio: cuentas, contabilidad, nómina, DJ y gestión de clientes</div>' +
+                '<div class="manual-portada-meta">Versión del manual: ' + manualEsc(MANUAL_VERSION) + '<br>Generado el ' + fecha + '</div>' +
+                '<p class="manual-portada-nota">Este manual vive dentro de la propia aplicación y se actualiza con cada mejora: ' +
+                'la versión que descargas es siempre la que corresponde a la app que estás usando. También puedes leerlo sin salir de la app en el menú «Instrucciones».</p></div>';
+            h += '<div class="manual-indice-print"><h2>Índice</h2>' + MANUAL_MODULOS.map(function(m, i){
+                const secs = MANUAL_SECCIONES.filter(function(s){ return s.modulo === m.id; });
+                if (!secs.length) return '';
+                return '<p class="manual-idx-mod">' + manualEsc(m.titulo) + '</p><ul>' +
+                    secs.map(function(s){ return '<li>' + manualEsc(s.titulo) + '</li>'; }).join('') + '</ul>';
+            }).join('') + '</div>';
+            MANUAL_MODULOS.forEach(function(m){
+                const secs = MANUAL_SECCIONES.filter(function(s){ return s.modulo === m.id; });
+                if (!secs.length) return;
+                h += '<h2 class="manual-h-modulo">' + manualEsc(m.titulo) + '</h2>';
+                secs.forEach(function(s){
+                    h += '<div class="manual-sec-print"><h3>' + manualEsc(s.titulo) + '</h3>' + s.html + '</div>';
+                });
+            });
+            h += '</div>';
+            box.innerHTML = h;
+            printPane('manualPrintBox', 'Manual de Instrucciones — Finanzas');
+        }
+        manualRender();
+        // Gancho de prueba (node) para el chequeo de cobertura del manual
+        window.__manualTest = { MANUAL_VERSION: MANUAL_VERSION, MANUAL_MODULOS: MANUAL_MODULOS, MANUAL_SECCIONES: MANUAL_SECCIONES };
+
         /* ===== EXPOSICIÓN PARA HANDLERS INLINE (auditoría de botones, 2026-10-24) =====
            Todo este script vive dentro de un IIFE: sus funciones NO son
            globales. Los botones creados con onclick="fn()" (HTML fijo y el
@@ -13291,6 +13770,7 @@ function mjPermisos(rol,modulo){ const M={
          'mjContratoCrearUI','mjUtilCrearUI','mjTraspasoUI','mjOrdenTerminarUI','mjOrdenCrearUI','mjCreditoDevengoUI',
          'mjCreditoCrearUI','mjSaldoDivisaUI','mjRevalAmpliaUI','mjConsignacionRecibirUI','mjConsignacionVentaUI',
          'guardarParamsFiscalesNomina','docCuentaPrint','docQRPrint',
+         'manualBuscar','manualLimpiarBusqueda','manualDescargarPDF','manualIrSeccion',
          'editarDatosBancoCuenta','guardarBancoCuentaDesdeModal',
          'docResumenPrint','docNominaSubmayoresPrint','docTrimestresPrint','docOnatPrint','docCierreAnualPrint','docBalanceAperturaPrint',
          'docProgramadorPrint','docMotorTributosPrint','docCalendarioPrint','docGestorCalendarioPrint','docBancarizacionPrint',
@@ -13479,7 +13959,7 @@ function mjPermisos(rol,modulo){ const M={
       var content=document.getElementById('cuentasTabsContent');
       if(!content) return;
       content.querySelectorAll('.tab-pane').forEach(function(pane){
-        if(pane.id==='pane-ayuda') return;
+        if(pane.id==='pane-ayuda'||pane.id==='pane-instrucciones') return;
         var clave=pane.id.replace(/^pane-/,'');
         if(!hijoDot(pane,'ayuda-dot-pane')){
           var bp=document.createElement('button');
