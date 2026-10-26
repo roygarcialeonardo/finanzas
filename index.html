@@ -919,6 +919,24 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <span class="icono-anim" data-icono="info"></span> Acceso solo para usuarios registrados
             </div>
         </form>
+        <!-- Instalación inicial (solo versión sin conexión, primera vez) -->
+        <div id="instalacionBox" class="d-none text-start">
+            <div class="alert alert-info py-2 small">👋 <b>Primera vez en esta máquina.</b> Vamos a instalar tu copia: dime tu negocio y crea tu contraseña. Solo se hace una vez.</div>
+            <div class="mb-2"><label class="form-label small" for="instNegocio">Nombre de tu negocio</label><input type="text" class="form-control" id="instNegocio" placeholder="Ej.: Mi Negocio" autocomplete="off"></div>
+            <div class="row g-2 mb-2">
+                <div class="col-7"><label class="form-label small" for="instTipo">Tipo de negocio</label><select class="form-select" id="instTipo"><option value="tcp">TCP (trabajador por cuenta propia)</option><option value="mipyme">MIPYME</option><option value="pdl">PDL (proyecto de desarrollo local)</option></select></div>
+                <div class="col-5"><label class="form-label small" for="instSocios">Socios (MIPYME)</label><input type="number" class="form-control" id="instSocios" min="0" max="99" value="1"></div>
+            </div>
+            <div class="mb-2"><label class="form-label small" for="instAdminUser">Usuario administrador</label><input type="text" class="form-control" id="instAdminUser" value="admin" autocomplete="off"><div class="form-text">Es la cuenta dueña de la copia: gestiona usuarios y configuración. Casi nunca se usa para el trabajo diario.</div></div>
+            <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="instCrearTrabajo" checked><label class="form-check-label small" for="instCrearTrabajo">Crear también mi usuario de trabajo (con la misma contraseña)</label></div>
+            <div class="mb-2" id="instTrabajoWrap"><label class="form-label small" for="instTrabajoUser">Usuario de trabajo</label><input type="text" class="form-control" id="instTrabajoUser" placeholder="Ej.: miusuario" autocomplete="off"><div class="form-text">Con este entrarás a diario a llevar tu negocio.</div></div>
+            <div class="row g-2 mb-3">
+                <div class="col-6"><label class="form-label small" for="instPass">Contraseña</label><input type="password" class="form-control" id="instPass" autocomplete="new-password"></div>
+                <div class="col-6"><label class="form-label small" for="instPass2">Repítela</label><input type="password" class="form-control" id="instPass2" autocomplete="new-password"></div>
+            </div>
+            <button type="button" class="btn btn-primary-custom w-100 text-white" id="btnInstalar">Instalar y empezar</button>
+            <div id="instMsg" class="small mt-2"></div>
+        </div>
         <!-- Recuperación de acceso del administrador (solo versión sin conexión) -->
         <div id="recuperaBox" class="d-none mt-2">
             <div class="text-center">
@@ -2003,6 +2021,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                 <span class="badge bg-danger ms-2">🚫 Bloqueado</span>
                             </div>
                         </details>
+                    </div>
+                </div>
+
+                <!-- Cuentas que usa este negocio (solo versión sin conexión) -->
+                <div class="col-12 d-none" id="cardCuentasNegocio">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta"></span>Cuentas que usa este negocio</h6>
+                        <p class="small text-muted">Activa solo las cuentas que este negocio tiene de verdad: el Resumen, las pestañas de cuenta y los selectores mostrarán únicamente las activas. Desactivar una cuenta <b>no borra nada</b> — sus movimientos y saldos se conservan y reaparecen al reactivarla. La cuenta fiscal del negocio no se puede desactivar.</p>
+                        <div id="cuentasNegocioLista" class="small"></div>
+                        <p class="small text-muted mt-2 mb-0">Sin tocar nada, cada tipo parte con sus cuentas de siempre: el TCP solo con su Tarjeta CUP, el PDL con chequera y Tarjeta CUP, y la MIPYME con las tres.</p>
                     </div>
                 </div>
 
@@ -4497,6 +4525,86 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if(inst) inst.hide();
             renderAll();
         }
+        /* ===== CUENTAS ACTIVAS POR NEGOCIO (pedido de Leonardo, 2026-10-26) =====
+           Cada negocio usa solo las cuentas que tiene: en Configuración
+           de su instalación se activan/desactivan Chequera, Tarjeta CUP
+           y Tarjeta USD, y el Resumen, las pestañas de cuenta y los
+           selectores muestran solo las activas. La elección explícita
+           viaja en el slot fiscal (clave «cuentasActivas»), como los
+           datos bancarios. Sin elección explícita mandan los valores
+           por tipo: TCP solo su Tarjeta CUP (su cuenta fiscal; la
+           chequera y la USD esperan a que el administrador active los
+           extras), PDL chequera + Tarjeta CUP (USD con extra) y
+           MIPYME las tres. La cuenta fiscal de cada tipo (TCP:
+           tarjeta_cup; MIPYME y PDL: chequera) NO se puede desactivar.
+           Desactivar NO borra nada: movimientos y saldos se conservan
+           y reaparecen al reactivar. La parte 2 (más de una tarjeta
+           por moneda) queda para otra ronda. */
+        const CUENTAS_BASE_NEGOCIO = ['chequera', 'tarjeta_cup', 'tarjeta_usd'];
+        function cuentaFiscalDelActor(tipo) { return tipo === 'tcp' ? 'tarjeta_cup' : 'chequera'; }
+        function getCuentasActivasConfig() {
+            try {
+                const f = getFiscal();
+                const ca = f ? f.cuentasActivas : null;
+                return (ca && typeof ca === 'object' && !Array.isArray(ca)) ? ca : null;
+            } catch (e) { return null; }
+        }
+        function cuentasActivasDelNegocio() {
+            const a = actorDelNegocio();
+            let base;
+            if (a.tipo === 'tcp') base = { chequera: !!a.extras.chequera, tarjeta_cup: true, tarjeta_usd: !!a.extras.usd };
+            else if (a.tipo === 'pdl') base = { chequera: true, tarjeta_cup: true, tarjeta_usd: !!a.extras.usd };
+            else base = { chequera: true, tarjeta_cup: true, tarjeta_usd: true };
+            const cfg = getCuentasActivasConfig();
+            if (cfg) CUENTAS_BASE_NEGOCIO.forEach(k => { if (typeof cfg[k] === 'boolean') base[k] = cfg[k]; });
+            base[cuentaFiscalDelActor(a.tipo)] = true;   /* la fiscal nunca se apaga */
+            if (!CUENTAS_BASE_NEGOCIO.some(k => base[k])) base[cuentaFiscalDelActor(a.tipo)] = true;
+            return base;
+        }
+        function cuentaEstaActiva(clave) { return cuentasActivasDelNegocio()[clave] !== false; }
+        function guardarCuentasActivas(mapa) {
+            const a = actorDelNegocio();
+            const next = {};
+            CUENTAS_BASE_NEGOCIO.forEach(k => { next[k] = !!(mapa && mapa[k]); });
+            next[cuentaFiscalDelActor(a.tipo)] = true;
+            if (!CUENTAS_BASE_NEGOCIO.some(k => next[k])) return false;
+            try {
+                const f = getFiscal();
+                f.cuentasActivas = next;
+                saveFiscal(f);
+                return true;
+            } catch (e) { return false; }
+        }
+        function aplicarCuentasActivas() {
+            if (isAdmin()) return;
+            const act = cuentasActivasDelNegocio();
+            CUENTAS_BASE_NEGOCIO.forEach(k => { tabOcultaActor('tab-' + k, !act[k]); });
+            /* Si la pestaña visible es una cuenta recién desactivada, volver al Panel. */
+            CUENTAS_BASE_NEGOCIO.forEach(k => {
+                if (act[k]) return;
+                const pane = document.getElementById('pane-' + k);
+                if (pane && pane.classList.contains('active')) { try { irAPestana('tab-resumen'); } catch (e) {} }
+            });
+            /* Selectores de cuenta: las opciones de cuentas inactivas se
+               ocultan, salvo la que ya trae el selector (un movimiento
+               viejo de esa cuenta se sigue pudiendo ver y editar). */
+            ['movCuenta', 'movCuentaDestino', 'contaTesDestino', 'contaInvContra'].forEach(id => {
+                const sel = document.getElementById(id); if (!sel) return;
+                /* Primero se corrige el valor si apunta a una cuenta
+                   inactiva; después se ocultan las opciones inactivas
+                   (la del valor vigente se conserva siempre). */
+                if (!act[sel.value] && id !== 'movCuentaDestino') {
+                    const primera = CUENTAS_BASE_NEGOCIO.find(k => act[k]);
+                    if (primera) sel.value = primera;
+                }
+                Array.from(sel.options).forEach(op => {
+                    if (CUENTAS_BASE_NEGOCIO.indexOf(op.value) < 0) return;
+                    const off = !act[op.value] && op.value !== sel.value;
+                    op.hidden = off; op.disabled = off;
+                });
+            });
+        }
+
         function getAFTKey(){return `finanzas_aft_${getCurrentUser()}`;}
         function getAFT(){const x=Store.getItem(getAFTKey());if(!x)return {politica:{umbral:1000},activos:[],depreciaciones:{}};try{const d=JSON.parse(x)||{};if(!d.politica)d.politica={umbral:1000};if(!Array.isArray(d.activos))d.activos=[];if(!d.depreciaciones||Array.isArray(d.depreciaciones))d.depreciaciones={};return d;}catch(e){return {politica:{umbral:1000},activos:[],depreciaciones:{}};}}
         function saveAFT(d){Store.setItem(getAFTKey(),JSON.stringify(d));}
@@ -5295,6 +5403,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderSubsLocal();
             renderActualizacionLocal();
             renderRecuperaLocal();
+            renderCuentasNegocio();
         }
 
         // ===== NEGOCIOS: helpers =====
@@ -6013,6 +6122,109 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             });
         }
 
+        // ===== INSTALACIÓN INICIAL (solo versión sin conexión) =====
+        // El servidor local marca la copia servida con
+        // window.FINANZAS_INSTALACION=true cuando aún no hay ningún
+        // usuario (primera vez). Entonces la pantalla de entrada
+        // muestra este formulario en vez del login: crea el negocio,
+        // la cuenta administradora y, si se pide, el usuario de
+        // trabajo, llamando a la acción pública «setup» del contrato
+        // (una sola vez; después el servidor responde «Ya
+        // configurado»). La contraseña viaja como hash con el mismo
+        // formato de la versión en línea (sha256$sal$hex, calculado
+        // aquí con la criptografía del navegador en el propio equipo:
+        // la contraseña en claro nunca sale de la máquina).
+        async function hashPwLocal(pw) {
+            const salBytes = new Uint8Array(8);
+            crypto.getRandomValues(salBytes);
+            const sal = Array.from(salBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+            const data = new TextEncoder().encode(sal + '::' + pw);
+            const dig = await crypto.subtle.digest('SHA-256', data);
+            const hex = Array.from(new Uint8Array(dig)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return 'sha256$' + sal + '$' + hex;
+        }
+        function initInstalacion() {
+            const box = document.getElementById('instalacionBox');
+            if (!box) return;
+            if (!(window.FINANZAS_LOCAL && window.FINANZAS_INSTALACION)) return;
+            box.classList.remove('d-none');
+            const form = document.getElementById('loginForm');
+            if (form) form.classList.add('d-none');
+            const rec = document.getElementById('recuperaBox');
+            if (rec) rec.classList.add('d-none');
+            const chk = document.getElementById('instCrearTrabajo');
+            const wrap = document.getElementById('instTrabajoWrap');
+            if (chk && wrap) chk.addEventListener('change', () => { wrap.style.display = chk.checked ? '' : 'none'; });
+            const btn = document.getElementById('btnInstalar');
+            if (!btn || btn.dataset.listo) return;
+            btn.dataset.listo = '1';
+            btn.addEventListener('click', async () => {
+                const msg = document.getElementById('instMsg');
+                const negocio = document.getElementById('instNegocio').value.trim();
+                const tipo = document.getElementById('instTipo').value;
+                const socios = parseInt(document.getElementById('instSocios').value, 10) || 0;
+                const adminUser = document.getElementById('instAdminUser').value.trim();
+                const crearTrabajo = document.getElementById('instCrearTrabajo').checked;
+                const trabajoUser = document.getElementById('instTrabajoUser').value.trim();
+                const pw = document.getElementById('instPass').value;
+                const pw2 = document.getElementById('instPass2').value;
+                const falla = t => { msg.innerHTML = '<span class="text-danger">' + esc(t) + '</span>'; };
+                if (!negocio) return falla('Escribe el nombre de tu negocio.');
+                if (!adminUser) return falla('Escribe el usuario administrador.');
+                if (crearTrabajo && !trabajoUser) return falla('Escribe tu usuario de trabajo (o desmarca la casilla).');
+                if (crearTrabajo && trabajoUser.toLowerCase() === adminUser.toLowerCase()) return falla('El usuario de trabajo debe ser distinto del administrador.');
+                if (!pw || pw.length < 6) return falla('La contraseña debe tener al menos 6 caracteres.');
+                if (pw !== pw2) return falla('Las contraseñas no coinciden.');
+                btn.disabled = true;
+                msg.innerHTML = '<span class="text-secondary">Instalando…</span>';
+                try {
+                    const users = [{ username: adminUser, hash: await hashPwLocal(pw), role: 'admin', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio }];
+                    if (crearTrabajo) users.push({ username: trabajoUser, hash: await hashPwLocal(pw), role: 'editor', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio });
+                    const r = await api('setup', { users, config: {}, bloqueos: {}, negocios: [{ negocio, doc: { _info: { tipo, creado: new Date().toISOString() } } }] });
+                    if (!r || !r.ok) { btn.disabled = false; return falla((r && r.error) || 'No se pudo instalar.'); }
+                    msg.innerHTML = '<span class="text-success fw-semibold">✅ Instalación completa. Entrando a tu pantalla de acceso…</span>';
+                    setTimeout(() => location.reload(), 900);
+                } catch (e) {
+                    btn.disabled = false;
+                    falla('No se pudo instalar: ' + (e && e.message ? e.message : e));
+                }
+            });
+        }
+
+        // ===== CUENTAS QUE USA ESTE NEGOCIO (tarjeta en Configuración) =====
+        // Visible solo en la versión sin conexión (window.FINANZAS_LOCAL):
+        // ahí la Configuración es la del negocio instalado. Los
+        // interruptores guardan al momento en el slot fiscal
+        // (cuentasActivas) y reaplican Resumen, pestañas y selectores.
+        function renderCuentasNegocio() {
+            const card = document.getElementById('cardCuentasNegocio');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            card.classList.remove('d-none');
+            const lista = document.getElementById('cuentasNegocioLista');
+            if (!lista) return;
+            const a = actorDelNegocio();
+            const fiscal = cuentaFiscalDelActor(a.tipo);
+            const act = cuentasActivasDelNegocio();
+            lista.innerHTML = CUENTAS_BASE_NEGOCIO.map(k => {
+                const esFiscal = k === fiscal;
+                return `<div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" role="switch" id="ctaAct-${k}" data-cta-act="${k}" ${act[k] ? 'checked' : ''} ${esFiscal ? 'disabled' : ''}>
+                    <label class="form-check-label" for="ctaAct-${k}">${esc(NOMBRES_CUENTA_BANCO[k] || k)}${esFiscal ? ' <span class="badge bg-soft-primary text-primary">cuenta fiscal · siempre activa</span>' : ''}</label>
+                </div>`;
+            }).join('');
+            lista.querySelectorAll('[data-cta-act]').forEach(sw => {
+                sw.addEventListener('change', () => {
+                    const mapa = {};
+                    lista.querySelectorAll('[data-cta-act]').forEach(o => { mapa[o.getAttribute('data-cta-act')] = o.checked; });
+                    if (!guardarCuentasActivas(mapa)) { alert('Debe quedar al menos una cuenta activa.'); renderCuentasNegocio(); return; }
+                    try { aplicarCuentasActivas(); } catch (e) {}
+                    try { renderResumenCuentas(); } catch (e) {}
+                    renderCuentasNegocio();
+                });
+            });
+        }
+
         // ===== RENDER: BLOQUEO DE MESES =====
         function renderBloqueoMeses() { renderCfgPanel();
             const bloqueos = getBloqueoMeses();
@@ -6050,11 +6262,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         // ===== RENDER: RESUMEN DE CUENTAS =====
         function renderResumenCuentas() {
             const res = calcularResumen();
+            /* Solo las cuentas ACTIVAS del negocio (Configuración de su
+               instalación); sin elección, las de su tipo de actor. */
+            const act = (typeof cuentasActivasDelNegocio === 'function') ? cuentasActivasDelNegocio() : null;
             const cuentas = [
                 { key: 'chequera', label: '🏦 Chequera', color: '#1f3a6b' },
                 { key: 'tarjeta_cup', label: '💳 Tarjeta CUP', color: '#0b5e3a' },
                 { key: 'tarjeta_usd', label: '💵 Tarjeta USD', color: '#0e7490' }
-            ];
+            ].filter(c => !act || act[c.key]);
             
             document.getElementById('resumenCuentas').innerHTML = cuentas.map(c => {
                 const saldo = res.saldos[c.key];
@@ -12528,6 +12743,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 
                 renderAll();
                 try { aplicarVisibilidadActor(); } catch (e) {}
+                try { aplicarCuentasActivas(); } catch (e) {}
             } else {
                 alert('Usuario o contraseña incorrectos.');
             }
@@ -14501,6 +14717,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             }
         }
         initRecuperaLogin();
+        try { initInstalacion(); } catch (e) {}
         loginForm.addEventListener('submit', async function(e){
             e.preventDefault();
             const r = await api('login', {username: document.getElementById('userInput').value.trim(), password: document.getElementById('passInput').value});
@@ -14711,6 +14928,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             $('movConcepto').value = m ? m.concepto : (tipo === 'onat' ? 'Aporte ONAT' : '');
             $('movMonto').value = m ? m.monto : ''; $('movFecha').value = m ? m.fecha : hoy();
             $('movCuenta').value = cuenta; $('movClas').value = m ? (m.clasificacion || 'operacional') : 'operacional';
+            /* Si la cuenta del movimiento está desactivada, su opción se
+               mantiene visible en este selector para poder verlo/editarlo. */
+            try { const sc = $('movCuenta'); Array.from(sc.options).forEach(op => { if (op.value === sc.value) { op.hidden = false; op.disabled = false; } }); } catch (e) {}
             try{ contaFillMovFields(m); }catch(e){}
             try{ const _gr0=$('movGuardarRegla'); if(_gr0) _gr0.checked=false; }catch(e){}
             configurarCamposONAT(tipo,m);
@@ -14911,7 +15131,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-16';
+        var MANUAL_VERSION = 'v2026.10.26-18';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14939,6 +15159,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ol><li>Escribe tu usuario y tu contraseña y pulsa <b>Ingresar</b>.</li>' +
             '<li>Arriba verás el indicador de conexión: en verde, la app está hablando con el servidor; si sale en rojo, trabaja igualmente y sincroniza al volver la conexión.</li>' +
             '<li>Tras publicar una actualización de la app, <b>cierra la pestaña por completo y vuelve a abrirla con conexión</b>: si solo recargas, el teléfono puede seguir mostrándote la versión anterior.</li></ol>'},
+        {id:'instalacion-offline', modulo:'empezar', titulo:'Primera vez sin conexión: instalar tu copia', html:
+            '<p>Solo en la <b>versión sin conexión</b>: la primera vez que abres el programa en una máquina, en vez de la pantalla de entrada sale el <b>formulario de instalación</b>. Se hace una sola vez:</p>' +
+            '<ol><li>Escribe el <b>nombre de tu negocio</b> y su <b>tipo</b> (TCP, MIPYME o PDL; en la MIPYME, también el número de socios).</li>' +
+            '<li>Deja el <b>usuario administrador</b> («admin» o el que prefieras): es la cuenta dueña de la copia, para gestionar usuarios y configuración.</li>' +
+            '<li>Mantén marcada la casilla de <b>crear tu usuario de trabajo</b> y escribe ese usuario: es con el que entrarás a diario a llevar el negocio. Los dos comparten la contraseña que escribas aquí; luego puedes cambiarlas por separado.</li>' +
+            '<li>Pulsa <b>«Instalar y empezar»</b>: la app vuelve a la pantalla de entrada y ya puedes entrar con tu usuario de trabajo.</li></ol>' +
+            '<p>Si la pantalla de entrada sale normal, es que la copia ya está instalada. Tus datos viven en un solo archivo de base de datos en la carpeta de datos del programa (en Windows, «%APPDATA%\\FinanzasOffline\\finanzas.db»): copiar esa carpeta es copiar todo tu negocio.</p>'},
         {id:'negocios-usuarios', modulo:'empezar', titulo:'Negocios, usuarios y roles', html:
             '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
             '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
@@ -14996,6 +15223,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'datos-banco', modulo:'cuentas', titulo:'Datos del banco de cada cuenta', html:
             '<p>Al importar un estado, la app lee de su encabezado el <b>titular, el banco, la sucursal, el número de cuenta y la tarjeta</b> y los guarda en esa cuenta. Con el botón <b>«Datos del banco»</b> puedes verlos y corregirlos a mano cuando el estado no los trae (por ejemplo, la sucursal).</p>' +
             '<p>Regla de protección: <b>la importación nunca borra un dato que escribiste a mano</b>; solo completa los que falten.</p>'},
+        {id:'cuentas-activas', modulo:'cuentas', titulo:'Cuentas que usa este negocio (activas)', html:
+            '<p>No todos los negocios tienen las tres cuentas: un TCP puede trabajar solo con su Tarjeta CUP, y una MIPYME puede no tener tarjeta en USD. Las <b>cuentas activas</b> son las que el negocio usa de verdad: el <b>Resumen</b>, las <b>pestañas de cuenta</b> y los <b>selectores</b> muestran solo esas.</p>' +
+            '<ul><li><b>Sin tocar nada</b>, cada tipo parte con lo suyo: TCP solo Tarjeta CUP (la chequera y la USD se activan cuando hagan falta); PDL chequera y Tarjeta CUP; MIPYME las tres.</li>' +
+            '<li><b>En la versión sin conexión</b>, el administrador lo ajusta en Configuración, tarjeta «Cuentas que usa este negocio»: interruptores por cuenta, guardados al momento.</li>' +
+            '<li><b>La cuenta fiscal no se puede desactivar</b> (en el TCP, su Tarjeta CUP; en la MIPYME y el PDL, su chequera): es la cuenta de sus obligaciones con la ONAT.</li>' +
+            '<li><b>Desactivar no borra nada:</b> los movimientos y saldos de una cuenta desactivada se conservan y reaparecen intactos al reactivarla; solo deja de verse.</li></ul>'},
         {id:'movs-manuales', modulo:'cuentas', titulo:'Registrar ingresos, gastos y pagos ONAT a mano', html:
             '<ol><li>Entra a la cuenta y pulsa <b>Ingreso</b>, <b>Gasto</b> u <b>ONAT</b>.</li>' +
             '<li>Escribe fecha, concepto e importe. En pagos ONAT, si escribes el <b>código de tributo</b>, la app lo vincula con la obligación del Vector Fiscal y lo lleva a su cuenta contable (ver «Pagos a la ONAT por su código»).</li>' +
