@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.26-15",
-  "publicada": "2026-10-26 17:48",
-  "notas": "Actualizador de la versión sin conexión (F5) y utilidades del PDL al 35 %",
+  "version": "v2026.10.26-16",
+  "publicada": "2026-10-26 18:24",
+  "notas": "Código de recuperación de acceso del administrador (firmado por el proveedor)",
   "requiereServidor": "0.3.0",
   "migracionDatos": 1,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "4e8243be9a1ea9bcbae98e03a3b104d95ed3ce408619339deaab2005764f4381",
-      "bytes": 1524117
+      "sha256": "d797b3a08f512650d898524d45fd0f2ade827526000be65fd267477420235094",
+      "bytes": 1536182
     },
     {
       "ruta": "pdf-import.js",

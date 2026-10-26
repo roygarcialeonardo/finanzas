@@ -919,6 +919,28 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <span class="icono-anim" data-icono="info"></span> Acceso solo para usuarios registrados
             </div>
         </form>
+        <!-- Recuperación de acceso del administrador (solo versión sin conexión) -->
+        <div id="recuperaBox" class="d-none mt-2">
+            <div class="text-center">
+                <button type="button" class="btn btn-link btn-sm text-decoration-none" id="btnRecuperaAbrir">¿Perdiste tu contraseña de administrador?</button>
+            </div>
+            <div id="recuperaPanel" class="d-none mt-2 text-start">
+                <p class="small text-secondary mb-2">Solo para la cuenta <b>administradora</b> de esta copia sin conexión. Necesitas tu <b>código de recuperación</b> (el que generaste dentro de la app y guardaste) y la ayuda de tu proveedor:</p>
+                <ol class="small text-secondary ps-3">
+                    <li>Pulsa «Pedir código de solicitud» (vale 30 minutos).</li>
+                    <li>Dicta a tu proveedor la <b>instalación</b>, la <b>solicitud</b>, tu <b>código de recuperación</b> y tu <b>usuario</b>.</li>
+                    <li>Él te devuelve un <b>código de desbloqueo</b> de un solo uso: escríbelo abajo junto con tu código de recuperación y tu contraseña nueva.</li>
+                </ol>
+                <div class="mb-2"><label class="form-label small" for="recUsuario">Tu usuario administrador</label><input type="text" class="form-control" id="recUsuario" autocomplete="username"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" id="btnRecuperaSolicitud">Pedir código de solicitud</button>
+                <div id="recSolicitudInfo" class="small mt-2"></div>
+                <div class="mb-2 mt-2"><label class="form-label small" for="recCodigo">Tu código de recuperación</label><input type="text" class="form-control" id="recCodigo" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX"></div>
+                <div class="mb-2"><label class="form-label small" for="recDesbloqueo">Código de desbloqueo (te lo da tu proveedor)</label><textarea class="form-control" id="recDesbloqueo" rows="3" autocomplete="off"></textarea></div>
+                <div class="mb-3"><label class="form-label small" for="recNueva">Contraseña nueva</label><input type="password" class="form-control" id="recNueva" autocomplete="new-password"></div>
+                <button type="button" class="btn btn-primary-custom w-100 text-white" id="btnRecuperaRestablecer">Restablecer mi contraseña</button>
+                <div id="recMsg" class="small mt-2"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -2019,6 +2041,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             <button type="button" class="btn btn-outline-warning" id="btnActCert">Modo certificación</button>
                         </div>
                         <p class="small text-muted mt-2 mb-0">El <b>modo certificación</b> congela esta instalación en su versión actual (la que se presente a certificar): con él activo no se aplica ninguna actualización. Activarlo o quitarlo pide doble confirmación y queda registrado.</p>
+                    </div>
+                </div>
+
+                <!-- Recuperación de acceso de ESTA instalación (solo versión sin conexión) -->
+                <div class="col-12 d-none" id="cardRecuperaLocal">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="candado"></span>Recuperación de acceso (sin conexión)</h6>
+                        <p class="small text-muted">Si un día olvidas tu contraseña de administrador, esta es tu red de seguridad: genera tu <b>código de recuperación</b> y guárdalo <b>fuera de esta PC</b> (en papel o en tu teléfono, nunca en un archivo de esta misma máquina). La app guarda solo su huella, no el código. Para recuperar el acceso necesitarás ese código y un código de desbloqueo de un solo uso que firma tu proveedor: hacen falta los dos, y todo el proceso queda registrado.</p>
+                        <div id="recLocalEstado" class="small mb-2"></div>
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary" id="btnRecGenerar">Generar mi código de recuperación</button>
+                        </div>
+                        <p class="small text-muted mt-2 mb-0">Generar uno nuevo <b>invalida el anterior</b>. Tras usarlo en una recuperación, el código queda consumido y tendrás que generar otro.</p>
                     </div>
                 </div>
             </div>
@@ -5259,6 +5294,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderSuscripciones();
             renderSubsLocal();
             renderActualizacionLocal();
+            renderRecuperaLocal();
         }
 
         // ===== NEGOCIOS: helpers =====
@@ -5899,6 +5935,81 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     pintar(r);
                     alert('🔓 Modo certificación desactivado.');
                 }
+            });
+        }
+
+        // ===== RECUPERACIÓN DE ACCESO DE ESTA INSTALACIÓN (solo offline) =====
+        // Tarjeta en Configuración visible solo con window.FINANZAS_LOCAL:
+        // genera el código de recuperación del administrador (la app
+        // guarda solo su huella). El restablecimiento vive en la
+        // pantalla de entrada (initRecuperaLogin) y exige además el
+        // código de desbloqueo firmado por el proveedor.
+        async function recLocalFetch(ruta, body, conToken) {
+            const opt = { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json' } };
+            if (body) opt.body = JSON.stringify(conToken ? Object.assign({ token: TOKEN }, body) : body);
+            const r = await fetch(ruta + (!body && conToken ? '?token=' + encodeURIComponent(TOKEN) : ''), opt);
+            return r.json();
+        }
+        async function renderRecuperaLocal() {
+            const card = document.getElementById('cardRecuperaLocal');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            card.classList.remove('d-none');
+            if (card.dataset.recInit) return;
+            card.dataset.recInit = '1';
+            const pintar = st => {
+                const el = document.getElementById('recLocalEstado');
+                if (!st || !st.ok) { el.innerHTML = '<span class="text-danger">No se pudo leer el estado local.</span>'; return; }
+                el.innerHTML = st.tieneCodigo
+                    ? `<span class="badge bg-success">Código activo</span> Generado el ${esc(st.generado || '')}. Instalación: <b>${esc(st.instalacion || '')}</b> (este dato se dicta al proveedor al recuperar).`
+                    : '<span class="badge bg-warning text-dark">Sin código</span> Todavía no tienes código de recuperación: genéralo ahora y guárdalo fuera de esta PC.';
+                document.getElementById('btnRecGenerar').textContent = st.tieneCodigo ? 'Generar uno nuevo (invalida el actual)' : 'Generar mi código de recuperación';
+            };
+            try { pintar(await recLocalFetch('/recuperacion/estado', null, true)); } catch (e) { pintar(null); }
+            document.getElementById('btnRecGenerar').addEventListener('click', async () => {
+                if (!confirm('Se generará un código de recuperación NUEVO y el anterior dejará de valer. Tendrás que guardarlo en ese momento: la app no lo vuelve a mostrar. ¿Continuar?')) return;
+                const r = await recLocalFetch('/recuperacion/generar', {}, true);
+                if (!r.ok) { alert(r.error || 'No se pudo generar'); return; }
+                const el = document.getElementById('recLocalEstado');
+                el.innerHTML = `<div class="alert alert-warning py-2 mb-0">📝 <b>Guarda tu código de recuperación ahora</b> (en papel o en tu teléfono, fuera de esta PC):<br><span class="fs-5 fw-bold">${esc(r.codigo || '')}</span><br>Sin este código y sin la firma de tu proveedor no podrás recuperar el acceso si olvidas tu contraseña.</div>`;
+                document.getElementById('btnRecGenerar').textContent = 'Generar uno nuevo (invalida el actual)';
+                alert('Código de recuperación generado: quedó visible en la tarjeta. Guárdalo fuera de esta PC.');
+            });
+        }
+        // Pantalla de entrada: recuperación del administrador sin sesión.
+        function initRecuperaLogin() {
+            const box = document.getElementById('recuperaBox');
+            if (!box || !window.FINANZAS_LOCAL) return;
+            box.classList.remove('d-none');
+            document.getElementById('btnRecuperaAbrir').addEventListener('click', () => {
+                const p = document.getElementById('recuperaPanel');
+                p.classList.toggle('d-none');
+                const u = document.getElementById('userInput').value.trim();
+                if (u) document.getElementById('recUsuario').value = u;
+            });
+            document.getElementById('btnRecuperaSolicitud').addEventListener('click', async () => {
+                const info = document.getElementById('recSolicitudInfo');
+                const username = document.getElementById('recUsuario').value.trim();
+                if (!username) { info.innerHTML = '<span class="text-danger">Escribe primero tu usuario administrador.</span>'; return; }
+                const r = await recLocalFetch('/recuperacion/solicitud', { username }, false);
+                if (!r.ok) { info.innerHTML = '<span class="text-danger">' + esc(r.error || 'No se pudo emitir la solicitud') + '</span>'; return; }
+                info.innerHTML = `<div class="alert alert-info py-2 mb-0">Dicta a tu proveedor:<br>Instalación: <b>${esc(r.instalacion || '')}</b><br>Solicitud: <b>${esc(r.solicitud || '')}</b> (vale ${esc(String(r.expiraMin || 30))} minutos)<br>tu código de recuperación y tu usuario <b>${esc(username)}</b>.</div>`;
+            });
+            document.getElementById('btnRecuperaRestablecer').addEventListener('click', async () => {
+                const msg = document.getElementById('recMsg');
+                const body = {
+                    username: document.getElementById('recUsuario').value.trim(),
+                    codigo: document.getElementById('recCodigo').value.trim(),
+                    desbloqueo: document.getElementById('recDesbloqueo').value.trim(),
+                    nueva: document.getElementById('recNueva').value
+                };
+                if (!body.username || !body.codigo || !body.desbloqueo || !body.nueva) { msg.innerHTML = '<span class="text-danger">Completa todos los campos.</span>'; return; }
+                const r = await recLocalFetch('/recuperacion/restablecer', body, false);
+                if (!r.ok) { msg.innerHTML = '<span class="text-danger">' + esc(r.error || 'No se pudo restablecer') + '</span>'; return; }
+                msg.innerHTML = '<span class="text-success fw-semibold">✅ Contraseña restablecida. Ya puedes entrar con tu contraseña nueva. Tu código de recuperación quedó consumido: al entrar, genera uno nuevo en Configuración.</span>';
+                document.getElementById('userInput').value = body.username;
+                document.getElementById('passInput').value = '';
+                document.getElementById('passInput').focus();
             });
         }
 
@@ -14389,6 +14500,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                     `<div class="d-flex justify-content-end mb-2 no-print"><button type="button" class="btn btn-sm btn-outline-secondary" data-doc-c1="resumen" onclick="docResumenPrint()"><i class="bi bi-printer me-1"></i>PDF</button></div>`);
             }
         }
+        initRecuperaLogin();
         loginForm.addEventListener('submit', async function(e){
             e.preventDefault();
             const r = await api('login', {username: document.getElementById('userInput').value.trim(), password: document.getElementById('passInput').value});
@@ -14799,7 +14911,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-15';
+        var MANUAL_VERSION = 'v2026.10.26-16';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -15173,7 +15285,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Volver atrás:</b> «Volver a la versión anterior» restaura la versión guardada al actualizar (y la actual queda guardada a su vez); «Restaurar la de fábrica» vuelve a la versión que traía el programa al instalarse.</li>' +
             '<li><b>Lo que no se actualiza así:</b> el programa servidor (el ejecutable). Si una versión nueva lo requiere, la tarjeta lo avisa y hay que sustituir el ejecutable; los datos nunca se tocan.</li>' +
             '<li><b>Modo certificación:</b> congela la instalación en la versión que se presente a certificar: con él activo no se aplica ninguna actualización ni se puede revertir. Activarlo o quitarlo pide <b>doble confirmación</b> y queda en las trazas, porque la instalación congelada es la que ampara el certificado.</li>' +
-            '<li>Toda actualización —aplicada, fallida, revertida o automática— queda <b>registrada en las trazas</b> del programa con la versión anterior y la nueva.</li></ul>'}
+            '<li>Toda actualización —aplicada, fallida, revertida o automática— queda <b>registrada en las trazas</b> del programa con la versión anterior y la nueva.</li></ul>'},
+        {id:'recuperacion-offline', modulo:'respaldo', titulo:'Recuperación de acceso en la versión sin conexión', html:
+            '<p>Solo en la <b>versión sin conexión</b>: qué hacer si el administrador olvida su contraseña. Las contraseñas de los demás usuarios las restablece el propio administrador desde Configuración; la suya tiene esta vía especial, pensada para que <b>nadie pueda entrar sin dos piezas a la vez</b>.</p>' +
+            '<ul><li><b>Antes de necesitarla:</b> en Configuración, tarjeta «Recuperación de acceso», genera tu <b>código de recuperación</b> y guárdalo <b>fuera de la PC</b> (papel o tu teléfono). La app guarda solo su huella digital, no el código: quien no lo tenga no puede usar esta vía. Generar uno nuevo invalida el anterior.</li>' +
+            '<li><b>Al perder el acceso:</b> en la pantalla de entrada, «¿Perdiste tu contraseña de administrador?» emite un <b>código de solicitud</b> (vale 30 minutos). Dictas a tu proveedor la <b>instalación</b>, la <b>solicitud</b>, tu <b>código de recuperación</b> y tu <b>usuario</b>.</li>' +
+            '<li><b>El desbloqueo:</b> el proveedor firma con su llave un <b>código de desbloqueo de un solo uso</b> y te lo devuelve; lo escribes en la misma pantalla con tu código de recuperación y tu contraseña nueva. La app comprueba la firma antes de cambiar nada.</li>' +
+            '<li><b>Tras recuperar:</b> el código de recuperación y la solicitud quedan <b>consumidos</b> y las sesiones abiertas se cierran: al entrar, genera un código nuevo. Cinco intentos fallidos bloquean la vía 15 minutos. Solicitudes, intentos y recuperaciones quedan <b>en las trazas</b>.</li></ul>'}
         ];
         function manualEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
         function manualNorm(s){
