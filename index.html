@@ -2565,7 +2565,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <p class="small mb-1">Tercer tipo de cliente del Gestor, junto a TCP y MIPYME. Marco vigente: <b>Decreto 174/2026</b> «Para la Gestión Estratégica del Desarrollo Territorial» (Gaceta Oficial ordinaria No. 87 de 2026), que <b>derogó el Decreto 33/2021</b>. Se dan de alta con «Alta rápida de cliente» eligiendo el tipo PDL, y su ficha se completa en el detalle del cliente.</p>
                     <ul class="small mb-0">
                         <li><b>Vigencia de 5 años</b> desde la aprobación (CAM o Gobernador, según la estrategia EDM/EDP a la que responde): la fecha de vencimiento se calcula sola; el panel avisa en ámbar con 90 días y en rojo si venció. Al vencer o cumplir lo aprobado, el proyecto se extingue y pasa por liquidación, o se convierte en un actor económico.</li>
-                        <li><b>Evaluación anual obligatoria</b>: cada PDL se evalúa al menos una vez al año; el panel y el calendario avisan con 30 días y marcan rojo si la evaluación venció.</li>
+                        <li><b>Evaluación semestral obligatoria</b>: el CAM evalúa cada PDL al menos una vez por semestre (Decreto 174/2026, art. 40.1); el panel y el calendario avisan con 30 días y marcan rojo si la evaluación venció.</li>
                         <li><b>Tope de 100 contratados</b>: aviso al llegar a 90; si se supera el tope, el proyecto debe transformarse en empresa.</li>
                         <li><b>Fuentes por separado</b>: presupuesto local, donaciones, cooperación y otras, cada una con su monto aprobado y su ejecución; el informe mensual del cliente PDL incluye el bloque de fuentes con su ejecución.</li>
                         <li><b>Cautela contable</b>: el PDL no tiene Declaración Jurada propia en la app ni Vector Fiscal RC-04A. Su contabilidad se lleva con el <b>plan general de cuentas</b>; el tratamiento contable y bancario específico está <b>pendiente de verificar</b> contra las Resoluciones 202/2026 del MFP y 118/2026 del BCC, así que la app no aplica cuentas especiales ni reglas bancarias al PDL hasta confirmarlo en la Gaceta.</li>
@@ -3674,6 +3674,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
           {id:'feriados',nombre:'Feriados trabajados',desc:'Tarifa horaria × 2 × horas en feriado'},
           {id:'antiguedad',nombre:'Plus por antigüedad',desc:'% sobre el salario según años de servicio'},
           {id:'resultados',nombre:'Pago por resultados',desc:'Estimulación / reparto a trabajadores'},
+          {id:'distribPdl',nombre:'Distribución de utilidades (PDL)',desc:'Solo PDL: monto de utilidades distribuido al trabajador en el mes; suma a la base de su Contribución Especial (Res. 202/2026, art. 13 d) sin contar como salario.'},
           {id:'interrupcion',nombre:'Interrupción laboral',desc:'60% del salario por días interrumpidos'},
           {id:'licenciaNoRetrib',nombre:'Licencia no retribuida',desc:'Descuenta proporcional del salario'},
           {id:'finiquito',nombre:'Finiquito',desc:'Indemnización + vacaciones proporcionales al cesar'},
@@ -3781,10 +3782,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
           }
           const provisionVac=(APL('provisionVac'))?(baseSalarial+extra)*P.provVac/100:0;
           const bruto=Math.max(0,baseSalarial+extra);
-          const segTrab=calcSeguridadTrabajador(bruto, PRM), iip=calcIIPTrabajador(bruto, PRM);
+          /* PDL: la distribución de utilidades al trabajador entra en la
+             base de su Contribución Especial (Res. 202/2026, art. 13 d)
+             sin formar parte del salario ni de la base del IIP: se le
+             paga íntegra menos la Contribución que genera. */
+          const esPdlNomina=(typeof getEntityType==='function'&&getEntityType()==='pdl');
+          const distribPdl=(esPdlNomina&&APL('distribPdl')&&Number(comp.distribPdl)>0)?Number(comp.distribPdl):0;
+          if(distribPdl>0) detalle.push(['Distribución de utilidades del PDL (base de la Contribución Especial)',distribPdl]);
+          const segTrab=calcSeguridadTrabajador(bruto+distribPdl, PRM), iip=calcIIPTrabajador(bruto, PRM);
           const fuerza=bruto*(PRM.fuerzaTrabajo/100), ssEmp=bruto*(PRM.seguridadSocialEmpleador/100);
-          return {bruto,segTrab,iip,neto:bruto-segTrab-iip+subsidios-deducciones,fuerza,ssEmp,costo:bruto+fuerza+ssEmp,
-                  baseSalarial,extra,subsidios,deducciones,provisionVac,detalle};
+          return {bruto,segTrab,iip,neto:bruto-segTrab-iip+subsidios-deducciones+distribPdl,fuerza,ssEmp,costo:bruto+fuerza+ssEmp,
+                  baseSalarial,extra,subsidios,deducciones,provisionVac,detalle,distribPdl};
         }
 
         function nominaMetaTipo() {
@@ -3933,6 +3941,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 case 'horasExtras': return num('tc-heHoras', 'Horas extras', v('heHoras', 0));
                 case 'feriados': return num('tc-ferDias', 'Días feriados trabajados', v('ferDias', 0));
                 case 'resultados': return num('tc-resMonto', 'Monto (CUP)', v('resMonto', 0));
+                case 'distribPdl': return num('tc-distribPdl', 'Monto distribuido (CUP)', v('distribPdl', 0));
                 case 'vacaciones': return num('tc-vacDias', 'Días de vacaciones', v('vacDias', 0));
                 case 'interrupcion': return num('tc-intDias', 'Días de interrupción', v('intDias', 0));
                 case 'enfermedad': return num('tc-enfDias', 'Días de enfermedad', v('enfDias', 0)) + `<div class="col-6 col-md-4"><label class="form-label small mb-1">Causa</label><select id="tc-enfCausa" class="form-select form-select-sm tc-field"><option value="comun"${v('enfCausa', 'comun') === 'comun' ? ' selected' : ''}>Común (${P.enfComun}%)</option><option value="accidente"${v('enfCausa', 'comun') === 'accidente' ? ' selected' : ''}>Accidente (${P.enfAccidente}%)</option><option value="profesional"${v('enfCausa', 'comun') === 'profesional' ? ' selected' : ''}>Profesional (${P.enfProfesional}%)</option></select></div>`;
@@ -3954,6 +3963,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 case 'horasExtras': comp.heHoras = gn('tc-heHoras'); break;
                 case 'feriados': comp.ferDias = gn('tc-ferDias'); break;
                 case 'resultados': comp.resMonto = gn('tc-resMonto'); break;
+                case 'distribPdl': comp.distribPdl = gn('tc-distribPdl'); break;
                 case 'vacaciones': comp.vacDias = gn('tc-vacDias'); break;
                 case 'interrupcion': comp.intDias = gn('tc-intDias'); break;
                 case 'enfermedad': comp.enfDias = gn('tc-enfDias'); comp.enfCausa = gs('tc-enfCausa'); break;
@@ -5479,7 +5489,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try { ficha = (typeof gPdlFicha === 'function') ? gPdlFicha(CACHE) : null; } catch (e) {}
             if (ficha) { try { fuentes = gPdlFuentes(ficha); al = gPdlAlertas(ficha, new Date().toISOString().slice(0, 10)); } catch (e) {} }
             if (!ficha) {
-                panel.innerHTML = '<div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Control del PDL</h6><p class="small mb-0">Este negocio es un Proyecto de Desarrollo Local (Decreto 174/2026): <b>no presenta Declaración Jurada</b>. Su ficha aún no tiene datos: el gestor la completa desde su panel (fecha de aprobación, entidad ejecutora y fuentes de financiamiento) y aquí verás su vigencia, su evaluación anual y la ejecución por fuentes. Sus tributos propios (Resolución 202/2026 del MFP) están en la pestaña <b>Fiscal</b>.</p></div>';
+                panel.innerHTML = '<div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Control del PDL</h6><p class="small mb-0">Este negocio es un Proyecto de Desarrollo Local (Decreto 174/2026): <b>no presenta Declaración Jurada</b>. Su ficha aún no tiene datos: el gestor la completa desde su panel (fecha de aprobación, entidad ejecutora y fuentes de financiamiento) y aquí verás su vigencia, su evaluación semestral y la ejecución por fuentes. Sus tributos propios (Resolución 202/2026 del MFP) están en la pestaña <b>Fiscal</b>.</p></div>';
                 return;
             }
             const filas = (fuentes && fuentes.hayDatos)
@@ -5489,7 +5499,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 : '<p class="small text-secondary mb-0">Sin fuentes de financiamiento registradas todavía: el gestor las completa en la ficha del PDL.</p>';
             const alertas = (al && al.motivos && al.motivos.length)
                 ? '<div class="alert ' + (al.nivel === 'rojo' ? 'alert-danger' : 'alert-warning') + ' py-2 px-3 small">' + al.motivos.map(esc).join('<br>') + '</div>'
-                : '<div class="alert alert-success py-2 px-3 small">Sin alertas: la vigencia y la evaluación anual están en plazo.</div>';
+                : '<div class="alert alert-success py-2 px-3 small">Sin alertas: la vigencia y la evaluación semestral están en plazo.</div>';
+            const modNom = (typeof PDL_MODALIDADES !== 'undefined' && PDL_MODALIDADES.find(m => m[0] === ficha.modalidad) || [])[1] || '';
+            const filaExtra = (modNom || (ficha.titulares && ficha.titulares.length) || ficha.camPct > 0)
+                ? '<div class="row g-2 small mb-3">'
+                  + (modNom ? '<div class="col-md-4"><span class="text-secondary">Modalidad (art. 34)</span><br><b>' + esc(modNom) + '</b></div>' : '')
+                  + ((ficha.titulares && ficha.titulares.length) ? '<div class="col-md-5"><span class="text-secondary">Titulares</span><br><b>' + ficha.titulares.map(esc).join(', ') + '</b></div>' : '')
+                  + (ficha.camPct > 0 ? '<div class="col-md-3"><span class="text-secondary">Aporte al CAM (del acuerdo)</span><br><b>' + ficha.camPct + ' %</b></div>' : '')
+                  + '</div>' : '';
+            const distUlt = (ficha.distribuciones && ficha.distribuciones.length) ? ficha.distribuciones.slice().sort((a, b) => b.anio - a.anio)[0] : null;
+            const distHtml = distUlt ? '<h6 class="fw-semibold mb-2">Distribución de la utilidad · ' + distUlt.anio + '</h6>'
+                + '<p class="small mb-3">Utilidad ' + moneda(distUlt.utilidad) + ' → Reserva ' + moneda(distUlt.reserva) + ' (10 %) → retenido ' + moneda(distUlt.retenido) + ' → <b>a distribuir ' + moneda(distUlt.aDistribuir) + '</b>: aporte al CAM ' + moneda(distUlt.cam) + ' y a titulares ' + moneda(distUlt.aTitulares) + ' (los titulares tributan su impuesto sobre ingresos personales tras la distribución).</p>' : '';
+            const liqHtml = ficha.estado === 'liquidacion' ? '<h6 class="fw-semibold mb-2">Modo liquidación — procedimiento (Resolución 202/2026)</h6>'
+                + '<p class="small text-secondary">Al extinguirse, el proyecto se liquida por el procedimiento normado: marca cada paso al completarlo. El informe de la Comisión Liquidadora es <b>mensual</b> y el sobrante se ingresa al Presupuesto en los 10 días hábiles siguientes a la aprobación del balance final.</p>'
+                + '<div class="mb-3">' + PDL_LIQ_PASOS.map(p => { const on = !!(ficha.liquidacion && ficha.liquidacion[p[0]]); return '<button type="button" class="btn btn-sm ' + (on ? 'btn-success' : 'btn-outline-danger') + ' me-1 mb-1" data-pdl-liq="' + p[0] + '">' + (on ? '✔' : '✘') + ' ' + esc(p[1]) + '</button>'; }).join('') + '</div>' : '';
+            const informeHtml = '<div class="d-flex flex-wrap gap-2 align-items-center mb-1"><button type="button" class="btn btn-sm btn-outline-primary" id="btnPdlInformeCam"><i class="bi bi-file-earmark-text me-1"></i>Informe para la evaluación del CAM</button><span class="small text-secondary">Documento de apoyo del semestre (no es un modelo oficial).</span></div><div id="pdlInformePrintBox" style="display:none"></div>';
             panel.innerHTML = '<div class="card p-3 p-md-4 mb-3">'
                 + '<h6 class="fw-semibold mb-3">Ficha del proyecto (Decreto 174/2026)</h6>'
                 + '<div class="row g-2 small mb-3">'
@@ -5504,13 +5528,80 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 + '</div>'
                 + '<div class="row g-2 small mb-3">'
                 + '<div class="col-md-4"><span class="text-secondary">Vigencia (5 años) hasta</span><br><b>' + esc((al && al.venceVigencia) || '—') + '</b>' + (al && al.diasVigencia !== null ? ' <span class="text-secondary">(en ' + al.diasVigencia + ' días)</span>' : '') + '</div>'
-                + '<div class="col-md-4"><span class="text-secondary">Próxima evaluación anual</span><br><b>' + esc((al && al.proximaEvaluacion) || '—') + '</b>' + (al && al.diasEvaluacion !== null ? ' <span class="text-secondary">(en ' + al.diasEvaluacion + ' días)</span>' : '') + '</div>'
+                + '<div class="col-md-4"><span class="text-secondary">Próxima evaluación semestral</span><br><b>' + esc((al && al.proximaEvaluacion) || '—') + '</b>' + (al && al.diasEvaluacion !== null ? ' <span class="text-secondary">(en ' + al.diasEvaluacion + ' días)</span>' : '') + '</div>'
                 + '<div class="col-md-4"><span class="text-secondary">Estado</span><br><b>' + esc(ficha.estado) + '</b></div>'
+                + (al && al.fechaAdecuacion ? '<div class="col-md-4"><span class="text-secondary">Adecuación al Decreto 174/2026 hasta</span><br><b>' + esc(al.fechaAdecuacion) + '</b>' + (al.diasAdecuacion !== null ? ' <span class="text-secondary">(en ' + al.diasAdecuacion + ' días; fecha por confirmar oficialmente)</span>' : '') + '</div>' : '')
                 + '</div>'
+                + filaExtra
                 + alertas
                 + '<h6 class="fw-semibold mb-2">Ejecución por fuentes de financiamiento</h6>' + filas
-                + '<p class="small text-secondary mt-3 mb-0">El PDL <b>no presenta DJ-08 ni DJ-01</b>: su control es la vigencia de 5 años, la evaluación anual y la ejecución por fuentes. La ficha se completa y se corrige desde el panel del gestor. Sus tributos propios (Resolución 202/2026) están en la pestaña <b>Fiscal</b>.</p>'
+                + distHtml
+                + liqHtml
+                + informeHtml
+                + '<p class="small text-secondary mt-3 mb-0">El PDL <b>no presenta DJ-08 ni DJ-01</b>: su control es la vigencia de 5 años, la evaluación semestral y la ejecución por fuentes. La ficha se completa y se corrige desde el panel del gestor. Sus tributos propios (Resolución 202/2026) están en la pestaña <b>Fiscal</b>.</p>'
                 + '</div>';
+            const bic = document.getElementById('btnPdlInformeCam'); if (bic) bic.onclick = imprimirInformeCamPdl;
+            panel.querySelectorAll('[data-pdl-liq]').forEach(b => b.onclick = () => pdlLiqToggle(b.getAttribute('data-pdl-liq')));
+        }
+        /* Pasos del procedimiento de liquidación del PDL (Resolución
+           202/2026 del MFP): la extinción no es solo una etiqueta. */
+        const PDL_LIQ_PASOS = [
+            ['comision', 'Comisión Liquidadora designada (art. 25)'],
+            ['balance', 'Balance inicial a valor de realización (art. 26)'],
+            ['informes', 'Informe mensual de la liquidación (art. 27 g)'],
+            ['prelacion', 'Pagos en el orden de prelación legal (art. 27 e)'],
+            ['sobrante', 'Sobrante al Presupuesto · párrafo 121050 · 10 días hábiles (art. 35)'],
+            ['laboral', 'Cargos laborales asumidos por el CAM/gobierno (art. 32)'],
+            ['banco', 'Banco notificado y cuenta cerrada (art. 28)']
+        ];
+        function pdlLiqToggle(clave) {
+            const d = getFiscal();
+            if (!d.pdl || typeof d.pdl !== 'object') { try { d.pdl = JSON.parse(JSON.stringify((CACHE && CACHE.fiscal && CACHE.fiscal.pdl) || {})); } catch (e) { d.pdl = {}; } }
+            if (!d.pdl.liquidacion || typeof d.pdl.liquidacion !== 'object') d.pdl.liquidacion = {};
+            if (d.pdl.liquidacion[clave]) delete d.pdl.liquidacion[clave]; else d.pdl.liquidacion[clave] = true;
+            saveFiscal(d);
+            try { if (CACHE && CACHE.fiscal) { if (!CACHE.fiscal.pdl || typeof CACHE.fiscal.pdl !== 'object') CACHE.fiscal.pdl = {}; CACHE.fiscal.pdl.liquidacion = d.pdl.liquidacion; } } catch (e) {}
+            renderPanelPdl();
+        }
+        /* Informe de apoyo para la evaluación semestral del CAM: la
+           norma no fija un modelo oficial en vida normal del proyecto;
+           este documento reúne la ejecución por fuentes, los resultados
+           del semestre, el empleo y los tributos del período. */
+        function imprimirInformeCamPdl() {
+            const box = document.getElementById('pdlInformePrintBox'); if (!box) return;
+            let ficha = null; try { ficha = gPdlFicha(CACHE); } catch (e) {}
+            if (!ficha) { alert('La ficha del PDL aún no tiene datos.'); return; }
+            const fuentes = gPdlFuentes(ficha);
+            const ini = ficha.ultimaEvaluacion || ficha.fechaAprobacion || '';
+            const fin = ini && typeof gPdlSumarMeses === 'function' ? gPdlSumarMeses(ini, 6) : '';
+            let ing = 0, gas = 0, trib = 0;
+            try {
+                (allMovimientos() || []).forEach(m => {
+                    if (!m || !m.fecha) return;
+                    if (ini && m.fecha < ini) return;
+                    if (fin && m.fecha >= fin) return;
+                    if (typeof clasifEnTotales === 'function' && !clasifEnTotales(m)) return;
+                    const v = (typeof ctaMontoCUP === 'function') ? ctaMontoCUP(m, m.tasaCambio) : (Number(m.monto) || 0);
+                    if (m.tipo === 'ingreso') ing += v; else if (m.tipo === 'gasto') gas += v; else if (m.tipo === 'onat') trib += v;
+                });
+            } catch (e) {}
+            const meta = (function () { try { const d = getFiscal(); return (d && d.meta) || {}; } catch (e) { return {}; } })();
+            const distUlt = (ficha.distribuciones && ficha.distribuciones.length) ? ficha.distribuciones.slice().sort((a, b) => b.anio - a.anio)[0] : null;
+            box.innerHTML = '<div style="font-family:Arial,sans-serif;color:#111;max-width:760px;margin:0 auto;padding:8px">'
+                + '<h4 style="margin-bottom:2px">Informe para la evaluación del CAM</h4>'
+                + '<div style="font-size:12px;color:#555">Proyecto de Desarrollo Local · Documento de apoyo generado por Finanzas — no es un modelo oficial</div>'
+                + '<hr>'
+                + '<p style="font-size:13px"><b>Proyecto:</b> ' + esc(meta.razon || ficha.entidadEjecutora || '—') + ' · <b>Entidad ejecutora:</b> ' + esc(ficha.entidadEjecutora || '—') + ' · <b>Acuerdo:</b> ' + esc(ficha.acuerdo || '—') + ' (' + esc(ficha.organo || 'CAM') + ')<br>'
+                + '<b>Período del informe (semestre):</b> ' + esc(ini || '—') + ' a ' + esc(fin || '—') + ' · <b>Estado:</b> ' + esc(ficha.estado) + ' · <b>Contratados:</b> ' + ficha.contratados + ' / 100</p>'
+                + '<h6>Ejecución por fuentes de financiamiento</h6>'
+                + (fuentes.hayDatos ? '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;font-size:12px;width:100%"><tr><th align="left">Fuente</th><th align="right">Monto</th><th align="right">Ejecutado</th><th align="right">% ejecución</th></tr>' + fuentes.filas.map(f => '<tr><td>' + esc(f.tipo) + (f.reembolsable ? ' (reembolsable)' : '') + '</td><td align="right">' + moneda(f.monto) + '</td><td align="right">' + moneda(f.ejecutado) + '</td><td align="right">' + (f.pct === null ? '—' : f.pct + ' %') + '</td></tr>').join('') + '<tr><td><b>Total</b></td><td align="right"><b>' + moneda(fuentes.totalMonto) + '</b></td><td align="right"><b>' + moneda(fuentes.totalEjecutado) + '</b></td><td align="right"><b>' + (fuentes.pctTotal === null ? '—' : fuentes.pctTotal + ' %') + '</b></td></tr></table>' : '<p style="font-size:13px">Sin fuentes registradas.</p>')
+                + '<h6 style="margin-top:14px">Resultados del semestre (desde los movimientos)</h6>'
+                + '<p style="font-size:13px">Ingresos: <b>' + moneda(+ing.toFixed(2)) + '</b> · Gastos: <b>' + moneda(+gas.toFixed(2)) + '</b> · Tributos pagados: <b>' + moneda(+trib.toFixed(2)) + '</b> · Resultado: <b>' + moneda(+(ing - gas).toFixed(2)) + '</b></p>'
+                + (ficha.indicadores ? '<h6 style="margin-top:14px">Indicadores y metas aprobados</h6><p style="font-size:13px;white-space:pre-wrap">' + esc(ficha.indicadores) + '</p>' : '')
+                + (distUlt ? '<h6 style="margin-top:14px">Distribución de la utilidad · ' + distUlt.anio + '</h6><p style="font-size:13px">Utilidad ' + moneda(distUlt.utilidad) + ' → Reserva ' + moneda(distUlt.reserva) + ' → a distribuir ' + moneda(distUlt.aDistribuir) + ' (CAM ' + moneda(distUlt.cam) + ' · titulares ' + moneda(distUlt.aTitulares) + ').</p>' : '')
+                + '<p style="font-size:11px;color:#555;margin-top:16px">Los tributos del proyecto son los de la Resolución 202/2026 del MFP (ver la pestaña Fiscal). La evaluación del CAM es semestral (Decreto 174/2026, art. 40.1).</p>'
+                + '</div>';
+            printPane('pdlInformePrintBox');
         }
         function renderFiscalPdl() {
             const box = document.getElementById('fiscalPdlBox'); if (!box) return;
@@ -10587,7 +10678,14 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            específicas — el tratamiento contable/bancario fino está
            PENDIENTE DE VERIFICAR contra las Res. 202/2026 (MFP) y
            118/2026 (BCC); mientras tanto, plan general de cuentas. */
-        const PDL_FUENTES_TIPOS=['Presupuesto local','Donaciones','Cooperación','Otras'];
+        /* Taxonomía de fuentes del Decreto 174/2026 (art. 43.1) y
+           modalidades del proyecto (art. 34). El fondo de fideicomiso es,
+           por definición de la norma, REEMBOLSABLE (implica el reembolso
+           del financiamiento y los intereses establecidos). */
+        const PDL_FUENTES_TIPOS=['Fondo para el Desarrollo Local','Fondo de Fideicomiso','Fondos para proyectos de desarrollo local','Fondo del Gobierno Provincial','Fondo Nacional de Medio Ambiente','Fondo Nacional para el Desarrollo Forestal','Fondo Financiero de Ciencia e Innovación','Fondo financiero de programas de ciencia, tecnología e innovación','Fondo de la cooperación internacional','Recursos financieros propios de los actores locales','Créditos bancarios','Presupuesto del Estado','Otros recursos financieros del exterior','Cualquier otro fondo o recurso financiero'];
+        const PDL_FUENTES_SEMILLA=['Fondo para el Desarrollo Local','Fondo de Fideicomiso','Recursos financieros propios de los actores locales','Cualquier otro fondo o recurso financiero'];
+        const PDL_FUENTE_FIDEICOMISO='Fondo de Fideicomiso';
+        const PDL_MODALIDADES=[['economico_productivo','Económico–productivo'],['sociocultural','Sociocultural'],['ambiental','Ambiental'],['institucional','Institucional'],['idi','Investigación, desarrollo e innovación']];
         function gTipoCliente(doc){
             const f=(doc&&doc.fiscal)||{};
             if(f.pdl&&typeof f.pdl==='object') return 'pdl';
@@ -10603,11 +10701,27 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const p=x=>String(x).padStart(2,'0');
             return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
         }
+        function gPdlSumarMeses(iso,meses){
+            const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return '';
+            const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),12,0,0);
+            d.setMonth(d.getMonth()+meses);
+            const p=x=>String(x).padStart(2,'0');
+            return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+        }
+        function gPdlSumarDias(iso,dias){
+            const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m) return '';
+            const d=new Date(Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3])));
+            d.setUTCDate(d.getUTCDate()+dias);
+            const p=x=>String(x).padStart(2,'0');
+            return d.getUTCFullYear()+'-'+p(d.getUTCMonth()+1)+'-'+p(d.getUTCDate());
+        }
         function gPdlVenceVigencia(ficha){ return ficha&&ficha.fechaAprobacion? gPdlSumarAnios(ficha.fechaAprobacion,5):''; }
         function gPdlProximaEvaluacion(ficha){
             if(!ficha) return '';
             const base=ficha.ultimaEvaluacion||ficha.fechaAprobacion||'';
-            return base? gPdlSumarAnios(base,1):'';
+            // La evaluación del CAM es SEMESTRAL (Decreto 174/2026, art. 40.1:
+            // «al menos semestralmente»); lo anual es la estrategia territorial.
+            return base? gPdlSumarMeses(base,6):'';
         }
         function gPdlFicha(doc,overlay){
             const semilla=(doc&&doc.fiscal&&doc.fiscal.pdl&&typeof doc.fiscal.pdl==='object')?doc.fiscal.pdl:null;
@@ -10615,7 +10729,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(!semilla&&!o&&gTipoCliente(doc)!=='pdl') return null;
             const F=Object.assign({}, semilla||{}, o||{});
             const fuentes=(Array.isArray(F.fuentes)?F.fuentes:[]).filter(x=>x&&typeof x==='object')
-                .map(x=>({tipo:String(x.tipo||'Otras'), monto:Math.max(0,Number(x.monto)||0), ejecutado:Math.max(0,Number(x.ejecutado)||0)}));
+                .map(x=>{ const tipo=String(x.tipo||'Otras'); return {tipo, monto:Math.max(0,Number(x.monto)||0), ejecutado:Math.max(0,Number(x.ejecutado)||0), reembolsable:tipo===PDL_FUENTE_FIDEICOMISO?true:(x.reembolsable===true)}; });
             return {
                 organo:String(F.organo||'CAM'), acuerdo:String(F.acuerdo||''),
                 estrategia:String(F.estrategia||'EDM'),
@@ -10626,24 +10740,55 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 cuentaCup:String(F.cuentaCup||''),
                 contratados:Math.max(0,Math.floor(Number(F.contratados)||0)),
                 estado:['activo','liquidacion','extinguido','convertido'].indexOf(F.estado)>=0?F.estado:'activo',
+                modalidad:PDL_MODALIDADES.some(m=>m[0]===F.modalidad)?F.modalidad:'',
+                titulares:(Array.isArray(F.titulares)?F.titulares:[]).map(s=>String(s||'').trim()).filter(Boolean),
+                indicadores:String(F.indicadores||''), terminosFin:String(F.terminosFin||''),
+                camPct:Math.min(100,Math.max(0,Number(F.camPct)||0)),
+                distribuciones:(Array.isArray(F.distribuciones)?F.distribuciones:[]).filter(x=>x&&typeof x==='object').map(x=>({anio:Math.floor(Number(x.anio)||0), utilidad:+(Number(x.utilidad)||0).toFixed(2), reserva:+(Number(x.reserva)||0).toFixed(2), retenido:+(Number(x.retenido)||0).toFixed(2), aDistribuir:+(Number(x.aDistribuir)||0).toFixed(2), cam:+(Number(x.cam)||0).toFixed(2), aTitulares:+(Number(x.aTitulares)||0).toFixed(2)})),
+                liquidacion:(F.liquidacion&&typeof F.liquidacion==='object')?F.liquidacion:{},
                 fuentes
             };
         }
         function gPdlFuentes(ficha){
             const fs=(ficha&&Array.isArray(ficha.fuentes))?ficha.fuentes:[];
             const filas=fs.map(f=>{ const monto=Number(f.monto)||0, ejecutado=Number(f.ejecutado)||0;
-                return {tipo:f.tipo, monto:+monto.toFixed(2), ejecutado:+ejecutado.toFixed(2), pct:monto>0?+(ejecutado/monto*100).toFixed(1):null}; });
+                return {tipo:f.tipo, monto:+monto.toFixed(2), ejecutado:+ejecutado.toFixed(2), reembolsable:f.reembolsable===true, pct:monto>0?+(ejecutado/monto*100).toFixed(1):null}; });
             const totalMonto=+filas.reduce((a,f)=>a+f.monto,0).toFixed(2);
             const totalEjecutado=+filas.reduce((a,f)=>a+f.ejecutado,0).toFixed(2);
-            return {filas, totalMonto, totalEjecutado, pctTotal:totalMonto>0?+(totalEjecutado/totalMonto*100).toFixed(1):null, hayDatos:filas.some(f=>f.monto>0||f.ejecutado>0)};
+            const montoFideicomiso=+filas.filter(f=>f.tipo===PDL_FUENTE_FIDEICOMISO).reduce((a,f)=>a+f.monto,0).toFixed(2);
+            return {filas, totalMonto, totalEjecutado, pctTotal:totalMonto>0?+(totalEjecutado/totalMonto*100).toFixed(1):null, hayDatos:filas.some(f=>f.monto>0||f.ejecutado>0),
+                /* El beneficiario del crédito de fideicomiso paga un 4 %
+                   que ingresa íntegro al banco como comisión (Res.
+                   118/2026 del BCC, arts. 5.2 y 6). */
+                comisionFideicomiso:+(montoFideicomiso*0.04).toFixed(2),
+                totalReembolsable:+filas.filter(f=>f.reembolsable).reduce((a,f)=>a+f.monto,0).toFixed(2)};
+        }
+        /* Cascada de distribución de la utilidad del año (Decreto
+           174/2026, arts. 17-20 y 48): utilidad → Reserva para Pérdidas y
+           Contingencias (se nutre con el 10 % de las utilidades) →
+           retenido → a distribuir → aporte al CAM (el % fijado en el
+           acuerdo de aprobación) → titulares. */
+        function gPdlDistribucionCalc(utilidad, camPct, retenidoPct){
+            const u=Math.max(0,+(Number(utilidad)||0).toFixed(2));
+            const reserva=+(u*0.10).toFixed(2);
+            const base=u-reserva;
+            const retenido=+(base*Math.min(100,Math.max(0,Number(retenidoPct)||0))/100).toFixed(2);
+            const aDistribuir=+(base-retenido).toFixed(2);
+            const cam=+(aDistribuir*Math.min(100,Math.max(0,Number(camPct)||0))/100).toFixed(2);
+            return {utilidad:u, reserva, retenido, aDistribuir, cam, aTitulares:+(aDistribuir-cam).toFixed(2)};
         }
         function gPdlAlertas(ficha,hoyISO){
-            const out={nivel:null, motivos:[], venceVigencia:'', proximaEvaluacion:'', diasVigencia:null, diasEvaluacion:null, sobreTope:false, cercaTope:false};
+            const out={nivel:null, motivos:[], venceVigencia:'', proximaEvaluacion:'', diasVigencia:null, diasEvaluacion:null, sobreTope:false, cercaTope:false, fechaAdecuacion:'', diasAdecuacion:null};
             if(!ficha) return out;
             out.venceVigencia=gPdlVenceVigencia(ficha);
             out.proximaEvaluacion=gPdlProximaEvaluacion(ficha);
             if(out.venceVigencia) out.diasVigencia=gDiasEntre(hoyISO,out.venceVigencia);
             if(out.proximaEvaluacion) out.diasEvaluacion=gDiasEntre(hoyISO,out.proximaEvaluacion);
+            /* Adecuación al Decreto 174/2026: los PDL aprobados ANTES de
+               su vigencia (2026-11-20) tienen 180 días para adecuarse
+               (Disposición Transitoria Única) → 2027-05-19; la fecha
+               exacta está por confirmar oficialmente. */
+            if(ficha.fechaAprobacion&&ficha.fechaAprobacion<'2026-11-20'){ out.fechaAdecuacion=gPdlSumarDias('2026-11-20',180); out.diasAdecuacion=gDiasEntre(hoyISO,out.fechaAdecuacion); }
             if(ficha.estado!=='activo') return out;
             let rojo=false, ambar=false;
             if(out.diasVigencia!==null){
@@ -10651,8 +10796,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 else if(out.diasVigencia<=90){ ambar=true; out.motivos.push('La vigencia del PDL vence el '+out.venceVigencia+' (en '+out.diasVigencia+' días)'); }
             }
             if(out.diasEvaluacion!==null){
-                if(out.diasEvaluacion<0){ rojo=true; out.motivos.push('Evaluación anual del PDL vencida (debió hacerse el '+out.proximaEvaluacion+')'); }
-                else if(out.diasEvaluacion<=30){ ambar=true; out.motivos.push('Evaluación anual del PDL próxima: '+out.proximaEvaluacion+' (en '+out.diasEvaluacion+' días)'); }
+                if(out.diasEvaluacion<0){ rojo=true; out.motivos.push('Evaluación semestral del PDL vencida (debió hacerse el '+out.proximaEvaluacion+')'); }
+                else if(out.diasEvaluacion<=30){ ambar=true; out.motivos.push('Evaluación semestral del PDL próxima: '+out.proximaEvaluacion+' (en '+out.diasEvaluacion+' días)'); }
+            }
+            if(out.diasAdecuacion!==null){
+                if(out.diasAdecuacion<0){ rojo=true; out.motivos.push('Adecuación al Decreto 174/2026: el plazo de 180 días venció el '+out.fechaAdecuacion); }
+                else if(out.diasAdecuacion<=90){ ambar=true; out.motivos.push('Adecuación al Decreto 174/2026: proyecto aprobado antes de la vigencia; debe adecuarse antes del '+out.fechaAdecuacion+' (quedan '+out.diasAdecuacion+' días; fecha exacta por confirmar oficialmente)'); }
             }
             const c=ficha.contratados||0;
             if(c>100){ rojo=true; out.sobreTope=true; out.motivos.push('Contratados: '+c+' — SUPERA el tope de 100 del PDL (superarlo implica transformarse en empresa)'); }
@@ -10670,8 +10819,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 fechaAprobacion:String(datos.fechaAprobacion||hoyISO||''),
                 ultimaEvaluacion:'', cuentaCup:String(datos.cuentaCup||''),
                 contratados:Math.max(0,Math.floor(Number(datos.contratados)||0)),
-                estado:'activo',
-                fuentes:PDL_FUENTES_TIPOS.map(t=>({tipo:t,monto:0,ejecutado:0}))
+                estado:'activo', modalidad:'', titulares:[], indicadores:'', terminosFin:'', camPct:0, distribuciones:[],
+                fuentes:PDL_FUENTES_SEMILLA.map(t=>({tipo:t,monto:0,ejecutado:0,reembolsable:t===PDL_FUENTE_FIDEICOMISO}))
             };
             return {
                 meta:{nit:'', razon:String(datos.razon||''), dpa:pdl.municipio, anio:Number(String(hoyISO||'').slice(0,4))||new Date().getFullYear(), tipoCliente:'pdl'},
@@ -10692,8 +10841,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                         obligacion:{codigo:'PDL', concepto, periodo:'', vence:fecha, responsable:''},
                         estado:{importe:null, pagado:0, key:vencida?'vencida':(dias!==null&&dias<=umbral?'pending':'pdl'), txt:vencida?'Vencida':(dias===0?'Vence hoy':(dias!==null&&dias<=umbral?'Vence en '+dias+' día(s)':'En plazo')), vencida, diasVence:dias, restante:null}});
                 };
-                mk('Evaluación anual del PDL', al.proximaEvaluacion, al.diasEvaluacion, 30);
+                mk('Evaluación semestral del PDL', al.proximaEvaluacion, al.diasEvaluacion, 30);
                 mk('Vencimiento de la vigencia del PDL (5 años)', al.venceVigencia, al.diasVigencia, 90);
+                mk('Adecuación del PDL al Decreto 174/2026 (180 días)', al.fechaAdecuacion, al.diasAdecuacion, 90);
                 // Vencimientos fiscales mensuales del PDL (Res. 202/2026
                 // del MFP): las retenciones del IIP y la Contribución
                 // Especial se aportan dentro de los primeros 10 días
@@ -10772,7 +10922,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 mi--; }
             return n? total/(n*30.44) : 0;
         }
-        function gCalcLinea(rrhh,t,salario,otras,comp,periodo){
+        function gCalcLinea(rrhh,t,salario,otras,comp,periodo,esPdl){
             comp=comp||{};
             const P=gCompCfg(rrhh).params;
             let baseSalarial=(Number(salario)||0)+(Number(otras)||0);
@@ -10837,9 +10987,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             }
             const provisionVac=(APL('provisionVac'))?(baseSalarial+extra)*P.provVac/100:0;
             const bruto=Math.max(0,baseSalarial+extra);
-            const segTrab=calcSeguridadTrabajador(bruto), iip=calcIIPTrabajador(bruto);
+            /* Paridad con calcLineaNominaExt: distribución de utilidades
+               del PDL en la base de la Contribución Especial. */
+            const distribPdl=(esPdl&&APL('distribPdl')&&Number(comp.distribPdl)>0)?Number(comp.distribPdl):0;
+            if(distribPdl>0) detalle.push(['Distribución de utilidades del PDL (base de la Contribución Especial)',distribPdl]);
+            const segTrab=calcSeguridadTrabajador(bruto+distribPdl), iip=calcIIPTrabajador(bruto);
             const fuerza=bruto*(FISCAL_NOMINA_2026.fuerzaTrabajo/100), ssEmp=bruto*(FISCAL_NOMINA_2026.seguridadSocialEmpleador/100);
-            return {bruto,segTrab,iip,neto:bruto-segTrab-iip+subsidios-deducciones,fuerza,ssEmp,costo:bruto+fuerza+ssEmp,baseSalarial,extra,subsidios,deducciones,provisionVac,detalle};
+            return {bruto,segTrab,iip,neto:bruto-segTrab-iip+subsidios-deducciones+distribPdl,fuerza,ssEmp,costo:bruto+fuerza+ssEmp,baseSalarial,extra,subsidios,deducciones,provisionVac,detalle,distribPdl};
         }
         function gVigente(t,periodo){
             const partes=String(periodo).split(' '), meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -10883,7 +11037,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 const rec=n[t.id]||{};
                 const salario=rec.salario!==undefined?Number(rec.salario)||0:Number(t.salarioBase)||0;
                 const otras=rec.otras!==undefined?Number(rec.otras)||0:0;
-                const calc=gCalcLinea(rrhh,t,salario,otras,rec.comp||{},periodo);
+                const calc=gCalcLinea(rrhh,t,salario,otras,rec.comp||{},periodo,gTipoCliente(doc)==='pdl');
                 calc.descAdelanto=gDescAdelantoEn(rrhh,t,periodo);
                 if(calc.descAdelanto>0) calc.neto=Math.max(0,Math.round((calc.neto-calc.descAdelanto)*100)/100);
                 for(const k of Object.keys(tot)) tot[k]+=(calc[k]||0);
@@ -11155,7 +11309,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const estadoTxt=f.estado==='activo'?'Activo':f.estado==='liquidacion'?'En liquidación':f.estado==='extinguido'?'Extinguido':'Convertido en actor económico';
             return `<div class="small mt-2">🏛️ <b>Proyecto de Desarrollo Local</b> · ${esc(estadoTxt)}</div>
             <div class="small">Vigencia hasta: <b>${esc(al.venceVigencia||'—')}</b>${al.diasVigencia!==null?' ('+(al.diasVigencia<0?'<span class="text-danger fw-semibold">vencida hace '+Math.abs(al.diasVigencia)+' días</span>':'quedan '+al.diasVigencia+' días')+')':''}</div>
-            <div class="small">Evaluación anual: <b>${esc(al.proximaEvaluacion||'—')}</b></div>
+            <div class="small">Evaluación semestral: <b>${esc(al.proximaEvaluacion||'—')}</b></div>
             <div class="small">Contratados: ${badgeC}</div>
             <div class="small">Fuentes: ${fu.hayDatos? moneda(fu.totalEjecutado)+' ejecutados de '+moneda(fu.totalMonto)+' ('+(fu.pctTotal===null?'—':fu.pctTotal+' %')+')' : '<span class="text-secondary">sin montos cargados</span>'}</div>`;
         }
@@ -11166,7 +11320,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const hoy=gHoyISOFecha(), al=gPdlAlertas(f,hoy), fu=gPdlFuentes(f);
             const fuentes=(pdlDraft&&pdlDraft.negocio===n)?pdlDraft.fuentes:f.fuentes;
             const filaFuente=(x,i)=>{ const monto=Number(x.monto)||0, ej=Number(x.ejecutado)||0; const pct=monto>0?(ej/monto*100).toFixed(1)+' %':'—';
-                return `<tr><td><input class="form-control form-control-sm pdl-f-tipo" value="${esc(x.tipo||'')}" maxlength="60" placeholder="Tipo de fuente"></td><td><input type="number" min="0" step="0.01" class="form-control form-control-sm pdl-f-monto text-end" value="${monto||''}"></td><td><input type="number" min="0" step="0.01" class="form-control form-control-sm pdl-f-ejecutado text-end" value="${ej||''}"></td><td class="text-end">${pct}</td><td><button type="button" class="btn btn-sm btn-outline-danger" data-pdl-del-fuente="${i}" title="Quitar fuente">✕</button></td></tr>`; };
+                return `<tr><td><input class="form-control form-control-sm pdl-f-tipo" list="pdlFuentesTipos" value="${esc(x.tipo||'')}" maxlength="60" placeholder="Tipo de fuente (art. 43.1)"></td><td><input type="number" min="0" step="0.01" class="form-control form-control-sm pdl-f-monto text-end" value="${monto||''}"></td><td><input type="number" min="0" step="0.01" class="form-control form-control-sm pdl-f-ejecutado text-end" value="${ej||''}"></td><td class="text-end">${pct}</td><td class="text-center"><input type="checkbox" class="form-check-input pdl-f-reemb" ${x.reembolsable?'checked':''} title="Financiamiento reembolsable (el fideicomiso lo es siempre)"></td><td><button type="button" class="btn btn-sm btn-outline-danger" data-pdl-del-fuente="${i}" title="Quitar fuente">✕</button></td></tr>`; };
             return `<div class="border rounded p-3 mb-3">
               <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><div class="fw-semibold"><i class="bi bi-bank2 me-2"></i>Ficha del Proyecto de Desarrollo Local <span class="badge bg-soft-secondary">Decreto 174/2026</span></div>
               <button type="button" class="btn btn-sm btn-primary" id="btnPdlGuardarFicha"><i class="bi bi-save me-1"></i>Guardar ficha</button></div>
@@ -11180,36 +11334,99 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 <div class="col-md-3"><label class="form-label small mb-1">Provincia</label><input id="pdlF_provincia" class="form-control form-control-sm" value="${esc(f.provincia)}" maxlength="60"></div>
                 <div class="col-md-3"><label class="form-label small mb-1">Fecha de aprobación</label><input id="pdlF_fechaAprob" type="date" class="form-control form-control-sm" value="${esc(f.fechaAprobacion)}"></div>
                 <div class="col-md-3"><label class="form-label small mb-1">Vencimiento de la vigencia (5 años, calculado)</label><input class="form-control form-control-sm" value="${esc(al.venceVigencia||'—')}" readonly></div>
-                <div class="col-md-3"><label class="form-label small mb-1">Última evaluación anual</label><input id="pdlF_ultimaEval" type="date" class="form-control form-control-sm" value="${esc(f.ultimaEvaluacion)}"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Última evaluación (semestral)</label><input id="pdlF_ultimaEval" type="date" class="form-control form-control-sm" value="${esc(f.ultimaEvaluacion)}"></div>
                 <div class="col-md-3"><label class="form-label small mb-1">Próxima evaluación (calculada)</label><input class="form-control form-control-sm" value="${esc(al.proximaEvaluacion||'—')}" readonly></div>
                 <div class="col-md-3"><label class="form-label small mb-1">Cuenta bancaria CUP del proyecto</label><input id="pdlF_cuenta" class="form-control form-control-sm" value="${esc(f.cuentaCup)}" maxlength="40"></div>
                 <div class="col-md-2"><label class="form-label small mb-1">Contratados (tope 100)</label><input id="pdlF_contratados" type="number" min="0" max="999" class="form-control form-control-sm" value="${f.contratados}"></div>
                 <div class="col-md-3"><label class="form-label small mb-1">Estado del proyecto</label><select id="pdlF_estado" class="form-select form-select-sm"><option value="activo" ${f.estado==='activo'?'selected':''}>Activo</option><option value="liquidacion" ${f.estado==='liquidacion'?'selected':''}>En liquidación</option><option value="extinguido" ${f.estado==='extinguido'?'selected':''}>Extinguido</option><option value="convertido" ${f.estado==='convertido'?'selected':''}>Convertido en actor económico</option></select></div>
+                <div class="col-md-4"><label class="form-label small mb-1">Modalidad (Decreto 174, art. 34)</label><select id="pdlF_modalidad" class="form-select form-select-sm"><option value="">Sin definir</option>${PDL_MODALIDADES.map(m=>`<option value="${m[0]}" ${f.modalidad===m[0]?'selected':''}>${m[1]}</option>`).join('')}</select></div>
+                <div class="col-md-3"><label class="form-label small mb-1">% de aporte al CAM (del acuerdo)</label><input id="pdlF_camPct" type="number" min="0" max="100" step="0.01" class="form-control form-control-sm" value="${f.camPct||''}"></div>
+                <div class="col-md-5"><label class="form-label small mb-1">Términos de finalización (del acuerdo)</label><input id="pdlF_terminosFin" class="form-control form-control-sm" value="${esc(f.terminosFin)}" maxlength="160" placeholder="Ej.: al cumplir los indicadores aprobados"></div>
+                <div class="col-md-6"><label class="form-label small mb-1">Titulares del proyecto (uno por línea)</label><textarea id="pdlF_titulares" class="form-control form-control-sm" rows="2" placeholder="Nombre de cada titular">${esc(f.titulares.join('\n'))}</textarea></div>
+                <div class="col-md-6"><label class="form-label small mb-1">Indicadores y metas aprobados</label><textarea id="pdlF_indicadores" class="form-control form-control-sm" rows="2" placeholder="Los indicadores y metas del acuerdo de aprobación">${esc(f.indicadores)}</textarea></div>
               </div>
+              ${f.estado==='convertido'?`<div class="alert alert-info py-2 px-3 small">Este proyecto se <b>transformó en otro actor económico</b>: por el art. 51.2 del Decreto 174/2026, <b>todos sus bienes constituyen el patrimonio inicial del sucesor</b>. <button type="button" class="btn btn-sm btn-primary ms-2" id="btnPdlActaTraspaso"><i class="bi bi-file-earmark-arrow-up me-1"></i>Acta de traspaso de saldos</button></div>`:''}
               <div class="fw-semibold small mt-3 mb-1">Fuentes de financiamiento (cada una con su ejecución)</div>
-              <div class="table-responsive"><table class="table table-sm align-middle mb-1"><thead><tr><th>Fuente</th><th class="text-end">Monto aprobado</th><th class="text-end">Ejecutado</th><th class="text-end">% ejec.</th><th></th></tr></thead><tbody>${fuentes.map(filaFuente).join('')||'<tr><td colspan="5" class="text-secondary small">Sin fuentes todavía: añade la primera.</td></tr>'}<tr class="fw-semibold"><td>Total (último guardado)</td><td class="text-end">${moneda(fu.totalMonto)}</td><td class="text-end">${moneda(fu.totalEjecutado)}</td><td class="text-end">${fu.pctTotal===null?'—':fu.pctTotal+' %'}</td><td></td></tr></tbody></table></div>
+              <div class="table-responsive"><table class="table table-sm align-middle mb-1"><thead><tr><th>Fuente</th><th class="text-end">Monto aprobado</th><th class="text-end">Ejecutado</th><th class="text-end">% ejec.</th><th class="text-center">Reemb.</th><th></th></tr></thead><tbody>${fuentes.map(filaFuente).join('')||'<tr><td colspan="6" class="text-secondary small">Sin fuentes todavía: añade la primera.</td></tr>'}<tr class="fw-semibold"><td>Total (último guardado)</td><td class="text-end">${moneda(fu.totalMonto)}</td><td class="text-end">${moneda(fu.totalEjecutado)}</td><td class="text-end">${fu.pctTotal===null?'—':fu.pctTotal+' %'}</td><td></td><td></td></tr></tbody></table></div>
+              <datalist id="pdlFuentesTipos">${PDL_FUENTES_TIPOS.map(t=>`<option value="${esc(t)}"></option>`).join('')}</datalist>
               <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPdlAddFuente">+ Añadir fuente</button>
+              ${fu.comisionFideicomiso>0?`<div class="small text-secondary mt-1">Crédito del <b>Fondo de Fideicomiso</b> (último guardado): comisión bancaria del 4 % = <b>${moneda(fu.comisionFideicomiso)}</b>, que paga el beneficiario íntegra al banco (Res. 118/2026 del BCC). Total reembolsable: <b>${moneda(fu.totalReembolsable)}</b>.</div>`:''}
+              <div class="fw-semibold small mt-3 mb-1">Distribución anual de la utilidad <span class="text-secondary fw-normal">(utilidad → Reserva 10 % → retenido → a distribuir → aporte al CAM según su % del acuerdo → titulares, que tributan su IIP tras la distribución)</span></div>
+              <div class="row g-2 align-items-end">
+                <div class="col-md-2"><label class="form-label small mb-1">Año</label><input id="pdlD_anio" type="number" min="2020" max="2100" class="form-control form-control-sm" value="${new Date().getFullYear()}"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">Utilidad del año (CUP)</label><input id="pdlD_utilidad" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                <div class="col-md-3"><label class="form-label small mb-1">% retenido (tras la Reserva)</label><input id="pdlD_retenidoPct" type="number" min="0" max="100" step="0.01" class="form-control form-control-sm" value="0"></div>
+                <div class="col-md-4"><button type="button" class="btn btn-sm btn-outline-primary" id="btnPdlDistribuir"><i class="bi bi-calculator me-1"></i>Calcular y guardar distribución</button></div>
+              </div>
+              ${f.distribuciones.length?`<div class="table-responsive mt-2"><table class="table table-sm align-middle mb-0"><thead><tr><th>Año</th><th class="text-end">Utilidad</th><th class="text-end">Reserva (10 %)</th><th class="text-end">Retenido</th><th class="text-end">A distribuir</th><th class="text-end">Aporte CAM</th><th class="text-end">A titulares</th><th></th></tr></thead><tbody>${f.distribuciones.slice().sort((a,b)=>b.anio-a.anio).map(d=>`<tr><td>${d.anio}</td><td class="text-end">${moneda(d.utilidad)}</td><td class="text-end">${moneda(d.reserva)}</td><td class="text-end">${moneda(d.retenido)}</td><td class="text-end">${moneda(d.aDistribuir)}</td><td class="text-end">${moneda(d.cam)}</td><td class="text-end">${moneda(d.aTitulares)}</td><td><button type="button" class="btn btn-sm btn-outline-danger" data-pdl-del-dist="${d.anio}" title="Quitar la distribución de este año">✕</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-secondary">Sin distribuciones registradas todavía.</div>'}
               <div class="small text-secondary mt-2"><i class="bi bi-question-circle me-1"></i><b>Cautela:</b> la contabilidad del PDL se lleva con el <b>plan general de cuentas</b> de la app. El tratamiento contable y bancario específico del PDL está <b>pendiente de verificar</b> contra las Resoluciones 202/2026 (MFP) y 118/2026 (BCC) de la Gaceta Oficial No. 87 de 2026; la app no aplica cuentas especiales ni reglas bancarias al PDL hasta confirmarlo. El PDL tampoco tiene Declaración Jurada propia en la app.</div>
             </div>`;
         }
         function pdlFuentesDesdeDOM(){
-            const ts=document.querySelectorAll('.pdl-f-tipo'), ms=document.querySelectorAll('.pdl-f-monto'), es=document.querySelectorAll('.pdl-f-ejecutado');
-            const out=[]; ts.forEach((el,i)=>{ out.push({tipo:el.value.trim(), monto:Math.max(0,Number(ms[i]&&ms[i].value)||0), ejecutado:Math.max(0,Number(es[i]&&es[i].value)||0)}); });
+            const ts=document.querySelectorAll('.pdl-f-tipo'), ms=document.querySelectorAll('.pdl-f-monto'), es=document.querySelectorAll('.pdl-f-ejecutado'), rs=document.querySelectorAll('.pdl-f-reemb');
+            const out=[]; ts.forEach((el,i)=>{ out.push({tipo:el.value.trim(), monto:Math.max(0,Number(ms[i]&&ms[i].value)||0), ejecutado:Math.max(0,Number(es[i]&&es[i].value)||0), reembolsable:!!(rs[i]&&rs[i].checked)}); });
             return out;
         }
-        function pdlAddFuente(n){ pdlDraft={negocio:n, fuentes:pdlFuentesDesdeDOM().concat([{tipo:'',monto:0,ejecutado:0}])}; renderGestorDetalle(); }
+        function pdlAddFuente(n){ pdlDraft={negocio:n, fuentes:pdlFuentesDesdeDOM().concat([{tipo:'',monto:0,ejecutado:0,reembolsable:false}])}; renderGestorDetalle(); }
         function pdlDelFuente(n,i){ const f=pdlFuentesDesdeDOM(); f.splice(i,1); pdlDraft={negocio:n, fuentes:f}; renderGestorDetalle(); }
         function gestorGuardarPdlFicha(n){
             const v=id=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
             const fuentes=pdlFuentesDesdeDOM().filter(f=>f.tipo);
+            const prevFicha=(getCobrosGestor().pdlFichas||{})[n]||{};
             const ficha={ organo:v('pdlF_organo')||'CAM', acuerdo:v('pdlF_acuerdo'), estrategia:v('pdlF_estrategia')||'EDM',
                 entidadEjecutora:v('pdlF_entidad'), municipio:v('pdlF_municipio'), provincia:v('pdlF_provincia'),
                 fechaAprobacion:v('pdlF_fechaAprob'), ultimaEvaluacion:v('pdlF_ultimaEval'), cuentaCup:v('pdlF_cuenta'),
-                contratados:Math.max(0,Math.floor(Number(v('pdlF_contratados'))||0)), estado:v('pdlF_estado')||'activo', fuentes };
+                contratados:Math.max(0,Math.floor(Number(v('pdlF_contratados'))||0)), estado:v('pdlF_estado')||'activo',
+                modalidad:v('pdlF_modalidad'), titulares:v('pdlF_titulares').split('\n').map(s=>s.trim()).filter(Boolean),
+                indicadores:v('pdlF_indicadores'), terminosFin:v('pdlF_terminosFin'),
+                camPct:Math.min(100,Math.max(0,Number(v('pdlF_camPct'))||0)),
+                distribuciones:prevFicha.distribuciones||[], fuentes };
             const data=getCobrosGestor(); if(!data.pdlFichas) data.pdlFichas={};
             data.pdlFichas[n]=ficha; saveCobrosGestor(data); pdlDraft=null;
             renderGestor();
             alert('✅ Ficha del PDL guardada.');
+        }
+        function gestorGuardarDistribucion(n){
+            const v=id=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
+            const anio=Math.floor(Number(v('pdlD_anio'))||0), utilidad=Math.max(0,Number(v('pdlD_utilidad'))||0), retPct=Math.min(100,Math.max(0,Number(v('pdlD_retenidoPct'))||0));
+            if(!anio||utilidad<=0){ alert('Captura el año y la utilidad del año para calcular la distribución.'); return; }
+            const data=getCobrosGestor(); if(!data.pdlFichas) data.pdlFichas={};
+            const prev=data.pdlFichas[n]||{};
+            const ficha=gPdlFicha(GDOCS&&GDOCS[n], prev);
+            const calc=gPdlDistribucionCalc(utilidad, ficha?ficha.camPct:0, retPct);
+            prev.distribuciones=(prev.distribuciones||[]).filter(d=>d.anio!==anio);
+            prev.distribuciones.push(Object.assign({anio}, calc));
+            data.pdlFichas[n]=prev; saveCobrosGestor(data);
+            renderGestorDetalle();
+            alert('✅ Distribución '+anio+' guardada:\nReserva (10 %): '+moneda(calc.reserva)+'\nRetenido: '+moneda(calc.retenido)+'\nA distribuir: '+moneda(calc.aDistribuir)+'\nAporte al CAM: '+moneda(calc.cam)+'\nA titulares: '+moneda(calc.aTitulares));
+        }
+        function gestorBorrarDistribucion(n,anio){
+            const data=getCobrosGestor(); const prev=(data.pdlFichas||{})[n]; if(!prev) return;
+            prev.distribuciones=(prev.distribuciones||[]).filter(d=>d.anio!==anio); saveCobrosGestor(data); renderGestorDetalle();
+        }
+        /* Traspaso al convertirse (Decreto 174/2026, art. 51.2): todos
+           los bienes del PDL son el patrimonio inicial del sucesor. El
+           acta reúne los saldos finales por cuenta y las fuentes. */
+        function gestorActaTraspaso(n){
+            const doc=GDOCS&&GDOCS[n]; if(!doc){ alert('No se encontró el documento del negocio.'); return; }
+            const ficha=gPdlFicha(doc, (getCobrosGestor().pdlFichas||{})[n]);
+            const periodos=gestorPeriodosDisponibles(doc);
+            let inf=null; try{ inf=gInformeMensual(doc, periodos[0]||periodoActual(), gestorCfgOnat(), ficha); }catch(e){}
+            const nomCuenta={chequera:'Chequera',tarjeta_cup:'Tarjeta CUP',tarjeta_usd:'Tarjeta USD',efectivo:'Efectivo'};
+            const filasCuentas=(inf&&inf.cuentas)? Object.keys(inf.cuentas).map(k=>{ const c=inf.cuentas[k]; return c? '<tr><td>'+(nomCuenta[k]||k)+'</td><td align="right">'+moneda(c.final||0)+'</td></tr>':''; }).join('') : '';
+            const fuentes=gPdlFuentes(ficha);
+            const filasFuentes=fuentes.filas.map(f=>'<tr><td>'+esc(f.tipo)+(f.reembolsable?' (reembolsable)':'')+'</td><td align="right">'+moneda(f.monto)+'</td><td align="right">'+moneda(f.ejecutado)+'</td><td align="right">'+moneda(+((f.monto-f.ejecutado)).toFixed(2))+'</td></tr>').join('');
+            const hoy=new Date().toISOString().slice(0,10);
+            const html='<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Acta de traspaso — '+esc(n)+'</title><style>body{font-family:Arial,sans-serif;color:#111;max-width:760px;margin:24px auto;padding:0 16px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #999;padding:5px 8px}h2{margin-bottom:4px}.small{font-size:12px;color:#444}</style></head><body>'
+                + '<h2>Acta de traspaso de saldos</h2><div class="small">Transformación del Proyecto de Desarrollo Local — Decreto 174/2026, art. 51.2: todos los bienes del proyecto constituyen el patrimonio inicial del nuevo actor económico.</div><hr>'
+                + '<p><b>Proyecto:</b> '+esc(ficha.entidadEjecutora||n)+' · <b>Negocio en Finanzas:</b> '+esc(n)+'<br><b>Acuerdo de aprobación:</b> '+esc(ficha.acuerdo||'—')+' ('+esc(ficha.organo||'CAM')+') · <b>Fecha de aprobación:</b> '+esc(ficha.fechaAprobacion||'—')+'<br><b>Fecha del acta:</b> '+hoy+' · <b>Período de los saldos:</b> '+esc(periodos[0]||'—')+'</p>'
+                + '<h4>Saldos por cuenta (patrimonio inicial del sucesor)</h4>'+(filasCuentas? '<table><tr><th align="left">Cuenta</th><th align="right">Saldo final</th></tr>'+filasCuentas+'</table>' : '<p>Sin saldos por cuenta disponibles.</p>')
+                + '<h4>Fuentes de financiamiento</h4>'+(filasFuentes? '<table><tr><th align="left">Fuente</th><th align="right">Monto</th><th align="right">Ejecutado</th><th align="right">Sin ejecutar</th></tr>'+filasFuentes+'</table>' : '<p>Sin fuentes registradas.</p>')
+                + '<p class="small">El histórico completo del proyecto se conserva en Finanzas. Este acta acompaña la apertura del negocio sucesor; no sustituye los documentos que exijan el órgano aprobador ni el banco.</p>'
+                + '<p style="margin-top:40px">___________________________<br><span class="small">Firma del titular / representante</span></p>'
+                + '</body></html>';
+            try{ mjDescargar('acta-traspaso-'+n+'.html', html, 'text/html'); }
+            catch(e){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='acta-traspaso-'+n+'.html'; a.click(); }
         }
         function gestorPeriodosDisponibles(doc){
             const set=new Set(); ((doc&&doc.hist)||[]).forEach(h=>{ if(h&&h.mes) set.add(h.mes); });
@@ -11232,7 +11449,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
               ${tipoCli==='pdl'?gestorPdlFichaHTML(n,doc):''}
               <div class="row g-3">
                 <div class="col-md-6"><div class="fw-semibold small mb-1">${tipoCli==='pdl'?'Control del PDL':'Justificación de gastos '+anio+' (regla DJ-08)'}</div>
-                  ${tipoCli==='pdl'?'<div class="small text-secondary">El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la <b>vigencia</b> (5 años desde la aprobación), la <b>evaluación anual</b> y la <b>ejecución por fuentes</b>, todo en su ficha.</div>':(jus.pct===null?'<div class="small text-secondary">Sin monto justificado capturado en la DJ de este negocio (o sin gastos en el año). Se captura en la pestaña DJ del negocio, en «Datos manuales».</div>':
+                  ${tipoCli==='pdl'?'<div class="small text-secondary">El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la <b>vigencia</b> (5 años desde la aprobación), la <b>evaluación semestral</b> y la <b>ejecución por fuentes</b>, todo en su ficha.</div>':(jus.pct===null?'<div class="small text-secondary">Sin monto justificado capturado en la DJ de este negocio (o sin gastos en el año). Se captura en la pestaña DJ del negocio, en «Datos manuales».</div>':
                   `<div class="d-flex justify-content-between small"><span>${moneda(jus.justificado||0)} de ${moneda(jus.total)}</span><b>${jus.pct} %</b></div><div class="just-bar ${jus.bajo?'bajo':''} mt-1"><div style="width:${Math.min(100,jus.pct)}%"></div></div><div class="small mt-1 ${jus.bajo?'text-danger fw-semibold':'text-success'}">${jus.bajo?'⚠️ Por debajo de la meta del 80 %: la DJ-08 solo reconoce lo justificado + hasta un 20 % sin justificar.':'Cumple la meta del 80 %.'}</div>`)}
                 </div>
                 <div class="col-md-6"><div class="fw-semibold small mb-1">Informe mensual para el cliente</div>
@@ -11252,6 +11469,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const bpg=document.getElementById('btnPdlGuardarFicha'); if(bpg) bpg.onclick=()=>gestorGuardarPdlFicha(n);
             const bpa=document.getElementById('btnPdlAddFuente'); if(bpa) bpa.onclick=()=>pdlAddFuente(n);
             box.querySelectorAll('[data-pdl-del-fuente]').forEach(b=>b.onclick=()=>pdlDelFuente(n,Number(b.getAttribute('data-pdl-del-fuente'))));
+            const bpd=document.getElementById('btnPdlDistribuir'); if(bpd) bpd.onclick=()=>gestorGuardarDistribucion(n);
+            box.querySelectorAll('[data-pdl-del-dist]').forEach(b=>b.onclick=()=>gestorBorrarDistribucion(n,Number(b.getAttribute('data-pdl-del-dist'))));
+            const bpt=document.getElementById('btnPdlActaTraspaso'); if(bpt) bpt.onclick=()=>gestorActaTraspaso(n);
         }
         function gestorInformeHTML(n,inf){
             const rows=inf.impuestosDetalle.length?inf.impuestosDetalle.map(d=>`<tr><td>${esc(d.fecha)}</td><td>${esc(d.concepto||'Pago ONAT')}${d.codigo?` <code>${esc(d.codigo)}</code>`:''}</td><td class="text-end">${moneda(d.monto)}</td></tr>`).join(''):'<tr><td colspan="3" class="text-secondary">Sin pagos de impuestos registrados en el mes.</td></tr>';
@@ -11269,7 +11489,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
               <h6 class="fw-semibold">Saldos de cuentas</h6>
               <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Cuenta</th><th class="text-end">Saldo inicial</th><th class="text-end">Saldo final</th></tr></thead><tbody>${inf.cuentas.map(c=>`<tr><td>${esc(c.etiqueta)}</td><td class="text-end">${c.moneda==='USD'?'US$':'$'}${c.inicial.toFixed(2)}</td><td class="text-end fw-semibold">${c.moneda==='USD'?'US$':'$'}${c.final.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>
               ${inf.pdl&&inf.pdl.fuentes.hayDatos?`<h6 class="fw-semibold">Proyecto de Desarrollo Local — fuentes de financiamiento</h6>
-              <div class="small mb-2">Vigencia hasta <b>${esc(inf.pdl.venceVigencia||'—')}</b> · Próxima evaluación anual: <b>${esc(inf.pdl.proximaEvaluacion||'—')}</b> · Contratados: <b>${inf.pdl.ficha.contratados}</b> / 100 · Estado: <b>${esc(inf.pdl.ficha.estado)}</b></div>
+              <div class="small mb-2">Vigencia hasta <b>${esc(inf.pdl.venceVigencia||'—')}</b> · Próxima evaluación semestral: <b>${esc(inf.pdl.proximaEvaluacion||'—')}</b> · Contratados: <b>${inf.pdl.ficha.contratados}</b> / 100 · Estado: <b>${esc(inf.pdl.ficha.estado)}</b></div>
               <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fuente</th><th class="text-end">Monto</th><th class="text-end">Ejecutado</th><th class="text-end">% ejecución</th></tr></thead><tbody>${inf.pdl.fuentes.filas.map(f=>`<tr><td>${esc(f.tipo)}</td><td class="text-end">${moneda(f.monto)}</td><td class="text-end">${moneda(f.ejecutado)}</td><td class="text-end">${f.pct===null?'—':f.pct+' %'}</td></tr>`).join('')}<tr class="fw-semibold"><td>Total</td><td class="text-end">${moneda(inf.pdl.fuentes.totalMonto)}</td><td class="text-end">${moneda(inf.pdl.fuentes.totalEjecutado)}</td><td class="text-end">${inf.pdl.fuentes.pctTotal===null?'—':inf.pdl.fuentes.pctTotal+' %'}</td></tr></tbody></table></div>`:''}
               <h6 class="fw-semibold">Impuestos pagados en el mes</h6>
               <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -11407,7 +11627,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const esPdl=tipo==='pdl';
             const boxP=document.getElementById('altaPdlBox'); if(boxP) boxP.style.display=esPdl?'':'none';
             ['altaActividadWrap','altaSociosWrap','altaNitWrap'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=esPdl?'none':''; });
-            if(esPdl){ document.getElementById('altaPlantillaPreview').innerHTML='Proyecto de Desarrollo Local (<b>Decreto 174/2026</b>): <b>sin plantilla de tributos ONAT</b> — el PDL no tiene Vector Fiscal RC-04A ni Declaración Jurada propia en la app. Vigencia: 5 años desde la aprobación (el vencimiento se calcula solo). Tope: 100 contratados. Evaluación anual obligatoria.'; return; }
+            if(esPdl){ document.getElementById('altaPlantillaPreview').innerHTML='Proyecto de Desarrollo Local (<b>Decreto 174/2026</b>): <b>sin plantilla de tributos ONAT</b> — el PDL no tiene Vector Fiscal RC-04A ni Declaración Jurada propia en la app. Vigencia: 5 años desde la aprobación (el vencimiento se calcula solo). Tope: 100 contratados. Evaluación semestral obligatoria.'; return; }
             const lista=(GESTOR_PLANTILLAS[tipo]||[]).concat((GESTOR_PLANTILLAS.extra&&GESTOR_PLANTILLAS.extra[act])||[]);
             document.getElementById('altaPlantillaPreview').innerHTML='Tributos de la plantilla: '+lista.map(t=>'<code>'+esc(t.codigo)+'</code> '+esc(t.nombre)+' ('+t.frec+')').join(' · ')+'. Vencimientos orientativos: mensual, día 20 del mes siguiente; DJ anual: 30 de abril (TCP) o 31 de marzo (MIPYME).';
         }
@@ -11465,7 +11685,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function csvEscape(v){ const s=String(v==null?'':v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
         function gestorDjHTML(n, doc){
             const anio=new Date().getFullYear();
-            if(gTipoCliente(doc)==='pdl'){ return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>PDL — '+esc(n)+'</title></head><body style="font-family:Arial,sans-serif;margin:24px;color:#111"><h1>'+esc(n)+' — Proyecto de Desarrollo Local</h1><p>Este cliente es un Proyecto de Desarrollo Local (Decreto 174/2026): no presenta DJ-08 ni DJ-01 propia en la app, así que este respaldo no incluye una Declaración Jurada. Su control es la vigencia (5 años), la evaluación anual y la ejecución por fuentes de financiamiento, visibles en su ficha del Panel del Gestor y en el informe mensual.</p></body></html>'; }
+            if(gTipoCliente(doc)==='pdl'){ return '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>PDL — '+esc(n)+'</title></head><body style="font-family:Arial,sans-serif;margin:24px;color:#111"><h1>'+esc(n)+' — Proyecto de Desarrollo Local</h1><p>Este cliente es un Proyecto de Desarrollo Local (Decreto 174/2026): no presenta DJ-08 ni DJ-01 propia en la app, así que este respaldo no incluye una Declaración Jurada. Su control es la vigencia (5 años), la evaluación semestral y la ejecución por fuentes de financiamiento, visibles en su ficha del Panel del Gestor y en el informe mensual.</p></body></html>'; }
             const datos=gDjDatosAnio(doc,anio), P=gDjParams(doc,anio), man=gDjManual(doc,anio);
             let L=[], titulo='';
             /* djCore01/djCore08/djCoreDiv devuelven {lineas:[...]} (así los
@@ -13915,7 +14135,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-3';
+        var MANUAL_VERSION = 'v2026.10.26-4';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14117,6 +14337,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'complementos', modulo:'nomina', titulo:'Los 16 complementos de la nómina', html:
             '<p>La nómina trae <b>16 complementos opcionales por trabajador</b>: sin marcar ninguno, la nómina queda exactamente como la básica. Se activan en la ficha, en «Complementos aplicables», y la activación viaja al guardar, al cambiar de mes y en el arrastre de diciembre a enero.</p>' +
             '<p>Incluyen: salario proporcional, vacaciones con promedio de 12 meses, certificado por enfermedad (60/80/90 % configurable), licencia de maternidad/paternidad al 100 %, horas extras ×2, feriados trabajados, plus por antigüedad, pago por resultados, interrupción laboral al 60 %, licencia no retribuida, finiquito, retenciones judiciales, créditos y responsabilidad material, salario mínimo de 2 100 CUP con aviso, y el acumulado anual por trabajador para la DJ.</p>' +
+            '<p>Además, <b>solo en los PDL</b>, la <b>distribución de utilidades</b> al trabajador: el monto distribuido en el mes suma a la base de su Contribución Especial (Resolución 202/2026, art. 13 d), sin contar como salario ni entrar en la base del impuesto sobre ingresos personales.</p>' +
             '<ul><li>La tarjeta <b>Parámetros de complementos</b> guarda los valores globales editables y los avisos.</li>' +
             '<li>Los subsidios <b>no</b> inflan el bruto; las retenciones solo bajan el neto. La provisión mensual de vacaciones (9,09 %) es informativa.</li></ul>'},
         {id:'nomina-mes', modulo:'nomina', titulo:'La nómina del mes y sus documentos', html:
@@ -14187,12 +14408,15 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Indicador de justificación de gastos:</b> vigila la regla del 80 % de la DJ-08 en cada cliente TCP durante el año, no al final.</li>' +
             '<li>Cada cliente es un negocio completo de la app: cambias a él y trabajas su contabilidad, nómina y DJ como en el tuyo.</li></ul>'},
         {id:'gestor-pdl', modulo:'gestor', titulo:'Clientes PDL (Decreto 174/2026)', html:
-            '<p>Los <b>Proyectos de Desarrollo Local</b> son el tercer tipo de cliente del Gestor, con su ficha propia según el Decreto 174/2026:</p>' +
-            '<ul><li>Órgano aprobador (Consejo de la Administración Municipal) y estrategia a la que responde (EDM/EDP).</li>' +
-            '<li><b>Vigencia de 5 años</b> con la fecha de vencimiento calculada sola, y <b>evaluación anual</b> con su próxima fecha: el Gestor avisa en ámbar al acercarse y en rojo si venció.</li>' +
-            '<li><b>Fuentes de financiamiento por separado</b> (presupuesto local, donaciones, cooperación, otras), cada una con su monto y su ejecución sumada sola.</li>' +
-            '<li>Cuenta bancaria CUP por título del proyecto, número de contratados con <b>alerta al acercarse al tope de 100</b> (superarlo implica transformarse en empresa) y estado: activo, en liquidación, extinguido o convertido en actor económico.</li></ul>' +
-            '<p>Cautela: la contabilidad del PDL se lleva con el plan general. Las obligaciones contables y bancarias finas de las resoluciones nuevas (MFP 202/2026 y BCC 118/2026) están <b>pendientes de verificar</b> antes de codificarlas: la app no les inventa ninguna DJ ni cuenta específica.</p>'},
+            '<p>Los <b>Proyectos de Desarrollo Local</b> son el tercer tipo de cliente del Gestor, con su ficha propia según el Decreto 174/2026 y la Resolución 202/2026 del MFP:</p>' +
+            '<ul><li>Órgano aprobador (Consejo de la Administración Municipal), estrategia a la que responde (EDM/EDP), <b>modalidad</b> del proyecto (art. 34: económico–productivo, sociocultural, ambiental, institucional o de investigación, desarrollo e innovación), <b>titulares</b>, indicadores y metas aprobados y términos de finalización.</li>' +
+            '<li><b>Vigencia de 5 años</b> con la fecha de vencimiento calculada sola, y <b>evaluación semestral</b> (art. 40.1) con su próxima fecha: el Gestor avisa en ámbar al acercarse y en rojo si venció. Los proyectos aprobados <b>antes de la vigencia</b> del Decreto tienen <b>180 días para adecuarse</b>: la ficha y el calendario avisan de ese plazo (la fecha exacta está por confirmar oficialmente).</li>' +
+            '<li><b>Fuentes de financiamiento</b> con la taxonomía del art. 43.1 (fondo para el desarrollo local, fondo de fideicomiso, cooperación internacional, créditos bancarios, presupuesto del Estado…), cada una con su monto, su ejecución y su marca de <b>reembolsable</b> (el fideicomiso lo es siempre y lleva una <b>comisión bancaria del 4 %</b> que paga el beneficiario, Resolución 118/2026 del BCC).</li>' +
+            '<li><b>Distribución anual de la utilidad</b>: utilidad → Reserva para Pérdidas y Contingencias (10 %) → retenido → a distribuir → <b>aporte al CAM</b> (el % fijado en el acuerdo de aprobación) → titulares, que tributan su impuesto personal tras la distribución. Y en la <b>nómina</b> del PDL, la distribución de utilidades a los trabajadores suma a la base de su Contribución Especial (Resolución 202/2026, art. 13 d).</li>' +
+            '<li>Cuenta bancaria CUP por título del proyecto, número de contratados con <b>alerta al acercarse al tope de 100</b> (superarlo implica transformarse en empresa) y estado: activo, en liquidación, extinguido o convertido en actor económico.</li>' +
+            '<li>En <b>liquidación</b>, el panel del negocio muestra el <b>procedimiento paso a paso</b> de la Resolución 202/2026 (Comisión Liquidadora, balance a valor de realización, informe mensual, prelación de pagos, sobrante al Presupuesto por el párrafo 121050 y cierre de la cuenta). Al <b>convertirse</b>, el Gestor genera el <b>acta de traspaso de saldos</b>: todos los bienes del proyecto son el patrimonio inicial del sucesor (art. 51.2).</li>' +
+            '<li>El panel del negocio incluye el <b>Informe para la evaluación del CAM</b>: documento de apoyo del semestre (la norma no fija un modelo oficial) con la ejecución por fuentes, los resultados y el empleo.</li></ul>' +
+            '<p>Cautela: el Impuesto sobre Utilidades del PDL <b>no se calcula automáticamente</b>: el art. 7 de la Resolución 202/2026 dice «treinta y cinco por ciento (30 %)» y, mientras el MFP no corrija la inconsistencia, se liquida a mano con el tipo que confirme la ONAT. Tampoco se fija ningún % de retención de divisa: la norma vigente no lo establece.</p>'},
         {id:'gestor-informe', modulo:'gestor', titulo:'El informe mensual para el cliente', html:
             '<p>Para cada cliente generas su <b>informe mensual</b>: una hoja lista para enviar por WhatsApp con el resumen del mes y el movimiento de cada cuenta con <b>saldo inicial → saldo final</b>. Se imprime o se comparte con el botón PDF de la tarjeta.</p>' +
             '<p>Si el cliente es un PDL y tiene fuentes cargadas, el informe incluye el bloque de fuentes con su ejecución.</p>'},
