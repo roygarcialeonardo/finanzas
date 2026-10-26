@@ -1535,6 +1535,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><i class="bi bi-journal-bookmark me-2" style="color:#0f766e"></i>Contabilidad · Partida doble</h5><div class="small text-secondary">Se genera sola desde tus movimientos: el importador de estados de cuenta contabiliza automáticamente lo claro; lo dudoso queda en rojo en la bandeja hasta que lo clasifiques (y la decisión se aprende como regla del negocio). Los estados salen solo de los asientos.</div></div>
             <div class="d-flex gap-2 flex-wrap align-items-center"><label class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" id="contaActiva"> Contabilidad activa</label><button type="button" class="btn btn-sm btn-success" onclick="contaGenerar()"><i class="bi bi-gear-wide-connected me-1"></i> Generar contabilidad</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="contaRevalBtn()"><i class="bi bi-currency-exchange me-1"></i> Revalorizar USD del mes</button></div></div>
             <div class="mb-3 d-flex flex-wrap gap-2 align-items-center"><span id="contaAvisoPend"></span><span class="small text-secondary" id="contaPreviewTxt"></span></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-currency-exchange me-2"></i>Doble moneda · CUP/USD <span class="small text-secondary">(NCC 6)</span></h6><div id="contaDualBox" class="small"></div><div id="contaCompraBox"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-grid-3x3-gap me-2"></i>Panel de cuadres <span class="small text-secondary">· período <span id="contaCuadresPeriodo"></span></span></h6><p class="small text-secondary">Cada submayor contra su cuenta del mayor, en vivo: bancos (saldos por cuenta, con el saldo inicial encadenado), cuentas por cobrar y por pagar, inventarios, activos fijos, la provisión de vacaciones y las retenciones de nómina. Vacaciones y retenciones comparan lo DEVENGADO según Nómina (la misma fuente de los submayores impresos) contra lo devengado en libros; si el negocio no tiene trabajadores, esas filas dicen «No aplica». Lo que no tenga datos fiables sale como «Sin datos», nunca rellenado.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Cuadre</th><th class="text-end">Submayor</th><th class="text-end">Mayor</th><th class="text-end">Diferencia</th><th>Estado</th></tr></thead><tbody id="contaCuadresBody"></tbody></table></div></div>
@@ -6422,6 +6423,7 @@ function ctaPlanSemilla(){return [
  {codigo:'505-000',nombre:'Reservas Obligatorias y Voluntarias',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'},
  {codigo:'510-000',nombre:'Utilidades Retenidas / Acumuladas de Ejercicios Anteriores',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'},
  {codigo:'520-000',nombre:'Utilidad o Pérdida del Ejercicio Actual (Resultado Neto)',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'},
+ {codigo:'530-000',nombre:'Ganancia o Pérdida No Realizada por Diferencial Cambiario',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'},
  {codigo:'600',nombre:'GASTOS DE PRODUCCIÓN Y OPERACIÓN (Elementos de Gastos)',naturaleza:'deudora',nivel:1,admite:false,grupo:'gasto'},
  {codigo:'610',nombre:'Gastos por Elementos Primarios (Desglose por Centro de Costo)',naturaleza:'deudora',nivel:2,admite:false,grupo:'gasto'},
  {codigo:'611-000',nombre:'Gastos de Materias Primas y Materiales Directos',naturaleza:'deudora',nivel:3,admite:true,grupo:'gasto',auxiliar:'centro',requiereAuxiliar:false},
@@ -6480,7 +6482,7 @@ function ctaPlanSemilla(){return [
      resultado neto a 520-000 y de ahí a utilidades retenidas 510-000.
    - Redondeo: según el signo — pérdida a 710-000, ganancia a 810-000
      (la antigua cuenta 549 desaparece). */
-function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'417',adelantosTrab:'139-000',difPos:'805-000',difNeg:'710-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
+function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'417',adelantosTrab:'139-000',difPos:'805-000',difNeg:'710-000',difPatrimonio:'530-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
 function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],conceptosTes:[],candados:{},bandeja:[],estadosBanco:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqNota:0,seqArqueo:0};}
 function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
 /* Naturaleza como DATO del plan: si una cuenta no la trae (planes viejos o
@@ -6965,6 +6967,11 @@ function ctaReconstruir(conta,eventos){
    if(r.aplicacion){const ya=(conta.aplicaciones||[]).some(x=>x.documentoId===r.aplicacion.documentoId&&x.fuenteKey===r.clave);if(!ya)conta.aplicaciones.push({id:'AP'+((conta.aplicaciones.length||0)+1),documentoId:r.aplicacion.documentoId,monto:r.aplicacion.monto,fecha:r.aplicacion.fecha,fuenteKey:r.clave});}};
  for(const ev of ordenados){
    if(ev.tipo==='mov'){const mov=ev.mov;
+     /* Ronda 24: pata SOLO de saldo (p. ej. la salida CUP de una
+        compra de divisas, cuya pata en divisa ya trae el asiento):
+        mueve el saldo de su cuenta en la app pero NO genera asiento
+        ni bandeja — el asiento único lo crea su pata principal. */
+     if(mov.soloSaldo)continue;
      const clMov=ctaClasificarMov(conta,mov);
      if(clMov.estado==='pendiente'){const p={clave:ctaClaveMov(ev.periodo,mov),motivo:clMov.motivo,ref:mov.concepto||'',estado:'por-clasificar',periodo:ev.periodo,movId:mov.id,fecha:mov.fecha||'',concepto:mov.concepto||'',monto:ctaMontoCUP(mov,ev.tasa),tipo:mov.tipo,cuenta:mov.cuenta,clasificacion:mov.clasificacion||'operacional'};res.pendientes.push(p);bandeja.push(p);continue;}
      if(clMov.regla&&!mov.cuentaContable){mov.cuentaContable=clMov.regla.cuentaContable;mov._viaRegla=clMov.regla.patron;}
@@ -7046,15 +7053,47 @@ function ctaSubmayor(conta,tipo,fechaCorte){
  const buckets={'Al día':0,'1-30':0,'31-60':0,'61-90':0,'+90':0};
  for(const k in porCp)for(const d of porCp[k].docs)buckets[d.bucket]=ctaR2(buckets[d.bucket]+d.pendiente);
  return {tipo:tipo,cuentaControl:codControl,saldoControl:ctaR2(saldoControl),totalDocumentos:totalPend,diferencia:ctaR2(totalPend-saldoControl),conciliado:Math.abs(totalPend-saldoControl)<0.005,porContraparte:Object.values(porCp),buckets:buckets};}
+/* ===== DIFERENCIAL CAMBIARIO · NCC 6 (ronda 24) =====
+   La diferencia NO realizada (la que nace de revaluar saldos en
+   divisa al tipo de cierre, sin que la divisa se haya movido) NO es
+   resultado del ejercicio: va a la cuenta de PATRIMONIO «Ganancia o
+   Pérdida No Realizada por Diferencial Cambiario» (530-000 por
+   defecto; el código exacto del clasificador de la Res. 494/2016 no
+   es público, por eso la cuenta es CONFIGURABLE en las plantillas) y
+   se REVIERTE al inicio del período siguiente. La revalorización de
+   DICIEMBRE queda firme (no se revierte): es el criterio que el
+   candado de cierre ya anunciaba. Solo las diferencias REALIZADAS
+   (al cobrar, pagar o convertir la divisa) van a resultado
+   (805-000 / 710-000). */
+function ctaAsegurarCuentaDifPat(conta,cod){
+ cod=cod||'530-000';
+ if(!(conta.plan||[]).some(c=>c.codigo===cod)){ conta.plan=conta.plan||[]; conta.plan.push({codigo:cod,nombre:'Ganancia o Pérdida No Realizada por Diferencial Cambiario',naturaleza:'acreedora',nivel:2,admite:true,grupo:'patrimonio'}); }
+ return cod;}
 function ctaRevalorizacion(conta,periodo,fecha,tasaNueva){
- const clave='reval:'+periodo;if((conta.asientos||[]).some(a=>a.fuenteKey===clave))return {ok:true,duplicado:true,diferencial:0};
- const P=conta.plantillas||ctaPlantillasDef();const codBanco=(P.banco||{}).tarjeta_usd;if(!codBanco)return {ok:false,motivo:'Sin cuenta contable para la tarjeta USD'};
+ const P=conta.plantillas||ctaPlantillasDef();const codPat=ctaAsegurarCuentaDifPat(conta,P.difPatrimonio||'530-000');
+ conta.revalorizaciones=conta.revalorizaciones||[];
+ /* 1) Reversión de las diferencias no realizadas de meses anteriores
+       (la de diciembre queda firme): se deshace contra la misma
+       cuenta de patrimonio y el saldo en libros vuelve al valor
+       anterior a la revalorización, antes de valuar el período. */
+ let revertidas=0;
+ for(const e of conta.revalorizaciones){ if(e.revertida)continue; if(String(e.fecha||'').slice(5,7)==='12')continue; if(!(String(e.fecha||'')<String(fecha||'')))continue;
+   const claveR='reval-rev:'+e.periodo;
+   if((conta.asientos||[]).some(a=>a.fuenteKey===claveR)){ e.revertida=true; e.revertidaEn=periodo; continue; }
+   const lin=e.dif>0?[{cuenta:codPat,debe:e.dif,haber:0},{cuenta:e.codBanco,debe:0,haber:e.dif}]:[{cuenta:e.codBanco,debe:-e.dif,haber:0},{cuenta:codPat,debe:0,haber:-e.dif}];
+   const rr=ctaAgregarAsiento(conta,{fecha:String(fecha||'').slice(0,8)+'01',concepto:'Reversión de la diferencia no realizada · '+e.periodo+' (NCC 6)',origen:'revalorizacion',fuenteKey:claveR,lineas:lin});
+   if(rr.ok){ e.revertida=true; e.revertidaEn=periodo; revertidas++; } }
+ /* 2) Revalorización del período contra patrimonio. */
+ const clave='reval:'+periodo;if((conta.asientos||[]).some(a=>a.fuenteKey===clave))return {ok:true,duplicado:true,diferencial:0,revertidas:revertidas};
+ const codBanco=(P.banco||{}).tarjeta_usd;if(!codBanco)return {ok:false,motivo:'Sin cuenta contable para la tarjeta USD'};
  const m=ctaMayor(conta,{});const e=m[codBanco];if(!e)return {ok:false,motivo:'Cuenta USD no encontrada en el mayor'};
  const saldoUSD=e.divisa,saldoCUP=e.saldoFirmado;const equiv=ctaR2(saldoUSD*(Number(tasaNueva)||0));const dif=ctaR2(equiv-saldoCUP);
- if(Math.abs(dif)<0.005)return {ok:true,diferencial:0,sinEfecto:true,saldoUSD:saldoUSD,saldoCUP:saldoCUP};
- const lineas=dif>0?[{cuenta:codBanco,debe:dif,haber:0},{cuenta:P.difPos,debe:0,haber:dif}]:[{cuenta:P.difNeg,debe:-dif,haber:0},{cuenta:codBanco,debe:0,haber:-dif}];
- const r=ctaAgregarAsiento(conta,{fecha:fecha,concepto:'Revalorización de cuentas en USD · '+periodo+' (tasa '+tasaNueva+')',origen:'revalorizacion',fuenteKey:clave,lineas:lineas});
- if(!r.ok)return {ok:false,motivo:r.motivo};return {ok:true,diferencial:dif,saldoUSD:saldoUSD,saldoCUP:saldoCUP,equiv:equiv,asientoId:r.asiento.id};}
+ if(Math.abs(dif)<0.005)return {ok:true,diferencial:0,sinEfecto:true,saldoUSD:saldoUSD,saldoCUP:saldoCUP,revertidas:revertidas};
+ const lineas=dif>0?[{cuenta:codBanco,debe:dif,haber:0},{cuenta:codPat,debe:0,haber:dif}]:[{cuenta:codPat,debe:-dif,haber:0},{cuenta:codBanco,debe:0,haber:-dif}];
+ const r=ctaAgregarAsiento(conta,{fecha:fecha,concepto:'Revalorización de cuentas en USD · '+periodo+' (tasa '+tasaNueva+') · diferencia no realizada a patrimonio',origen:'revalorizacion',fuenteKey:clave,lineas:lineas});
+ if(!r.ok)return {ok:false,motivo:r.motivo};
+ conta.revalorizaciones.push({periodo:periodo,fecha:fecha,tasa:Number(tasaNueva)||0,dif:dif,codBanco:codBanco,cuentaPatrimonio:codPat,revertida:false});
+ return {ok:true,diferencial:dif,saldoUSD:saldoUSD,saldoCUP:saldoCUP,equiv:equiv,asientoId:r.asiento.id,cuentaPatrimonio:codPat,revertidas:revertidas,noRealizada:true};}
 function ctaCierreAnual(conta,anio){
  if((conta.cierres||[]).some(c=>String(c.anio)===String(anio)))return {ok:false,motivo:'El año '+anio+' ya está cerrado'};
  const res=ctaResultados(conta,{desde:anio+'-01-01',hasta:anio+'-12-31'});const P=conta.plantillas||ctaPlantillasDef();const fecha=anio+'-12-31';const ids=[];
@@ -7742,7 +7781,7 @@ function mjFlujoEfectivo(conta,anio){ const A=String(anio), h1=A+'-12-31', h0=St
 function mjCambiosPatrimonio(conta,anio){ const A=String(anio), h1=A+'-12-31', h0=String(Number(anio)-1)+'-12-31';
   const m1=ctaMayor(conta,{hasta:h1}), m0=ctaMayor(conta,{hasta:h0}); const sal=(m,c)=>m[c]?mjR2(m[c].saldoFirmado):0;
   const res=(typeof ctaResultados==='function')?mjR2(ctaResultados(conta,{desde:A+'-01-01',hasta:h1}).resultado):0;
-  const filas=['501-000','505-000','510-000','520-000'].map(c=>({cuenta:c,inicial:sal(m0,c),final:sal(m1,c),variacion:mjR2(sal(m1,c)-sal(m0,c))}));
+  const filas=['501-000','505-000','510-000','520-000','530-000'].map(c=>({cuenta:c,inicial:sal(m0,c),final:sal(m1,c),variacion:mjR2(sal(m1,c)-sal(m0,c))}));
   return {anio:A,filas:filas,resultado:res,totalInicial:mjR2(filas.reduce((s,f)=>s+f.inicial,0)),totalFinal:mjR2(filas.reduce((s,f)=>s+f.final,0))}; }
 /* Reserva para Pérdidas y Contingencias: se dota con el 10 % de la
    utilidad real del año hasta conformar entre el 2 % y el 10 % de los
@@ -8200,15 +8239,21 @@ function mjRevalorizacionAmplia(conta,datos){ datos=datos||{}; const g=mjAsegura
   const clave='reval-amplia:'+datos.periodo;
   if((conta.asientos||[]).some(a=>a.fuenteKey===clave)) return {ok:true,ya:true,diferencial:0};
   const tasaN=Number(datos.tasaNueva)||0; if(!(tasaN>0)) return {ok:false,motivo:'Tasa nueva inválida'};
+  /* Ronda 24 (NCC 6): la diferencia de estos saldos también es NO
+     realizada → va a la cuenta de patrimonio (530-000 por defecto,
+     configurable en las plantillas), nunca a resultados. Como la
+     función re-basa la tasa de cada saldo, la próxima revalorización
+     solo registra el tramo nuevo: no necesita reversión aparte. */
+  const codPat=ctaAsegurarCuentaDifPat(conta,(conta.plantillas||{}).difPatrimonio||'530-000');
   const lineas=[]; let difTotal=0;
   for(const s of (g.saldosDivisa||[])){ const tasaA=Number(s.tasa)||0; if(!(tasaA>0)||!(Number(s.montoDivisa)>0)) continue;
     const dif=mjR2(Number(s.montoDivisa)*(tasaN-tasaA)); if(Math.abs(dif)<0.005) continue;
     difTotal=mjR2(difTotal+(s.naturaleza==='pasivo'?-dif:dif));
     const an=s.analisis||s.contraparteId||('divisa:'+s.cuenta);
-    if(s.naturaleza==='pasivo'){ lineas.push(dif>0?{cuenta:'710-000',debe:dif,haber:0}:{cuenta:'805-000',debe:0,haber:-dif});
+    if(s.naturaleza==='pasivo'){ lineas.push(dif>0?{cuenta:codPat,debe:dif,haber:0}:{cuenta:codPat,debe:0,haber:-dif});
       lineas.push(dif>0?{cuenta:s.cuenta,debe:0,haber:dif,analisis:an}:{cuenta:s.cuenta,debe:-dif,haber:0,analisis:an}); }
     else { lineas.push(dif>0?{cuenta:s.cuenta,debe:dif,haber:0,analisis:an}:{cuenta:s.cuenta,debe:0,haber:-dif,analisis:an});
-      lineas.push(dif>0?{cuenta:'805-000',debe:0,haber:dif}:{cuenta:'710-000',debe:-dif,haber:0}); }
+      lineas.push(dif>0?{cuenta:codPat,debe:0,haber:dif}:{cuenta:codPat,debe:-dif,haber:0}); }
     s.tasa=tasaN; }
   if(!lineas.length) return {ok:true,diferencial:0,sinEfecto:true};
   const porCuenta={}; const defs=[];
@@ -8295,7 +8340,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                (316-000), se recodifica aquí; un valor distinto, puesto a
                mano por el dueño, se respeta. Los asientos históricos ya
                generados con la 316-000 NO se tocan. */
-            if(c.plantillas.dividendosPorPagar==='316-000') c.plantillas.dividendosPorPagar='417'; ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','conceptosTes','bandeja','estadosBanco','notas','arqueos'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); if(!c.candados||typeof c.candados!=='object'||Array.isArray(c.candados)) c.candados={}; try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
+            if(c.plantillas.dividendosPorPagar==='316-000') c.plantillas.dividendosPorPagar='417'; ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','conceptosTes','bandeja','estadosBanco','notas','arqueos','revalorizaciones'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); if(!c.candados||typeof c.candados!=='object'||Array.isArray(c.candados)) c.candados={}; try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
         function saveConta(d){ Store.setItem(getContaKey(), JSON.stringify(d)); }
         function contaEventos(clonar){ const ev=[]; const cp=m=>clonar?JSON.parse(JSON.stringify(m)):m;
             for(const h of getHistorial()){ if(Array.isArray(h.movimientos)) for(const m of h.movimientos) ev.push({tipo:'mov',periodo:h.mes,mov:cp(m),fecha:m.fecha,tasa:Number(h.tasa)||tasaVista()}); }
@@ -8613,7 +8658,43 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const clave='inv-manual-s-'+Date.now(); const r=ctaInventarioSalida(c,pid,cant,hoy(),clave); if(!r.ok){ alert('⚠ '+r.motivo); return; }
             const P=c.plantillas; const a=ctaAgregarAsiento(c,{fecha:hoy(),concepto:'Salida de inventario · costo de ventas (manual)',origen:'manual',fuenteKey:clave+':asiento',lineas:[{cuenta:P.costoVentas,debe:r.costo,haber:0},{cuenta:P.inventarios,debe:0,haber:r.costo}]}); if(!a.ok){ alert('⚠ '+a.motivo); return; } saveConta(c); renderAll(); alert('✅ Salida registrada por el costo promedio: '+moneda(r.costo)); }
         function contaAddCentro(){ const c=getConta(); const nom=document.getElementById('contaCentroNombre').value.trim(); if(!nom){ alert('Escribe el nombre del centro de costo.'); return; } c.seqCentro=(c.seqCentro||0)+1; c.centros.push({id:'CC'+c.seqCentro,nombre:nom}); saveConta(c); renderAll(); alert('✅ Centro de costo creado.'); }
-        function contaRevalBtn(){ const c=getConta(); const per=periodoNominaActual(); const tasa=(CFG.tasasMes&&Number(CFG.tasasMes[per])>0)?Number(CFG.tasasMes[per]):tasaVista(); const r=ctaRevalorizacion(c,per,fechaContablePeriodo(per),tasa); if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll(); alert(r.duplicado?'La revalorización de '+per+' ya estaba generada.':(r.sinEfecto?'Sin diferencial cambiario en '+per+' (saldo USD en 0 o tasa sin cambio).':'✅ Revalorización de '+per+' generada: diferencial '+moneda(r.diferencial)+' (saldo '+r.saldoUSD+' USD).')); }
+        function contaRevalBtn(){ const c=getConta(); const per=periodoNominaActual(); const tasa=(CFG.tasasMes&&Number(CFG.tasasMes[per])>0)?Number(CFG.tasasMes[per]):tasaVista(); const r=ctaRevalorizacion(c,per,fechaContablePeriodo(per),tasa); if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll(); const revTxt=r.revertidas?(' Se revirtió la diferencia no realizada de '+r.revertidas+' mes(es) anterior(es).'):''; alert(r.duplicado?('La revalorización de '+per+' ya estaba generada.'+revTxt):(r.sinEfecto?('Sin diferencia nueva en '+per+' (saldo USD en 0 o tasa sin cambio).'+revTxt):('✅ Revalorización de '+per+': diferencia NO realizada de '+moneda(r.diferencial)+' registrada en PATRIMONIO ('+(r.cuentaPatrimonio||'530-000')+'), no en resultados (NCC 6). Saldo: '+r.saldoUSD+' USD.'+revTxt))); }
+        /* ===== DOBLE MONEDA (ronda 24): saldo dual visible + compra de divisas ===== */
+        function contaDualHTML(c){ const P=c.plantillas||ctaPlantillasDef(); const cod=(P.banco||{}).tarjeta_usd; const m=ctaMayor(c,{}); const e=cod?m[cod]:null; const t=tasaVista();
+            const codPat=P.difPatrimonio||'530-000'; const ep=m[codPat]; const noReal=ep?ctaR2(-ep.saldoFirmado):0;
+            if(!e||Math.abs(Number(e.divisa)||0)<0.005) return 'Sin saldo en divisa en la cuenta USD: cuando lo haya, aquí verás su doble valuación (divisa y contravalor en CUP a la tasa vigente), y la diferencia no realizada acumulada en patrimonio.';
+            const equiv=ctaR2((Number(e.divisa)||0)*t);
+            return `Cuenta USD (${esc(cod)}): <b>${(Number(e.divisa)||0).toLocaleString('es-CU',{minimumFractionDigits:2})} USD</b> · en libros <b>${moneda(e.saldoFirmado)}</b> · a la tasa de hoy (${t}) vale <b>${moneda(equiv)}</b> · diferencia no realizada acumulada en patrimonio (${esc(codPat)}): <b>${moneda(noReal)}</b>.<br><span class="text-secondary">Al cerrar el mes, «Revalorizar USD del mes» ajusta esa diferencia contra patrimonio (no contra resultados) y al abrir el mes siguiente se revierte sola; la de diciembre queda firme (NCC 6).</span>`; }
+        function compraDivisaDatos(){ const per=periodoNominaActual(); const tasa=tasaVista();
+            const hs=getHistorial().slice(-3); const meses=[];
+            for(const h of hs){ const s=(h.movimientos||[]).filter(m=>m&&m.cuenta==='chequera'&&m.tipo==='ingreso'&&(m.clasificacion||'operacional')!=='transferencia').reduce((a,m)=>a+(Number(m.monto)||0),0); meses.push({mes:h.mes,total:+s.toFixed(2)}); }
+            const prom=meses.length?meses.reduce((a,x)=>a+x.total,0)/meses.length:0;
+            const topeUSD=tasa>0?+((prom*0.5)/tasa).toFixed(2):0;
+            let ya=false; try{ ya=allMovimientos().some(m=>m&&m.compraDivisa&&periodoDeFechaMov(m.fecha)===per); }catch(e){}
+            return {periodo:per,tasa:tasa,promedio:+prom.toFixed(2),topeUSD:topeUSD,meses:meses,yaComprada:ya}; }
+        function compraDivisaHTML(){ let tipo=''; try{ tipo=actorDelNegocio().tipo||''; }catch(e){}
+            if(tipo!=='mipyme') return '';
+            const d=compraDivisaDatos();
+            const mesesTxt=d.meses.length?d.meses.map(x=>esc(x.mes)+': '+moneda(x.total)).join(' · '):'sin meses en el historial todavía';
+            return `<hr><h6 class="fw-semibold mb-1">💱 Compra de divisas · MIPYME <span class="small text-secondary">(Res. 127/2025 BCC)</span></h6>
+            <p class="small text-secondary mb-2">Una vez al mes, con CUP de la cuenta fiscal (chequera), hasta el 50 % del promedio de ingresos de los últimos 3 meses, a la tasa del segmento III. Promedio: <b>${moneda(d.promedio)}</b> (${mesesTxt}) → tope hoy: <b>${d.topeUSD.toLocaleString('es-CU',{maximumFractionDigits:2})} USD</b>. La divisa entra a tu Tarjeta USD (cuenta en divisas).</p>
+            ${d.yaComprada?'<span class="badge bg-warning text-dark">Ya registraste la compra de divisas de '+esc(d.periodo)+'</span>':`<div class="row g-2 align-items-end"><div class="col-md-3"><label class="form-label mb-1 small">Monto a comprar (USD)</label><input id="compraDivisaUSD" type="number" min="0" step="0.01" class="form-control form-control-sm"></div><div class="col-md-3"><label class="form-label mb-1 small">Tasa segmento III (CUP/USD)</label><input id="compraDivisaTasa" type="number" min="0" step="0.01" class="form-control form-control-sm" value="${d.tasa}"></div><div class="col-md-4"><button type="button" class="btn btn-sm btn-success" onclick="compraDivisaRegistrarUI()"><i class="bi bi-currency-exchange me-1"></i> Registrar compra de divisas</button></div></div>`}`; }
+        function compraDivisaRegistrarUI(){ if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const md=getMesActual(); if(md&&md.cerrado&&!modoEdicionActivo){ alert('El mes está cerrado.'); return; }
+            const d=compraDivisaDatos(); if(d.yaComprada){ alert('Ya registraste la compra de divisas de '+d.periodo+': la norma permite una al mes.'); return; }
+            const usd=Number((document.getElementById('compraDivisaUSD')||{}).value)||0; const tasa=Number((document.getElementById('compraDivisaTasa')||{}).value)||0;
+            if(!(usd>0)){ alert('Escribe el monto en USD a comprar.'); return; }
+            if(!(tasa>0)){ alert('Escribe la tasa del segmento III.'); return; }
+            if(!(d.topeUSD>0)){ alert('⚠️ Sin historial de ingresos en la cuenta fiscal (chequera) no se puede calcular el tope de la Res. 127/2025: primero tienen que existir los meses anteriores.'); return; }
+            if(usd>d.topeUSD+0.005){ alert('⚠️ Supera el tope: '+d.topeUSD.toFixed(2)+' USD (50 % del promedio de ingresos de la cuenta fiscal de los últimos 3 meses ÷ tasa).'); return; }
+            const cup=+(usd*tasa).toFixed(2);
+            const vs=validarSaldoSuficiente('chequera',cup); if(!vs.ok){ alert(vs.msg); return; }
+            const gid='CD'+Date.now(); const fecha=hoy();
+            movimientos.push({id:nextId++,tipo:'ingreso',cuenta:'tarjeta_usd',monto:usd,fecha:fecha,concepto:'Compra de divisas · segmento III (Res. 127/2025 BCC)',clasificacion:'transferencia',cuentaDestino:'chequera',tasaCambio:tasa,equivalenteCUP:cup,compraDivisa:gid});
+            movimientos.push({id:nextId++,tipo:'gasto',cuenta:'chequera',monto:cup,fecha:fecha,concepto:'Compra de divisas · segmento III (Res. 127/2025 BCC)',clasificacion:'transferencia',cuentaDestino:'tarjeta_usd',compraDivisa:gid,soloSaldo:true});
+            if(!modoEdicionActivo) saveMovimientos(movimientos);
+            let gen=null; try{ gen=contaGenerarSilencioso(); }catch(e){}
+            renderAll(); alert('✅ Compra registrada: '+usd.toFixed(2)+' USD a tasa '+tasa+' = '+moneda(cup)+' desde la chequera a tu Tarjeta USD.'+((gen&&gen.creados)?' Asiento contable generado.':'')); }
         function contaCierreBtn(){ const c=getConta(); const anio=document.getElementById('contaCierreAnio').value; if(!anio){ alert('Escribe el año a cerrar.'); return; } if(!confirm('El cierre anual regulariza ingresos y gastos contra Utilidades retenidas, bloquea el año y crea el Balance de Apertura del siguiente. ¿Continuar?')) return; const r=ctaCierreAnual(c,anio); if(!r.ok){ alert('⚠ '+r.motivo); return; } saveConta(c); renderAll(); alert('✅ Año '+anio+' cerrado. Resultado del ejercicio: '+moneda(r.resultado)+'. Balance de Apertura '+(Number(anio)+1)+' creado (ver abajo).'); }
         function renderConta(){ const root=document.getElementById('pane-conta'); if(!root) return; const c=getConta();
             const chk=document.getElementById('contaActiva'); if(chk) chk.checked=!!c.activa;
@@ -8623,10 +8704,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const tabP=document.getElementById('tabContaPend'); if(tabP){ const np=(c.bandeja||[]).length; tabP.style.display=np?'':'none'; tabP.textContent=np?('● '+np+' por clasificar'):''; }
             if(window.__contaMigR8){ const mr=window.__contaMigR8; window.__contaMigR8=null; if(aviso){ aviso.innerHTML+=' <span class="badge bg-info text-dark">🔄 Plan actualizado al Clasificador Maestro: '+mr.lineas+' línea(s) de asientos recodificadas — los saldos no cambiaron.'+((mr.sinClasificar&&mr.sinClasificar.length)?(' Cuentas sin equivalente, conservadas y marcadas: '+mr.sinClasificar.join(', ')+'.'):'')+'</span>'; } }
             const prev=c.activa?contaPreview():null; const pv=document.getElementById('contaPreviewTxt'); if(pv) pv.textContent=c.activa?(`Conteo previo: «Generar contabilidad» crearía ${prev.creados} asiento(s) nuevo(s); quedarían ${prev.pendientes.length} pendiente(s) en la bandeja.`):'Activa la contabilidad para que los estados de cuenta importados se contabilicen solos.';
+            const dbx=document.getElementById('contaDualBox'); if(dbx){ try{ dbx.innerHTML=contaDualHTML(c); }catch(e){ dbx.innerHTML=''; } }
+            const cbx=document.getElementById('contaCompraBox'); if(cbx){ try{ cbx.innerHTML=compraDivisaHTML(); }catch(e){ cbx.innerHTML=''; } }
             const pb=document.getElementById('contaPlanBody'); if(pb) pb.innerHTML=c.plan.map(x=>{ const mov=ctaEsMovimiento(c,x.codigo); const aux=ctaAuxiliarDe(x); return `<tr><td class="fiscal-code">${esc(x.codigo)}</td><td>${esc(x.nombre)}</td><td>${esc(ctaNaturalezaDe(x))}</td><td>${x.nivel}</td><td>${mov?'Sí':(ctaTieneHijas(c,x.codigo)?'<span class="text-secondary">No · tiene subcuentas</span>':'No')}</td><td>${aux==='ninguno'?'—':esc(aux)+(x.requiereAuxiliar?' <span class="badge bg-danger">obligatorio</span>':'')}</td><td>${esc(x.grupo)}</td><td>${x.porVerificar?'<span class="badge bg-warning text-dark">por verificar</span>':''}</td></tr>`; }).join('');
             const pl=document.getElementById('contaPlantillasBox'); if(pl){ const opts=sel=>c.plan.filter(x=>ctaEsMovimiento(c,x.codigo)).map(x=>`<option value="${esc(x.codigo)}" ${x.codigo===sel?'selected':''}>${esc(x.codigo)} · ${esc(x.nombre)}</option>`).join('');
                 const fila=(label,key,val)=>`<div class="col-md-4"><label class="form-label mb-1 small">${label}</label><select class="form-select form-select-sm" data-conta-plant="${key}">${opts(val)}</select></div>`;
-                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('CSS por pagar','cssPagar',c.plantillas.cssPagar)+fila('IUFT por pagar','iuftPagar',c.plantillas.iuftPagar)+fila('IIP retenido por pagar','iipRetenido',c.plantillas.iipRetenido)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Pago ONAT genérico (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Fondo de contingencia','fondoContingencia',c.plantillas.fondoContingencia)+fila('Dividendos por pagar a socios','dividendosPorPagar',c.plantillas.dividendosPorPagar)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio (901)','resultado',c.plantillas.resultado)+fila('Liquidación del resultado (905)','liquidacion',c.plantillas.liquidacion)+fila('Resultado neto del ejercicio (520)','resultadoEjercicio',c.plantillas.resultadoEjercicio)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+fila('Redondeo · pérdida (gasto)','redondeoGasto',c.plantillas.redondeoGasto)+fila('Redondeo · ganancia (ingreso)','redondeoIngreso',c.plantillas.redondeoIngreso)+fila('Caja (arqueo)','caja',c.plantillas.caja)+fila('Arqueo · faltante (gasto/pérdida)','arqueoFaltante',c.plantillas.arqueoFaltante)+fila('Arqueo · sobrante (ingreso)','arqueoSobrante',c.plantillas.arqueoSobrante)+fila('Adelantos a trabajadores','adelantosTrab',c.plantillas.adelantosTrab)+'</div>'; }
+                pl.innerHTML='<div class="row g-2">'+fila('Banco · Chequera','banco.chequera',c.plantillas.banco.chequera)+fila('Banco · Tarjeta CUP','banco.tarjeta_cup',c.plantillas.banco.tarjeta_cup)+fila('Banco · Tarjeta USD','banco.tarjeta_usd',c.plantillas.banco.tarjeta_usd)+fila('Ventas / ingresos','ventas',c.plantillas.ventas)+fila('Cuentas por cobrar','cxc',c.plantillas.cxc)+fila('Cuentas por pagar','cxp',c.plantillas.cxp)+fila('Inventarios','inventarios',c.plantillas.inventarios)+fila('Costo de ventas','costoVentas',c.plantillas.costoVentas)+fila('Gastos de operación','gastoOperacion',c.plantillas.gastoOperacion)+fila('Gastos de salarios','salarios',c.plantillas.salarios)+fila('Seguridad social','segSocial',c.plantillas.segSocial)+fila('IUFT (gasto)','fuerzaGasto',c.plantillas.fuerzaGasto)+fila('Gasto provisión de vacaciones','gastoProvVac',c.plantillas.gastoProvVac)+fila('Provisión de vacaciones','provVacaciones',c.plantillas.provVacaciones)+fila('CSS por pagar','cssPagar',c.plantillas.cssPagar)+fila('IUFT por pagar','iuftPagar',c.plantillas.iuftPagar)+fila('IIP retenido por pagar','iipRetenido',c.plantillas.iipRetenido)+fila('Retenciones por pagar','retencionesPorPagar',c.plantillas.retencionesPorPagar)+fila('Nóminas por pagar','nominasPorPagar',c.plantillas.nominasPorPagar)+fila('Pago ONAT genérico (cargo)','onatCargo',c.plantillas.onatCargo)+fila('Gasto por depreciación','depreciacionGasto',c.plantillas.depreciacionGasto)+fila('Depreciación acumulada','depreciacionAcum',c.plantillas.depreciacionAcum)+fila('Extracciones de socios','extracciones',c.plantillas.extracciones)+fila('Fondo de contingencia','fondoContingencia',c.plantillas.fondoContingencia)+fila('Dividendos por pagar a socios','dividendosPorPagar',c.plantillas.dividendosPorPagar)+fila('Diferencial cambiario +','difPos',c.plantillas.difPos)+fila('Diferencial cambiario −','difNeg',c.plantillas.difNeg)+fila('Diferencial NO realizado (patrimonio)','difPatrimonio',c.plantillas.difPatrimonio||'530-000')+fila('Banco pago de nómina','bancoNomina',c.plantillas.bancoNomina)+fila('Resultado del ejercicio (901)','resultado',c.plantillas.resultado)+fila('Liquidación del resultado (905)','liquidacion',c.plantillas.liquidacion)+fila('Resultado neto del ejercicio (520)','resultadoEjercicio',c.plantillas.resultadoEjercicio)+fila('Utilidades retenidas','utilRetenidas',c.plantillas.utilRetenidas)+fila('Redondeo · pérdida (gasto)','redondeoGasto',c.plantillas.redondeoGasto)+fila('Redondeo · ganancia (ingreso)','redondeoIngreso',c.plantillas.redondeoIngreso)+fila('Caja (arqueo)','caja',c.plantillas.caja)+fila('Arqueo · faltante (gasto/pérdida)','arqueoFaltante',c.plantillas.arqueoFaltante)+fila('Arqueo · sobrante (ingreso)','arqueoSobrante',c.plantillas.arqueoSobrante)+fila('Adelantos a trabajadores','adelantosTrab',c.plantillas.adelantosTrab)+'</div>'; }
             const ab=document.getElementById('contaAsientosBody'); if(ab){ const anulados=new Set(c.asientos.filter(a=>a.anulaA).map(a=>a.anulaA)); const estBadge=a=>{ const e=a.estado||'asentado'; if(e==='anulado'||anulados.has(a.id)) return ' <span class="badge bg-danger">anulado</span>'; if(e==='borrador') return ' <span class="badge bg-secondary">borrador</span>'; if(e==='confirmado') return ' <span class="badge bg-info text-dark">confirmado</span>'; return ' <span class="badge bg-success">asentado</span>'; };
                 ab.innerHTML=c.asientos.slice(-80).reverse().map(a=>{ const tot=a.lineas.reduce((s,l)=>s+(Number(l.debe)||0),0); const num=a.numeroComp!=null?a.numeroComp:a.numero; const tipo=a.tipo||''; const esAnulado=(a.estado==='anulado')||anulados.has(a.id);
                 return `<tr><td class="text-nowrap"><span class="badge bg-soft-secondary">${esc(tipo)}</span> Nº ${num}<div class="small text-secondary">${esc(a.periodo||'')}</div></td><td class="text-nowrap">${esc(a.fecha)}</td><td>${esc(a.concepto)}${a.anulaA?' <span class="badge bg-secondary">contraasiento</span>':''}${estBadge(a)}</td><td>${esc(a.origen)}</td><td class="text-end">${moneda(tot)}</td><td class="text-end">${moneda(tot)}</td><td class="text-nowrap">${(a.estado==='borrador'||a.estado==='confirmado')?`<button type="button" class="btn btn-sm btn-success me-1" onclick="contaAsentar('${a.id}')">Asentar</button>`:''}${!a.anulaA&&!esAnulado&&a.estado!=='borrador'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="contaAnular('${a.id}')">Anular</button>`:''}</td></tr>`; }).join('')||'<tr><td colspan="7" class="text-center text-muted">Sin asientos todavía.</td></tr>'; }
@@ -10869,7 +10952,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function mjRevalAmpliaUI(){ const tasa=Number(prompt('Tasa nueva (CUP por divisa):','0'))||0; if(!(tasa>0)) return;
             const c=getConta(); const per=periodoNominaActual();
             const r=mjRevalorizacionAmplia(c,{periodo:per,fecha:fechaContablePeriodo(per),tasaNueva:tasa});
-            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.sinEfecto?'Sin diferencia que registrar.':('✅ Revalorización amplia registrada: diferencial '+moneda(r.diferencial)+' (805-000 / 710-000).')); }
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.sinEfecto?'Sin diferencia que registrar.':('✅ Revalorización amplia registrada: diferencia NO realizada '+moneda(r.diferencial)+' a la cuenta de patrimonio (NCC 6).')); }
         function mjIPVUI(){ const c=getConta(); const fecha=mjVal('mjIpvFecha')||hoy(); const cajero=mjVal('mjIpvCajero')||'';
             const ipv=mjIPVTurno(c,{fecha:fecha,cajero:cajero});
             const contado=prompt('Efectivo contado por el cajero al cierre (CUP):',''); let cierreTxt='';
@@ -14368,7 +14451,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-7';
+        var MANUAL_VERSION = 'v2026.10.26-8';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14514,7 +14597,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>Los tres se generan solos desde los comprobantes; no se teclea nada en ellos.</p>'},
         {id:'estados-financieros', modulo:'contabilidad', titulo:'Estados financieros', html:
             '<p>Desde los mismos asientos salen el <b>Estado de Situación Financiera</b> y el <b>Estado de Resultados</b>, además de las notas a los estados (políticas contables del clasificador, método indirecto del flujo de efectivo, umbral del Registro Control y hechos posteriores), que se completan al imprimir.</p>' +
-            '<p>Si un estado no cuadra con un submayor, el <b>Panel de cuadres</b> te dice exactamente dónde está la diferencia antes de que imprimas nada.</p>'},
+            '<p>Si un estado no cuadra con un submayor, el <b>Panel de cuadres</b> te dice exactamente dónde está la diferencia antes de que imprimas nada.</p>' +
+            '<p><b>Doble moneda (NCC 6):</b> la tarjeta «Doble moneda · CUP/USD» muestra el saldo de la cuenta USD en las dos monedas: la divisa, su valor en libros y su contravalor a la tasa vigente. Al cerrar el mes, «Revalorizar USD del mes» registra la diferencia <b>no realizada</b> contra la cuenta de patrimonio <b>530-000</b> (configurable en las plantillas), <b>nunca contra resultados</b>, y al abrir el mes siguiente se <b>revierte sola</b>; la revalorización de diciembre queda firme. Solo las diferencias <b>realizadas</b> (cuando la divisa se cobra, se paga o se convierte) van a resultados (805-000 / 710-000). La revalorización amplia de Gestión+ (CxC/CxP en divisa) sigue la misma regla.</p>' +
+            '<p><b>Compra de divisas (MIPYME, Res. 127/2025 del BCC):</b> en la misma tarjeta puedes registrar la compra mensual de divisas: una vez al mes, con CUP de la cuenta fiscal (chequera), hasta el <b>50 % del promedio de ingresos de los últimos 3 meses</b> dividido entre la tasa del <b>segmento III</b>. La app calcula el tope con tu historial, valida el saldo y deja los dos movimientos y el asiento hechos.</p>'},
         {id:'submayores', modulo:'contabilidad', titulo:'Submayores de Cuentas por Cobrar y por Pagar', html:
             '<p>La tarjeta <b>Submayores</b> lleva el detalle por contraparte de lo que te deben (CxC) y lo que debes (CxP), con su <b>antigüedad</b> (al día, vencido por tramos). Cada documento de cobro o pago vive aquí con su saldo pendiente, y los cobros y pagos del banco se aplican contra él.</p>' +
             '<p>El total del submayor tiene que ser el saldo de su cuenta del mayor: el Panel de cuadres lo vigila.</p>'},
@@ -14840,7 +14925,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         ['nominaDocCompleta','nominaDocResumenContable','nominaDocListadoPago','nominaDocTalon','nominaDocCertificado',
          'nominaBancoDescargarUI','nominaBancoFilas','nominaBancoTexto',
          'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
-         'contaGenerar','contaRevalBtn','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
+         'contaGenerar','contaRevalBtn','compraDivisaRegistrarUI','getConta','ctaAgregarAsiento','ctaRevalorizacion','ctaMayor','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
          'contaArqueoBtn','contaAddProducto','contaInvEntrada','contaInvSalida','contaEdAddLinea','contaEdAsentar',
          'contaAddCuenta','contaSavePlantillas','contaAddCentro','contaCierreBtn','contaPagarDoc','contaEdRecalc',
          'contaEdDelLinea','contaAsentar','contaAnular','contaClasificar','contaBorrarRegla',
