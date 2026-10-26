@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.26-18",
-  "publicada": "2026-10-26 20:34",
-  "notas": "Cuentas activas por negocio e instalación inicial de la copia sin conexión",
+  "version": "v2026.10.26-19",
+  "publicada": "2026-10-26 20:57",
+  "notas": "Cuentas activas por negocio, instalación inicial y ruta elegible de la base de datos",
   "requiereServidor": "0.3.0",
   "migracionDatos": 1,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "8fe95955aaaf83947048e834fe3e70a3529031dd8df974ef7f48c926c483a609",
-      "bytes": 1555113
+      "sha256": "1a33961c8f78c357d1af00514bce472a985b362298f1ab312ebb5d52f511bfae",
+      "bytes": 1560449
     },
     {
       "ruta": "pdf-import.js",

@@ -927,6 +927,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-7"><label class="form-label small" for="instTipo">Tipo de negocio</label><select class="form-select" id="instTipo"><option value="tcp">TCP (trabajador por cuenta propia)</option><option value="mipyme">MIPYME</option><option value="pdl">PDL (proyecto de desarrollo local)</option></select></div>
                 <div class="col-5"><label class="form-label small" for="instSocios">Socios (MIPYME)</label><input type="number" class="form-control" id="instSocios" min="0" max="99" value="1"></div>
             </div>
+            <div class="mb-2"><label class="form-label small" for="instRuta">Carpeta donde se guardan tus datos</label><input type="text" class="form-control" id="instRuta" autocomplete="off" spellcheck="false"><div class="form-text">Elige una carpeta segura y que vaya a estar siempre en esta computadora (por ejemplo, dentro de Documentos). Ahí vivirá tu base de datos <b>finanzas.db</b> con todo tu negocio.</div></div>
+            <div class="alert alert-warning py-2 small">⚠️ <b>Tu base de datos es tu responsabilidad.</b> Todo tu negocio — cuentas, movimientos, nómina — queda en un solo archivo (<b>finanzas.db</b>) dentro de la carpeta que elijas. <b>Hazle copias de seguridad con frecuencia</b> en otro lugar (una memoria USB, otra carpeta, la nube): si el archivo se pierde o se daña y no tienes copia, <b>nadie podrá recuperar tu información</b>, ni siquiera tu proveedor.</div>
+            <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="instAceptoDatos"><label class="form-check-label small" for="instAceptoDatos">Entiendo que guardar copias de mi base de datos es mi responsabilidad</label></div>
             <div class="mb-2"><label class="form-label small" for="instAdminUser">Usuario administrador</label><input type="text" class="form-control" id="instAdminUser" value="admin" autocomplete="off"><div class="form-text">Es la cuenta dueña de la copia: gestiona usuarios y configuración. Casi nunca se usa para el trabajo diario.</div></div>
             <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="instCrearTrabajo" checked><label class="form-check-label small" for="instCrearTrabajo">Crear también mi usuario de trabajo (con la misma contraseña)</label></div>
             <div class="mb-2" id="instTrabajoWrap"><label class="form-label small" for="instTrabajoUser">Usuario de trabajo</label><input type="text" class="form-control" id="instTrabajoUser" placeholder="Ej.: miusuario" autocomplete="off"><div class="form-text">Con este entrarás a diario a llevar tu negocio.</div></div>
@@ -2021,6 +2024,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                 <span class="badge bg-danger ms-2">🚫 Bloqueado</span>
                             </div>
                         </details>
+                    </div>
+                </div>
+
+                <!-- Tu base de datos (solo versión sin conexión) -->
+                <div class="col-12 d-none" id="cardBaseDatos">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="disco"></span>Tu base de datos</h6>
+                        <p class="small mb-2">Todo tu negocio vive en un solo archivo, <b>finanzas.db</b>, en la carpeta que elegiste al instalar:</p>
+                        <p class="small mb-2"><code id="baseDatosRuta">—</code></p>
+                        <div class="alert alert-warning py-2 small mb-0">⚠️ <b>Guardar copias de ese archivo es tu responsabilidad.</b> Cópialo con frecuencia a otro lugar (una memoria USB, otra carpeta, la nube). Si se pierde o se daña y no tienes copia, la información no se podrá recuperar.</div>
                     </div>
                 </div>
 
@@ -5404,6 +5417,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderActualizacionLocal();
             renderRecuperaLocal();
             renderCuentasNegocio();
+            renderBaseDatos();
         }
 
         // ===== NEGOCIOS: helpers =====
@@ -6148,6 +6162,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!box) return;
             if (!(window.FINANZAS_LOCAL && window.FINANZAS_INSTALACION)) return;
             box.classList.remove('d-none');
+            const rutaInput = document.getElementById('instRuta');
+            if (rutaInput && !rutaInput.value && window.FINANZAS_RUTA_DATOS) rutaInput.value = window.FINANZAS_RUTA_DATOS;
             const form = document.getElementById('loginForm');
             if (form) form.classList.add('d-none');
             const rec = document.getElementById('recuperaBox');
@@ -6175,9 +6191,30 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 if (crearTrabajo && trabajoUser.toLowerCase() === adminUser.toLowerCase()) return falla('El usuario de trabajo debe ser distinto del administrador.');
                 if (!pw || pw.length < 6) return falla('La contraseña debe tener al menos 6 caracteres.');
                 if (pw !== pw2) return falla('Las contraseñas no coinciden.');
+                const acepto = document.getElementById('instAceptoDatos');
+                if (acepto && !acepto.checked) return falla('Marca la casilla de que entiendes que las copias de tu base de datos son tu responsabilidad.');
+                const ruta = (document.getElementById('instRuta').value || '').trim();
+                if (!ruta) return falla('Escribe la carpeta donde se guardarán tus datos.');
                 btn.disabled = true;
                 msg.innerHTML = '<span class="text-secondary">Instalando…</span>';
                 try {
+                    /* Primero la carpeta de datos: si difiere de la
+                       actual, el servidor se relanza abriendo la base
+                       ya en su sitio y hay que esperar a que vuelva. */
+                    if (ruta !== (window.FINANZAS_RUTA_DATOS || '')) {
+                        msg.innerHTML = '<span class="text-secondary">Preparando tu carpeta de datos…</span>';
+                        const rr = await subsLocalFetch('/instalacion/elegir-ruta', { ruta });
+                        if (!rr || !rr.ok) { btn.disabled = false; return falla((rr && rr.error) || 'No se pudo preparar la carpeta de datos.'); }
+                        if (rr.reiniciar) {
+                            msg.innerHTML = '<span class="text-secondary">Preparando tu carpeta de datos… la app se está rearrancando en su sitio (unos segundos).</span>';
+                            let volvio = false;
+                            for (let i = 0; i < 40 && !volvio; i++) {
+                                await new Promise(res => setTimeout(res, 700));
+                                try { const p = await api('ping'); volvio = !!(p && p.ok); } catch (e) {}
+                            }
+                            if (!volvio) { btn.disabled = false; return falla('La app no volvió tras preparar la carpeta. Cierra el programa, ábrelo de nuevo y repite la instalación.'); }
+                        }
+                    }
                     const users = [{ username: adminUser, hash: await hashPwLocal(pw), role: 'admin', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio }];
                     if (crearTrabajo) users.push({ username: trabajoUser, hash: await hashPwLocal(pw), role: 'editor', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio });
                     const r = await api('setup', { users, config: {}, bloqueos: {}, negocios: [{ negocio, doc: { _info: { tipo, creado: new Date().toISOString() } } }] });
@@ -6189,6 +6226,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     falla('No se pudo instalar: ' + (e && e.message ? e.message : e));
                 }
             });
+        }
+
+        // ===== TU BASE DE DATOS (tarjeta en Configuración) =====
+        // Solo en la versión sin conexión: muestra la carpeta donde
+        // vive finanzas.db (la inyecta el servidor local al servir la
+        // página) y recuerda que las copias son del usuario.
+        function renderBaseDatos() {
+            const card = document.getElementById('cardBaseDatos');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            card.classList.remove('d-none');
+            const el = document.getElementById('baseDatosRuta');
+            if (el) el.textContent = window.FINANZAS_RUTA_DATOS || '—';
         }
 
         // ===== CUENTAS QUE USA ESTE NEGOCIO (tarjeta en Configuración) =====
@@ -15131,7 +15181,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-18';
+        var MANUAL_VERSION = 'v2026.10.26-19';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -15162,10 +15212,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'instalacion-offline', modulo:'empezar', titulo:'Primera vez sin conexión: instalar tu copia', html:
             '<p>Solo en la <b>versión sin conexión</b>: la primera vez que abres el programa en una máquina, en vez de la pantalla de entrada sale el <b>formulario de instalación</b>. Se hace una sola vez:</p>' +
             '<ol><li>Escribe el <b>nombre de tu negocio</b> y su <b>tipo</b> (TCP, MIPYME o PDL; en la MIPYME, también el número de socios).</li>' +
+            '<li><b>Elige la carpeta donde se guardarán tus datos</b>: ahí vivirá el archivo <b>finanzas.db</b> con todo tu negocio. Elige un sitio seguro y permanente de tu computadora (por ejemplo, dentro de Documentos). Si cambias la carpeta sugerida, la app se rearranca sola en su sitio: espera unos segundos.</li>' +
+            '<li>Lee la advertencia amarilla y marca que la entiendes: <b>las copias de seguridad de tu base de datos son tu responsabilidad</b>. Sin una copia en otro lugar (memoria USB, otra carpeta, la nube), una pérdida del archivo no tiene recuperación posible.</li>' +
             '<li>Deja el <b>usuario administrador</b> («admin» o el que prefieras): es la cuenta dueña de la copia, para gestionar usuarios y configuración.</li>' +
             '<li>Mantén marcada la casilla de <b>crear tu usuario de trabajo</b> y escribe ese usuario: es con el que entrarás a diario a llevar el negocio. Los dos comparten la contraseña que escribas aquí; luego puedes cambiarlas por separado.</li>' +
             '<li>Pulsa <b>«Instalar y empezar»</b>: la app vuelve a la pantalla de entrada y ya puedes entrar con tu usuario de trabajo.</li></ol>' +
-            '<p>Si la pantalla de entrada sale normal, es que la copia ya está instalada. Tus datos viven en un solo archivo de base de datos en la carpeta de datos del programa (en Windows, «%APPDATA%\\FinanzasOffline\\finanzas.db»): copiar esa carpeta es copiar todo tu negocio.</p>'},
+            '<p>Si la pantalla de entrada sale normal, es que la copia ya está instalada. En <b>Configuración</b>, la tarjeta «Tu base de datos» te recuerda en qué carpeta quedó tu archivo.</p>'},
         {id:'negocios-usuarios', modulo:'empezar', titulo:'Negocios, usuarios y roles', html:
             '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
             '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
