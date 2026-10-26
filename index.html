@@ -8937,14 +8937,33 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             return {ok:true,asumidos:r.asumidosUsados||[]}; }catch(e){ return {ok:true}; } };
 
         // ===== RENDER TODO =====
-        function renderAvisosInicio(){ const box=document.getElementById('avisosInicioBox'); if(!box) return; const avisos=[];
-            try{ const c=getConta(); if(c&&c.activa&&(c.bandeja||[]).length) avisos.push({n:(c.bandeja||[]).length, txt:'movimiento(s) en la bandeja «Por clasificar» de Contabilidad, en rojo, sin contabilizar'}); }catch(e){}
+        const TABS_AVANZADAS=['tab-conta','tab-gestion','tab-aft','tab-tasas','tab-utilidades','tab-ideas'];
+        function modoSimpleActivo(){ try{ return localStorage.getItem('finanzas_modo_'+(getCurrentUser()||''))!=='completo'; }catch(e){ return true; } }
+        function aplicarModoSimple(){ const s=modoSimpleActivo(); document.body.classList.toggle('modo-simple', s); const sw=document.getElementById('modoSimpleSwitch'); if(sw) sw.checked=s;
+            if(s){ const activo=document.querySelector('.nav-link.active[data-bs-toggle="tab"]'); if(activo && TABS_AVANZADAS.includes(activo.id)){ const r=document.getElementById('tab-resumen'); if(r) r.click(); } } }
+        function toggleModoSimple(on){ try{ localStorage.setItem('finanzas_modo_'+(getCurrentUser()||''), on?'simple':'completo'); }catch(e){} aplicarModoSimple(); }
+        function irAPestana(tabId){ if(!tabId) return; if(document.body.classList.contains('modo-simple') && TABS_AVANZADAS.includes(tabId)) toggleModoSimple(false);
+            const t=document.getElementById(tabId); if(t){ t.click(); window.scrollTo({top:0, behavior:'smooth'}); } }
+        (function(){ const st=document.createElement('style'); st.textContent='body.modo-simple #tab-conta,body.modo-simple #tab-gestion,body.modo-simple #tab-aft,body.modo-simple #tab-tasas,body.modo-simple #tab-utilidades,body.modo-simple #tab-ideas{display:none!important}'; document.head.appendChild(st); })();
+        function renderAvisosInicio(){ const box=document.getElementById('avisosInicioBox'); if(!box) return; const filas=[];
+            try{ const c=getConta(); if(c&&c.activa&&(c.bandeja||[]).length) filas.push({t:'danger', icono:'🧾', txt:`Tienes <b>${(c.bandeja||[]).length} movimiento(s) sin clasificar</b> en la bandeja de Contabilidad: no se contabilizan hasta que digas de qué son.`, tab:'tab-conta', btn:'Clasificarlos'}); }catch(e){}
             try{ const d=getFiscal(); const hoyT=hoy(); const limite=new Date(Date.parse(hoyT)+7*86400000).toISOString().slice(0,10);
                 const venc=(d.obligaciones||[]).filter(o=>{ if(!o.vence||o.vence>limite) return false; const cc=calcImporteObligacion(o); const est=estadoObligacion(o,cc.importe); return est.key!=='paid'; }).sort((a,b)=>String(a.vence).localeCompare(String(b.vence)));
-                if(venc.length) avisos.push({n:venc.length, txt:'obligación(es) ONAT vencida(s) o que vencen en 7 días (la próxima: '+venc[0].vence+')'}); }catch(e){}
-            try{ const ex=mjExpedienteLaboral(getRRHH()); if(ex.incompletos) avisos.push({n:ex.incompletos, txt:'expediente(s) laboral(es) incompleto(s) (Ley 189/2026)'}); }catch(e){}
-            try{ if(typeof isAdmin==='function'&&isAdmin()&&typeof subsDeNeg==='function'&&typeof subsMesActual==='function'){ const pend=Object.keys(CFG.negocios||{}).filter(n=>{ const s=subsDeNeg(n); return s&&s.activo!==false&&!(s.pagos&&s.pagos[subsMesActual()]); }); if(pend.length) avisos.push({n:pend.length, txt:'negocio(s) sin la suscripción del mes pagada: '+pend.join(', ')}); } }catch(e){}
-            box.innerHTML=avisos.length?('<div class="alert alert-warning py-2 px-3 small mb-0"><b>⚠ Avisos al entrar:</b> '+avisos.map(a=>'<b>'+a.n+'</b> '+esc(a.txt)).join(' · ')+'</div>'):''; }
+                if(venc.length) filas.push({t:'danger', icono:'⏰', txt:`<b>${venc.length} obligación(es) de la ONAT vencida(s) o que vencen en 7 días</b> (la próxima: ${esc(venc[0].vence)}).`, tab:'tab-fiscal', btn:'Ver en Fiscal'}); }catch(e){}
+            try{ const per=periodoNominaActual(); const pre=(getRRHH().prenominas||{})[per]; if(pre && pre.estado && pre.estado!=='aprobada') filas.push({t:'warning', icono:'👥', txt:`La <b>pre-nómina de ${esc(per)}</b> está generada y <b>pendiente de aprobar</b>.`, tab:'tab-nomina', btn:'Revisarla'}); }catch(e){}
+            try{ const md=getMesActual(); const real=getMesActualStr(); if(md && md.mesSeleccionado && md.mesSeleccionado!==real && !md.cerrado) filas.push({t:'warning', icono:'🔒', txt:`Sigues trabajando en <b>${esc(md.mesSeleccionado)}</b> y ya estamos en <b>${esc(real)}</b>: prepara el cierre de ese mes.`, tab:'tab-conta', btn:'Preparar cierre'}); }catch(e){}
+            try{ const ex=mjExpedienteLaboral(getRRHH()); if(ex.incompletos) filas.push({t:'warning', icono:'🗂️', txt:`<b>${ex.incompletos} expediente(s) laboral(es) incompleto(s)</b> según la Ley 189/2026.`, tab:'tab-gestion', btn:'Completarlos'}); }catch(e){}
+            try{ if(typeof isAdmin==='function'&&isAdmin()&&typeof subsDeNeg==='function'&&typeof subsMesActual==='function'){ const pend=Object.keys(CFG.negocios||{}).filter(n=>{ const s=subsDeNeg(n); return s&&s.activo!==false&&!(s.pagos&&s.pagos[subsMesActual()]); }); if(pend.length) filas.push({t:'warning', icono:'💳', txt:`<b>${pend.length} negocio(s) sin la suscripción del mes pagada</b>: ${esc(pend.join(', '))}. Quedarán bloqueados al entrar.`, tab:'tab-admin', btn:'Marcar pagos'}); } }catch(e){}
+            const simple=modoSimpleActivo();
+            const cuerpo = filas.length
+                ? filas.map(f=>`<div class="alert alert-${f.t} py-2 px-2 mb-2 d-flex flex-wrap align-items-center gap-2"><span class="flex-grow-1 small">${f.icono} ${f.txt}</span><button type="button" class="btn btn-sm btn-dark" onclick="irAPestana('${f.tab}')">${f.btn} →</button></div>`).join('')
+                : `<div class="alert alert-success py-2 px-2 mb-2 small">🎉 <b>Todo al día.</b> No tienes pendientes urgentes hoy.</div>
+                   <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-chequera')">📥 Importar estado de cuenta</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-chequera')">✏️ Nuevo movimiento</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-dj')">📊 Ver mi DJ</button></div>`;
+            box.innerHTML=`<div class="card border-primary"><div class="card-body py-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><h5 class="mb-0">🧭 Qué toca hoy</h5>
+                <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="modoSimpleSwitch" ${simple?'checked':''} onchange="toggleModoSimple(this.checked)"><label class="form-check-label small" for="modoSimpleSwitch">Modo simple <span class="text-secondary">(solo lo esencial; desactívalo para ver todo)</span></label></div></div>
+                ${cuerpo}</div></div>`;
+        }
         function renderAll() {
             _tvKey = null;
             const _safe = (fn, nombre) => { try { fn(); } catch(e){ console.warn('Render ['+nombre+']:', e); } };
@@ -8954,6 +8973,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             _safe(renderAlertaTrimestral,'alerta-trimestral');
             _safe(renderAlertaSalarioNomina,'alerta-salario');
             _safe(renderAvisosInicio,'avisos-inicio');
+            _safe(aplicarModoSimple,'modo-simple');
             ['chequera', 'tarjeta_cup', 'tarjeta_usd'].forEach(c => _safe(() => renderTablaCuenta(c),'cuenta-'+c));
             _safe(renderHistorial,'historial');
             _safe(renderSelTrab,'sel-trab');
@@ -14602,7 +14622,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-10';
+        var MANUAL_VERSION = 'v2026.10.26-11';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14905,7 +14925,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li>El <b>calendario de vencimientos ONAT</b> junta las obligaciones de todos tus clientes con sus responsables y fuentes de verificación: qué vence, de quién y cuándo.</li>' +
             '<li>El <b>control de tu cobro</b> registra cuánto te debe pagar cada cliente por la gestión y qué está cobrado o pendiente: tu negocio de gestor también se controla.</li></ul>' +
             '<p><b>Automático:</b> al registrar un pago, el monto viene <b>precargado con la tarifa</b> del cliente y, si el negocio tiene suscripción en la app, el mes en curso <b>se marca pagado solo</b> (ya no hay que marcarlo aparte en Suscripciones). El botón <b>«Descargar informes del mes (todos)»</b> genera los informes de WhatsApp de todos los clientes en un solo archivo de texto.</p>' +
-            '<p><b>Avisos al entrar:</b> el Panel muestra una franja de avisos con lo urgente del día: movimientos sin clasificar en la bandeja, obligaciones ONAT que vencen en 7 días, expedientes laborales incompletos y negocios sin la suscripción del mes. También: la tasa consultada al BCC se guarda como <b>tasa del mes</b> con un botón, el IPV precarga el efectivo esperado con los ingresos en Caja del día, el traspaso de indirectos precarga el saldo de la cuenta de origen, y al crear un movimiento manual la clasificación se sugiere desde tu historial si el mismo concepto ya se registró antes (siempre editable).</p>'},
+            '<p><b>Avisos al entrar:</b> el Panel muestra una franja de avisos con lo urgente del día: movimientos sin clasificar en la bandeja, obligaciones ONAT que vencen en 7 días, expedientes laborales incompletos y negocios sin la suscripción del mes. También: la tasa consultada al BCC se guarda como <b>tasa del mes</b> con un botón, el IPV precarga el efectivo esperado con los ingresos en Caja del día, el traspaso de indirectos precarga el saldo de la cuenta de origen, y al crear un movimiento manual la clasificación se sugiere desde tu historial si el mismo concepto ya se registró antes (siempre editable).</p>' +
+            '<p><b>«Qué toca hoy» y modo simple:</b> el Panel abre con una tarjeta-guía que lista tus pendientes reales — movimientos sin clasificar, impuestos que vencen, la pre-nómina por aprobar, el mes de trabajo atrasado, expedientes incompletos y suscripciones por cobrar — cada uno con su botón para ir directo a resolverlo; si no hay nada, te lo dice («Todo al día») y te ofrece los accesos rápidos. El <b>modo simple</b> (activado por defecto, interruptor en la propia tarjeta) muestra solo las pestañas esenciales del día a día y esconde las avanzadas (Contabilidad, Gestión+, AFT, Tasas, Utilidades e Ideas); desactívalo para ver todo, y tu elección se recuerda en este equipo. Si un pendiente te lleva a una pestaña avanzada, el modo completo se activa solo para que puedas resolverlo.</p>'},
         {id:'gestor-respaldo', modulo:'gestor', titulo:'Respaldo por negocio (ZIP) y paquete Res. 86/2026', html:
             '<p>Desde el Gestor exportas el <b>respaldo ZIP de un negocio</b> concreto (su expediente completo) para guardarlo o entregarlo. El paquete de la <b>Resolución 86/2026</b> reúne la documentación del gestor que esa norma exige, separada por cliente y confidencial: solo la ves tú.</p>'},
         {id:'gestion-recorrido', modulo:'gestion', titulo:'Gestión+ de un vistazo', html:
@@ -15084,6 +15105,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'nominaBancoDescargarUI','nominaBancoFilas','nominaBancoTexto',
          'nominaDocContrato','mjExpedienteDocUI','mjExpedienteRevisionUI','mjEvaluacionUI','mjPlantillaPlazasUI','getRRHH','saveRRHH','mjRenderProfundidad','renderPuestos',
          'mjPatronesAplicarTodosUI','mjPrepararCierreUI','gInformesTodosDescargar','renderAvisosInicio',
+         'irAPestana','toggleModoSimple','aplicarModoSimple',
          'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
          'contaGenerar','contaRevalBtn','compraDivisaRegistrarUI','getConta','ctaAgregarAsiento','ctaRevalorizacion','ctaMayor','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
          'contaArqueoBtn','contaAddProducto','contaInvEntrada','contaInvSalida','contaEdAddLinea','contaEdAsentar',
