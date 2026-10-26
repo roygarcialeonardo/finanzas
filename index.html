@@ -882,6 +882,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 </head>
 <body>
 
+<!-- BLOQUEO POR SUSCRIPCIÓN (pantalla completa; la muestra cargar() ) -->
+<div id="subsBloqueo" style="display:none; position:fixed; inset:0; z-index:2000; background:#f4f6fb; overflow:auto;">
+    <div class="d-flex align-items-center justify-content-center" style="min-height:100%;">
+        <div class="card p-4 p-md-5 text-center" style="max-width:440px; width:92%;">
+            <div class="mb-3" style="font-size:3rem;">🔒</div>
+            <h4 class="fw-bold" id="subsBloqueoTitulo">Suscripción del mes no pagada</h4>
+            <p class="text-secondary" id="subsBloqueoTexto">Contacta a tu gestor para reactivar el acceso a este negocio.</p>
+            <button type="button" class="btn btn-primary-custom w-100 text-white" id="btnSubsBloqueoSalir">Salir</button>
+        </div>
+    </div>
+</div>
+
 <!-- LOGIN -->
 <div id="loginContainer">
     <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
@@ -1876,18 +1888,42 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     </div>
                 </div>
 
-                <!-- Bloqueo de Meses -->
-                <div class="col-lg-4">
+                <!-- Suscripciones por negocio -->
+                <div class="col-12">
                     <div class="card p-3 p-md-4">
-                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calendario"></span>Bloqueo de Meses</h6>
-                        <p class="small text-muted">Marca los meses que no han pagado.</p>
-                        <div id="bloqueoMesesList">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calendario"></span>Suscripciones</h6>
+                        <p class="small text-muted">Control de pago por negocio: despliega un negocio para marcar sus meses pagados o desactivarlo hasta que pague. Sin el pago del mes en curso, el negocio queda bloqueado automáticamente (también en su versión sin conexión, que valida el día 1 de cada mes). La cuenta administradora nunca se bloquea.</p>
+                        <div id="suscripcionesList">
                             <!-- Se llena con JS -->
                         </div>
-                        <hr>
-                        <div class="mt-2">
-                            <span class="badge bg-success">✅ Libre</span>
-                            <span class="badge bg-danger ms-2">🚫 Bloqueado</span>
+                        <details class="mt-3">
+                            <summary class="small fw-semibold text-secondary" style="cursor:pointer">Bloqueo global de meses (legado)</summary>
+                            <p class="small text-muted mt-2">Marca los meses que no han pagado (bloqueo global de guardado, para todos los negocios).</p>
+                            <div id="bloqueoMesesList">
+                                <!-- Se llena con JS -->
+                            </div>
+                            <hr>
+                            <div class="mt-2">
+                                <span class="badge bg-success">✅ Libre</span>
+                                <span class="badge bg-danger ms-2">🚫 Bloqueado</span>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- Suscripción de ESTA instalación (solo versión sin conexión) -->
+                <div class="col-12 d-none" id="cardSubsLocal">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="nube"></span>Suscripción de esta instalación (sin conexión)</h6>
+                        <p class="small text-muted">Esta copia sin conexión pertenece a un negocio: el día 1 de cada mes se bloquea hasta validar contra el servidor en línea que la suscripción está pagada. La cuenta administradora local nunca se bloquea.</p>
+                        <div id="subsLocalEstado" class="small mb-2"></div>
+                        <div class="row g-2">
+                            <div class="col-md-5"><label class="form-label small">Negocio registrado de esta instalación</label><input type="text" class="form-control" id="subsLocalNegocio" placeholder="Nombre exacto del negocio"></div>
+                            <div class="col-md-7"><label class="form-label small">Servidor de validación (URL en línea)</label><input type="text" class="form-control" id="subsLocalServidor"></div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-primary" id="btnSubsLocalGuardar">Guardar registro</button>
+                            <button type="button" class="btn btn-primary" id="btnSubsLocalValidar">Validar ahora</button>
                         </div>
                     </div>
                 </div>
@@ -2553,9 +2589,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Editar negocio</b>: abre su ficha.</li>
                     </ul>
                 </div>
-                <div class="ayuda-sec" id="ayuda-admin-3" data-ayuda-titulo="Bloqueo de Meses">
-                    <div class="ayuda-sec-tit">Bloqueo de Meses</div>
-                    <p class="small mb-0">Cada botón de mes bloquea o desbloquea ese mes en el servidor para impedir cambios.</p>
+                <div class="ayuda-sec" id="ayuda-admin-3" data-ayuda-titulo="Suscripciones">
+                    <div class="ayuda-sec-tit">Suscripciones</div>
+                    <p class="small mb-1">Control de pago por negocio: cada negocio aparece en una lista plegable con la insignia de su mes en curso (Pagado / Sin pagar / Desactivado).</p>
+                    <ul class="small mb-1">
+                        <li>Al desplegar un negocio eliges el año y marcas con interruptores los meses <b>pagados</b>; el guardado es inmediato.</li>
+                        <li><b>Negocio activo</b>: al desactivarlo, sus usuarios no pueden entrar a los datos hasta que pague.</li>
+                        <li>Sin pago del mes en curso, el bloqueo es automático, también en la versión sin conexión (valida el día 1 contra el servidor en línea).</li>
+                        <li>La cuenta administradora nunca se bloquea: siempre puedes entrar a marcar el pago.</li>
+                    </ul>
+                    <p class="small mb-0">Debajo, plegado, queda el bloqueo global de meses (legado): cada botón bloquea o desbloquea ese mes en el servidor para impedir cambios en todos los negocios.</p>
                 </div>
             </div>
         </div>
@@ -2996,11 +3039,29 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             },
             removeItem() {}
         };
+        /* Pantalla completa de bloqueo por suscripción: la muestra cargar()
+           cuando el servidor responde {suscripcion:'desactivado'|'sin_pago'}
+           en `data`. Sin operativa cargada; solo se puede salir. */
+        function mostrarBloqueoSuscripcion(d) {
+            const des = d && d.suscripcion === 'desactivado';
+            const t = document.getElementById('subsBloqueoTitulo'), x = document.getElementById('subsBloqueoTexto');
+            if (t) t.textContent = des ? 'Este negocio está desactivado' : 'Suscripción del mes no pagada';
+            if (x) x.textContent = (d && d.error) || (des ? 'Este negocio está desactivado. Contacta a tu gestor.' : 'Contacta a tu gestor para reactivar el acceso a este negocio.');
+            loginContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('visible');
+            const o = document.getElementById('subsBloqueo');
+            if (o) o.style.display = 'block';
+            return false;
+        }
+        document.getElementById('btnSubsBloqueoSalir').addEventListener('click', () => {
+            api('logout').finally(() => { try { localStorage.removeItem('finanzas_token'); sessionStorage.removeItem('finanzas_token'); } catch (e) {} location.reload(); });
+        });
         async function cargar(r) {
             ME = {username: r.username, user: r.user};
             if (r.token) { TOKEN = r.token; localStorage.setItem('finanzas_token', TOKEN); sessionStorage.removeItem('finanzas_token'); }
             if (r.user && (r.user.theme === 'dark' || r.user.theme === 'light')) aplicarTema(r.user.theme, true);
             const d = await api('data');
+            if (d && d.suscripcion) return mostrarBloqueoSuscripcion(d);
             CACHE = d.data || {}; BLOQ = d.bloq || {}; applyCfg(d.config); USERS = d.users || {}; USERS[r.username] = r.user;
             SLOT_VER = (d && d.vers) || {};
             /* Ronda 10: si quedaron cambios sin guardar de una sesión
@@ -4930,6 +4991,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             
             renderNegociosAdmin();
             renderBloqueoMeses();
+            renderSuscripciones();
+            renderSubsLocal();
         }
 
         // ===== NEGOCIOS: helpers =====
@@ -5087,6 +5150,135 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             editarUsuarioModal.hide();
             renderAdminPanel();
             alert(`✅ Usuario "${username}" actualizado correctamente.`);
+        }
+
+        // ===== SUSCRIPCIONES POR NEGOCIO =====
+        // Acordeón en Configuración (solo admin): meses PAGADOS por año e
+        // interruptor «Negocio activo». Guardado inmediato vía subs_set
+        // (el servidor fusiona sin pisar otros metadatos). El bloqueo lo
+        // aplica el SERVIDOR en data/data_set: aquí solo se marca el pago.
+        let SUBS_ANIO = new Date().getFullYear();
+        let SUBS_ABIERTO = '';
+        function subsDeNeg(neg) {
+            const m = getNegociosMeta()[neg] || {};
+            const s = (m.subs && typeof m.subs === 'object') ? m.subs : {};
+            return { activo: s.activo !== false, pagos: (s.pagos && typeof s.pagos === 'object') ? s.pagos : {} };
+        }
+        function subsMesActual() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        }
+        function subsEstadoMes(neg) {
+            const s = subsDeNeg(neg);
+            if (!s.activo) return 'desactivado';
+            return s.pagos[subsMesActual()] ? 'pagado' : 'sin_pagar';
+        }
+        function renderSuscripciones() {
+            const box = document.getElementById('suscripcionesList');
+            if (!box) return;
+            if (!box.dataset.subsInit) {
+                box.dataset.subsInit = '1';
+                box.addEventListener('click', async e => {
+                    const cab = e.target.closest('[data-subs-cab]');
+                    if (cab) { const n = cab.getAttribute('data-subs-cab'); SUBS_ABIERTO = (SUBS_ABIERTO === n) ? '' : n; renderSuscripciones(); return; }
+                    const tm = e.target.closest('[data-subs-mes]');
+                    if (tm) {
+                        const neg = tm.getAttribute('data-subs-mes'), clave = tm.getAttribute('data-subs-clave');
+                        const s = subsDeNeg(neg);
+                        const r = await api('subs_set', { negocio: neg, pagos: { [clave]: !s.pagos[clave] } });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar el pago'); return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderSuscripciones();
+                        return;
+                    }
+                });
+                box.addEventListener('change', async e => {
+                    if (e.target.id === 'subsAnioSel') { SUBS_ANIO = parseInt(e.target.value) || new Date().getFullYear(); renderSuscripciones(); return; }
+                    const ac = e.target.closest('[data-subs-activo]');
+                    if (ac) {
+                        const neg = ac.getAttribute('data-subs-activo');
+                        const r = await api('subs_set', { negocio: neg, activo: !!ac.checked });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar'); ac.checked = !ac.checked; return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderSuscripciones();
+                    }
+                });
+            }
+            const meta = getNegociosMeta();
+            const negs = Object.keys(meta).sort((a, b) => a.localeCompare(b, 'es'));
+            if (!negs.length) { box.innerHTML = '<p class="text-muted small mb-0">Aún no hay negocios registrados.</p>'; return; }
+            const insignia = st => st === 'pagado' ? '<span class="badge bg-success">Pagado</span>' : st === 'desactivado' ? '<span class="badge bg-dark">Desactivado</span>' : '<span class="badge bg-danger">Sin pagar</span>';
+            const anio = new Date().getFullYear();
+            box.innerHTML = negs.map(neg => {
+                const m = meta[neg], s = subsDeNeg(neg), st = subsEstadoMes(neg);
+                const abierto = SUBS_ABIERTO === neg;
+                let cuerpo = '';
+                if (abierto) {
+                    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    const botones = meses.map((mn, i) => {
+                        const clave = SUBS_ANIO + '-' + String(i + 1).padStart(2, '0');
+                        const on = !!s.pagos[clave];
+                        return `<button type="button" class="btn btn-sm ${on ? 'btn-success' : 'btn-outline-danger'} m-1" data-subs-mes="${esc(neg)}" data-subs-clave="${clave}">${on ? '✅' : '🚫'} ${mn}</button>`;
+                    }).join('');
+                    cuerpo = `<div class="border-top pt-2 mt-2">
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+                            <label class="small mb-0">Año <select id="subsAnioSel" class="form-select form-select-sm d-inline-block w-auto ms-1">${[anio - 1, anio, anio + 1].map(a => `<option value="${a}" ${a === SUBS_ANIO ? 'selected' : ''}>${a}</option>`).join('')}</select></label>
+                            <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-subs-activo="${esc(neg)}" ${s.activo ? 'checked' : ''}> <span class="form-check-label small fw-semibold">Negocio activo</span></label>
+                            <span class="small text-muted">Toca un mes para marcarlo pagado o sin pagar; se guarda al momento.</span>
+                        </div>
+                        <div>${botones}</div>
+                    </div>`;
+                }
+                return `<div class="border rounded p-2 mb-2">
+                    <button type="button" class="btn btn-link text-decoration-none p-0 w-100 d-flex justify-content-between align-items-center" data-subs-cab="${esc(neg)}">
+                        <span class="fw-semibold text-start">${abierto ? '▾' : '▸'} ${esc(neg)} <span class="badge bg-secondary ms-1">${esc(({ mipyme: 'MIPYME', pdl: 'PDL' })[m.tipo] || 'TCP')}</span></span>
+                        ${insignia(st)}
+                    </button>
+                    ${cuerpo}
+                </div>`;
+            }).join('');
+        }
+
+        // ===== SUSCRIPCIÓN DE ESTA INSTALACIÓN (solo offline) =====
+        // Tarjeta en Configuración visible solo con window.FINANZAS_LOCAL:
+        // habla con los endpoints locales del servidor Go (/suscripcion/*),
+        // que exigen la sesión admin. La versión en línea no la muestra.
+        async function subsLocalFetch(ruta, body) {
+            const opt = { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json' } };
+            if (body) opt.body = JSON.stringify(Object.assign({ token: TOKEN }, body));
+            const r = await fetch(ruta + (body ? '' : '?token=' + encodeURIComponent(TOKEN)), opt);
+            return r.json();
+        }
+        async function renderSubsLocal() {
+            const card = document.getElementById('cardSubsLocal');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            card.classList.remove('d-none');
+            if (card.dataset.subsInit) return;
+            card.dataset.subsInit = '1';
+            const pintar = st => {
+                const el = document.getElementById('subsLocalEstado');
+                if (!st || !st.ok) { el.innerHTML = '<span class="text-danger">No se pudo leer el estado local.</span>'; return; }
+                document.getElementById('subsLocalNegocio').value = st.negocioRegistrado || '';
+                document.getElementById('subsLocalServidor').value = st.servidorValidacion || '';
+                el.innerHTML = st.negocioRegistrado
+                    ? (st.validado ? `<span class="badge bg-success">Validada</span> Mes ${esc(st.periodoActual)} confirmado contra el servidor.`
+                        : st.bloqueado ? `<span class="badge bg-danger">Bloqueada</span> Falta validar el mes ${esc(st.periodoActual)} (sin pago confirmado o sin conexión). Los usuarios del negocio no pueden entrar a los datos; el administrador sí.`
+                        : `<span class="badge bg-warning text-dark">Sin validar</span> Pulsa «Validar ahora» con conexión.`)
+                    : 'Esta instalación aún no está registrada a nombre de ningún negocio: escribe el nombre exacto y guarda.';
+            };
+            try { pintar(await subsLocalFetch('/suscripcion/estado')); } catch (e) { pintar(null); }
+            document.getElementById('btnSubsLocalGuardar').addEventListener('click', async () => {
+                const r = await subsLocalFetch('/suscripcion/config', { negocioRegistrado: document.getElementById('subsLocalNegocio').value.trim(), servidorValidacion: document.getElementById('subsLocalServidor').value.trim() });
+                if (!r.ok) { alert(r.error || 'No se pudo guardar'); return; }
+                pintar(r); alert('✅ Registro de esta instalación guardado.');
+            });
+            document.getElementById('btnSubsLocalValidar').addEventListener('click', async () => {
+                const r = await subsLocalFetch('/suscripcion/validar', {});
+                if (!r.ok) { alert(r.error || 'No se pudo validar'); return; }
+                pintar(r);
+                alert(r.bloqueado ? '⛔ La suscripción no está vigente: el negocio sigue bloqueado.' : '✅ Suscripción validada para este mes.');
+            });
         }
 
         // ===== RENDER: BLOQUEO DE MESES =====
@@ -12941,7 +13133,7 @@ function mjPermisos(rol,modulo){ const M={
             e.preventDefault();
             const r = await api('login', {username: document.getElementById('userInput').value.trim(), password: document.getElementById('passInput').value});
             if (!r.ok) { alert(r.error || 'Usuario o contraseña incorrectos.'); return; }
-            await cargar(r); handleLogin(e);
+            if (await cargar(r) !== false) handleLogin(e);
         });
         logoutBtn.addEventListener('click', handleLogout);
         initPrintButtons();
@@ -13341,7 +13533,7 @@ function mjPermisos(rol,modulo){ const M={
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.25-3';
+        var MANUAL_VERSION = 'v2026.10.25-4';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -13659,7 +13851,15 @@ function mjPermisos(rol,modulo){ const M={
         {id:'historial-cierre', modulo:'respaldo', titulo:'Historial y bloqueo de meses', html:
             '<p>El menú <b>Historial</b> es el cierre: desde ahí cierras el mes (pasando antes por el <b>Cierre con candados</b> de Contabilidad) y consultas los meses cerrados.</p>' +
             '<ul><li>Un mes cerrado no se edita: para corregirlo se desbloquea desde Configuración (bloqueo de meses, en el servidor) y cualquier cambio vuelve a disparar el encadenado de saldos.</li>' +
-            '<li>El <b>cierre anual</b> y el Balance de Apertura viven en Contabilidad (ver su sección).</li></ul>'}
+            '<li>El <b>cierre anual</b> y el Balance de Apertura viven en Contabilidad (ver su sección).</li></ul>'},
+        {id:'suscripciones', modulo:'respaldo', titulo:'Suscripciones de los negocios y bloqueo por falta de pago', html:
+            '<p>En <b>Configuración</b> (solo la cuenta administradora) la tarjeta <b>Suscripciones</b> controla el pago de cada negocio: una lista plegable con todos los negocios y la insignia de su mes en curso (<b>Pagado</b>, <b>Sin pagar</b> o <b>Desactivado</b>).</p>' +
+            '<ul><li>Al desplegar un negocio se elige el <b>año</b> y se marcan con botones los meses <b>pagados</b>; el guardado es inmediato, mes a mes.</li>' +
+            '<li>El interruptor <b>Negocio activo</b> desactiva un negocio hasta que pague: sus usuarios ven una pantalla de bloqueo y no pueden entrar a los datos.</li>' +
+            '<li><b>Sin pago del mes en curso, el bloqueo es automático</b> también en la versión en línea: el servidor no entrega los datos (las acciones de datos responden el aviso de suscripción); entrar, ver el aviso y salir sí funciona.</li>' +
+            '<li>La <b>cuenta administradora nunca se bloquea</b>: siempre puede entrar a marcar el pago, y al marcarlo el negocio se desbloquea al instante.</li>' +
+            '<li>En la <b>versión sin conexión</b>, la instalación queda registrada a nombre de un negocio (tarjeta «Suscripción de esta instalación», solo visible sin conexión): el <b>día 1 de cada mes</b> el programa queda bloqueado hasta conectarse y validar contra el servidor en línea que la suscripción está pagada; sin conexión o sin pago, sigue bloqueado. El botón <b>Validar ahora</b> fuerza la comprobación.</li>' +
+            '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio.</li></ul>'}
         ];
         function manualEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
         function manualNorm(s){
@@ -13801,7 +14001,7 @@ function mjPermisos(rol,modulo){ const M={
         // Ganchos de prueba (node) para el módulo DJ
         window.__djTest = { DJ_PARAMS_DEF: DJ_PARAMS_DEF, DJ_FUENTES_DEF: DJ_FUENTES_DEF, djAplicarEscala: djAplicarEscala, djCore08: djCore08, djCore01: djCore01, djCoreDiv: djCoreDiv, djCoreGrat: djCoreGrat, djCategoriaOnat: djCategoriaOnat, djParseEscala: djParseEscala, DJ_COD_MAP: DJ_COD_MAP };
         window.__djImportTest = { parseDjGrids: parseDjGrids, parseDj08Grids: parseDj08Grids, parseDjDividendosGrids: parseDjDividendosGrids, parseDjPdfLines: parseDjPdfLines, validarActorDoc: validarActorDoc, djRecalcular08: djRecalcular08, djNombreCoincide: djNombreCoincide, djNum: djNum };
-        api('me').then(async r => { if (r.ok) { await cargar(r); handleLogin({preventDefault(){}}); } });
+        api('me').then(async r => { if (r.ok && await cargar(r) !== false) { handleLogin({preventDefault(){}}); } });
         
     })();
 </script>
