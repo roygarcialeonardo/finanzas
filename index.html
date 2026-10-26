@@ -5613,7 +5613,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                   + '</div>' : '';
             const distUlt = (ficha.distribuciones && ficha.distribuciones.length) ? ficha.distribuciones.slice().sort((a, b) => b.anio - a.anio)[0] : null;
             const distHtml = distUlt ? '<h6 class="fw-semibold mb-2">Distribución de la utilidad · ' + distUlt.anio + '</h6>'
-                + '<p class="small mb-3">Utilidad ' + moneda(distUlt.utilidad) + ' → Reserva ' + moneda(distUlt.reserva) + ' (10 %) → retenido ' + moneda(distUlt.retenido) + ' → <b>a distribuir ' + moneda(distUlt.aDistribuir) + '</b>: aporte al CAM ' + moneda(distUlt.cam) + ' y a titulares ' + moneda(distUlt.aTitulares) + ' (los titulares tributan su impuesto sobre ingresos personales tras la distribución).</p>' : '';
+                + '<p class="small mb-3">Utilidad ' + moneda(distUlt.utilidad) + (distUlt.impuesto ? ' → Impuesto sobre Utilidades (35 %) ' + moneda(distUlt.impuesto) + ' → utilidad después de impuestos ' + moneda(distUlt.utilidadNeta || 0) : '') + ' → Reserva ' + moneda(distUlt.reserva) + ' (10 %) → retenido ' + moneda(distUlt.retenido) + ' → <b>a distribuir ' + moneda(distUlt.aDistribuir) + '</b>: aporte al CAM ' + moneda(distUlt.cam) + ' y a titulares ' + moneda(distUlt.aTitulares) + ' (los titulares tributan su impuesto sobre ingresos personales tras la distribución).</p>' : '';
             const liqHtml = ficha.estado === 'liquidacion' ? '<h6 class="fw-semibold mb-2">Modo liquidación — procedimiento (Resolución 202/2026)</h6>'
                 + '<p class="small text-secondary">Al extinguirse, el proyecto se liquida por el procedimiento normado: marca cada paso al completarlo. El informe de la Comisión Liquidadora es <b>mensual</b> y el sobrante se ingresa al Presupuesto en los 10 días hábiles siguientes a la aprobación del balance final.</p>'
                 + '<div class="mb-3">' + PDL_LIQ_PASOS.map(p => { const on = !!(ficha.liquidacion && ficha.liquidacion[p[0]]); return '<button type="button" class="btn btn-sm ' + (on ? 'btn-success' : 'btn-outline-danger') + ' me-1 mb-1" data-pdl-liq="' + p[0] + '">' + (on ? '✔' : '✘') + ' ' + esc(p[1]) + '</button>'; }).join('') + '</div>' : '';
@@ -5634,7 +5634,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 + '<div class="col-md-4"><span class="text-secondary">Vigencia (5 años) hasta</span><br><b>' + esc((al && al.venceVigencia) || '—') + '</b>' + (al && al.diasVigencia !== null ? ' <span class="text-secondary">(en ' + al.diasVigencia + ' días)</span>' : '') + '</div>'
                 + '<div class="col-md-4"><span class="text-secondary">Próxima evaluación semestral</span><br><b>' + esc((al && al.proximaEvaluacion) || '—') + '</b>' + (al && al.diasEvaluacion !== null ? ' <span class="text-secondary">(en ' + al.diasEvaluacion + ' días)</span>' : '') + '</div>'
                 + '<div class="col-md-4"><span class="text-secondary">Estado</span><br><b>' + esc(ficha.estado) + '</b></div>'
-                + (al && al.fechaAdecuacion ? '<div class="col-md-4"><span class="text-secondary">Adecuación al Decreto 174/2026 hasta</span><br><b>' + esc(al.fechaAdecuacion) + '</b>' + (al.diasAdecuacion !== null ? ' <span class="text-secondary">(en ' + al.diasAdecuacion + ' días; fecha por confirmar oficialmente)</span>' : '') + '</div>' : '')
+                + (al && al.fechaAdecuacion ? '<div class="col-md-4"><span class="text-secondary">Adecuación al Decreto 174/2026 hasta</span><br><b>' + esc(al.fechaAdecuacion) + '</b>' + (al.diasAdecuacion !== null ? ' <span class="text-secondary">(en ' + al.diasAdecuacion + ' días; 180 días desde la vigencia del Decreto)</span>' : '') + '</div>' : '')
                 + '</div>'
                 + filaExtra
                 + alertas
@@ -5702,7 +5702,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 + '<h6 style="margin-top:14px">Resultados del semestre (desde los movimientos)</h6>'
                 + '<p style="font-size:13px">Ingresos: <b>' + moneda(+ing.toFixed(2)) + '</b> · Gastos: <b>' + moneda(+gas.toFixed(2)) + '</b> · Tributos pagados: <b>' + moneda(+trib.toFixed(2)) + '</b> · Resultado: <b>' + moneda(+(ing - gas).toFixed(2)) + '</b></p>'
                 + (ficha.indicadores ? '<h6 style="margin-top:14px">Indicadores y metas aprobados</h6><p style="font-size:13px;white-space:pre-wrap">' + esc(ficha.indicadores) + '</p>' : '')
-                + (distUlt ? '<h6 style="margin-top:14px">Distribución de la utilidad · ' + distUlt.anio + '</h6><p style="font-size:13px">Utilidad ' + moneda(distUlt.utilidad) + ' → Reserva ' + moneda(distUlt.reserva) + ' → a distribuir ' + moneda(distUlt.aDistribuir) + ' (CAM ' + moneda(distUlt.cam) + ' · titulares ' + moneda(distUlt.aTitulares) + ').</p>' : '')
+                + (distUlt ? '<h6 style="margin-top:14px">Distribución de la utilidad · ' + distUlt.anio + '</h6><p style="font-size:13px">Utilidad ' + moneda(distUlt.utilidad) + (distUlt.impuesto ? ' → Impuesto sobre Utilidades (35 %) ' + moneda(distUlt.impuesto) + ' → utilidad después de impuestos ' + moneda(distUlt.utilidadNeta || 0) : '') + ' → Reserva ' + moneda(distUlt.reserva) + ' → a distribuir ' + moneda(distUlt.aDistribuir) + ' (CAM ' + moneda(distUlt.cam) + ' · titulares ' + moneda(distUlt.aTitulares) + ').</p>' : '')
                 + '<p style="font-size:11px;color:#555;margin-top:16px">Los tributos del proyecto son los de la Resolución 202/2026 del MFP (ver la pestaña Fiscal). La evaluación del CAM es semestral (Decreto 174/2026, art. 40.1).</p>'
                 + '</div>';
             printPane('pdlInformePrintBox');
@@ -5718,7 +5718,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             box.style.display = '';
             const filas = [
                 ['Impuesto sobre Ventas y Servicios', '10 % del total de ventas y servicios (5 % en la venta minorista de alimentos de minindustrias)', '0114822', 'El MFP puede exonerarlo o bonificarlo a solicitud del CAM o del consejo provincial'],
-                ['Impuesto sobre Utilidades', '⚠️ «Treinta y cinco por ciento (30 %)» — ver el aviso', '040012', 'Anual, sobre la utilidad del ejercicio'],
+                ['Impuesto sobre Utilidades', '35 % de la utilidad del ejercicio', '040012', 'Anual; la app lo calcula en la distribución anual de la utilidad'],
                 ['Impuesto por la Utilización de la Fuerza de Trabajo', '5 % de las remuneraciones mensuales', '061012', 'Mensual'],
                 ['Contribución a la Seguridad Social', '14 % de las remuneraciones (12,5 % al Presupuesto y 1,5 % aprovisionado)', '081013', 'Mensual'],
                 ['Retenciones del Impuesto sobre Ingresos Personales', 'Escala progresiva, retenido al pagar a los trabajadores', '052042', 'Dentro de los primeros 10 días hábiles de cada mes'],
@@ -5731,7 +5731,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 + '<div class="table-responsive"><table class="table table-sm align-middle mb-2"><thead><tr><th>Tributo</th><th>Tipo</th><th>Párrafo</th><th>Cuándo</th></tr></thead><tbody>'
                 + filas.map(f => '<tr><td>' + f[0] + '</td><td>' + f[1] + '</td><td>' + f[2] + '</td><td>' + f[3] + '</td></tr>').join('')
                 + '</tbody></table></div>'
-                + '<div class="alert alert-warning py-2 px-3 small mb-2">⚠️ <b>Impuesto sobre Utilidades sin tipo seguro:</b> el artículo 7 de la Resolución 202/2026 dice en letras «treinta y cinco por ciento» pero entre paréntesis «(30 %)». Mientras el MFP no publique la corrección, la app <b>no calcula este impuesto automáticamente</b>: se liquida a mano con el tipo que confirme la ONAT.</div>'
+                + '<div class="alert alert-info py-2 px-3 small mb-2"><b>Impuesto sobre Utilidades al 35 %:</b> lo fijan la Ley 181/2025 (art. 53.2) y la Resolución 202/2026 (art. 7), y la app lo calcula en la distribución anual: la utilidad se distribuye <b>después de impuestos</b> (Decreto 174/2026, art. 48). Nota: la primera edición impresa de la Gaceta 87 traía «(30 %)» entre paréntesis; rige el 35 % y, si el MFP publica otro dato oficial, se ajustará.</div>'
                 + '<p class="small text-secondary mb-0">La <b>contribución territorial no la paga el PDL</b>: la recibe como fuente de financiamiento a través del Fondo para el Desarrollo Local. Los trabajadores están exonerados de la Declaración Jurada anual por los ingresos del proyecto (se les retiene al pagar); los titulares sí tributan por sus ingresos personales tras las utilidades, con liquidación anual. La utilidad después de impuestos queda a disposición del proyecto.</p>'
                 + '</div>';
         }
@@ -9337,7 +9337,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if (ctx.tipo === 'pdl') {
                 if (datos.ingresos > 0) { const hoyV = R(datos.ingresos * 0.10), optV = R(datos.ingresos * 0.05); ideas.push({ id: 'pdl_alimentos', titulo: 'Alimentos de minindustrias al detalle: 5 %, no 10 %', texto: 'El impuesto sobre ventas del proyecto es el 10 %, PERO las ventas al detalle de alimentos producidos por minindustrias tributan al 5 %. La comparativa supone que TODAS tus ventas del año (' + moneda(datos.ingresos) + ') fueran de ese tipo; tu ahorro real es la mitad del impuesto de la parte que sí lo sea: 500 por cada 10 000.', hoy: hoyV, optimizado: optV, ahorro: R(hoyV - optV), tipo: 'impuesto', condicional: true, fundamento: 'Res. 202/2026, párrafo 0114822', destino: 'tab-fiscal' }); }
                 consulta.push({ titulo: 'Tus trabajadores no presentan DJ por el proyecto', texto: 'Los ingresos que tus contratados reciben del proyecto están exonerados de su Declaración Jurada anual (Res. 202/2026, art. 12): un trámite menos para tu equipo, y un argumento para contratar.' });
-                consulta.push({ titulo: 'Utilidades y divisa del PDL: pendientes de la norma', texto: 'El tipo del impuesto sobre utilidades del PDL quedó con una inconsistencia en la propia Resolución 202/2026 («treinta y cinco por ciento (30 %)») y la norma no fija un % de retención de la divisa: la app no calcula ninguno de los dos hasta que salga la corrección oficial.' });
+                consulta.push({ titulo: 'Retención de la divisa del PDL: 80 % sin coeficiente aprobado', texto: 'La Resolución 103/2026 del MEP (art. 7) fija que quien no tenga coeficiente de retención aprobado retiene el 80 % de la divisa de esas fuentes y el 20 % se acredita en CUP; el financiamiento externo, los aportes de capital y los donativos se retienen al 100 % (art. 8). La app todavía no aplica esta retención a los movimientos en divisa: confirma tu caso con el banco antes de operar. (El impuesto sobre utilidades ya se calcula al 35 %: Ley 181/2025, art. 53.2.)' });
             }
             if (ctx.grat) consulta.push({ titulo: 'Gratificaciones: el exento no se duplica', texto: 'Si además de las gratificaciones ejerces otra actividad, el mínimo exento se descuenta en la DJ-08 general y presentas DOS declaraciones (Instructivo DJ-08 de gratificaciones).' });
             consulta.push({ titulo: 'Paga siempre en fecha', texto: 'Un pago fuera de fecha expone a recargo por mora y a multas (Ley 113 y DL 91/2024), y ningún recargo es deducible: el calendario de la pestaña Fiscal te avisa antes de cada vencimiento.' });
@@ -11240,7 +11240,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 titulares:(Array.isArray(F.titulares)?F.titulares:[]).map(s=>String(s||'').trim()).filter(Boolean),
                 indicadores:String(F.indicadores||''), terminosFin:String(F.terminosFin||''),
                 camPct:Math.min(100,Math.max(0,Number(F.camPct)||0)),
-                distribuciones:(Array.isArray(F.distribuciones)?F.distribuciones:[]).filter(x=>x&&typeof x==='object').map(x=>({anio:Math.floor(Number(x.anio)||0), utilidad:+(Number(x.utilidad)||0).toFixed(2), reserva:+(Number(x.reserva)||0).toFixed(2), retenido:+(Number(x.retenido)||0).toFixed(2), aDistribuir:+(Number(x.aDistribuir)||0).toFixed(2), cam:+(Number(x.cam)||0).toFixed(2), aTitulares:+(Number(x.aTitulares)||0).toFixed(2)})),
+                distribuciones:(Array.isArray(F.distribuciones)?F.distribuciones:[]).filter(x=>x&&typeof x==='object').map(x=>({anio:Math.floor(Number(x.anio)||0), utilidad:+(Number(x.utilidad)||0).toFixed(2), impuesto:+(Number(x.impuesto)||0).toFixed(2), utilidadNeta:+(Number(x.utilidadNeta)||0).toFixed(2), reserva:+(Number(x.reserva)||0).toFixed(2), retenido:+(Number(x.retenido)||0).toFixed(2), aDistribuir:+(Number(x.aDistribuir)||0).toFixed(2), cam:+(Number(x.cam)||0).toFixed(2), aTitulares:+(Number(x.aTitulares)||0).toFixed(2)})),
                 liquidacion:(F.liquidacion&&typeof F.liquidacion==='object')?F.liquidacion:{},
                 fuentes
             };
@@ -11264,14 +11264,23 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            Contingencias (se nutre con el 10 % de las utilidades) →
            retenido → a distribuir → aporte al CAM (el % fijado en el
            acuerdo de aprobación) → titulares. */
+        /* Distribución anual del PDL: primero el Impuesto sobre
+           Utilidades al 35 % (Res. 202/2026, art. 7; Ley 181/2025,
+           art. 53.2 — decisión de Leonardo del 2026-10-26: se aplica
+           el 35 % hasta que un dato oficial diga lo contrario) y la
+           distribución se hace sobre la utilidad DESPUÉS de impuestos
+           (Decreto 174/2026, art. 48): Reserva (10 % de la utilidad
+           neta, Res. 202/2026 art. 17) → retenido → CAM → titulares. */
         function gPdlDistribucionCalc(utilidad, camPct, retenidoPct){
             const u=Math.max(0,+(Number(utilidad)||0).toFixed(2));
-            const reserva=+(u*0.10).toFixed(2);
-            const base=u-reserva;
+            const impuesto=+(u*0.35).toFixed(2);
+            const utilidadNeta=+(u-impuesto).toFixed(2);
+            const reserva=+(utilidadNeta*0.10).toFixed(2);
+            const base=utilidadNeta-reserva;
             const retenido=+(base*Math.min(100,Math.max(0,Number(retenidoPct)||0))/100).toFixed(2);
             const aDistribuir=+(base-retenido).toFixed(2);
             const cam=+(aDistribuir*Math.min(100,Math.max(0,Number(camPct)||0))/100).toFixed(2);
-            return {utilidad:u, reserva, retenido, aDistribuir, cam, aTitulares:+(aDistribuir-cam).toFixed(2)};
+            return {utilidad:u, impuesto, utilidadNeta, reserva, retenido, aDistribuir, cam, aTitulares:+(aDistribuir-cam).toFixed(2)};
         }
         function gPdlAlertas(ficha,hoyISO){
             const out={nivel:null, motivos:[], venceVigencia:'', proximaEvaluacion:'', diasVigencia:null, diasEvaluacion:null, sobreTope:false, cercaTope:false, fechaAdecuacion:'', diasAdecuacion:null};
@@ -11282,8 +11291,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(out.proximaEvaluacion) out.diasEvaluacion=gDiasEntre(hoyISO,out.proximaEvaluacion);
             /* Adecuación al Decreto 174/2026: los PDL aprobados ANTES de
                su vigencia (2026-11-20) tienen 180 días para adecuarse
-               (Disposición Transitoria Única) → 2027-05-19; la fecha
-               exacta está por confirmar oficialmente. */
+               (Disposición Transitoria Única: contados a partir de la
+               entrada en vigor) → 2027-05-19. */
             if(ficha.fechaAprobacion&&ficha.fechaAprobacion<'2026-11-20'){ out.fechaAdecuacion=gPdlSumarDias('2026-11-20',180); out.diasAdecuacion=gDiasEntre(hoyISO,out.fechaAdecuacion); }
             if(ficha.estado!=='activo') return out;
             let rojo=false, ambar=false;
@@ -11297,7 +11306,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             }
             if(out.diasAdecuacion!==null){
                 if(out.diasAdecuacion<0){ rojo=true; out.motivos.push('Adecuación al Decreto 174/2026: el plazo de 180 días venció el '+out.fechaAdecuacion); }
-                else if(out.diasAdecuacion<=90){ ambar=true; out.motivos.push('Adecuación al Decreto 174/2026: proyecto aprobado antes de la vigencia; debe adecuarse antes del '+out.fechaAdecuacion+' (quedan '+out.diasAdecuacion+' días; fecha exacta por confirmar oficialmente)'); }
+                else if(out.diasAdecuacion<=90){ ambar=true; out.motivos.push('Adecuación al Decreto 174/2026: proyecto aprobado antes de la vigencia; debe adecuarse antes del '+out.fechaAdecuacion+' (quedan '+out.diasAdecuacion+' días; 180 días contados desde la entrada en vigor)'); }
             }
             const c=ficha.contratados||0;
             if(c>100){ rojo=true; out.sobreTope=true; out.motivos.push('Contratados: '+c+' — SUPERA el tope de 100 del PDL (superarlo implica transformarse en empresa)'); }
@@ -11854,7 +11863,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 <div class="col-md-3"><label class="form-label small mb-1">% retenido (tras la Reserva)</label><input id="pdlD_retenidoPct" type="number" min="0" max="100" step="0.01" class="form-control form-control-sm" value="0"></div>
                 <div class="col-md-4"><button type="button" class="btn btn-sm btn-outline-primary" id="btnPdlDistribuir"><i class="bi bi-calculator me-1"></i>Calcular y guardar distribución</button></div>
               </div>
-              ${f.distribuciones.length?`<div class="table-responsive mt-2"><table class="table table-sm align-middle mb-0"><thead><tr><th>Año</th><th class="text-end">Utilidad</th><th class="text-end">Reserva (10 %)</th><th class="text-end">Retenido</th><th class="text-end">A distribuir</th><th class="text-end">Aporte CAM</th><th class="text-end">A titulares</th><th></th></tr></thead><tbody>${f.distribuciones.slice().sort((a,b)=>b.anio-a.anio).map(d=>`<tr><td>${d.anio}</td><td class="text-end">${moneda(d.utilidad)}</td><td class="text-end">${moneda(d.reserva)}</td><td class="text-end">${moneda(d.retenido)}</td><td class="text-end">${moneda(d.aDistribuir)}</td><td class="text-end">${moneda(d.cam)}</td><td class="text-end">${moneda(d.aTitulares)}</td><td><button type="button" class="btn btn-sm btn-outline-danger" data-pdl-del-dist="${d.anio}" title="Quitar la distribución de este año">✕</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-secondary">Sin distribuciones registradas todavía.</div>'}
+              ${f.distribuciones.length?`<div class="table-responsive mt-2"><table class="table table-sm align-middle mb-0"><thead><tr><th>Año</th><th class="text-end">Utilidad</th><th class="text-end">Impuesto (35 %)</th><th class="text-end">Utilidad neta</th><th class="text-end">Reserva (10 %)</th><th class="text-end">Retenido</th><th class="text-end">A distribuir</th><th class="text-end">Aporte CAM</th><th class="text-end">A titulares</th><th></th></tr></thead><tbody>${f.distribuciones.slice().sort((a,b)=>b.anio-a.anio).map(d=>`<tr><td>${d.anio}</td><td class="text-end">${moneda(d.utilidad)}</td><td class="text-end">${moneda(d.impuesto||0)}</td><td class="text-end">${moneda(d.utilidadNeta||0)}</td><td class="text-end">${moneda(d.reserva)}</td><td class="text-end">${moneda(d.retenido)}</td><td class="text-end">${moneda(d.aDistribuir)}</td><td class="text-end">${moneda(d.cam)}</td><td class="text-end">${moneda(d.aTitulares)}</td><td><button type="button" class="btn btn-sm btn-outline-danger" data-pdl-del-dist="${d.anio}" title="Quitar la distribución de este año">✕</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="small text-secondary">Sin distribuciones registradas todavía.</div>'}
               <div class="small text-secondary mt-2"><i class="bi bi-question-circle me-1"></i><b>Cautela:</b> la contabilidad del PDL se lleva con el <b>plan general de cuentas</b> de la app. El tratamiento contable y bancario específico del PDL está <b>pendiente de verificar</b> contra las Resoluciones 202/2026 (MFP) y 118/2026 (BCC) de la Gaceta Oficial No. 87 de 2026; la app no aplica cuentas especiales ni reglas bancarias al PDL hasta confirmarlo. El PDL tampoco tiene Declaración Jurada propia en la app.</div>
             </div>`;
         }
@@ -11894,7 +11903,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             prev.distribuciones.push(Object.assign({anio}, calc));
             data.pdlFichas[n]=prev; saveCobrosGestor(data);
             renderGestorDetalle();
-            alert('✅ Distribución '+anio+' guardada:\nReserva (10 %): '+moneda(calc.reserva)+'\nRetenido: '+moneda(calc.retenido)+'\nA distribuir: '+moneda(calc.aDistribuir)+'\nAporte al CAM: '+moneda(calc.cam)+'\nA titulares: '+moneda(calc.aTitulares));
+            alert('✅ Distribución '+anio+' guardada:\nImpuesto sobre Utilidades (35 %, párrafo 040012): '+moneda(calc.impuesto)+'\nUtilidad después de impuestos: '+moneda(calc.utilidadNeta)+'\nReserva (10 % de la utilidad neta): '+moneda(calc.reserva)+'\nRetenido: '+moneda(calc.retenido)+'\nA distribuir: '+moneda(calc.aDistribuir)+'\nAporte al CAM: '+moneda(calc.cam)+'\nA titulares: '+moneda(calc.aTitulares));
         }
         function gestorBorrarDistribucion(n,anio){
             const data=getCobrosGestor(); const prev=(data.pdlFichas||{})[n]; if(!prev) return;
@@ -14682,7 +14691,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-13';
+        var MANUAL_VERSION = 'v2026.10.26-14';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14971,13 +14980,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'gestor-pdl', modulo:'gestor', titulo:'Clientes PDL (Decreto 174/2026)', html:
             '<p>Los <b>Proyectos de Desarrollo Local</b> son el tercer tipo de cliente del Gestor, con su ficha propia según el Decreto 174/2026 y la Resolución 202/2026 del MFP:</p>' +
             '<ul><li>Órgano aprobador (Consejo de la Administración Municipal), estrategia a la que responde (EDM/EDP), <b>modalidad</b> del proyecto (art. 34: económico–productivo, sociocultural, ambiental, institucional o de investigación, desarrollo e innovación), <b>titulares</b>, indicadores y metas aprobados y términos de finalización.</li>' +
-            '<li><b>Vigencia de 5 años</b> con la fecha de vencimiento calculada sola, y <b>evaluación semestral</b> (art. 40.1) con su próxima fecha: el Gestor avisa en ámbar al acercarse y en rojo si venció. Los proyectos aprobados <b>antes de la vigencia</b> del Decreto tienen <b>180 días para adecuarse</b>: la ficha y el calendario avisan de ese plazo (la fecha exacta está por confirmar oficialmente).</li>' +
+            '<li><b>Vigencia de 5 años</b> con la fecha de vencimiento calculada sola, y <b>evaluación semestral</b> (art. 40.1) con su próxima fecha: el Gestor avisa en ámbar al acercarse y en rojo si venció. Los proyectos aprobados <b>antes de la vigencia</b> del Decreto tienen <b>180 días para adecuarse</b>, contados desde la entrada en vigor (20-11-2026): el plazo vence el <b>19-05-2027</b> y la ficha y el calendario avisan de él.</li>' +
             '<li><b>Fuentes de financiamiento</b> con la taxonomía del art. 43.1 (fondo para el desarrollo local, fondo de fideicomiso, cooperación internacional, créditos bancarios, presupuesto del Estado…), cada una con su monto, su ejecución y su marca de <b>reembolsable</b> (el fideicomiso lo es siempre y lleva una <b>comisión bancaria del 4 %</b> que paga el beneficiario, Resolución 118/2026 del BCC).</li>' +
-            '<li><b>Distribución anual de la utilidad</b>: utilidad → Reserva para Pérdidas y Contingencias (10 %) → retenido → a distribuir → <b>aporte al CAM</b> (el % fijado en el acuerdo de aprobación) → titulares, que tributan su impuesto personal tras la distribución. Y en la <b>nómina</b> del PDL, la distribución de utilidades a los trabajadores suma a la base de su Contribución Especial (Resolución 202/2026, art. 13 d).</li>' +
+            '<li><b>Distribución anual de la utilidad</b>: utilidad → <b>Impuesto sobre Utilidades (35 %</b>, párrafo 040012) → utilidad después de impuestos → Reserva para Pérdidas y Contingencias (10 % de la utilidad neta) → retenido → a distribuir → <b>aporte al CAM</b> (el % fijado en el acuerdo de aprobación) → titulares, que tributan su impuesto personal tras la distribución. Y en la <b>nómina</b> del PDL, la distribución de utilidades a los trabajadores suma a la base de su Contribución Especial (Resolución 202/2026, art. 13 d).</li>' +
             '<li>Cuenta bancaria CUP por título del proyecto, número de contratados con <b>alerta al acercarse al tope de 100</b> (superarlo implica transformarse en empresa) y estado: activo, en liquidación, extinguido o convertido en actor económico.</li>' +
             '<li>En <b>liquidación</b>, el panel del negocio muestra el <b>procedimiento paso a paso</b> de la Resolución 202/2026 (Comisión Liquidadora, balance a valor de realización, informe mensual, prelación de pagos, sobrante al Presupuesto por el párrafo 121050 y cierre de la cuenta). Al <b>convertirse</b>, el Gestor genera el <b>acta de traspaso de saldos</b>: todos los bienes del proyecto son el patrimonio inicial del sucesor (art. 51.2).</li>' +
             '<li>El panel del negocio incluye el <b>Informe para la evaluación del CAM</b>: documento de apoyo del semestre (la norma no fija un modelo oficial) con la ejecución por fuentes, los resultados y el empleo.</li></ul>' +
-            '<p>Cautela: el Impuesto sobre Utilidades del PDL <b>no se calcula automáticamente</b>: el art. 7 de la Resolución 202/2026 dice «treinta y cinco por ciento (30 %)» y, mientras el MFP no corrija la inconsistencia, se liquida a mano con el tipo que confirme la ONAT. Tampoco se fija ningún % de retención de divisa: la norma vigente no lo establece.</p>'},
+            '<p>El Impuesto sobre Utilidades del PDL se calcula al <b>35 %</b> (Ley 181/2025, art. 53.2, y Resolución 202/2026, art. 7; la primera edición impresa de la Gaceta 87 traía «(30 %)» entre paréntesis: si el MFP publica otro dato oficial, se ajusta). La <b>retención de la divisa</b> está fijada por la Resolución 103/2026 del MEP: 80 % sin coeficiente de retención aprobado (el 20 % se acredita en CUP) y 100 % en financiamiento externo, aportes de capital y donativos; la app aún no aplica esa retención automáticamente a los movimientos en divisa.</p>'},
         {id:'gestor-informe', modulo:'gestor', titulo:'El informe mensual para el cliente', html:
             '<p>Para cada cliente generas su <b>informe mensual</b>: una hoja lista para enviar por WhatsApp con el resumen del mes y el movimiento de cada cuenta con <b>saldo inicial → saldo final</b>. Se imprime o se comparte con el botón PDF de la tarjeta.</p>' +
             '<p>Si el cliente es un PDL y tiene fuentes cargadas, el informe incluye el bloque de fuentes con su ejecución.</p>'},
