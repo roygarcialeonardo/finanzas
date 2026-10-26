@@ -10952,7 +10952,11 @@ function mjPermisos(rol,modulo){ const M={
                 document.getElementById('adminTabNav').style.display = esAdmin ? '' : 'none';
                 document.getElementById('gestorTabNav').style.display = esAdmin ? '' : 'none';
                 if (esAdmin) {
-                    ['tab-resumen','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-tasas','tab-aft','tab-cierre'].forEach(id=>{
+                    /* Vista administradora: solo Gestor y Configuración. Además de
+                       las operativas del negocio, se ocultan DJ, Contabilidad,
+                       Gestión+, Ayuda e Instrucciones (decisión de Leonardo,
+                       2026-10-25): esos apartados viven dentro de cada negocio. */
+                    ['tab-resumen','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-ayuda','tab-instrucciones'].forEach(id=>{
                         const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
                     });
                     document.getElementById('negocioNombreBadge').style.display='none';
@@ -13322,7 +13326,7 @@ function mjPermisos(rol,modulo){ const M={
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.25-1';
+        var MANUAL_VERSION = 'v2026.10.25-2';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -13352,6 +13356,7 @@ function mjPermisos(rol,modulo){ const M={
             '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
             '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
             '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
+            '<li><b>La cuenta administradora tiene su propia vista:</b> su menú solo muestra <b>Gestor</b> y <b>Configuración</b>; los apartados de trabajo de cada negocio (DJ, Contabilidad, Gestión+) y los de consulta (Ayuda e Instrucciones) no aparecen en esa cuenta, porque viven dentro de cada negocio.</li>' +
             '<li>La ficha de cada negocio guarda su nombre, su NIT y su régimen (TCP o MIPYME); ese dato manda en la DJ y en las validaciones.</li></ul>'},
         {id:'navegar', modulo:'empezar', titulo:'Moverte por la app: menú, submenú de secciones y los «?»', html:
             '<p>A la izquierda está el menú principal con todos los módulos. Al abrir uno, a su derecha aparece el <b>submenú de secciones</b> con las tarjetas de ese módulo: un clic muestra <b>solo</b> esa sección y «👁 Ver todo» las muestra todas otra vez.</p>' +
@@ -13907,8 +13912,19 @@ function mjPermisos(rol,modulo){ const M={
     }
     return null;
   }
+  /* ¿Estamos en la vista administradora? handleLogin deja «Configuración»
+     (adminTabNav) visible SOLO para el rol admin y oculta el resto; es la
+     señal del DOM que esta IIFE puede leer (isAdmin vive en otro ámbito). */
+  function vistaAdministradora(){
+    var nav=document.getElementById('adminTabNav');
+    var dash=document.getElementById('dashboardContainer');
+    return !!(nav && nav.style.display!=='none' && dash && dash.classList.contains('visible'));
+  }
   function irAyuda(clave, idx, titulo){
     try{
+      /* En la vista administradora el menú «Ayuda» no se ofrece (decisión de
+         Leonardo, 2026-10-25): cualquier llamada queda sin efecto. */
+      if(vistaAdministradora()) return;
       var tabBtn=document.getElementById('tab-ayuda');
       if(!tabBtn) return;
       var destino=function(){
@@ -13958,6 +13974,13 @@ function mjPermisos(rol,modulo){ const M={
     try{
       var content=document.getElementById('cuentasTabsContent');
       if(!content) return;
+      /* Vista administradora: sin menú «Ayuda», tampoco se siembran los
+         botones «?» que llevan a él (y se retiran los que ya hubiera de
+         antes de entrar, p. ej. los sembrados en el arranque sin sesión). */
+      if(vistaAdministradora()){
+        content.querySelectorAll('.ayuda-dot').forEach(function(d){ d.remove(); });
+        return;
+      }
       content.querySelectorAll('.tab-pane').forEach(function(pane){
         if(pane.id==='pane-ayuda'||pane.id==='pane-instrucciones') return;
         var clave=pane.id.replace(/^pane-/,'');
