@@ -1247,7 +1247,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <button class="btn btn-outline-primary" id="btnAddPuesto"><span class="icono-anim" data-icono="mas"></span> Añadir</button>
                 </div>
                 <div id="puestosList"></div>
-                <small class="text-muted d-block mt-2">Al crear o editar un trabajador podrás elegir su cargo de esta lista.</small>
+                <div id="plantillaBox" class="mt-2"></div>
+                <small class="text-muted d-block mt-2">Al crear o editar un trabajador podrás elegir su cargo de esta lista. La plantilla compara las plazas aprobadas por el negocio con las ocupadas por los trabajadores activos.</small>
             </div>
 
             <div class="row g-3">
@@ -1667,6 +1668,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div id="mjIpvBox" class="small mb-3"></div>
                 <div id="mjLaboralBox" class="small mb-3"></div>
+                <div id="mjIncidenciasBox" class="small mb-3"></div>
                 <div id="mjConsignacionBox" class="small"></div>
                 <div class="small text-secondary mt-3">Trabajo sin conexión: lo garantiza el blindaje de la ronda 10 (copia local restaurable + reintento de guardado + aviso «sin guardar»). No se promete sincronización nueva entre dispositivos.</div>
             </div>
@@ -2936,6 +2938,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="col-md-6"><label class="form-label">Provincia</label><input id="trabProvincia" class="form-control" maxlength="60"></div>
         <div class="col-12"><label class="form-label">Dirección completa</label><input id="trabDireccion" class="form-control" maxlength="180"></div>
         <div class="col-12"><label class="form-label">Notas</label><input id="trabNotas" class="form-control" maxlength="180" placeholder="Opcional"></div>
+        <div class="col-md-4"><label class="form-label">Tipo de contrato (Ley 189)</label><select id="trabContratoTipo" class="form-select"><option value="indeterminado">Indeterminado</option><option value="determinado">Determinado</option><option value="obra">Ejecución de obra o servicio</option></select></div>
+        <div class="col-md-4"><label class="form-label">Fecha del contrato</label><input id="trabContratoFecha" type="date" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Fin previsto (si es determinado)</label><input id="trabContratoFin" type="date" class="form-control"></div>
+        <div class="col-md-6"><label class="form-label">Lugar de trabajo</label><input id="trabLugar" class="form-control" maxlength="120" placeholder="Ej.: sede del negocio · teletrabajo"></div>
+        <div class="col-md-6"><label class="form-label">Jornada / régimen de trabajo y descanso</label><input id="trabJornada" class="form-control" maxlength="120" placeholder="Ej.: 8 h diarias, lunes a viernes"></div>
         <div class="col-12"><hr class="my-1"><label class="form-label">Complementos aplicables a este trabajador</label><div class="row g-1" id="trabCompList"></div><small class="text-muted d-block mt-1">Marca los conceptos que se aplican a este trabajador y completa los días, horas o montos del mes en curso. Se aplican a la nómina al momento, sin esperar al botón Guardar.</small></div>
       </div>
     </div>
@@ -4111,6 +4118,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const inp = document.getElementById('puestoNombre'), btn = document.getElementById('btnAddPuesto');
             if (inp) inp.style.display = editable ? '' : 'none';
             if (btn) btn.style.display = editable ? '' : 'none';
+            const pb = document.getElementById('plantillaBox');
+            if (pb && typeof mjPlantillaCargos === 'function') { const pl = mjPlantillaCargos(getRRHH());
+                pb.innerHTML = pl.filas.length ? '<div class="fw-semibold small mb-1">Plantilla de cargos (aprobadas vs. ocupadas)</div><div class="table-responsive"><table class="table table-sm align-middle mb-1"><thead><tr><th>Cargo</th><th style="width:150px">Plazas aprobadas</th><th>Ocupadas</th><th>Libres</th></tr></thead><tbody>' + pl.filas.map(f => `<tr><td>${esc(f.cargo)}${f.sobre ? ' <span class="badge bg-danger">sobreplantilla</span>' : ''}</td><td><input type="number" min="0" step="1" class="form-control form-control-sm" value="${f.aprobadas}" data-cargo="${esc(f.cargo)}" onchange="mjPlantillaPlazasUI(this)" ${editable ? '' : 'disabled'}></td><td>${f.ocupadas}</td><td>${f.libres}</td></tr>`).join('') + `</tbody></table></div><small class="text-muted">Total: ${pl.totalOcupadas} ocupadas de ${pl.totalAprobadas} aprobadas. La MIPYME define su estructura y plantilla sin aprobación externa (DL 46/2021); el TCP contrata hasta 3 trabajadores.</small>` : ''; }
         }
         function abrirTrabajador(id) {
             if (!puedeEditar()) return;
@@ -4133,6 +4143,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('trabMunicipio').value=t?(t.municipio||''):'';
             document.getElementById('trabProvincia').value=t?(t.provincia||''):'';
             document.getElementById('trabDireccion').value=t?(t.direccion||''):'';
+            document.getElementById('trabContratoTipo').value=t&&t.contrato?(t.contrato.tipo||'indeterminado'):'indeterminado';
+            document.getElementById('trabContratoFecha').value=t&&t.contrato?(t.contrato.fecha||''):'';
+            document.getElementById('trabContratoFin').value=t&&t.contrato?(t.contrato.fechaFin||''):'';
+            document.getElementById('trabLugar').value=t&&t.contrato?(t.contrato.lugar||''):'';
+            document.getElementById('trabJornada').value=t&&t.contrato?(t.contrato.jornada||''):'';
             const _pl=document.getElementById('trabPuestosList');
             if(_pl) _pl.innerHTML=getPuestos().map(p=>`<option value="${esc(p)}">`).join('');
             const _per=periodoNominaActual(), _dd=getRRHH();
@@ -4185,7 +4200,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const _ca={}, _comp={};
             COMP_DEF.forEach(c=>{ const _el=document.getElementById('trab-comp-'+c.id), _on=_el?_el.checked:false; _ca[c.id]=_on; if(_on) Object.assign(_comp, leerCamposConcepto(c.id)); });
             Object.assign(_comp, leerControlDias());
-            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim(),numSegSocial:document.getElementById('trabNumSS').value.trim(),centroCosto:document.getElementById('trabCentroCosto').value.trim()};
+            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim(),numSegSocial:document.getElementById('trabNumSS').value.trim(),centroCosto:document.getElementById('trabCentroCosto').value.trim(),contrato:{tipo:document.getElementById('trabContratoTipo').value||'indeterminado',fecha:document.getElementById('trabContratoFecha').value||'',fechaFin:document.getElementById('trabContratoFin').value||'',lugar:document.getElementById('trabLugar').value.trim(),jornada:document.getElementById('trabJornada').value.trim()}};
             let _wid=trabajadorEditId;
             if(_wid){ const i=d.trabajadores.findIndex(x=>String(x.id)===String(_wid)); if(i>=0)d.trabajadores[i]=Object.assign({},d.trabajadores[i],obj); }
             else { obj.id='w'+Date.now(); _wid=obj.id; d.trabajadores.push(obj); }
@@ -8273,14 +8288,49 @@ function mjIPVTurno(conta,datos){ datos=datos||{}; const fecha=datos.fecha||'';
   return {fecha:fecha,cajero:datos.cajero||'',filas:out,nota:'IPV reconstruido del inventario (apertura = existencia actual − entradas del día + salidas del día). No es un POS: no registra la venta en el momento'}; }
 function mjCierreCajero(datos){ datos=datos||{}; const esp=Number(datos.esperado)||0, cont=Number(datos.contado)||0;
   return {esperado:mjR2(esp),contado:mjR2(cont),diferencia:mjR2(cont-esp),cuadra:Math.abs(cont-esp)<0.005,cajero:datos.cajero||'',turno:datos.turno||''}; }
-function mjExpedienteLaboral(rrhh){ const out=[];
-  for(const t of ((rrhh&&rrhh.trabajadores)||[])){ const falt=[];
-    if(!t.nombre) falt.push('nombre'); if(!t.ci) falt.push('carnet de identidad'); if(!t.cargo) falt.push('cargo');
-    if(!t.fechaAlta) falt.push('fecha de alta'); if(!(t.contrato&&t.contrato.fecha)) falt.push('contrato de trabajo');
-    if(!Array.isArray(t.documentos)||!t.documentos.length) falt.push('documentos del expediente');
-    out.push({id:t.id,nombre:t.nombre||'',faltantes:falt,completo:falt.length===0}); }
-  return {trabajadores:out,incompletos:out.filter(x=>!x.completo).length,
-    nota:'Expediente laboral básico enlazado a la nómina: ficha, contrato y documentos registrados por nombre/fecha (los archivos viven fuera de la app)'}; }
+function mjExpedienteLaboral(rrhh, hoyISO){ const out=[];
+  const hoyTxt = hoyISO || new Date().toISOString().slice(0,10);
+  const tieneDoc=(t, re)=> (Array.isArray(t.documentos)?t.documentos:[]).some(d=>{ const n=typeof d==='string'?d:((d&&(d.nombre||d.tipo))||''); return re.test(n); });
+  const conNomina=(id)=>{ const ns=(rrhh&&rrhh.nominas)||{}; return Object.keys(ns).some(p=>{ const n=ns[p]||{}; return Object.prototype.hasOwnProperty.call(n, String(id)); }); };
+  for(const t of ((rrhh&&rrhh.trabajadores)||[])){
+    const baja = !!(t.fechaBaja && t.fechaBaja <= hoyTxt);
+    const items=[];
+    items.push({clave:'datos', nombre:'Datos: nombres, identidad permanente y domicilio', estado: (t.nombre&&t.ci&&t.direccion)?'ok':'falta', requerido:true});
+    items.push({clave:'contrato', nombre:'Contrato de trabajo y suplementos', estado: (t.contrato&&t.contrato.fecha)?'ok':'falta', requerido:true});
+    items.push({clave:'tiempo', nombre:'Documentos de tiempo de servicio y remuneraciones', estado: (tieneDoc(t,/tiempo|remuneraci|salario|certificaci/i)||conNomina(t.id))?'ok':'falta', requerido:true});
+    items.push({clave:'calificacion', nombre:'Copia del documento de calificación formal', estado: tieneDoc(t,/calificaci|t[ií]tulo|diploma/i)?'ok':'cuando', requerido:false});
+    items.push({clave:'nombramiento', nombre:'Nombramiento o designación y modificaciones', estado: tieneDoc(t,/nombramiento|designaci/i)?'ok':'cuando', requerido:false});
+    items.push({clave:'eleccion', nombre:'Acuerdo de elección y acta de toma de posesión', estado: tieneDoc(t,/elecci|toma de posesi/i)?'ok':'cuando', requerido:false});
+    items.push({clave:'registro', nombre:'Certificación del Registro de Inscripción Profesional', estado: tieneDoc(t,/registro.*profesional|inscripci/i)?'ok':'cuando', requerido:false});
+    items.push({clave:'graduado', nombre:'Documento de asignación del recién graduado', estado: tieneDoc(t,/graduado|asignaci/i)?'ok':'cuando', requerido:false});
+    items.push({clave:'peritaje', nombre:'Dictámenes de la Comisión de Peritaje Médico Laboral', estado: tieneDoc(t,/peritaje|dictamen/i)?'ok':'cuando', requerido:false});
+    items.push({clave:'disciplina', nombre:'Medidas disciplinarias y sentencias (firmes)', estado: tieneDoc(t,/disciplin|sentencia|sanci/i)?'ok':'cuando', requerido:false});
+    items.push({clave:'indice', nombre:'Índice de documentos (lo genera la app)', estado:'ok', requerido:false});
+    items.push({clave:'acta', nombre:'Copia del acta de entrega del expediente', estado: !baja ? 'na' : (tieneDoc(t,/acta de entrega/i)?'ok':'falta'), requerido: baja});
+    const falt = items.filter(x=>x.requerido && x.estado==='falta').map(x=>x.nombre);
+    let revPend=false;
+    if(t.fechaAlta && !baja){ const meses=(Date.parse(hoyTxt)-Date.parse(t.fechaAlta))/2592000000; if(meses>6){ const ult=t.expedienteRevision||''; revPend = !ult || ((Date.parse(hoyTxt)-Date.parse(ult))/2592000000>12); } }
+    const vencido = !!(t.fechaAlta && falt.length && ((Date.parse(hoyTxt)-Date.parse(t.fechaAlta))/86400000>15));
+    out.push({id:t.id, nombre:t.nombre||'', items:items, faltantes:falt, completo:falt.length===0, revisionPendiente:revPend, vencido:vencido, baja:baja, evaluaciones:Array.isArray(t.evaluaciones)?t.evaluaciones:[]});
+  }
+  return {trabajadores:out, incompletos:out.filter(x=>!x.completo).length,
+    nota:'Expediente laboral según la Ley 189/2026 (arts. 76-82): se conforma en papel y digital tras el período de prueba (≤15 días) para relaciones de más de 6 meses; los documentos «cuando corresponda» no bloquean. Revisión anual firmada por el trabajador (art. 78). Tiempo y remuneraciones se acreditan también con las nóminas de la propia app. Los archivos viven fuera de la app: aquí se registran por nombre y fecha.'}; }
+function mjPlantillaCargos(rrhh, hoyISO){ const hoyTxt=hoyISO||new Date().toISOString().slice(0,10);
+  const cargos=new Map(); const add=(c)=>{ if(c && !cargos.has(c)) cargos.set(c, {cargo:c, aprobadas:0, ocupadas:0}); };
+  ((rrhh&&rrhh.puestos)||[]).forEach(p=>add(typeof p==='string'?p:(p&&p.nombre)));
+  ((rrhh&&rrhh.trabajadores)||[]).forEach(t=>add(t.cargo));
+  const plan=(rrhh&&rrhh.plantilla)||{};
+  cargos.forEach((f,c)=>{ f.aprobadas = Number(plan[c])||0; });
+  ((rrhh&&rrhh.trabajadores)||[]).forEach(t=>{ if(!t.cargo) return; const activo = !t.fechaBaja || t.fechaBaja>hoyTxt; if(activo && cargos.has(t.cargo)) cargos.get(t.cargo).ocupadas++; });
+  const filas=[...cargos.values()].map(f=>({cargo:f.cargo, aprobadas:f.aprobadas, ocupadas:f.ocupadas, libres:f.aprobadas-f.ocupadas, sobre:f.aprobadas>0 && f.ocupadas>f.aprobadas}));
+  return {filas:filas, totalAprobadas:filas.reduce((a,f)=>a+f.aprobadas,0), totalOcupadas:filas.reduce((a,f)=>a+f.ocupadas,0),
+    nota:'Plantilla de cargos: plazas aprobadas por el negocio frente a ocupadas por trabajadores activos. La MIPYME define su estructura y plantilla sin aprobación externa (DL 46/2021).'}; }
+function mjIncidenciasPeriodo(rrhh, periodo){ const n=((rrhh&&rrhh.nominas)||{})[periodo]||{}; const filas=[];
+  for(const t of ((rrhh&&rrhh.trabajadores)||[])){ const reg=n[t.id]; if(!reg) continue; const comp=reg.comp||{};
+    const auJust=Number(comp.diasAusJust)||0, auInjust=Number(comp.diasAusInjust)||0;
+    const aus=(auJust+auInjust)>0?(auJust+auInjust):(Number(comp.diasAus)||0);
+    filas.push({id:t.id, nombre:t.nombre||'', cargo:t.cargo||'', diasTrab:(comp.diasTrab!==undefined&&comp.diasTrab!==null&&comp.diasTrab!=='')?Number(comp.diasTrab):null, diasAus:aus, diasAusJust:auJust, diasAusInjust:auInjust, diasLic:Number(comp.diasLic)||0, heHoras:Number(comp.heHoras)||0}); }
+  return {periodo:periodo, filas:filas, nota:'Incidencias del período desde el control de días de la nómina (la misma fuente que alimenta la pre-nómina): días trabajados, ausencias justificadas e injustificadas, licencias y horas extras.'}; }
 function mjConsignacionLiquidacion(items,ventas){ const porDueno={};
   for(const it of (items||[])){ const d=it.dueno||'Sin dueño'; const e=porDueno[d]||(porDueno[d]={dueno:d,recibido:0,vendido:0,liquidar:0});
     e.recibido=mjR2(e.recibido+(Number(it.cantidad)||0)); }
@@ -10913,10 +10963,28 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const kb=document.getElementById('mjCreditosBox'); if(kb){ kb.innerHTML='<b>Créditos bancarios:</b> '+(g.creditos.length?g.creditos.map(cr=>`<div>· ${esc(cr.numero||cr.id)} · principal ${moneda(cr.principal)} · cuota ${moneda(cr.tabla?mjCreditoTabla(cr).cuota:0)} · intereses totales ${moneda(cr.tabla?mjCreditoTabla(cr).totalIntereses:0)} <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjCreditoDevengoUI('${cr.id}')">Devengar intereses del período</button></div>`).join(''):'<span class="text-secondary">ninguno.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjCreditoCrearUI()">Registrar crédito</button>'; }
             const rv=document.getElementById('mjRevalBox'); if(rv){ rv.innerHTML='<b>Revalorización multimoneda amplia</b> (caja/banco ya se revaloriza al cerrar el mes; aquí registras otros saldos en divisa: CxC, CxP…): '+(g.saldosDivisa.length?g.saldosDivisa.map(s=>`<div>· ${esc(s.cuenta)} · ${esc(s.naturaleza)} · ${s.montoDivisa} divisa a tasa ${s.tasa}</div>`).join(''):'<span class="text-secondary">ningún saldo registrado.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjSaldoDivisaUI()">Registrar saldo en divisa</button> <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjRevalAmpliaUI()">Revalorizar con tasa nueva</button>'; }
             const lb=document.getElementById('mjLaboralBox'); if(lb){ const ex=mjExpedienteLaboral(getRRHH());
-                lb.innerHTML='<b>Expediente laboral básico:</b> '+(ex.trabajadores.length?ex.trabajadores.map(t=>`<div>· ${esc(t.nombre)} — ${t.completo?'<span class="text-success">completo</span>':'<span class="text-danger">faltan: '+esc(t.faltantes.join(', '))+'</span>'}</div>`).join(''):'<span class="text-secondary">sin trabajadores.</span>')+`<div class="text-secondary">${esc(ex.nota)}</div>`; }
+                lb.innerHTML='<b>Expediente laboral · Ley 189/2026 (arts. 76-82):</b> '+(ex.trabajadores.length?ex.trabajadores.map(t=>`<div>· ${esc(t.nombre)} — ${t.completo?'<span class="text-success">completo</span>':'<span class="text-danger">faltan: '+esc(t.faltantes.join('; '))+'</span>'}${t.vencido?' <span class="badge bg-warning text-dark">por conformar (&gt;15 días del alta)</span>':''}${t.revisionPendiente?' <span class="badge bg-info text-dark">revisión anual pendiente</span>':''}${(t.evaluaciones&&t.evaluaciones.length)?' <span class="badge bg-secondary">evaluado '+esc(String(t.evaluaciones[t.evaluaciones.length-1].anio||''))+'</span>':''} <button type="button" class="btn btn-sm btn-outline-success" onclick="mjExpedienteDocUI('${t.id}')">+ Documento</button> <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjExpedienteRevisionUI('${t.id}')">Revisión firmada</button> <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjEvaluacionUI('${t.id}')">Evaluación anual</button> <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nominaDocContrato('${t.id}')">Contrato</button></div>`).join(''):'<span class="text-secondary">sin trabajadores.</span>')+`<div class="text-secondary">${esc(ex.nota)}</div>`; }
+            const ib=document.getElementById('mjIncidenciasBox'); if(ib){ const inc=mjIncidenciasPeriodo(getRRHH(), periodoNominaActual());
+                ib.innerHTML='<b>Incidencias del período ('+esc(inc.periodo)+'):</b> '+(inc.filas.length?'<div class="table-responsive"><table class="table table-sm mb-1"><thead><tr><th>Trabajador</th><th>Días trab.</th><th>Aus. just.</th><th>Aus. injust.</th><th>Licencias</th><th>Horas extra</th></tr></thead><tbody>'+inc.filas.map(f=>`<tr><td>${esc(f.nombre)}</td><td>${f.diasTrab==null?'—':f.diasTrab}</td><td>${f.diasAusJust}</td><td>${f.diasAusInjust}</td><td>${f.diasLic}</td><td>${f.heHoras}</td></tr>`).join('')+'</tbody></table></div>':'<span class="text-secondary">sin incidencias registradas en el período (se capturan en el control de días de la nómina).</span>')+`<div class="text-secondary">${esc(inc.nota)}</div>`; }
             const gb=document.getElementById('mjConsignacionBox'); if(gb){ const liq=mjConsignacionLiquidacion(g.consignacion,g.consignacionVentas);
                 gb.innerHTML='<b>Consignación (mercancía de terceros, fuera del inventario propio):</b> '+(liq.porDueno.length?liq.porDueno.map(d=>`<div>· ${esc(d.dueno)}: recibido ${d.recibido} · vendido ${d.vendido} · a liquidar <b>${moneda(d.liquidar)}</b></div>`).join(''):'<span class="text-secondary">sin movimientos.</span>')+' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="mjConsignacionRecibirUI()">Recibir mercancía</button> <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjConsignacionVentaUI()">Registrar venta</button><div class="text-secondary">'+esc(liq.nota)+'</div>'; }
         }
+        function mjExpedienteDocUI(id){ if(!puedeEditar())return; const d=getRRHH(); const t=(d.trabajadores||[]).find(x=>String(x.id)===String(id)); if(!t) return;
+            const nombre=prompt('Nombre del documento del expediente de '+(t.nombre||'')+'\n(Ej.: Copia del documento de calificación formal · Dictamen de Peritaje Médico · Acta de entrega):'); if(!nombre||!nombre.trim()) return;
+            if(!Array.isArray(t.documentos)) t.documentos=[]; t.documentos.push({nombre:nombre.trim(), fecha:hoy()}); saveRRHH(d); mjRenderProfundidad();
+            alert('✅ Documento registrado en el expediente de '+t.nombre+' con fecha de hoy. El archivo físico/digital vive fuera de la app.'); }
+        function mjExpedienteRevisionUI(id){ if(!puedeEditar())return; const d=getRRHH(); const t=(d.trabajadores||[]).find(x=>String(x.id)===String(id)); if(!t) return;
+            if(!confirm('¿Registrar la revisión anual del expediente de '+(t.nombre||'')+' como firmada hoy por el trabajador (art. 78, Ley 189/2026)?')) return;
+            t.expedienteRevision=hoy(); saveRRHH(d); mjRenderProfundidad(); alert('✅ Revisión anual registrada: '+t.expedienteRevision+'.'); }
+        function mjEvaluacionUI(id){ if(!puedeEditar())return; const d=getRRHH(); const t=(d.trabajadores||[]).find(x=>String(x.id)===String(id)); if(!t) return;
+            const anio=prompt('Año de la evaluación del desempeño (capacidad demostrada, arts. 71-74 de la Ley 189/2026):', String(new Date().getFullYear())); if(!anio) return;
+            const resultado=prompt('Resultado (ej.: Idóneo / No idóneo, o la categoría que use el negocio):','Idóneo'); if(resultado===null) return;
+            const nota=prompt('Nota breve (opcional):','')||'';
+            if(!Array.isArray(t.evaluaciones)) t.evaluaciones=[]; t.evaluaciones.push({anio:String(anio).trim(), fecha:hoy(), resultado:String(resultado).trim(), nota:String(nota).trim()});
+            saveRRHH(d); mjRenderProfundidad(); alert('✅ Evaluación '+anio+' registrada para '+(t.nombre||'')+': '+resultado+'.'); }
+        function mjPlantillaPlazasUI(el){ if(!puedeEditar())return; const cargo=el.getAttribute('data-cargo'); if(!cargo) return;
+            const v=Math.max(0, Math.round(Number(el.value)||0)); const d=getRRHH(); if(!d.plantilla||typeof d.plantilla!=='object'||Array.isArray(d.plantilla)) d.plantilla={};
+            d.plantilla[cargo]=v; saveRRHH(d); renderPuestos(); }
         function mjTraspasoUI(){ const c=getConta(); const centros=(c.centros||[]).filter(x=>x&&x.tipo!=='indirecto');
             if(!centros.length){ alert('Define primero los centros de costo en Contabilidad.'); return; }
             const total=Number(prompt('Total de gastos indirectos a repartir en el período:','0'))||0; if(!(total>0)) return;
@@ -13635,6 +13703,42 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             });
             docOficialImprimirEn('nominaDocBox', 'Listado de pago por tarjeta · ' + periodo, html);
         }
+        function nominaDocContrato(id) {
+            const d = getRRHH();
+            const t = (d.trabajadores || []).find(x => String(x.id) === String(id));
+            if (!t) { alert('No se encontró el trabajador.'); return; }
+            const ct = t.contrato || {};
+            const tipoTxt = ct.tipo === 'determinado' ? 'por tiempo determinado' : (ct.tipo === 'obra' ? 'para la ejecución de una obra o servicio' : 'por tiempo indeterminado');
+            const vigencia = ct.tipo === 'determinado' ? ('desde el ' + esc(ct.fecha || t.fechaAlta || '—') + ' hasta el ' + esc(ct.fechaFin || '—'))
+                : (ct.tipo === 'obra' ? ('desde el ' + esc(ct.fecha || t.fechaAlta || '—') + ' hasta la terminación de la obra o servicio pactado')
+                : ('desde el ' + esc(ct.fecha || t.fechaAlta || '—') + ', por tiempo indeterminado'));
+            const cuerpo = '<div class="doc-texto" style="text-align:justify;line-height:1.55">'
+                + '<p><b>PRIMERA — Partes y objeto.</b> El EMPLEADOR contrata al TRABAJADOR, cuyos datos encabezan este documento, para desempeñar el cargo de <b>' + esc(t.cargo || '—') + '</b>, con las obligaciones propias del cargo y las que le asigne el empleador dentro de su actividad.</p>'
+                + '<p><b>SEGUNDA — Tipo y vigencia.</b> El contrato es <b>' + esc(tipoTxt) + '</b>, vigente ' + vigencia + '. Durante el período de prueba se aplican las reglas de la Ley 189/2026 (Código de Trabajo).</p>'
+                + '<p><b>TERCERA — Lugar, jornada y descanso.</b> Lugar de trabajo: ' + esc(ct.lugar || 'la sede del negocio') + '. Jornada y régimen de trabajo y descanso: ' + esc(ct.jornada || 'el establecido por la legislación laboral vigente') + '.</p>'
+                + '<p><b>CUARTA — Remuneración.</b> El trabajador devenga un salario base mensual de <b>' + esc(docOficialNum(t.salarioBase)) + ' CUP</b>, pagadero mensualmente por la tarjeta o cuenta registrada en su ficha, más los complementos que le correspondan según la nómina del período.</p>'
+                + '<p><b>QUINTA — Vacaciones y seguridad social.</b> El trabajador acumula vacaciones anuales pagadas (9,09 % del salario) y está protegido por el régimen de seguridad social vigente; el empleador realiza las retenciones y aportes establecidos.</p>'
+                + '<p><b>SEXTA — Riesgos laborales.</b> El empleador informa al trabajador los riesgos propios de su puesto y las medidas de protección: ______________________________ (detallar si corresponde).</p>'
+                + '<p><b>SÉPTIMA — Firma y expediente.</b> Este contrato puede firmarse también de forma digital; en ese caso el empleador entrega copia digital al trabajador e incorpora una copia impresa a su expediente laboral, conforme a la Ley 189/2026. El período de prueba y la conformación del expediente se rigen por los artículos 76 a 82 de esa ley.</p>'
+                + '<p style="margin-top:2.2em">Dado en ____________________, a ' + esc(docOficialHoy()) + '.</p>'
+                + '<table style="width:100%;margin-top:3em"><tr><td style="width:50%;text-align:center">___________________________<br>EL EMPLEADOR</td><td style="width:50%;text-align:center">___________________________<br>EL TRABAJADOR</td></tr></table>'
+                + '</div>';
+            const html = docOficialHTML({
+                titulo: 'CONTRATO DE TRABAJO',
+                subtitulo: 'Generado desde la ficha del trabajador conforme al contenido mínimo de la Ley 189/2026 (Código de Trabajo).',
+                campos: [
+                    ['Entidad / Empleador', esc(docOficialNegocio())],
+                    ['Trabajador', esc(t.nombre || '')],
+                    ['CI / Identidad permanente', esc(t.ci || '—')],
+                    ['Domicilio', esc(t.direccion || '—')],
+                    ['Cargo', esc(t.cargo || '—')],
+                    ['Tipo de contrato', esc(tipoTxt)]
+                ],
+                cuerpo: cuerpo,
+                pie: esc('Modelo generado por la app desde los datos de la ficha: revísalo y complétalo antes de firmar. No existe un modelo oficial único de contrato; su contenido mínimo lo fija la Ley 189/2026.')
+            });
+            docOficialImprimirEn('nominaDocBox', 'Contrato de trabajo · ' + (t.nombre || ''), html);
+        }
         function nominaVacDatos() {
             const d = getRRHH();
             const periodos = Object.keys(d.nominas || {}).sort((a, b) => { const pa = periodoParts(a), pb = periodoParts(b); return ((pa ? pa.y : 0) - (pb ? pb.y : 0)) || ((pa ? pa.m : 0) - (pb ? pb.m : 0)); });
@@ -14451,7 +14555,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-8';
+        var MANUAL_VERSION = 'v2026.10.26-9';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -14662,7 +14766,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'nomina-mes', modulo:'nomina', titulo:'La nómina del mes y sus documentos', html:
             '<p>Con los trabajadores del mes y sus complementos, la nómina se calcula sola y genera sus documentos: <b>nómina completa</b>, <b>resumen para contabilidad</b>, listado de pago, talones y certificados. Al contabilizarla, sus asientos (salarios, vacaciones devengadas, retenciones y aportes) alimentan el mayor y el Panel de cuadres.</p>' +
             '<p>El <b>cruce salario ↔ nómina</b> detecta si un pago bancario de salarios no coincide con la nómina del mes.</p>' +
-            '<p><b>Archivo para el banco:</b> en la tarjeta de documentos, «Descargar archivo de acreditación» genera el fichero para acreditar los salarios por banca remota: una línea por trabajador con su <b>tarjeta</b> (o su cuenta, si no tiene tarjeta), su CI, su nombre y el <b>neto</b> a acreditar, en TXT (tabulador) o CSV (punto y coma). Los trabajadores con neto en cero o sin tarjeta ni cuenta en su ficha quedan <b>fuera y avisados</b> en la propia tarjeta. Acompaña el archivo con el «Listado para pago por tarjeta» impreso y firmado. Los bancos cubanos no publican un formato único de fichero: si tu sucursal te entrega su plantilla exacta, se adapta el archivo a esa plantilla.</p>'},
+            '<p><b>Archivo para el banco:</b> en la tarjeta de documentos, «Descargar archivo de acreditación» genera el fichero para acreditar los salarios por banca remota: una línea por trabajador con su <b>tarjeta</b> (o su cuenta, si no tiene tarjeta), su CI, su nombre y el <b>neto</b> a acreditar, en TXT (tabulador) o CSV (punto y coma). Los trabajadores con neto en cero o sin tarjeta ni cuenta en su ficha quedan <b>fuera y avisados</b> en la propia tarjeta. Acompaña el archivo con el «Listado para pago por tarjeta» impreso y firmado. Los bancos cubanos no publican un formato único de fichero: si tu sucursal te entrega su plantilla exacta, se adapta el archivo a esa plantilla.</p>' +
+            '<p><b>Recursos humanos · Ley 189/2026 (nuevo Código de Trabajo).</b> La ficha del trabajador guarda su <b>contrato</b> (tipo: indeterminado, determinado o por obra; fecha, fin previsto, lugar de trabajo y jornada), con el que la app genera el <b>contrato imprimible</b> con el contenido mínimo legal (botón «Contrato» en Gestión+).</p>' +
+            '<p><b>Expediente laboral</b> (Gestión+ → Profundidad): checklist por trabajador con la lista de los artículos 76-82: datos, contrato, tiempo de servicio y remuneraciones (se acredita también con las nóminas de la app) y los documentos «cuando corresponda» (calificación, nombramiento, peritaje, disciplina…), que se registran por nombre y fecha con «+ Documento». Avisa si el expediente sigue incompleto a los 15 días del alta y si falta la <b>revisión anual firmada</b> por el trabajador (art. 78), que se marca con el botón «Revisión firmada».</p>' +
+            '<p><b>Plantilla de cargos</b> (tarjeta Puestos de trabajo): plazas aprobadas por cargo frente a ocupadas por los trabajadores activos, con aviso de sobreplantilla. <b>Incidencias del período</b> (Gestión+): días trabajados, ausencias, licencias y horas extras desde el control de días. <b>Evaluación anual</b> del desempeño (arts. 71-74): se registra por trabajador con el botón «Evaluación anual».</p>'},
         {id:'prenomina', modulo:'nomina', titulo:'Pre-nómina y tarjeta de tiempo', html:
             '<p>La <b>Pre-nómina</b> es la tarjeta de tiempo formal por período: días trabajados, ausencias y horas que alimentan el cálculo. Se genera, se revisa y se <b>aprueba</b>; aprobada, es la base de la nómina del mes y de su documento oficial.</p>'},
         {id:'submayores-nomina', modulo:'nomina', titulo:'Submayores: vacaciones, adelantos y aportes', html:
@@ -14924,6 +15031,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            oninput, igual que ya se hacía con irAPestana o verMesDetalle. */
         ['nominaDocCompleta','nominaDocResumenContable','nominaDocListadoPago','nominaDocTalon','nominaDocCertificado',
          'nominaBancoDescargarUI','nominaBancoFilas','nominaBancoTexto',
+         'nominaDocContrato','mjExpedienteDocUI','mjExpedienteRevisionUI','mjEvaluacionUI','mjPlantillaPlazasUI','getRRHH','saveRRHH','mjRenderProfundidad','renderPuestos',
          'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
          'contaGenerar','contaRevalBtn','compraDivisaRegistrarUI','getConta','ctaAgregarAsiento','ctaRevalorizacion','ctaMayor','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
          'contaArqueoBtn','contaAddProducto','contaInvEntrada','contaInvSalida','contaEdAddLinea','contaEdAsentar',
