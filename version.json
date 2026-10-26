@@ -1,0 +1,25 @@
+{
+  "formato": "finanzas-version",
+  "version": "v2026.10.26-15",
+  "publicada": "2026-10-26 17:48",
+  "notas": "Actualizador de la versión sin conexión (F5) y utilidades del PDL al 35 %",
+  "requiereServidor": "0.3.0",
+  "migracionDatos": 1,
+  "archivos": [
+    {
+      "ruta": "index.html",
+      "sha256": "4e8243be9a1ea9bcbae98e03a3b104d95ed3ce408619339deaab2005764f4381",
+      "bytes": 1524117
+    },
+    {
+      "ruta": "pdf-import.js",
+      "sha256": "adf72ec6bcda9eecda4cdd3bef0a549e50810864b0293d60c46902e54eae545f",
+      "bytes": 57477
+    },
+    {
+      "ruta": "iconos.js",
+      "sha256": "9a2f912e4a635d85ebcce59d2ef4a150518fe1866b9a3dfc6a0348af22af9964",
+      "bytes": 37434
+    }
+  ]
+}

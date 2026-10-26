@@ -2000,6 +2000,27 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         </div>
                     </div>
                 </div>
+
+                <!-- Actualización de ESTA instalación (solo versión sin conexión) -->
+                <div class="col-12 d-none" id="cardActualizacionLocal">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="descargar"></span>Actualización de esta instalación (sin conexión)</h6>
+                        <p class="small text-muted">Esta copia se actualiza desde el servidor en línea cuando hay conexión y aparece una versión nueva: descarga solo los archivos de la lista oficial, comprueba la huella digital de cada uno antes de instalarlo y guarda la versión anterior por si quieres volver. Cada actualización queda registrada en las trazas del programa.</p>
+                        <div id="actLocalEstado" class="small mb-2"></div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="actLocalAuto">
+                            <label class="form-check-label small" for="actLocalAuto">Actualizar automáticamente al abrir el programa</label>
+                        </div>
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-primary" id="btnActComprobar">Comprobar ahora</button>
+                            <button type="button" class="btn btn-primary" id="btnActAplicar">Actualizar ahora</button>
+                            <button type="button" class="btn btn-outline-secondary" id="btnActRevertir">Volver a la versión anterior</button>
+                            <button type="button" class="btn btn-outline-secondary" id="btnActFabrica">Restaurar la de fábrica</button>
+                            <button type="button" class="btn btn-outline-warning" id="btnActCert">Modo certificación</button>
+                        </div>
+                        <p class="small text-muted mt-2 mb-0">El <b>modo certificación</b> congela esta instalación en su versión actual (la que se presente a certificar): con él activo no se aplica ninguna actualización. Activarlo o quitarlo pide doble confirmación y queda registrado.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -5237,6 +5258,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderBloqueoMeses();
             renderSuscripciones();
             renderSubsLocal();
+            renderActualizacionLocal();
         }
 
         // ===== NEGOCIOS: helpers =====
@@ -5791,6 +5813,92 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 if (!r.ok) { alert(r.error || 'No se pudo validar'); return; }
                 pintar(r);
                 alert(r.bloqueado ? '⛔ La suscripción no está vigente: el negocio sigue bloqueado.' : '✅ Suscripción validada para este mes.');
+            });
+        }
+
+        // ===== ACTUALIZACIÓN DE ESTA INSTALACIÓN (solo offline, F5) =====
+        // Tarjeta en Configuración visible solo con window.FINANZAS_LOCAL:
+        // habla con los endpoints locales del servidor Go
+        // (/actualizacion/*), que exigen la sesión admin y dejan traza
+        // de cada acción. La versión en línea no la muestra.
+        async function renderActualizacionLocal() {
+            const card = document.getElementById('cardActualizacionLocal');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            card.classList.remove('d-none');
+            if (card.dataset.actInit) return;
+            card.dataset.actInit = '1';
+            const pintar = st => {
+                const el = document.getElementById('actLocalEstado');
+                if (!st || !st.ok) { el.innerHTML = '<span class="text-danger">No se pudo leer el estado local.</span>'; return; }
+                const cert = st.modoCertificacion || {};
+                let h = `Versión instalada: <b>${esc(st.versionInstalada || '—')}</b> · De fábrica: ${esc(st.versionFabrica || '—')} · Programa: ${esc(st.versionServidor || '—')}<br>`;
+                if (st.ultimaAutoAplicada) h += `<span class="badge bg-success">Actualizada sola</span> Al abrir se instaló la versión ${esc(st.ultimaAutoAplicada)}. `;
+                if (st.ultimaComprobacion) h += `Última comprobación: ${esc(st.ultimaComprobacion)}. `;
+                if (st.ultimoResultado && st.ultimoResultado.hayNueva) h += `<br><span class="badge bg-info text-dark">Nueva versión</span> <b>${esc(st.ultimoResultado.versionRemota || '')}</b>${st.ultimoResultado.notas ? ' — ' + esc(st.ultimoResultado.notas) : ''}`;
+                if (cert.activo) h += `<br><span class="badge bg-warning text-dark">Modo certificación</span> Instalación congelada en <b>${esc(cert.versionCertificada || st.versionInstalada || '')}</b>: no se aplican actualizaciones.`;
+                el.innerHTML = h;
+                document.getElementById('actLocalAuto').checked = !!st.autoActualizar;
+                const conge = !!cert.activo;
+                document.getElementById('btnActAplicar').disabled = conge;
+                document.getElementById('btnActRevertir').disabled = conge || !st.hayRespaldo;
+                document.getElementById('btnActFabrica').disabled = conge;
+                document.getElementById('btnActCert').textContent = cert.activo ? 'Quitar el modo certificación' : 'Activar el modo certificación';
+                card.dataset.certActivo = cert.activo ? '1' : '';
+            };
+            try { pintar(await subsLocalFetch('/actualizacion/estado')); } catch (e) { pintar(null); }
+            document.getElementById('btnActComprobar').addEventListener('click', async () => {
+                const r = await subsLocalFetch('/actualizacion/comprobar', {});
+                if (!r.ok) { alert(r.error || 'No se pudo comprobar'); return; }
+                pintar(r);
+                const res = r.resultado || {};
+                if (res.error) alert('ℹ️ ' + res.error);
+                else if (res.hayNueva && !res.servidorSuficiente) alert('⚠️ Hay una versión nueva (' + res.versionRemota + '), pero necesita un programa servidor más nuevo: hay que sustituir el ejecutable para instalarla.');
+                else if (res.hayNueva) alert('🆕 Hay una versión nueva: ' + res.versionRemota + (res.notas ? '\n' + res.notas : '') + '\nPulsa «Actualizar ahora» para instalarla.');
+                else alert('✅ Ya estás al día (' + (r.versionInstalada || '') + ').');
+            });
+            document.getElementById('btnActAplicar').addEventListener('click', async () => {
+                const r = await subsLocalFetch('/actualizacion/aplicar', {});
+                if (!r.ok) { alert(r.error || 'No se pudo actualizar'); if (r.versionInstalada) pintar(r); return; }
+                alert('✅ Actualizado a ' + (r.versionResultante || '') + '.\nLa página se recarga para usar la versión nueva.');
+                location.reload();
+            });
+            document.getElementById('btnActRevertir').addEventListener('click', async () => {
+                if (!confirm('¿Volver a la versión anterior guardada? La actual queda guardada a su vez, así que puedes deshacerlo.')) return;
+                const r = await subsLocalFetch('/actualizacion/revertir', {});
+                if (!r.ok) { alert(r.error || 'No se pudo revertir'); if (r.versionInstalada) pintar(r); return; }
+                alert('↩️ Se restauró la versión ' + (r.versionResultante || '') + '. La página se recarga.');
+                location.reload();
+            });
+            document.getElementById('btnActFabrica').addEventListener('click', async () => {
+                if (!confirm('¿Restaurar la versión de fábrica (la que traía el programa al instalarse)? La versión en uso queda guardada como «anterior».')) return;
+                const r = await subsLocalFetch('/actualizacion/fabrica', {});
+                if (!r.ok) { alert(r.error || 'No se pudo restaurar'); if (r.versionInstalada) pintar(r); return; }
+                alert('🏭 Versión de fábrica restaurada (' + (r.versionResultante || '') + '). La página se recarga.');
+                location.reload();
+            });
+            document.getElementById('actLocalAuto').addEventListener('change', async ev => {
+                const r = await subsLocalFetch('/actualizacion/config', { autoActualizar: ev.target.checked });
+                if (!r.ok) { alert(r.error || 'No se pudo guardar'); return; }
+                pintar(r);
+            });
+            document.getElementById('btnActCert').addEventListener('click', async () => {
+                const activo = card.dataset.certActivo === '1';
+                if (!activo) {
+                    if (!confirm('El modo certificación CONGELA esta instalación en la versión actual: no se aplicará ninguna actualización mientras esté activo. ¿Continuar?')) return;
+                    if (!confirm('Confirmación final: ¿activar el modo certificación ahora? Quedará registrado en las trazas.')) return;
+                    const r = await subsLocalFetch('/actualizacion/config', { modoCertificacion: { activo: true } });
+                    if (!r.ok) { alert(r.error || 'No se pudo activar'); return; }
+                    pintar(r);
+                    alert('🔒 Modo certificación activado: instalación congelada en ' + ((r.modoCertificacion || {}).versionCertificada || '') + '.');
+                } else {
+                    if (!confirm('Quitar el modo certificación DESCONGELA la instalación: volverá a poder actualizarse y dejará de coincidir con la versión certificada. ¿Continuar?')) return;
+                    if (!confirm('Confirmación final: ¿quitar el modo certificación? Quedará registrado en las trazas.')) return;
+                    const r = await subsLocalFetch('/actualizacion/config', { modoCertificacion: { activo: false } });
+                    if (!r.ok) { alert(r.error || 'No se pudo quitar'); return; }
+                    pintar(r);
+                    alert('🔓 Modo certificación desactivado.');
+                }
             });
         }
 
@@ -14691,7 +14799,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-14';
+        var MANUAL_VERSION = 'v2026.10.26-15';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -15057,7 +15165,15 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Sin pago del mes en curso, el bloqueo es automático</b> también en la versión en línea: el servidor no entrega los datos (las acciones de datos responden el aviso de suscripción); entrar, ver el aviso y salir sí funciona.</li>' +
             '<li>La <b>cuenta administradora nunca se bloquea</b>: siempre puede entrar a marcar el pago, y al marcarlo el negocio se desbloquea al instante.</li>' +
             '<li>En la <b>versión sin conexión</b>, la instalación queda registrada a nombre de un negocio (tarjeta «Suscripción de esta instalación», solo visible sin conexión): el <b>día 1 de cada mes</b> el programa queda bloqueado hasta conectarse y validar contra el servidor en línea que la suscripción está pagada; sin conexión o sin pago, sigue bloqueado. El botón <b>Validar ahora</b> fuerza la comprobación.</li>' +
-            '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio.</li></ul>'}
+            '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio.</li></ul>'},
+        {id:'actualizacion-offline', modulo:'respaldo', titulo:'Actualización de la versión sin conexión', html:
+            '<p>Solo en la <b>versión sin conexión</b>: en <b>Configuración</b> (cuenta administradora) la tarjeta <b>«Actualización de esta instalación»</b> mantiene al día la copia instalada en esta máquina, sin reinstalar nada a mano.</p>' +
+            '<ul><li><b>Automática al abrir:</b> si el interruptor está activo (lo está por defecto), al arrancar el programa comprueba en segundo plano si hay una versión nueva y la instala sola; al entrar verás la insignia «Actualizada sola». Sin conexión no pasa nada: trabaja con la versión instalada y lo reintenta en el próximo arranque.</li>' +
+            '<li><b>Manual:</b> «Comprobar ahora» busca versiones; «Actualizar ahora» instala la encontrada. Solo se descargan los archivos de la <b>lista oficial</b> que publica el servidor en línea, y cada uno se verifica por su <b>huella digital (SHA-256)</b> y tamaño antes de instalarse: si algo no coincide, no se toca nada y queda registrado el fallo.</li>' +
+            '<li><b>Volver atrás:</b> «Volver a la versión anterior» restaura la versión guardada al actualizar (y la actual queda guardada a su vez); «Restaurar la de fábrica» vuelve a la versión que traía el programa al instalarse.</li>' +
+            '<li><b>Lo que no se actualiza así:</b> el programa servidor (el ejecutable). Si una versión nueva lo requiere, la tarjeta lo avisa y hay que sustituir el ejecutable; los datos nunca se tocan.</li>' +
+            '<li><b>Modo certificación:</b> congela la instalación en la versión que se presente a certificar: con él activo no se aplica ninguna actualización ni se puede revertir. Activarlo o quitarlo pide <b>doble confirmación</b> y queda en las trazas, porque la instalación congelada es la que ampara el certificado.</li>' +
+            '<li>Toda actualización —aplicada, fallida, revertida o automática— queda <b>registrada en las trazas</b> del programa con la versión anterior y la nueva.</li></ul>'}
         ];
         function manualEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
         function manualNorm(s){
