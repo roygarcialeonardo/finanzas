@@ -1938,6 +1938,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                     <select class="form-select form-select-sm" id="newRole">
                                         <option value="consultor">👁️ Consultor</option>
                                         <option value="editor">✏️ Editor</option>
+                                        <option value="tenedor">📚 Tenedor de libros</option>
                                     </select>
                                 </div>
                             </div>
@@ -2008,7 +2009,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
 
                 <!-- Suscripciones por negocio -->
-                <div class="col-12">
+                <div class="col-12" id="cardSuscripciones">
                     <div class="card p-3 p-md-4">
                         <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calendario"></span>Suscripciones</h6>
                         <p class="small text-muted">Control de pago por negocio: despliega un negocio para marcar sus meses pagados o desactivarlo hasta que pague. Sin el pago del mes en curso, el negocio queda bloqueado automáticamente (también en su versión sin conexión, que valida el día 1 de cada mes). La cuenta administradora nunca se bloquea.</p>
@@ -2027,6 +2028,48 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                 <span class="badge bg-danger ms-2">🚫 Bloqueado</span>
                             </div>
                         </details>
+                    </div>
+                </div>
+
+                <!-- Licencias: precios y tenedores (solo administradora) -->
+                <div class="col-12" id="cardLicencias">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="etiqueta"></span>Licencias: precios y tenedores</h6>
+                        <p class="small text-muted">La licencia de cada negocio se calcula sola con su tipo, su plantilla de trabajadores y sus socios (el TCP que supera los 500 000 CUP de ingresos del año pasa a la tarifa plena). El tenedor de libros paga el <b>10 % de la tarifa fijada de cada cliente de su cartera</b>, sin base fija; los negocios de un tenedor pagan además su licencia completa (doble puerta: si el tenedor no paga, sus negocios también se bloquean). Estos precios son los de la lista fijada; cambiarlos aquí no toca el código.</p>
+                        <div class="row g-2">
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">TCP básico (CUP/mes)</label><input type="number" class="form-control form-control-sm" id="licTcp" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">TCP pleno &gt;500 mil (CUP/mes)</label><input type="number" class="form-control form-control-sm" id="licTcpPleno" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">Tenedor: % de la tarifa de cada cliente</label><input type="number" class="form-control form-control-sm" id="licPct" min="0" max="100"></div>
+                        </div>
+                        <div class="row g-2 mt-1">
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">MIPYME micro (≤10)</label><input type="number" class="form-control form-control-sm" id="licMiMicro" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">MIPYME pequeña (11-35)</label><input type="number" class="form-control form-control-sm" id="licMiPequena" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">MIPYME mediana (36-100)</label><input type="number" class="form-control form-control-sm" id="licMiMediana" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">MIPYME: por socio extra</label><input type="number" class="form-control form-control-sm" id="licMiSocio" min="0"></div>
+                        </div>
+                        <div class="row g-2 mt-1">
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">PDL (≤10)</label><input type="number" class="form-control form-control-sm" id="licPdlMicro" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">PDL (11-35)</label><input type="number" class="form-control form-control-sm" id="licPdlPequena" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">PDL (36-100)</label><input type="number" class="form-control form-control-sm" id="licPdlMediana" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">PDL: por socio/titular extra</label><input type="number" class="form-control form-control-sm" id="licPdlSocio" min="0"></div>
+                        </div>
+                        <div class="mt-3"><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarLicencias"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar precios</button></div>
+                        <hr>
+                        <h6 class="fw-semibold mb-2">Tenedores de libros</h6>
+                        <p class="small text-muted">Su cartera, la tarifa de cada cliente, su 10 % del mes y su pago. Marca el mes cuando pague; desactívalo para bloquear su cartera entera.</p>
+                        <div id="tenedoresList">
+                            <!-- Se llena con JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mi licencia de tenedor (solo rol tenedor) -->
+                <div class="col-12 d-none" id="cardMiLicencia">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="etiqueta"></span>Mi licencia de tenedor</h6>
+                        <div id="miLicenciaBox">
+                            <!-- Se llena con JS -->
+                        </div>
                     </div>
                 </div>
 
@@ -2922,6 +2965,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <select class="form-select" id="editRole">
                         <option value="consultor">👁️ Consultor</option>
                         <option value="editor">✏️ Editor</option>
+                        <option value="tenedor">📚 Tenedor de libros</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -3019,6 +3063,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <option value="mipyme">MIPYME</option>
                         <option value="pdl">Proyecto de Desarrollo Local (PDL)</option>
                     </select>
+                </div>
+                <div class="mb-3" id="negocioTenedorWrap">
+                    <label class="form-label fw-semibold">Tenedor de libros asignado</label>
+                    <select class="form-select" id="negocioTenedor">
+                        <option value="">Sin tenedor (cliente directo)</option>
+                    </select>
+                    <div class="form-text">Si el negocio lo lleva un tenedor, su licencia manda en doble puerta: sin el pago del tenedor, el negocio también queda bloqueado. El tenedor paga el 10 % de la tarifa de este negocio.</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -3369,6 +3420,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!user) return null;
             const users = getUsuarios();
             return users[user] ? users[user].role : null;
+        }
+
+        /* Vista de gestión (licencias F2): la administradora general y
+           los tenedores de libros comparten el menú Gestor +
+           Configuración; el servidor acota lo que cada tenedor ve y
+           toca a SU cartera. */
+        function esGestor() {
+            const r = getRolUsuario();
+            return r === 'admin' || r === 'tenedor';
         }
         
         function getEntityType() {
@@ -5350,9 +5410,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     const isCurrent = username === currentUser;
                     const avatarColor = user.role === 'editor' ? '#0b5e3a' : '#1f3a6b';
                     const initials = username.substring(0, 2).toUpperCase();
-                    const rolLabel = user.role === 'editor' ? '✏️ Editor' : '👁️ Consultor';
-                    const entityLabel = user.entityType === 'mipyme' ? `MIPYME (${user.socios || 1} socios)` : 'TCP';
-                    const negocioLabel = user.negocio || 'Sin nombre';
+                    const rolLabel = user.role === 'tenedor' ? '📚 Tenedor de libros' : (user.role === 'editor' ? '✏️ Editor' : '👁️ Consultor');
+                    const entityLabel = user.role === 'tenedor' ? 'Gestión de cartera' : (user.entityType === 'mipyme' ? `MIPYME (${user.socios || 1} socios)` : (user.entityType === 'pdl' ? 'PDL' : 'TCP'));
+                    const negocioLabel = user.negocio || (user.role === 'tenedor' ? 'Sin negocio propio' : 'Sin nombre');
                     
                     html += `
                         <div class="usuario-item">
@@ -5440,6 +5500,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderNegociosAdmin();
             renderBloqueoMeses();
             renderSuscripciones();
+            try{ renderLicenciasPrecios(); }catch(e){}
+            try{ renderTenedores(); }catch(e){}
+            try{ renderMiLicencia(); }catch(e){}
             renderSubsLocal();
             renderActualizacionLocal();
             renderRecuperaLocal();
@@ -5478,7 +5541,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             nombres.forEach(function(n){
                 const t=({mipyme:'MIPYME',pdl:'PDL'})[(meta[n]||{}).tipo]||'TCP';
                 const cuantos=Object.keys(users).filter(function(u){ return users[u]&&users[u].role!=='admin'&&users[u].negocio===n; });
-                html+='<div class="usuario-item"><div class="usuario-info"><div class="avatar" style="background:#0f766e;">'+esc(n.substring(0,2).toUpperCase())+'</div><div><div class="fw-semibold">🏢 '+esc(n)+'</div><small class="text-muted">'+t+' · Usuarios: '+(cuantos.length?cuantos.map(esc).join(', '):'ninguno')+'</small></div></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-negocio="'+esc(n)+'" title="Editar negocio" onclick="abrirEditorNegocio(this.dataset.negocio)"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" data-negocio="'+esc(n)+'" title="Eliminar negocio" onclick="eliminarNegocio(this.dataset.negocio)"><i class="bi bi-trash3"></i></button></div></div>';
+                /* Eliminar negocios es SOLO de la administradora
+                   general (regla de Leonardo): el tenedor no ve el
+                   botón de eliminar en su lista. */
+                const btnBorrar = isAdmin() ? '<button class="btn btn-sm btn-outline-danger" data-negocio="'+esc(n)+'" title="Eliminar negocio" onclick="eliminarNegocio(this.dataset.negocio)"><i class="bi bi-trash3"></i></button>' : '';
+                html+='<div class="usuario-item"><div class="usuario-info"><div class="avatar" style="background:#0f766e;">'+esc(n.substring(0,2).toUpperCase())+'</div><div><div class="fw-semibold">🏢 '+esc(n)+'</div><small class="text-muted">'+t+' · Usuarios: '+(cuantos.length?cuantos.map(esc).join(', '):'ninguno')+'</small></div></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-negocio="'+esc(n)+'" title="Editar negocio" onclick="abrirEditorNegocio(this.dataset.negocio)"><i class="bi bi-pencil"></i></button>'+btnBorrar+'</div></div>';
             });
             box.innerHTML=html;
         }
@@ -5499,6 +5566,20 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('negocioAnterior').value = nombre || '';
             document.getElementById('negocioNombre').value = nombre || '';
             document.getElementById('negocioTipo').value = (nombre && meta[nombre] && meta[nombre].tipo) || 'tcp';
+            /* Tenedor asignado (licencias F2): solo la administradora
+               asigna; el tenedor siempre se queda con los suyos (el
+               servidor lo fuerza) y no ve este campo. */
+            const wrapTen = document.getElementById('negocioTenedorWrap');
+            if (wrapTen) {
+                wrapTen.style.display = isAdmin() ? '' : 'none';
+                if (isAdmin()) {
+                    const selTen = document.getElementById('negocioTenedor');
+                    const users = getUsuarios();
+                    const tens = Object.keys(users).filter(u => users[u].role === 'tenedor').sort();
+                    selTen.innerHTML = '<option value="">Sin tenedor (cliente directo)</option>' + tens.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('');
+                    selTen.value = (nombre && meta[nombre] && meta[nombre].tenedor) || '';
+                }
+            }
             negocioModal.show();
         }
         async function guardarNegocio(){
@@ -5507,6 +5588,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const anterior=document.getElementById('negocioAnterior').value;
             if(!nombre){ alert('\u26A0\uFE0F Escribe el nombre del negocio.'); return; }
             const payload={nombre: nombre, tipo: tipo, anterior: anterior};
+            /* Solo la administradora envía la asignación de tenedor; si
+               el campo no va, el servidor conserva la que hubiera. */
+            if(isAdmin()){ const selTen=document.getElementById('negocioTenedor'); if(selTen) payload.tenedor=selTen.value; }
             /* PDL: al crear, se siembra la MISMA ficha que en el alta
                rápida (gPdlPlantillaFiscal: fiscal.pdl + fiscal.meta.
                tipoCliente='pdl', Decreto 174/2026) para que el negocio
@@ -5580,8 +5664,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const role = document.getElementById('editRole').value;
             const entityType = document.getElementById('editEntityType').value;
             const socios = parseInt(document.getElementById('editSocios').value) || 1;
-            const negocio = document.getElementById('editNegocioSel').value;
-            if (!negocio) { alert('\u26A0\uFE0F Selecciona el negocio del usuario.'); return; }
+            /* La cuenta del tenedor no lleva negocio propio. */
+            const negocio = role === 'tenedor' ? '' : document.getElementById('editNegocioSel').value;
+            if (role !== 'tenedor' && !negocio) { alert('\u26A0\uFE0F Selecciona el negocio del usuario.'); return; }
             
             const users = getUsuarios();
             if (!users[username]) {
@@ -5704,14 +5789,153 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         ${extrasHtml}
                     </div>`;
                 }
+                const tLic = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[neg]) ? licTarifaNegocio(neg, GDOCS[neg]) : null;
+                const tarifaHtml = `<div class="small text-muted ps-1 pt-1">${tLic ? `Licencia: <b>${moneda(tLic.tarifa)}/mes</b> · ${esc(tLic.detalle)}` : 'Licencia: (abre el Gestor para calcularla con los datos del negocio)'}${m.tenedor ? ` · Tenedor: <b>${esc(m.tenedor)}</b>` : ' · Cliente directo'}</div>`;
                 return `<div class="border rounded p-2 mb-2">
                     <button type="button" class="btn btn-link text-decoration-none p-0 w-100 d-flex justify-content-between align-items-center" data-subs-cab="${esc(neg)}">
                         <span class="fw-semibold text-start">${abierto ? '▾' : '▸'} ${esc(neg)} <span class="badge bg-secondary ms-1">${esc(({ mipyme: 'MIPYME', pdl: 'PDL' })[m.tipo] || 'TCP')}</span></span>
                         ${insignia(st)}
                     </button>
+                    ${tarifaHtml}
                     ${cuerpo}
                 </div>`;
             }).join('');
+        }
+
+        // ===== LICENCIAS DIFERENCIADAS (F2): tarifas, precios y tenedores =====
+        // La tarifa de cada negocio sale de SUS datos: el tipo, la
+        // plantilla de su nómina y sus socios; el TCP que supera los
+        // 500 000 CUP de ingresos del año paga la tarifa plena. El
+        // tenedor paga el % fijado de la TARIFA de cada cliente (no de
+        // lo que declare cobrar): sin declaración posible.
+        function licPrecios() {
+            const l = (typeof CFG !== 'undefined' && CFG && CFG.licencias) || {};
+            const g = x => ({ micro: +(x && x.micro) || 0, pequena: +(x && x.pequena) || 0, mediana: +(x && x.mediana) || 0, porSocio: +(x && x.porSocio) || 0 });
+            return { tcp: +l.tcp || 0, tcpPleno: +l.tcpPleno || 0, tenedorPct: (l.tenedorPct == null ? 10 : +l.tenedorPct), mipyme: g(l.mipyme), pdl: g(l.pdl) };
+        }
+        function licTarifaNegocio(neg, doc) {
+            const P = licPrecios();
+            const m = getNegociosMeta()[neg] || {};
+            const tipo = (doc && doc.tipo) || m.tipo || 'tcp';
+            if (tipo === 'tcp') {
+                let ing = 0;
+                try { ing = mjIngresosAnioDeMovs((doc && doc.mov) || [], new Date().getFullYear()); } catch (e) {}
+                const pleno = ing > 500000;
+                return { tipo, tarifa: pleno ? P.tcpPleno : P.tcp, detalle: pleno ? 'TCP pleno (superó 500 000 CUP en el año)' : 'TCP básico', plantilla: 0, socios: 1 };
+            }
+            const g = tipo === 'pdl' ? P.pdl : P.mipyme;
+            const trab = (doc && doc.rrhh && Array.isArray(doc.rrhh.trabajadores)) ? doc.rrhh.trabajadores.length : 0;
+            let socios = 1;
+            try { const us = getUsuarios(); Object.keys(us).forEach(u => { if (us[u].negocio === neg) socios = Math.max(socios, +us[u].socios || 1); }); } catch (e) {}
+            try { const fs = (doc && doc.dj && doc.dj.ficha && Array.isArray(doc.dj.ficha.socios)) ? doc.dj.ficha.socios.length : 0; if (fs > socios) socios = fs; } catch (e) {}
+            const tramo = trab <= 10 ? 'micro' : (trab <= 35 ? 'pequena' : 'mediana');
+            const tarifa = (+g[tramo] || 0) + (+g.porSocio || 0) * Math.max(0, socios - 1);
+            const tramoTxt = tipo === 'pdl' ? ({ micro: '≤10 empleados', pequena: '11-35 empleados', mediana: '36-100 empleados' })[tramo] : ({ micro: 'micro · ≤10 empleados', pequena: 'pequeña · 11-35 empleados', mediana: 'mediana · 36-100 empleados' })[tramo];
+            return { tipo, tarifa, detalle: (tipo === 'pdl' ? 'PDL ' : 'MIPYME ') + tramoTxt + ' · ' + socios + ' socio(s)', plantilla: trab, socios };
+        }
+        function tenRegistro(u) {
+            const t = ((typeof CFG !== 'undefined' && CFG && CFG.tenedores) || {})[u] || {};
+            return { activo: t.activo !== false, pagos: (t.pagos && typeof t.pagos === 'object') ? t.pagos : {} };
+        }
+        function renderLicenciasPrecios() {
+            const card = document.getElementById('cardLicencias');
+            if (!card || !isAdmin()) return;
+            const P = licPrecios();
+            const set = (id, v) => { const el = document.getElementById(id); if (el && document.activeElement !== el) el.value = v; };
+            set('licTcp', P.tcp); set('licTcpPleno', P.tcpPleno); set('licPct', P.tenedorPct);
+            set('licMiMicro', P.mipyme.micro); set('licMiPequena', P.mipyme.pequena); set('licMiMediana', P.mipyme.mediana); set('licMiSocio', P.mipyme.porSocio);
+            set('licPdlMicro', P.pdl.micro); set('licPdlPequena', P.pdl.pequena); set('licPdlMediana', P.pdl.mediana); set('licPdlSocio', P.pdl.porSocio);
+            if (!card.dataset.licInit) {
+                card.dataset.licInit = '1';
+                document.getElementById('btnGuardarLicencias').addEventListener('click', async () => {
+                    const n = id => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) || v < 0 ? 0 : v; };
+                    const licencias = { tcp: n('licTcp'), tcpPleno: n('licTcpPleno'), tenedorPct: n('licPct'),
+                        mipyme: { micro: n('licMiMicro'), pequena: n('licMiPequena'), mediana: n('licMiMediana'), porSocio: n('licMiSocio') },
+                        pdl: { micro: n('licPdlMicro'), pequena: n('licPdlPequena'), mediana: n('licPdlMediana'), porSocio: n('licPdlSocio') } };
+                    const r = await api('config_set', { config: { licencias } });
+                    if (!r.ok) { alert(r.error || 'No se pudieron guardar los precios'); return; }
+                    applyCfg(r.config);
+                    renderLicenciasPrecios(); renderTenedores(); renderSuscripciones(); renderMiLicencia();
+                    alert('✅ Precios de licencias guardados.');
+                });
+            }
+        }
+        function renderTenedores() {
+            const box = document.getElementById('tenedoresList');
+            if (!box || !isAdmin()) return;
+            if (!box.dataset.tenInit) {
+                box.dataset.tenInit = '1';
+                box.addEventListener('click', async e => {
+                    const bm = e.target.closest('[data-ten-mes]');
+                    if (bm) {
+                        const u = bm.getAttribute('data-ten-mes'), clave = bm.getAttribute('data-ten-clave');
+                        const t = tenRegistro(u);
+                        const r = await api('tenedor_set', { username: u, pagos: { [clave]: !t.pagos[clave] } });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar el pago'); return; }
+                        CFG.tenedores = CFG.tenedores || {}; CFG.tenedores[u] = r.tenedor;
+                        renderTenedores();
+                        return;
+                    }
+                });
+                box.addEventListener('change', async e => {
+                    const ac = e.target.closest('[data-ten-activo]');
+                    if (ac) {
+                        const u = ac.getAttribute('data-ten-activo');
+                        const r = await api('tenedor_set', { username: u, activo: !!ac.checked });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar'); ac.checked = !ac.checked; return; }
+                        CFG.tenedores = CFG.tenedores || {}; CFG.tenedores[u] = r.tenedor;
+                        renderTenedores();
+                    }
+                });
+            }
+            const users = getUsuarios();
+            const tens = Object.keys(users).filter(u => users[u].role === 'tenedor').sort();
+            if (!tens.length) { box.innerHTML = '<p class="text-muted small mb-0">Aún no hay tenedores: crea uno en Gestión de Usuarios con el rol «Tenedor de libros» y asígnale negocios desde el editor de cada negocio.</p>'; return; }
+            const P = licPrecios(), meta = getNegociosMeta(), mes = subsMesActual();
+            box.innerHTML = tens.map(u => {
+                const cartera = Object.keys(meta).filter(n => meta[n].tenedor === u).sort();
+                const t = tenRegistro(u);
+                let suma = 0;
+                const filas = cartera.map(n => {
+                    const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
+                    if (tl) suma += tl.tarifa;
+                    return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
+                }).join('');
+                const diezmo = Math.round(suma * (P.tenedorPct || 0)) / 100;
+                const pagado = !!t.pagos[mes];
+                return `<div class="border rounded p-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span class="fw-semibold">📚 ${esc(u)} ${t.activo ? '' : '<span class="badge bg-dark">Desactivado</span>'}</span>
+                        <span class="d-flex align-items-center gap-2">
+                            <span class="small">Su ${P.tenedorPct} % de ${moneda(suma)} = <b>${moneda(diezmo)}/mes</b></span>
+                            <button type="button" class="btn btn-sm ${pagado ? 'btn-success' : 'btn-outline-danger'}" data-ten-mes="${esc(u)}" data-ten-clave="${mes}">${pagado ? '✅ ' + mes + ' pagado' : '🚫 ' + mes + ' sin pagar'}</button>
+                            <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-ten-activo="${esc(u)}" ${t.activo ? 'checked' : ''}> <span class="form-check-label small">Activo</span></label>
+                        </span>
+                    </div>
+                    ${filas || '<div class="small text-muted">Sin negocios asignados todavía.</div>'}
+                </div>`;
+            }).join('');
+        }
+        function renderMiLicencia() {
+            const box = document.getElementById('miLicenciaBox');
+            if (!box || getRolUsuario() !== 'tenedor') return;
+            const yo = getCurrentUser(), P = licPrecios(), meta = getNegociosMeta();
+            const cartera = Object.keys(meta).filter(n => meta[n].tenedor === yo).sort();
+            const t = tenRegistro(yo), mes = subsMesActual();
+            let suma = 0;
+            const filas = cartera.map(n => {
+                const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
+                if (tl) suma += tl.tarifa;
+                return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
+            }).join('');
+            const diezmo = Math.round(suma * (P.tenedorPct || 0)) / 100;
+            box.innerHTML = `
+                <p class="small text-muted">Tu licencia de tenedor es el <b>${P.tenedorPct} % de la tarifa fijada de cada negocio de tu cartera</b> (la calcula la app con el tipo, la plantilla y los socios de cada uno; no hay base fija). Cada negocio paga además su licencia completa. Si tu mes no está pagado, tu cartera entera queda bloqueada (doble puerta).</p>
+                ${filas || '<p class="small text-muted mb-0">Aún no tienes negocios asignados.</p>'}
+                <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-2 flex-wrap gap-2">
+                    <span>Total de tarifas de mi cartera: <b>${moneda(suma)}/mes</b> · Mi licencia: <b>${moneda(diezmo)}/mes</b></span>
+                    ${!t.activo ? '<span class="badge bg-dark">Desactivado</span>' : (t.pagos[mes] ? '<span class="badge bg-success">✅ ' + mes + ' pagado</span>' : '<span class="badge bg-danger">🚫 ' + mes + ' sin pagar</span>')}
+                </div>`;
         }
 
         // ===== VISIBILIDAD POR ACTOR (ronda Separación de contextos) =====
@@ -6210,7 +6434,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const esTenedor = !!(modoSel && modoSel.value === 'tenedor');
                 if (negWrap) negWrap.style.display = esTenedor ? 'none' : '';
                 if (modoAyuda) modoAyuda.textContent = esTenedor
-                    ? 'Podrás crear varios negocios dentro de la app. Cada negocio paga su propia licencia, y tu licencia de tenedor suma el 10 % de lo que declares cobrar a cada uno. Los negocios nacen bloqueados hasta que su mes esté pagado y validado por tu proveedor.'
+                    ? 'Podrás crear varios negocios dentro de la app. Cada negocio paga su propia licencia, y tu licencia de tenedor suma el 10 % de la tarifa fijada de cada cliente (la calcula la app sola con el tipo, la plantilla y los socios de cada negocio). Los negocios nacen bloqueados hasta que su mes esté pagado y validado por tu proveedor.'
                     : 'Esta copia queda fijada a tu único negocio.';
                 const chkDiv = chk ? chk.closest('.form-check') : null;
                 if (chkDiv) chkDiv.style.display = esTenedor ? 'none' : '';
@@ -11070,16 +11294,19 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
 
         // ===== CREAR USUARIO NUEVO =====
         function crearUsuario() {
-            if (!isAdmin()) {
+            if (!esGestor()) {
                 alert('Solo el administrador puede crear usuarios.');
                 return;
             }
-            
-            const negocio = document.getElementById('newNegocioSel').value;
-            if (!negocio) { alert('\u26A0\uFE0F Selecciona el negocio del usuario.'); return; }
+
+            const role = document.getElementById('newRole').value;
+            /* El tenedor de libros es una cuenta de gestión: no lleva
+               negocio propio (el servidor lo fuerza a negocio ''). */
+            const esTenedorNuevo = role === 'tenedor';
+            const negocio = esTenedorNuevo ? '' : document.getElementById('newNegocioSel').value;
+            if (!esTenedorNuevo && !negocio) { alert('\u26A0\uFE0F Selecciona el negocio del usuario.'); return; }
             const username = document.getElementById('newUser').value.trim();
             const password = document.getElementById('newPass').value.trim();
-            const role = document.getElementById('newRole').value;
             const entityType = document.getElementById('newEntityType').value;
             const socios = entityType === 'mipyme' ? (parseInt(document.getElementById('newSocios').value) || 1) : 0;
             
@@ -11112,7 +11339,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
 
         // ===== CREAR USUARIO ASOCIADO =====
         function crearUsuarioAsociado() {
-            if (!isAdmin()) {
+            if (!esGestor()) {
                 alert('Solo el administrador puede crear usuarios.');
                 return;
             }
@@ -12276,18 +12503,24 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function gestorHoyYM(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
         function cssId(s){ return String(s||'').replace(/[^a-zA-Z0-9_-]/g,'_'); }
         async function cargarGestorDatos(){
-            if(!isAdmin()||gestorCargando) return;
+            if(!esGestor()||gestorCargando) return;
             gestorCargando=true;
             try{ const r=await api('gestor_data'); if(r&&r.ok){ GDOCS=r.docs||{}; GDOC_META=r.negocios||{}; } }
             catch(e){}
             gestorCargando=false;
             renderGestor();
+            /* Con los documentos ya cargados se pueden calcular las
+               tarifas de licencia de cada negocio (paneles de
+               Configuración: suscripciones, tenedores y mi licencia). */
+            try{ renderSuscripciones(); }catch(e){}
+            try{ renderTenedores(); }catch(e){}
+            try{ renderMiLicencia(); }catch(e){}
         }
         function getCobrosGestor(){ try{ const s=Store.getItem('finanzas_gestor_'+getCurrentUser()); const d=s?JSON.parse(s):null; if(d&&typeof d==='object'&&d.cobros) return d; }catch(e){} return {cobros:{}}; }
         function saveCobrosGestor(d){ Store.setItem('finanzas_gestor_'+getCurrentUser(), JSON.stringify(d)); }
         function renderGestor(){
             const pane=document.getElementById('pane-gestor'); if(!pane) return;
-            if(!isAdmin()) return;
+            if(!esGestor()) return;
             if(!GDOCS){ if(!gestorCargando) cargarGestorDatos(); return; }
             const hoy=gHoyISOFecha(), cfg=gestorOnatCfg();
             const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
@@ -12677,7 +12910,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             document.getElementById('altaPlantillaPreview').innerHTML='Tributos de la plantilla: '+lista.map(t=>'<code>'+esc(t.codigo)+'</code> '+esc(t.nombre)+' ('+t.frec+')').join(' · ')+'. Vencimientos orientativos: mensual, día 20 del mes siguiente; DJ anual: 30 de abril (TCP) o 31 de marzo (MIPYME).';
         }
         function abrirAltaRapida(){
-            if(!isAdmin()){ alert('Solo el administrador/gestor puede dar de alta clientes.'); return; }
+            if(!esGestor()){ alert('Solo el administrador/gestor puede dar de alta clientes.'); return; }
             ['altaNombre','altaNIT','altaMunicipio','altaRazon','altaUsuario','altaPass','altaPdlEntidad','altaPdlAcuerdo','altaPdlProvincia','altaPdlCuenta','altaPdlFecha'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
             const pc0=document.getElementById('altaPdlContratados'); if(pc0) pc0.value='0';
             actualizarPreviewPlantilla();
@@ -12800,11 +13033,24 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 nextId = movimientos.length > 0 ? Math.max(...movimientos.map(m => m.id)) + 1 : 1;
                 
                 const esAdmin = userData.role === 'admin';
-                userRoleBadge.textContent = esAdmin ? '👑 Administrador' : (userData.role === 'editor' ? '✏️ Editor' : '👁️ Consultor');
+                const esGestorVista = esAdmin || userData.role === 'tenedor';
+                userRoleBadge.textContent = esAdmin ? '👑 Administrador' : (userData.role === 'tenedor' ? '📚 Tenedor de libros' : (userData.role === 'editor' ? '✏️ Editor' : '👁️ Consultor'));
                 userRoleBadge.className = `badge ${esAdmin ? 'badge-admin' : 'badge-soft-info'} ms-2 px-3 py-2`;
-                document.getElementById('adminTabNav').style.display = esAdmin ? '' : 'none';
-                document.getElementById('gestorTabNav').style.display = esAdmin ? '' : 'none';
-                if (esAdmin) {
+                document.getElementById('adminTabNav').style.display = esGestorVista ? '' : 'none';
+                document.getElementById('gestorTabNav').style.display = esGestorVista ? '' : 'none';
+                if (userData.role === 'tenedor') {
+                    /* Vista del tenedor: su cartera en el Gestor y su
+                       gestión en Configuración. Las tarjetas de la
+                       administradora general (suscripciones de todos,
+                       precios, ajustes globales) no son suyas: la suya
+                       es «Mi licencia de tenedor». */
+                    ['cardSuscripciones', 'cardLicencias', 'cardAjustesGenerales'].forEach(id => { const c = document.getElementById(id); if (c) c.style.display = 'none'; });
+                    const ml = document.getElementById('cardMiLicencia'); if (ml) ml.classList.remove('d-none');
+                    /* Solo la administradora crea tenedores: fuera la
+                       opción de rol «tenedor» de los formularios. */
+                    ['newRole', 'editRole'].forEach(id => { const s = document.getElementById(id); if (s) { const o = s.querySelector('option[value="tenedor"]'); if (o) o.remove(); } });
+                }
+                if (esGestorVista) {
                     /* Vista administradora: solo Gestor y Configuración. Además de
                        las operativas del negocio, se ocultan DJ, Contabilidad,
                        Gestión+, Ayuda e Instrucciones (decisión de Leonardo,
@@ -12830,7 +13076,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 }
                 
                 const mesData = getMesActual();
-                if (!esAdmin && (!mesData || !mesData.saldoInicial)) {
+                if (!esGestorVista && (!mesData || !mesData.saldoInicial)) {
                     document.getElementById('saldoInicialChequera').value = 0;
                     document.getElementById('saldoInicialCUP').value = 0;
                     document.getElementById('saldoInicialUSD').value = 0;
@@ -15229,7 +15475,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-20';
+        var MANUAL_VERSION = 'v2026.10.26-21';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -15271,6 +15517,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
             '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
             '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
+            '<li><b>Tenedor de libros:</b> la administradora puede crear usuarios con el rol <b>tenedor</b>: es una cuenta de gestión (sin negocio propio) que ve el <b>Gestor</b> y la <b>Configuración</b> SOLO de su cartera — los negocios que la administradora le asigna en el editor de cada negocio —. El tenedor crea negocios y usuarios dentro de su cartera, y a cada negocio entra con un usuario editor suyo, como hace la administradora. El servidor le esconde todo lo demás: ni ve ni puede tocar negocios ajenos. Y <b>no puede desactivar ni borrar negocios, ni marcar pagos de licencias</b>: activar, desactivar y cobrar las licencias (de los negocios y la suya) es solo de la administradora.</li>' +
             '<li><b>Inhabilitar un usuario:</b> en la lista de usuarios, el botón de la persona tachada lo <b>inhabilita</b>: no podrá entrar (ni siquiera con una sesión abierta) y su rastro queda guardado. El mismo botón lo rehabilita. Es la forma de «quitar» a alguien sin borrar la historia.</li>' +
             '<li><b>Borrar un usuario está protegido:</b> solo se puede borrar a quien <b>no tenga actividad registrada</b> en los datos. Si ya escribió movimientos o configuró algo, el servidor se niega a borrarlo — su nombre es la prueba de quién hizo qué — y te manda a inhabilitarlo.</li>' +
             '<li><b>Un negocio por copia:</b> en una instalación de negocio no se pueden crear más negocios; llevar varios es cosa de la licencia de <b>tenedor de libros</b>.</li>' +
@@ -15614,7 +15861,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Sin pago del mes en curso, el bloqueo es automático</b> también en la versión en línea: el servidor no entrega los datos (las acciones de datos responden el aviso de suscripción); entrar, ver el aviso y salir sí funciona.</li>' +
             '<li>La <b>cuenta administradora nunca se bloquea</b>: siempre puede entrar a marcar el pago, y al marcarlo el negocio se desbloquea al instante.</li>' +
             '<li>En la <b>versión sin conexión</b>, la instalación queda registrada a nombre de un negocio (tarjeta «Suscripción de esta instalación», solo visible sin conexión): el <b>día 1 de cada mes</b> el programa queda bloqueado hasta conectarse y validar contra el servidor en línea que la suscripción está pagada; sin conexión o sin pago, sigue bloqueado. El botón <b>Validar ahora</b> fuerza la comprobación.</li>' +
-            '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio.</li></ul>'},
+            '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio.</li>' +
+            '<li><b>La tarifa de cada negocio se calcula sola</b> y se muestra en su fila: TCP básico o pleno (si supera los 500 000 CUP de ingresos del año), MIPYME y PDL por tramos de plantilla (hasta 10, de 11 a 35, de 36 a 100 empleados) más el recargo por cada socio después del primero. Los precios viven en la tarjeta <b>Licencias: precios y tenedores</b>.</li>' +
+            '<li><b>Doble puerta con tenedor:</b> si un negocio tiene tenedor asignado, además de su propio pago manda el del tenedor: tenedor desactivado o sin pagar su mes = negocio bloqueado, aunque el negocio haya pagado lo suyo (y al revés). La cuenta de gestión del tenedor, como la administradora, nunca se bloquea: es su llave para entrar a resolver.</li></ul>'},
+        {id:'licencias-precios', modulo:'respaldo', titulo:'Licencias diferenciadas: precios y tenedores de libros', html:
+            '<p>En <b>Configuración</b> (solo la cuenta administradora) la tarjeta <b>Licencias: precios y tenedores</b> guarda la tabla de precios de las licencias. Cambiar un precio aquí vale desde ese momento y <b>no toca el código</b>: la tarifa de cada negocio se recalcula sola con sus datos.</p>' +
+            '<ul><li><b>TCP:</b> tarifa básica; si el negocio supera los <b>500 000 CUP de ingresos en el año</b>, paga la tarifa plena (la misma marca que le abre la Contabilidad completa).</li>' +
+            '<li><b>MIPYME y PDL:</b> tres tramos por plantilla de trabajadores (hasta 10, de 11 a 35, de 36 a 100) y un <b>recargo por cada socio después del primero</b>; la app cuenta la plantilla de la nómina y los socios de la ficha y de los usuarios.</li>' +
+            '<li><b>Tenedor de libros:</b> paga el <b>porcentaje fijado (10 %) de la tarifa de cada cliente de su cartera, sin base fija</b>. No declara nada: la app calcula la tarifa de cada negocio con sus datos, así nadie puede pagar de menos. Su panel en la misma tarjeta muestra su cartera, la suma de tarifas, su importe del mes, el botón para marcar su mes pagado y el interruptor para desactivarlo (desactivarlo bloquea su cartera entera).</li>' +
+            '<li><b>El tenedor ve su licencia:</b> al entrar con su cuenta, en Configuración tiene la tarjeta <b>Mi licencia de tenedor</b> con su cartera, sus tarifas y si su mes está pagado.</li>' +
+            '<li>Los negocios de un tenedor pagan <b>además</b> su licencia completa: la del tenedor no la cubre, ni la de un negocio cubre la del tenedor.</li></ul>'},
         {id:'actualizacion-offline', modulo:'respaldo', titulo:'Actualización de la versión sin conexión', html:
             '<p>Solo en la <b>versión sin conexión</b>: en <b>Configuración</b> (cuenta administradora) la tarjeta <b>«Actualización de esta instalación»</b> mantiene al día la copia instalada en esta máquina, sin reinstalar nada a mano.</p>' +
             '<ul><li><b>Automática al abrir:</b> si el interruptor está activo (lo está por defecto), al arrancar el programa comprueba en segundo plano si hay una versión nueva y la instala sola; al entrar verás la insignia «Actualizada sola». Sin conexión no pasa nada: trabaja con la versión instalada y lo reintenta en el próximo arranque.</li>' +
