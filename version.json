@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.26-23",
-  "publicada": "2026-10-27 02:11",
-  "notas": "Ronda -23: arreglo del alta de usuarios (selectores de negocio que se llenan al entrar, negocio sin tipo = TCP, rol tenedor desactiva el negocio y lo explica; manual v2026.10.26-23). Servidor sin cambios (0.6.0).",
-  "requiereServidor": "0.6.0",
+  "version": "v2026.10.26-24",
+  "publicada": "2026-10-27 02:57",
+  "notas": "Ronda -24: llaves de acceso mensuales amarradas a la PC (la llave sustituye la validación automática en las instalaciones con modo; manual v2026.10.26-24). Servidor 0.7.0.",
+  "requiereServidor": "0.7.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "370b65cd9a1d37caea9db8a2c2a9d4f928d8a9de206aa0f916e493f294714dc3",
-      "bytes": 1617884
+      "sha256": "5ce798f5dd480ef9eebd76aa346d8d657e61eabbd95036c8b6aa5ea587b65ed5",
+      "bytes": 1632101
     },
     {
       "ruta": "pdf-import.js",

@@ -1828,10 +1828,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="resumen">📊 Resumen</button>
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="negocios">🏢 Negocios</button>
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="tenedores">📚 Tenedores</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="llaves">🔑 Llaves</button>
                 </div>
                 <div id="panelVistaResumen"></div>
                 <div id="panelVistaNegocios" style="display:none"></div>
                 <div id="panelVistaTenedores" style="display:none"></div>
+                <div id="panelVistaLlaves" style="display:none"></div>
                 <p class="small text-muted mt-3 mb-0">Reglas del panel: la <b>cortesía</b> es una licencia regalada por ti — ese negocio nunca se bloquea por falta de pago ni cuenta como deuda, y tampoco suma a la base del 10 % de su tenedor. Cada tenedor paga su <b>base fija mensual</b> por el uso de la aplicación (2 000 si su cartera computable tiene menos de 5 negocios; 1 000 si tiene 5 o más) más su porcentaje, calculado sobre las tarifas de los negocios <b>activos y sin cortesía</b> de su cartera. El historial se calcula con las tarifas de hoy.</p>
             </div></div>
         </div>
@@ -2125,6 +2127,20 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <div class="mt-3 d-flex gap-2 flex-wrap">
                             <button type="button" class="btn btn-outline-primary" id="btnSubsLocalGuardar">Guardar registro</button>
                             <button type="button" class="btn btn-primary" id="btnSubsLocalValidar">Validar ahora</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Llave de acceso de ESTA instalación (solo versión sin conexión, ronda -24) -->
+                <div class="col-12 d-none" id="cardLlaveLocal">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="llave"></span>Llave de acceso de esta instalación (sin conexión)</h6>
+                        <p class="small text-muted">Esta copia funciona con una <b>llave mensual amarrada a esta PC</b>: dicta tu código de pedido a tu proveedor, recibe la llave del mes y pégala aquí. Sin llave vigente del mes, los usuarios del negocio no pueden entrar a los datos (el administrador local sí, para pegar la llave). Si cambias de PC, la llave deja de servir en la anterior: avisa a tu proveedor.</p>
+                        <div id="llaveLocalEstado" class="small mb-2"></div>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4"><label class="form-label small">Tu código de pedido (dícitaselo a tu proveedor)</label><input type="text" class="form-control fw-bold" id="llaveLocalPedido" readonly></div>
+                            <div class="col-md-5"><label class="form-label small">Llave del mes</label><input type="text" class="form-control" id="llaveLocalValor" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase"></div>
+                            <div class="col-md-3"><button type="button" class="btn btn-primary w-100" id="btnLlaveLocalActivar">Activar llave</button></div>
                         </div>
                     </div>
                 </div>
@@ -5531,6 +5547,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try{ renderMiLicencia(); }catch(e){}
             try{ renderPanelControl(); }catch(e){}
             renderSubsLocal();
+            renderLlaveLocal();
             renderActualizacionLocal();
             renderRecuperaLocal();
             renderCuentasNegocio();
@@ -6104,6 +6121,54 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>`;
             }).join('');
         }
+        // ===== LLAVES DE ACCESO (ronda -24) =====
+        // Vista del Panel de control: la administradora genera la llave
+        // del mes para el código de pedido de una instalación; la copia
+        // la activa contra este servidor y queda amarrada a esa PC.
+        let PANEL_LLAVES = null; let LLAVE_NUEVA = '';
+        async function cargarLlavesPanel() {
+            const r = await api('llaves_list', {});
+            if (r && r.ok) { PANEL_LLAVES = r.llaves || []; pintarLlavesVista(); }
+        }
+        function pintarLlavesVista() {
+            const el = document.getElementById('panelVistaLlaves');
+            if (el && PANEL_VISTA === 'llaves') el.innerHTML = panelHtmlLlaves(panelModelo());
+        }
+        function llaveEstadoChip(rec) {
+            if (rec.revocada) return '<span class="badge bg-danger">Revocada</span>';
+            if (rec.huella) return '<span class="badge bg-success">Activada</span>';
+            return '<span class="badge bg-warning text-dark">Sin activar</span>';
+        }
+        function panelHtmlLlaves(m) {
+            const mesDef = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); })();
+            const negs = (m.negocios || []).map(n => n.nombre);
+            const tens = (m.tenedores || []).map(t => t.usuario);
+            const optsNeg = negs.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+            const filas = (PANEL_LLAVES || []).map(rec => `<tr>
+                <td><code>${esc(rec.llave)}</code></td>
+                <td>${esc(rec.titular)} <span class="text-muted">(${rec.titularTipo === 'tenedor' ? 'tenedor' : 'negocio'})</span></td>
+                <td><code>${esc(rec.pedido)}</code></td>
+                <td>${esc(rec.mes)}</td>
+                <td>${llaveEstadoChip(rec)}${rec.huella ? `<div class="text-muted">PC ${esc(String(rec.huella).slice(0, 8))} · por ${esc(rec.activadaPor || '')} · ${esc(String(rec.activadaEn || '').slice(0, 10))}</div>` : ''}${rec.ultimoUso ? `<div class="text-muted">Último uso: ${esc(String(rec.ultimoUso).slice(0, 10))}</div>` : ''}</td>
+                <td class="text-nowrap">${rec.revocada ? '' : `<button type="button" class="btn btn-sm btn-outline-danger" data-llave-revocar="${esc(rec.llave)}">Revocar</button>`} ${rec.huella && !rec.revocada ? `<button type="button" class="btn btn-sm btn-outline-secondary" data-llave-desvincular="${esc(rec.llave)}">Desvincular PC</button>` : ''}</td>
+            </tr>`).join('');
+            return `<h6 class="fw-semibold mb-2">🔑 Llaves de acceso de las copias sin conexión</h6>
+            <p class="small text-muted">Cada copia sin conexión muestra su <b>código de pedido</b> en Configuración → «Llave de acceso de esta instalación». El cliente te lo dicta, tú generas aquí su llave del mes y se la pasas: al pegarla, la copia la verifica contra este servidor y queda <b>amarrada a esa PC</b> — si mueven el programa a otra computadora, la llave deja de servir. Sin llave del mes, la copia no se desbloquea. Aquí ves quién activó cada llave, en qué PC y cuándo, y puedes revocarla (se bloquea en su próxima verificación) o desvincularla de su PC (cambio legítimo de equipo).</p>
+            <div class="row g-2 align-items-end mb-3">
+                <div class="col-md-3"><label class="form-label small">Código de pedido</label><input type="text" class="form-control" id="llavePedido" placeholder="Ej.: K7X2P9Q4M3ZA" style="text-transform:uppercase"></div>
+                <div class="col-md-2"><label class="form-label small">Titular</label><select class="form-select" id="llaveTitularTipo"><option value="negocio">Negocio</option><option value="tenedor">Tenedor</option></select></div>
+                <div class="col-md-3"><label class="form-label small">Negocio / tenedor</label><select class="form-select" id="llaveTitularSel">${optsNeg}</select></div>
+                <div class="col-md-2"><label class="form-label small">Mes</label><input type="month" class="form-control" id="llaveMes" value="${mesDef}"></div>
+                <div class="col-md-2"><button type="button" class="btn btn-primary w-100" id="btnGenerarLlave">Generar llave</button></div>
+            </div>
+            <div id="llaveNuevaBox">${LLAVE_NUEVA ? `<div class="alert alert-success py-2">Llave generada: <code class="fs-5">${esc(LLAVE_NUEVA)}</code> — pásasela al cliente para que la pegue en su copia.</div>` : ''}</div>
+            <div class="table-responsive"><table class="table table-sm align-middle">
+                <thead><tr><th>Llave</th><th>Titular</th><th>Pedido</th><th>Mes</th><th>Estado</th><th></th></tr></thead>
+                <tbody>${filas || '<tr><td colspan="6" class="text-muted">Todavía no hay llaves generadas.</td></tr>'}</tbody>
+            </table></div>
+            <div class="d-none" id="llaveDatosTenedores" data-tens="${esc(tens.join('|'))}"></div>`;
+        }
+
         function renderPanelControl() {
             const pane = document.getElementById('pane-panel');
             if (!pane || !isAdmin()) return;
@@ -6111,7 +6176,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 pane.dataset.panelInit = '1';
                 pane.addEventListener('click', async e => {
                     const v = e.target.closest('[data-panel-vista]');
-                    if (v) { PANEL_VISTA = v.getAttribute('data-panel-vista'); renderPanelControl(); return; }
+                    if (v) { PANEL_VISTA = v.getAttribute('data-panel-vista'); if (PANEL_VISTA === 'llaves') PANEL_LLAVES = null; renderPanelControl(); return; }
                     const bn = e.target.closest('[data-pneg-nota]');
                     if (bn) {
                         const neg = bn.getAttribute('data-pneg-nota');
@@ -6133,6 +6198,38 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         renderPanelControl(); renderSuscripciones();
                         return;
                     }
+                    const bg = e.target.closest('#btnGenerarLlave');
+                    if (bg) {
+                        const pedido = (document.getElementById('llavePedido').value || '').trim().toUpperCase();
+                        const tipo = document.getElementById('llaveTitularTipo').value;
+                        const titular = document.getElementById('llaveTitularSel').value;
+                        const mes = document.getElementById('llaveMes').value;
+                        if (!pedido) { alert('Escribe el código de pedido que te dictó el cliente.'); return; }
+                        if (!titular) { alert('Elige el negocio o tenedor titular de la llave.'); return; }
+                        const r = await api('llave_generar', { pedido, titularTipo: tipo, titular, mes });
+                        if (!r.ok) { alert(r.error || 'No se pudo generar la llave'); return; }
+                        LLAVE_NUEVA = r.llave;
+                        await cargarLlavesPanel();
+                        return;
+                    }
+                    const lr = e.target.closest('[data-llave-revocar]');
+                    if (lr) {
+                        const lv = lr.getAttribute('data-llave-revocar');
+                        if (!confirm('¿Revocar la llave ' + lv + '? Esa copia se bloqueará en su próxima verificación.')) return;
+                        const r = await api('llave_revocar', { llave: lv });
+                        if (!r.ok) { alert(r.error || 'No se pudo revocar'); return; }
+                        await cargarLlavesPanel();
+                        return;
+                    }
+                    const ld = e.target.closest('[data-llave-desvincular]');
+                    if (ld) {
+                        const lv = ld.getAttribute('data-llave-desvincular');
+                        if (!confirm('¿Desvincular la llave ' + lv + ' de su PC? Podrá activarse en otra PC con la misma llave (solo si es un cambio legítimo de equipo).')) return;
+                        const r = await api('llave_desvincular', { llave: lv });
+                        if (!r.ok) { alert(r.error || 'No se pudo desvincular'); return; }
+                        await cargarLlavesPanel();
+                        return;
+                    }
                     const bt = e.target.closest('[data-pten-mes]');
                     if (bt) {
                         const u = bt.getAttribute('data-pten-mes'), clave = bt.getAttribute('data-pten-clave');
@@ -6145,6 +6242,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     }
                 });
                 pane.addEventListener('change', async e => {
+                    if (e.target && e.target.id === 'llaveTitularTipo') {
+                        const sel = document.getElementById('llaveTitularSel');
+                        const m2 = panelModelo();
+                        const lista = e.target.value === 'tenedor' ? (m2.tenedores || []).map(t => t.usuario) : (m2.negocios || []).map(n => n.nombre);
+                        sel.innerHTML = lista.map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+                        return;
+                    }
                     const ac = e.target.closest('[data-pneg-activo]');
                     if (ac) {
                         const neg = ac.getAttribute('data-pneg-activo');
@@ -6173,6 +6277,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     }
                 });
             }
+            if (PANEL_VISTA === 'llaves' && PANEL_LLAVES === null) cargarLlavesPanel();
             const m = panelModelo();
             pane.querySelectorAll('[data-panel-vista]').forEach(b => {
                 const on = b.getAttribute('data-panel-vista') === PANEL_VISTA;
@@ -6181,6 +6286,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('panelVistaResumen').style.display = PANEL_VISTA === 'resumen' ? '' : 'none';
             document.getElementById('panelVistaNegocios').style.display = PANEL_VISTA === 'negocios' ? '' : 'none';
             document.getElementById('panelVistaTenedores').style.display = PANEL_VISTA === 'tenedores' ? '' : 'none';
+            document.getElementById('panelVistaLlaves').style.display = PANEL_VISTA === 'llaves' ? '' : 'none';
+            if (PANEL_VISTA === 'llaves') pintarLlavesVista();
             if (PANEL_VISTA === 'resumen') document.getElementById('panelVistaResumen').innerHTML = panelHtmlResumen(m);
             if (PANEL_VISTA === 'negocios') document.getElementById('panelVistaNegocios').innerHTML = panelHtmlNegocios(m);
             if (PANEL_VISTA === 'tenedores') document.getElementById('panelVistaTenedores').innerHTML = panelHtmlTenedores(m);
@@ -6481,6 +6588,38 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 pintar(r);
                 alert(r.bloqueado ? '⛔ La suscripción no está vigente: el negocio sigue bloqueado.' : '✅ Suscripción validada para este mes.');
             });
+        }
+
+        // ===== LLAVE DE ACCESO DE ESTA INSTALACIÓN (solo offline, ronda -24) =====
+        async function renderLlaveLocal() {
+            const card = document.getElementById('cardLlaveLocal');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            try {
+                const st = await subsLocalFetch('/llave/estado');
+                if (!st || !st.ok || !st.aplica) { card.classList.add('d-none'); return; }
+                card.classList.remove('d-none');
+                const pintar = x => {
+                    document.getElementById('llaveLocalPedido').value = x.pedido || '';
+                    const el = document.getElementById('llaveLocalEstado');
+                    const pc = 'PC ' + esc(x.huellaCorta || '');
+                    if (x.estado === 'vigente') el.innerHTML = `<span class="badge bg-success">Llave vigente</span> Mes ${esc(x.periodoActual)} · ${esc(x.titular || '')} · ${pc}.`;
+                    else if (x.estado === 'llave_otra_pc') el.innerHTML = `<span class="badge bg-danger">Llave de otra PC</span> El pase guardado pertenece a otra computadora (${pc} es esta). Pide a tu proveedor que desvincule la llave o te genere otra.`;
+                    else el.innerHTML = `<span class="badge bg-warning text-dark">Sin llave</span> Falta activar la llave del mes ${esc(x.periodoActual)} (${pc}).`;
+                };
+                pintar(st);
+                if (!card.dataset.llaveInit) {
+                    card.dataset.llaveInit = '1';
+                    document.getElementById('btnLlaveLocalActivar').addEventListener('click', async () => {
+                        const v = document.getElementById('llaveLocalValor').value.trim().toUpperCase();
+                        if (!v) { alert('Pega primero la llave que te dio tu proveedor.'); return; }
+                        const r = await subsLocalFetch('/llave/activar', { llave: v });
+                        if (!r.ok) { alert(r.error || 'La llave no se pudo activar'); return; }
+                        pintar(r);
+                        alert('✅ Llave activada para ' + (r.periodoActual || 'este mes') + '. La copia quedó desbloqueada.');
+                    });
+                }
+            } catch (e) { card.classList.add('d-none'); }
         }
 
         // ===== ACTUALIZACIÓN DE ESTA INSTALACIÓN (solo offline, F5) =====
@@ -15755,7 +15894,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-23';
+        var MANUAL_VERSION = 'v2026.10.26-24';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16152,6 +16291,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Tenedor de libros:</b> paga una <b>base fija mensual por el uso de la aplicación</b> — <b>2 000 CUP si su cartera tiene menos de 5 negocios y 1 000 CUP si tiene 5 o más</b> (ambas editables en la misma tabla) — más el <b>porcentaje fijado (10 %) de la tarifa de cada cliente de su cartera</b>, que se paga siempre. No declara nada: la app calcula la tarifa de cada negocio con sus datos, así nadie puede pagar de menos. Su panel en la misma tarjeta muestra su cartera, la suma de tarifas, su importe del mes, el botón para marcar su mes pagado y el interruptor para desactivarlo (desactivarlo bloquea su cartera entera).</li>' +
             '<li><b>El tenedor ve su licencia:</b> al entrar con su cuenta, en Configuración tiene la tarjeta <b>Mi licencia de tenedor</b> con su cartera, sus tarifas y si su mes está pagado.</li>' +
             '<li>Los negocios de un tenedor pagan <b>además</b> su licencia completa: la del tenedor no la cubre, ni la de un negocio cubre la del tenedor.</li></ul>'},
+        {id:'llaves-acceso', modulo:'respaldo', titulo:'Llaves de acceso de las copias sin conexión', html:
+            '<p>Las copias <b>sin conexión</b> que nacieron con la pantalla de instalación (modo negocio o modo tenedor) se desbloquean con una <b>llave mensual amarrada a la PC</b>: la llave sustituye la validación automática de la suscripción para esas copias.</p>' +
+            '<ul>' +
+            '<li><b>El pedido:</b> en la copia, Configuración → tarjeta «Llave de acceso de esta instalación» muestra el <b>código de pedido</b> de esa instalación y la huella corta de su PC. El cliente te lo dicta.</li>' +
+            '<li><b>Generar:</b> en tu Panel de control → vista <b>🔑 Llaves</b>: escribe el pedido, elige el titular (un negocio o un tenedor) y el mes, y pulsa «Generar llave». Una llave por pedido y mes: si ya hay una viva, revócala antes de generar otra.</li>' +
+            '<li><b>Activar:</b> el cliente pega la llave en su copia (con conexión en ese momento) y la copia la verifica contra tu servidor: queda registrada con su negocio/tenedor, la huella de su PC, quién la activó y cuándo — todo visible en tu tabla de llaves.</li>' +
+            '<li><b>El amarre:</b> si el programa se mueve a otra PC, la huella no coincide y la llave deja de servir. Sin llave del mes en curso, los usuarios del negocio no entran a los datos; el administrador local siempre entra, para poder pegar la llave nueva.</li>' +
+            '<li><b>Revocar:</b> corta el acceso en la próxima verificación de esa copia (al arrancar con conexión o al cambiar de mes). <b>Desvincular PC:</b> libera la llave para que pueda activarse en otra computadora — solo para cambios legítimos de equipo.</li>' +
+            '<li>Las instalaciones anteriores a las licencias (sin modo elegido) siguen con la validación de suscripción de siempre; las llaves mandan en las que tienen modo.</li>' +
+            '</ul>'},
         {id:'panel-control', modulo:'respaldo', titulo:'Panel de control de licencias (solo la administradora)', html:
             '<p>El menú <b>Panel de control</b> (solo lo ve la cuenta administradora) reúne en un solo sitio el control de las licencias: el dinero del mes y el historial, la tabla maestra de negocios y el menú de tenedores. Marcar un pago, activar, desactivar o dar una cortesía se guarda al momento y el servidor aplica el bloqueo al instante.</p>' +
             '<ul><li><b>Resumen:</b> cuánto deberías cobrar este mes en licencias (las licencias de los negocios activos sin cortesía más el porcentaje de cada tenedor activo), cuánto ya cobraste y cuánto falta, con la lista de pendientes y su botón «Marcar pagado». Abajo, los <b>últimos 6 meses</b> (esperado, cobrado y pendiente), calculados con las tarifas de hoy.</li>' +
