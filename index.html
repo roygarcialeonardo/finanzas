@@ -1947,6 +1947,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                     <select class="form-select form-select-sm" id="newNegocioSel"></select>
                                 </div>
                             </div>
+                            <div class="form-text d-none mt-1" id="nuevoTenedorAyuda">📚 El <b>tenedor de libros</b> es una cuenta de gestión: <b>no lleva negocio propio</b>, por eso el selector de negocio se desactiva. Después le asignas sus negocios editando cada negocio (campo «Tenedor de libros asignado»).</div>
                             <div class="row g-2 mt-2">
                                 <div class="col-4"><input type="text" class="form-control form-control-sm" id="newUser" placeholder="Usuario"></div>
                                 <div class="col-4"><input type="password" autocomplete="new-password" class="form-control form-control-sm" id="newPass" placeholder="Contraseña"></div>
@@ -5516,6 +5517,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             });
             
             renderNegociosAdmin();
+            /* Los desplegables de negocio de los formularios de
+               usuarios se refrescan con la config YA cargada: solo se
+               rellenaban al cambiar el tipo o al guardar un negocio, y
+               al entrar quedaban con el estado vacío inicial («(No hay
+               negocios TCP)» aunque los hubiera) — la causa raíz de lo
+               que vio Leonardo en sus capturas (ronda -23). */
+            recargarSelectsNegocios();
             renderBloqueoMeses();
             renderSuscripciones();
             try{ renderLicenciasPrecios(); }catch(e){}
@@ -5533,7 +5541,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function getNegociosMeta(){ return (typeof CFG!=='undefined' && CFG.negocios) || {}; }
         function negociosPorTipo(tipo){
             const meta=getNegociosMeta(), out=[];
-            Object.keys(meta).forEach(function(n){ if(!tipo || (meta[n]||{}).tipo===tipo) out.push(n); });
+            /* Tipo efectivo: un negocio guardado SIN tipo (creado antes
+               de que existiera el dato) cuenta como TCP en toda la app
+               (actorDelNegocio, licTarifaNegocio y la lista de negocios
+               ya lo tratan así); este selector hacía la comparación
+               estricta y esos negocios desaparecían de los desplegables
+               («(No hay negocios TCP)» habiendo TCP reales) — corrección
+               de la ronda -23 a partir de la captura de Leonardo. */
+            Object.keys(meta).forEach(function(n){ const t=(meta[n]||{}).tipo||'tcp'; if(!tipo || t===tipo) out.push(n); });
             return out.sort();
         }
         function cargarSelectNegocios(selId, tipo, seleccionado){
@@ -5646,7 +5661,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('editEntityType').value = user.entityType || 'tcp';
             document.getElementById('editSocios').value = user.socios || 1;
             cargarSelectNegocios('editNegocioSel', user.entityType || 'tcp', user.negocio || '');
-            
+            rolEditarCambio();
+
             // Mostrar/ocultar socios según tipo
             toggleEditSocios();
             
@@ -11533,6 +11549,23 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         }
         function registrarAporteDesdeModal(){onatModal.hide();const el=document.getElementById('tab-fiscal');if(el)bootstrap.Tab.getOrCreateInstance(el).show();}
 
+        /* Al elegir el rol «tenedor» en el formulario de alta, el
+           selector de negocio (y el tipo/socios) se desactivan y se
+           muestra la explicación: el tenedor es una cuenta de gestión
+           sin negocio propio. Sin esto, el formulario parecía exigir
+           un negocio y bloqueaba el alta (capturas de Leonardo,
+           ronda -23). Lo mismo en el editor de usuarios. */
+        function rolNuevoCambio() {
+            const r = document.getElementById('newRole'); if (!r) return;
+            const esTen = r.value === 'tenedor';
+            ['newNegocioSel', 'newEntityType', 'newSocios'].forEach(id => { const e = document.getElementById(id); if (e) e.disabled = esTen; });
+            const ay = document.getElementById('nuevoTenedorAyuda'); if (ay) ay.classList.toggle('d-none', !esTen);
+        }
+        function rolEditarCambio() {
+            const r = document.getElementById('editRole'); if (!r) return;
+            const s = document.getElementById('editNegocioSel'); if (s) s.disabled = r.value === 'tenedor';
+        }
+
         // ===== CREAR USUARIO NUEVO =====
         function crearUsuario() {
             if (!esGestor()) {
@@ -15372,6 +15405,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         
         // Botones de creación de usuarios
         document.getElementById('btnCrearUsuario').addEventListener('click', crearUsuario);
+        document.getElementById('newRole').addEventListener('change', rolNuevoCambio);
+        document.getElementById('editRole').addEventListener('change', rolEditarCambio);
         document.getElementById('btnCrearAsociado').addEventListener('click', crearUsuarioAsociado);
 
         // Botón guardar edición de usuario
@@ -15720,7 +15755,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-22';
+        var MANUAL_VERSION = 'v2026.10.26-23';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -15763,6 +15798,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
             '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
             '<li><b>Tenedor de libros:</b> la administradora puede crear usuarios con el rol <b>tenedor</b>: es una cuenta de gestión (sin negocio propio) que ve el <b>Gestor</b> y la <b>Configuración</b> SOLO de su cartera — los negocios que la administradora le asigna en el editor de cada negocio —. El tenedor crea negocios y usuarios dentro de su cartera, y a cada negocio entra con un usuario editor suyo, como hace la administradora. El servidor le esconde todo lo demás: ni ve ni puede tocar negocios ajenos. Y <b>no puede desactivar ni borrar negocios, ni marcar pagos de licencias</b>: activar, desactivar y cobrar las licencias (de los negocios y la suya) es solo de la administradora.</li>' +
+            '<li><b>Crear el tenedor:</b> en el formulario «Nuevo Usuario» elige el rol <b>📚 Tenedor de libros</b> — está en la lista de <b>Rol</b>, junto a Consultor y Editor, no en la de Tipo —. Al elegirlo, el selector de negocio se desactiva solo: no hay que elegir ninguno. Los negocios que se crearon sin tipo guardado cuentan como <b>TCP</b> en los selectores de negocio.</li>' +
             '<li><b>Inhabilitar un usuario:</b> en la lista de usuarios, el botón de la persona tachada lo <b>inhabilita</b>: no podrá entrar (ni siquiera con una sesión abierta) y su rastro queda guardado. El mismo botón lo rehabilita. Es la forma de «quitar» a alguien sin borrar la historia.</li>' +
             '<li><b>Borrar un usuario está protegido:</b> solo se puede borrar a quien <b>no tenga actividad registrada</b> en los datos. Si ya escribió movimientos o configuró algo, el servidor se niega a borrarlo — su nombre es la prueba de quién hizo qué — y te manda a inhabilitarlo.</li>' +
             '<li><b>Un negocio por copia:</b> en una instalación de negocio no se pueden crear más negocios; llevar varios es cosa de la licencia de <b>tenedor de libros</b>.</li>' +
