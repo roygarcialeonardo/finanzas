@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.26-21",
-  "publicada": "2026-10-27 00:12",
-  "notas": "Licencias por tipo (2ª parte): rol tenedor de libros con su cartera, tabla de precios editable, tarifa de cada negocio y 10 % del tenedor calculados solos, doble puerta de bloqueo; desactivar y borrar negocios solo la administradora.",
-  "requiereServidor": "0.5.0",
+  "version": "v2026.10.26-22",
+  "publicada": "2026-10-27 01:32",
+  "notas": "Panel de control de licencias de la administradora (resumen del mes, tabla de negocios con cortesía y notas, menú de tenedores); base fija del tenedor por tramos (2000 con menos de 5 negocios, 1000 con 5 o más) más su 10 %; el menú Registro ya no aparece en la vista de Administrador.",
+  "requiereServidor": "0.6.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "7d249e38c44879010fc9b7d18061f619257f23b7cac68e9af263bd7de9656cf2",
-      "bytes": 1589925
+      "sha256": "ad1a2b485fd10c0edda4cc415d1a3442451a5523d7bb692b2d9f8051b03531a6",
+      "bytes": 1614906
     },
     {
       "ruta": "pdf-import.js",

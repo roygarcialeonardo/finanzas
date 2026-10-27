@@ -1049,6 +1049,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link gestion" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#pane-gestion"><span class="icono-anim me-1" data-icono="cuadricula"></span> Gestión+</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><span class="icono-anim me-1" data-icono="archivo"></span> Historial</button></li>
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><span class="icono-anim me-1" data-icono="maletin"></span> Gestor</button></li>
+        <li class="nav-item" id="panelTabNav" style="display:none"><button class="nav-link" id="tab-panel" data-bs-toggle="tab" data-bs-target="#pane-panel"><span class="icono-anim me-1" data-icono="velocimetro"></span> Panel de control</button></li>
         <li class="nav-item" id="adminTabNav"><button class="nav-link admin" id="tab-admin" data-bs-toggle="tab" data-bs-target="#pane-admin"><span class="icono-anim me-1" data-icono="ajustes"></span> Configuración</button></li>
         <li class="nav-item"><button class="nav-link ayuda" id="tab-ayuda" data-bs-toggle="tab" data-bs-target="#pane-ayuda"><span class="icono-anim me-1" data-icono="ayuda"></span> Ayuda</button></li>
         <li class="nav-item"><button class="nav-link instrucciones" id="tab-instrucciones" data-bs-toggle="tab" data-bs-target="#pane-instrucciones"><span class="icono-anim me-1" data-icono="info"></span> Instrucciones</button></li>
@@ -1819,6 +1820,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         </div>
 
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
+        <div class="tab-pane fade" id="pane-panel">
+            <div class="card shadow-sm"><div class="card-body">
+                <h5 class="mb-1">🎛️ Panel de control de licencias</h5>
+                <p class="text-muted small">Tu mando único de administradora: cuánto deberías cobrar este mes en licencias, cuánto ya cobraste y quién falta — negocio a negocio y tenedor a tenedor. Marcar pagos, activar, desactivar y dar cortesías se guarda al momento y manda en el acto (el bloqueo lo aplica el servidor). Los precios se editan en Configuración → «Licencias y tenedores».</p>
+                <div class="btn-group mb-3" role="group" aria-label="Vistas del panel">
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="resumen">📊 Resumen</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="negocios">🏢 Negocios</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="tenedores">📚 Tenedores</button>
+                </div>
+                <div id="panelVistaResumen"></div>
+                <div id="panelVistaNegocios" style="display:none"></div>
+                <div id="panelVistaTenedores" style="display:none"></div>
+                <p class="small text-muted mt-3 mb-0">Reglas del panel: la <b>cortesía</b> es una licencia regalada por ti — ese negocio nunca se bloquea por falta de pago ni cuenta como deuda, y tampoco suma a la base del 10 % de su tenedor. Cada tenedor paga su <b>base fija mensual</b> por el uso de la aplicación (2 000 si su cartera computable tiene menos de 5 negocios; 1 000 si tiene 5 o más) más su porcentaje, calculado sobre las tarifas de los negocios <b>activos y sin cortesía</b> de su cartera. El historial se calcula con las tarifas de hoy.</p>
+            </div></div>
+        </div>
         <div class="tab-pane fade" id="pane-gestor">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                 <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="maletin" style="color:#7c3aed"></span>Panel del Gestor</h5><div class="small text-secondary">Todos tus clientes (TCP, MIPYME y Proyectos de Desarrollo Local) en una vista: cierres, vencimientos ONAT, justificación de gastos y tu cobro. Los importes salen de los datos reales de cada negocio.</div></div>
@@ -2035,10 +2051,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-12" id="cardLicencias">
                     <div class="card p-3 p-md-4">
                         <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="etiqueta"></span>Licencias: precios y tenedores</h6>
-                        <p class="small text-muted">La licencia de cada negocio se calcula sola con su tipo, su plantilla de trabajadores y sus socios (el TCP que supera los 500 000 CUP de ingresos del año pasa a la tarifa plena). El tenedor de libros paga el <b>10 % de la tarifa fijada de cada cliente de su cartera</b>, sin base fija; los negocios de un tenedor pagan además su licencia completa (doble puerta: si el tenedor no paga, sus negocios también se bloquean). Estos precios son los de la lista fijada; cambiarlos aquí no toca el código.</p>
+                        <p class="small text-muted">La licencia de cada negocio se calcula sola con su tipo, su plantilla de trabajadores y sus socios (el TCP que supera los 500 000 CUP de ingresos del año pasa a la tarifa plena). El tenedor de libros paga una <b>base fija mensual por el uso de la aplicación</b> (2 000 si su cartera tiene menos de 5 negocios; 1 000 si tiene 5 o más) más el <b>10 % de la tarifa fijada de cada cliente de su cartera</b>; los negocios de un tenedor pagan además su licencia completa (doble puerta: si el tenedor no paga, sus negocios también se bloquean). Estos precios son los de la lista fijada; cambiarlos aquí no toca el código.</p>
                         <div class="row g-2">
                             <div class="col-6 col-md-3"><label class="form-label small mb-1">TCP básico (CUP/mes)</label><input type="number" class="form-control form-control-sm" id="licTcp" min="0"></div>
                             <div class="col-6 col-md-3"><label class="form-label small mb-1">TCP pleno &gt;500 mil (CUP/mes)</label><input type="number" class="form-control form-control-sm" id="licTcpPleno" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">Tenedor: base con 5+ negocios (CUP/mes)</label><input type="number" class="form-control form-control-sm" id="licTenBase" min="0"></div>
+                            <div class="col-6 col-md-3"><label class="form-label small mb-1">Tenedor: base con menos de 5 (CUP/mes)</label><input type="number" class="form-control form-control-sm" id="licTenBasePeq" min="0"></div>
                             <div class="col-6 col-md-3"><label class="form-label small mb-1">Tenedor: % de la tarifa de cada cliente</label><input type="number" class="form-control form-control-sm" id="licPct" min="0" max="100"></div>
                         </div>
                         <div class="row g-2 mt-1">
@@ -2056,7 +2074,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <div class="mt-3"><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarLicencias"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar precios</button></div>
                         <hr>
                         <h6 class="fw-semibold mb-2">Tenedores de libros</h6>
-                        <p class="small text-muted">Su cartera, la tarifa de cada cliente, su 10 % del mes y su pago. Marca el mes cuando pague; desactívalo para bloquear su cartera entera.</p>
+                        <p class="small text-muted">Su cartera, la tarifa de cada cliente, su licencia del mes (base fija + su %) y su pago. Marca el mes cuando pague; desactívalo para bloquear su cartera entera.</p>
                         <div id="tenedoresList">
                             <!-- Se llena con JS -->
                         </div>
@@ -5503,6 +5521,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try{ renderLicenciasPrecios(); }catch(e){}
             try{ renderTenedores(); }catch(e){}
             try{ renderMiLicencia(); }catch(e){}
+            try{ renderPanelControl(); }catch(e){}
             renderSubsLocal();
             renderActualizacionLocal();
             renderRecuperaLocal();
@@ -5699,7 +5718,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function subsDeNeg(neg) {
             const m = getNegociosMeta()[neg] || {};
             const s = (m.subs && typeof m.subs === 'object') ? m.subs : {};
-            return { activo: s.activo !== false, pagos: (s.pagos && typeof s.pagos === 'object') ? s.pagos : {} };
+            return { activo: s.activo !== false, pagos: (s.pagos && typeof s.pagos === 'object') ? s.pagos : {}, cortesia: s.cortesia === true, nota: String(s.nota || '') };
         }
         function extrasDeNeg(neg) {
             const m = getNegociosMeta()[neg] || {};
@@ -5713,6 +5732,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function subsEstadoMes(neg) {
             const s = subsDeNeg(neg);
             if (!s.activo) return 'desactivado';
+            if (s.cortesia) return 'cortesia';
             return s.pagos[subsMesActual()] ? 'pagado' : 'sin_pagar';
         }
         function renderSuscripciones() {
@@ -5756,7 +5776,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const meta = getNegociosMeta();
             const negs = Object.keys(meta).sort((a, b) => a.localeCompare(b, 'es'));
             if (!negs.length) { box.innerHTML = '<p class="text-muted small mb-0">Aún no hay negocios registrados.</p>'; return; }
-            const insignia = st => st === 'pagado' ? '<span class="badge bg-success">Pagado</span>' : st === 'desactivado' ? '<span class="badge bg-dark">Desactivado</span>' : '<span class="badge bg-danger">Sin pagar</span>';
+            const insignia = st => st === 'pagado' ? '<span class="badge bg-success">Pagado</span>' : st === 'desactivado' ? '<span class="badge bg-dark">Desactivado</span>' : st === 'cortesia' ? '<span class="badge bg-info text-dark">Cortesía</span>' : '<span class="badge bg-danger">Sin pagar</span>';
             const anio = new Date().getFullYear();
             box.innerHTML = negs.map(neg => {
                 const m = meta[neg], s = subsDeNeg(neg), st = subsEstadoMes(neg);
@@ -5811,7 +5831,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function licPrecios() {
             const l = (typeof CFG !== 'undefined' && CFG && CFG.licencias) || {};
             const g = x => ({ micro: +(x && x.micro) || 0, pequena: +(x && x.pequena) || 0, mediana: +(x && x.mediana) || 0, porSocio: +(x && x.porSocio) || 0 });
-            return { tcp: +l.tcp || 0, tcpPleno: +l.tcpPleno || 0, tenedorPct: (l.tenedorPct == null ? 10 : +l.tenedorPct), mipyme: g(l.mipyme), pdl: g(l.pdl) };
+            return { tcp: +l.tcp || 0, tcpPleno: +l.tcpPleno || 0, tenedorPct: (l.tenedorPct == null ? 10 : +l.tenedorPct), tenedorBase: (l.tenedorBase == null ? 1000 : +l.tenedorBase), tenedorBasePequena: (l.tenedorBasePequena == null ? 2000 : +l.tenedorBasePequena), mipyme: g(l.mipyme), pdl: g(l.pdl) };
+        }
+        /* Cuota mensual del tenedor: base fija por el uso de la app +
+           el % fijado de la suma de tarifas de su cartera computable
+           (negocios activos y sin cortesía). La base tiene dos tramos
+           (decisión de Leonardo, 2026-10-26): con MENOS de 5 negocios
+           en la cartera computable la base es la «pequeña» (2 000);
+           con 5 o más, la base normal (1 000). El % se paga siempre. */
+        function licCuotaTenedor(suma, numNegocios, P) {
+            const p = P || licPrecios();
+            const fijo = (numNegocios || 0) < 5 ? (p.tenedorBasePequena || 0) : (p.tenedorBase || 0);
+            const diezmo = Math.round((suma || 0) * (p.tenedorPct || 0)) / 100;
+            return { fijo, diezmo, total: fijo + diezmo };
         }
         function licTarifaNegocio(neg, doc) {
             const P = licPrecios();
@@ -5842,14 +5874,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!card || !isAdmin()) return;
             const P = licPrecios();
             const set = (id, v) => { const el = document.getElementById(id); if (el && document.activeElement !== el) el.value = v; };
-            set('licTcp', P.tcp); set('licTcpPleno', P.tcpPleno); set('licPct', P.tenedorPct);
+            set('licTcp', P.tcp); set('licTcpPleno', P.tcpPleno); set('licPct', P.tenedorPct); set('licTenBase', P.tenedorBase); set('licTenBasePeq', P.tenedorBasePequena);
             set('licMiMicro', P.mipyme.micro); set('licMiPequena', P.mipyme.pequena); set('licMiMediana', P.mipyme.mediana); set('licMiSocio', P.mipyme.porSocio);
             set('licPdlMicro', P.pdl.micro); set('licPdlPequena', P.pdl.pequena); set('licPdlMediana', P.pdl.mediana); set('licPdlSocio', P.pdl.porSocio);
             if (!card.dataset.licInit) {
                 card.dataset.licInit = '1';
                 document.getElementById('btnGuardarLicencias').addEventListener('click', async () => {
                     const n = id => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) || v < 0 ? 0 : v; };
-                    const licencias = { tcp: n('licTcp'), tcpPleno: n('licTcpPleno'), tenedorPct: n('licPct'),
+                    const licencias = { tcp: n('licTcp'), tcpPleno: n('licTcpPleno'), tenedorPct: n('licPct'), tenedorBase: n('licTenBase'), tenedorBasePequena: n('licTenBasePeq'),
                         mipyme: { micro: n('licMiMicro'), pequena: n('licMiPequena'), mediana: n('licMiMediana'), porSocio: n('licMiSocio') },
                         pdl: { micro: n('licPdlMicro'), pequena: n('licPdlPequena'), mediana: n('licPdlMediana'), porSocio: n('licPdlSocio') } };
                     const r = await api('config_set', { config: { licencias } });
@@ -5895,19 +5927,24 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             box.innerHTML = tens.map(u => {
                 const cartera = Object.keys(meta).filter(n => meta[n].tenedor === u).sort();
                 const t = tenRegistro(u);
-                let suma = 0;
+                let suma = 0, cuenta = 0;
                 const filas = cartera.map(n => {
                     const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
-                    if (tl) suma += tl.tarifa;
-                    return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
+                    /* La base del 10 % solo suma negocios ACTIVOS y sin
+                       cortesía (misma regla que el Panel de control):
+                       un negocio apagado no se atiende y la cortesía es
+                       un regalo de la administradora, no una deuda. */
+                    const sn = subsDeNeg(n);
+                    if (tl && sn.activo && !sn.cortesia) { suma += tl.tarifa; cuenta++; }
+                    return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')}${!sn.activo ? ' · desactivado' : sn.cortesia ? ' · cortesía' : ''})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
                 }).join('');
-                const diezmo = Math.round(suma * (P.tenedorPct || 0)) / 100;
+                const cuota = licCuotaTenedor(suma, cuenta, P);
                 const pagado = !!t.pagos[mes];
                 return `<div class="border rounded p-2 mb-2">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <span class="fw-semibold">📚 ${esc(u)} ${t.activo ? '' : '<span class="badge bg-dark">Desactivado</span>'}</span>
                         <span class="d-flex align-items-center gap-2">
-                            <span class="small">Su ${P.tenedorPct} % de ${moneda(suma)} = <b>${moneda(diezmo)}/mes</b></span>
+                            <span class="small">Su licencia: ${moneda(cuota.fijo)} fijos + su ${P.tenedorPct} % de ${moneda(suma)} (${moneda(cuota.diezmo)}) = <b>${moneda(cuota.total)}/mes</b></span>
                             <button type="button" class="btn btn-sm ${pagado ? 'btn-success' : 'btn-outline-danger'}" data-ten-mes="${esc(u)}" data-ten-clave="${mes}">${pagado ? '✅ ' + mes + ' pagado' : '🚫 ' + mes + ' sin pagar'}</button>
                             <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-ten-activo="${esc(u)}" ${t.activo ? 'checked' : ''}> <span class="form-check-label small">Activo</span></label>
                         </span>
@@ -5922,21 +5959,222 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const yo = getCurrentUser(), P = licPrecios(), meta = getNegociosMeta();
             const cartera = Object.keys(meta).filter(n => meta[n].tenedor === yo).sort();
             const t = tenRegistro(yo), mes = subsMesActual();
-            let suma = 0;
+            let suma = 0, cuenta = 0;
             const filas = cartera.map(n => {
                 const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
-                if (tl) suma += tl.tarifa;
-                return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
+                const sn = subsDeNeg(n);
+                if (tl && sn.activo && !sn.cortesia) { suma += tl.tarifa; cuenta++; }
+                return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')}${!sn.activo ? ' · desactivado' : sn.cortesia ? ' · cortesía' : ''})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
             }).join('');
-            const diezmo = Math.round(suma * (P.tenedorPct || 0)) / 100;
+            const cuota = licCuotaTenedor(suma, cuenta, P);
             box.innerHTML = `
-                <p class="small text-muted">Tu licencia de tenedor es el <b>${P.tenedorPct} % de la tarifa fijada de cada negocio de tu cartera</b> (la calcula la app con el tipo, la plantilla y los socios de cada uno; no hay base fija). Cada negocio paga además su licencia completa. Si tu mes no está pagado, tu cartera entera queda bloqueada (doble puerta).</p>
+                <p class="small text-muted">Tu licencia de tenedor es una <b>base fija de ${moneda(cuota.fijo)}/mes por el uso de la aplicación</b> más el <b>${P.tenedorPct} % de la tarifa fijada de cada negocio de tu cartera</b> (la calcula la app con el tipo, la plantilla y los socios de cada uno; no declaras nada). Cada negocio paga además su licencia completa. Si tu mes no está pagado, tu cartera entera queda bloqueada (doble puerta).</p>
                 ${filas || '<p class="small text-muted mb-0">Aún no tienes negocios asignados.</p>'}
                 <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-2 flex-wrap gap-2">
-                    <span>Total de tarifas de mi cartera: <b>${moneda(suma)}/mes</b> · Mi licencia: <b>${moneda(diezmo)}/mes</b></span>
+                    <span>Total de tarifas de mi cartera: <b>${moneda(suma)}/mes</b> · Mi licencia: ${moneda(cuota.fijo)} + ${moneda(cuota.diezmo)} = <b>${moneda(cuota.total)}/mes</b></span>
                     ${!t.activo ? '<span class="badge bg-dark">Desactivado</span>' : (t.pagos[mes] ? '<span class="badge bg-success">✅ ' + mes + ' pagado</span>' : '<span class="badge bg-danger">🚫 ' + mes + ' sin pagar</span>')}
                 </div>`;
         }
+
+        // ===== PANEL DE CONTROL DE LICENCIAS (ronda -22, SOLO admin) =====
+        // El mando único de la administradora que pidió Leonardo: el
+        // dinero de las licencias de un vistazo (esperado / cobrado /
+        // pendiente del mes + historial), la tabla maestra de negocios
+        // (licencia, tenedor, estado, pagos, cortesía y nota privada) y
+        // el menú de tenedores (cartera, su 10 % y su estado). Todo sale
+        // de los datos que la app ya tiene; guardar reusa subs_set y
+        // tenedor_set, y el servidor aplica el bloqueo al momento.
+        let PANEL_VISTA = 'resumen';
+        function panelMeses(n) {
+            const NOMBRES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const out = [], d = new Date();
+            for (let i = 0; i < (n || 6); i++) {
+                const f = new Date(d.getFullYear(), d.getMonth() - i, 1);
+                out.push({ clave: f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0'), etiqueta: NOMBRES[f.getMonth()] + ' ' + f.getFullYear(), corto: NOMBRES[f.getMonth()].slice(0, 3) + ' ' + String(f.getFullYear()).slice(2) });
+            }
+            return out;
+        }
+        function panelModelo() {
+            const meta = getNegociosMeta(), mes = subsMesActual(), P = licPrecios();
+            const negocios = Object.keys(meta).sort((a, b) => a.localeCompare(b, 'es')).map(n => {
+                const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
+                return { nombre: n, tipo: meta[n].tipo || 'tcp', tenedor: meta[n].tenedor || '', tarifa: tl ? tl.tarifa : 0, detalle: tl ? tl.detalle : '', s: subsDeNeg(n) };
+            });
+            const usuarios = getUsuarios(), set = new Set();
+            Object.keys(usuarios).forEach(u => { if (usuarios[u].role === 'tenedor') set.add(u); });
+            negocios.forEach(x => { if (x.tenedor) set.add(x.tenedor); });
+            Object.keys((typeof CFG !== 'undefined' && CFG && CFG.tenedores) || {}).forEach(u => set.add(u));
+            const tenedores = [...set].sort().map(u => {
+                const cartera = negocios.filter(x => x.tenedor === u);
+                const computables = cartera.filter(x => x.s.activo && !x.s.cortesia);
+                const base = computables.reduce((a, x) => a + x.tarifa, 0);
+                const cuota = licCuotaTenedor(base, computables.length, P);
+                return { usuario: u, cartera, base, fijo: cuota.fijo, diezmo: cuota.diezmo, aporte: cuota.total, reg: tenRegistro(u) };
+            });
+            return { negocios, tenedores, mes, pct: P.tenedorPct };
+        }
+        function panelTotalesMes(m, clave) {
+            let esp = 0, cob = 0;
+            m.negocios.forEach(x => { if (x.s.activo && !x.s.cortesia) { esp += x.tarifa; if (x.s.pagos[clave]) cob += x.tarifa; } });
+            m.tenedores.forEach(t => { if (t.reg.activo) { esp += t.aporte; if (t.reg.pagos[clave]) cob += t.aporte; } });
+            return { esp, cob, pen: esp - cob };
+        }
+        function panelChipsHist(pagos, tipo, nombre) {
+            return panelMeses(6).map(mm => {
+                const on = !!pagos[mm.clave];
+                return `<button type="button" class="btn btn-sm ${on ? 'btn-success' : 'btn-outline-danger'} me-1 mb-1" data-p${tipo}-mes="${esc(nombre)}" data-p${tipo}-clave="${mm.clave}" title="${mm.etiqueta}: toca para cambiar">${on ? '✅' : '🚫'} ${mm.corto}</button>`;
+            }).join('');
+        }
+        function panelHtmlResumen(m) {
+            const t = panelTotalesMes(m, m.mes);
+            const pendNeg = m.negocios.filter(x => x.s.activo && !x.s.cortesia && !x.s.pagos[m.mes]);
+            const pendTen = m.tenedores.filter(x => x.reg.activo && !x.reg.pagos[m.mes]);
+            const carta = (titulo, valor, clase) => `<div class="col-6 col-md-3"><div class="border rounded p-2 text-center h-100"><div class="small text-muted">${titulo}</div><div class="fs-5 fw-bold ${clase || ''}">${valor}</div></div></div>`;
+            let h = `<div class="row g-2 mb-3">
+                ${carta('Esperado este mes', moneda(t.esp))}
+                ${carta('Cobrado', moneda(t.cob), 'text-success')}
+                ${carta('Pendiente', moneda(t.pen), t.pen > 0 ? 'text-danger' : 'text-success')}
+                ${carta('En activo', m.negocios.filter(x => x.s.activo).length + ' negocios · ' + m.tenedores.filter(x => x.reg.activo).length + ' tenedores')}
+            </div>`;
+            if (pendNeg.length || pendTen.length) {
+                h += '<h6>⏰ Pendientes de este mes</h6>';
+                h += pendNeg.map(x => `<div class="d-flex justify-content-between align-items-center border rounded p-2 mb-1"><span>🏢 <b>${esc(x.nombre)}</b> <span class="text-muted small">(${x.tenedor ? 'de ' + esc(x.tenedor) : 'directo'})</span></span><span class="d-flex align-items-center gap-2"><b>${moneda(x.tarifa)}</b><button type="button" class="btn btn-sm btn-success" data-pneg-mes="${esc(x.nombre)}" data-pneg-clave="${m.mes}">Marcar pagado</button></span></div>`).join('');
+                h += pendTen.map(x => `<div class="d-flex justify-content-between align-items-center border rounded p-2 mb-1"><span>📚 <b>${esc(x.usuario)}</b> <span class="text-muted small">(su licencia: ${moneda(x.fijo)} fijos + ${m.pct} % de ${moneda(x.base)})</span></span><span class="d-flex align-items-center gap-2"><b>${moneda(x.aporte)}</b><button type="button" class="btn btn-sm btn-success" data-pten-mes="${esc(x.usuario)}" data-pten-clave="${m.mes}">Marcar pagado</button></span></div>`).join('');
+            } else {
+                h += '<div class="alert alert-success py-2">✅ Todo cobrado este mes. Sin pendientes.</div>';
+            }
+            const hist = panelMeses(6).map(mm => { const tt = panelTotalesMes(m, mm.clave); return `<tr><td>${mm.etiqueta}</td><td class="text-end">${moneda(tt.esp)}</td><td class="text-end">${moneda(tt.cob)}</td><td class="text-end">${tt.pen ? '<b class="text-danger">' + moneda(tt.pen) + '</b>' : '<span class="text-success">—</span>'}</td></tr>`; }).join('');
+            h += `<h6 class="mt-3">📅 Últimos 6 meses <span class="text-muted fw-normal small">(con las tarifas de hoy)</span></h6>
+                <div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Mes</th><th class="text-end">Esperado</th><th class="text-end">Cobrado</th><th class="text-end">Pendiente</th></tr></thead><tbody>${hist}</tbody></table></div>`;
+            return h;
+        }
+        function panelHtmlNegocios(m) {
+            if (!m.negocios.length) return '<p class="text-muted mb-0">Aún no hay negocios registrados.</p>';
+            const chipEstado = x => !x.s.activo ? '<span class="badge bg-dark">Desactivado</span>' : x.s.cortesia ? '<span class="badge bg-info text-dark">Cortesía</span>' : x.s.pagos[m.mes] ? '<span class="badge bg-success">Pagado</span>' : '<span class="badge bg-danger">Sin pagar</span>';
+            return m.negocios.map(x => `<div class="border rounded p-2 mb-2" data-panel-neg="${esc(x.nombre)}">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span class="fw-semibold">🏢 ${esc(x.nombre)} <span class="badge bg-secondary">${esc(({ mipyme: 'MIPYME', pdl: 'PDL' })[x.tipo] || 'TCP')}</span></span>
+                    ${chipEstado(x)}
+                </div>
+                <div class="small text-muted">Licencia: <b>${moneda(x.tarifa)}/mes</b>${x.detalle ? ' · ' + esc(x.detalle) : ''} · ${x.tenedor ? 'Tenedor: <b>' + esc(x.tenedor) + '</b>' : '<b>Cliente directo</b>'}</div>
+                <div class="d-flex flex-wrap align-items-center gap-3 mt-1">
+                    <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-pneg-activo="${esc(x.nombre)}" ${x.s.activo ? 'checked' : ''}> <span class="form-check-label small fw-semibold">Negocio activo</span></label>
+                    <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-pneg-cortesia="${esc(x.nombre)}" ${x.s.cortesia ? 'checked' : ''}> <span class="form-check-label small">Cortesía (no paga ni se bloquea)</span></label>
+                    <button type="button" class="btn btn-sm ${x.s.pagos[m.mes] ? 'btn-success' : 'btn-outline-danger'}" data-pneg-mes="${esc(x.nombre)}" data-pneg-clave="${m.mes}">${x.s.pagos[m.mes] ? '✅ ' + m.mes + ' pagado' : '🚫 ' + m.mes + ' sin pagar'}</button>
+                </div>
+                <div class="small mt-1"><span class="text-muted">Historial:</span> ${panelChipsHist(x.s.pagos, 'neg', x.nombre)}</div>
+                <div class="input-group input-group-sm mt-1" style="max-width:560px">
+                    <input type="text" class="form-control panel-nota-input" placeholder="Nota privada (solo la ves tú): teléfono, cómo paga…" value="${esc(x.s.nota)}" maxlength="300">
+                    <button type="button" class="btn btn-outline-secondary" data-pneg-nota="${esc(x.nombre)}">Guardar nota</button>
+                </div>
+            </div>`).join('');
+        }
+        function panelHtmlTenedores(m) {
+            if (!m.tenedores.length) return '<p class="text-muted mb-0">Aún no hay tenedores: crea uno en Configuración → Gestión de Usuarios con el rol «Tenedor de libros» y asígnale negocios desde el editor de cada negocio.</p>';
+            return m.tenedores.map(t => {
+                const pagado = !!t.reg.pagos[m.mes];
+                const filas = t.cartera.map(x => `<div class="small d-flex justify-content-between"><span>🏢 ${esc(x.nombre)} <span class="text-muted">(${esc(x.detalle || x.tipo)}${!x.s.activo ? ' · desactivado' : x.s.cortesia ? ' · cortesía' : ''})</span></span><b>${moneda(x.tarifa)}</b></div>`).join('');
+                return `<div class="border rounded p-2 mb-2">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span class="fw-semibold">📚 ${esc(t.usuario)} ${t.reg.activo ? '' : '<span class="badge bg-dark">Desactivado</span>'}</span>
+                    <span class="d-flex align-items-center gap-2">
+                        <span class="small">Su licencia: ${moneda(t.fijo)} fijos + su ${m.pct} % de ${moneda(t.base)} (${moneda(t.diezmo)}) = <b>${moneda(t.aporte)}/mes</b> para ti</span>
+                        <button type="button" class="btn btn-sm ${pagado ? 'btn-success' : 'btn-outline-danger'}" data-pten-mes="${esc(t.usuario)}" data-pten-clave="${m.mes}">${pagado ? '✅ ' + m.mes + ' pagado' : '🚫 ' + m.mes + ' sin pagar'}</button>
+                        <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-pten-activo="${esc(t.usuario)}" ${t.reg.activo ? 'checked' : ''}> <span class="form-check-label small">Activo</span></label>
+                    </span>
+                </div>
+                ${filas || '<div class="small text-muted">Sin negocios asignados todavía.</div>'}
+                <div class="small mt-1"><span class="text-muted">Historial de su licencia:</span> ${panelChipsHist(t.reg.pagos, 'ten', t.usuario)}</div>
+            </div>`;
+            }).join('');
+        }
+        function renderPanelControl() {
+            const pane = document.getElementById('pane-panel');
+            if (!pane || !isAdmin()) return;
+            if (!pane.dataset.panelInit) {
+                pane.dataset.panelInit = '1';
+                pane.addEventListener('click', async e => {
+                    const v = e.target.closest('[data-panel-vista]');
+                    if (v) { PANEL_VISTA = v.getAttribute('data-panel-vista'); renderPanelControl(); return; }
+                    const bn = e.target.closest('[data-pneg-nota]');
+                    if (bn) {
+                        const neg = bn.getAttribute('data-pneg-nota');
+                        const cont = bn.closest('[data-panel-neg]');
+                        const inp = cont ? cont.querySelector('.panel-nota-input') : null;
+                        const r = await api('subs_set', { negocio: neg, nota: inp ? inp.value : '' });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar la nota'); return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderPanelControl();
+                        return;
+                    }
+                    const bm = e.target.closest('[data-pneg-mes]');
+                    if (bm) {
+                        const neg = bm.getAttribute('data-pneg-mes'), clave = bm.getAttribute('data-pneg-clave');
+                        const s = subsDeNeg(neg);
+                        const r = await api('subs_set', { negocio: neg, pagos: { [clave]: !s.pagos[clave] } });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar el pago'); return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderPanelControl(); renderSuscripciones();
+                        return;
+                    }
+                    const bt = e.target.closest('[data-pten-mes]');
+                    if (bt) {
+                        const u = bt.getAttribute('data-pten-mes'), clave = bt.getAttribute('data-pten-clave');
+                        const t = tenRegistro(u);
+                        const r = await api('tenedor_set', { username: u, pagos: { [clave]: !t.pagos[clave] } });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar el pago'); return; }
+                        CFG.tenedores = CFG.tenedores || {}; CFG.tenedores[u] = r.tenedor;
+                        renderPanelControl(); renderTenedores();
+                        return;
+                    }
+                });
+                pane.addEventListener('change', async e => {
+                    const ac = e.target.closest('[data-pneg-activo]');
+                    if (ac) {
+                        const neg = ac.getAttribute('data-pneg-activo');
+                        const r = await api('subs_set', { negocio: neg, activo: !!ac.checked });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar'); ac.checked = !ac.checked; return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderPanelControl(); renderSuscripciones();
+                        return;
+                    }
+                    const co = e.target.closest('[data-pneg-cortesia]');
+                    if (co) {
+                        const neg = co.getAttribute('data-pneg-cortesia');
+                        const r = await api('subs_set', { negocio: neg, cortesia: !!co.checked });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar'); co.checked = !co.checked; return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderPanelControl(); renderSuscripciones(); renderTenedores();
+                        return;
+                    }
+                    const at = e.target.closest('[data-pten-activo]');
+                    if (at) {
+                        const u = at.getAttribute('data-pten-activo');
+                        const r = await api('tenedor_set', { username: u, activo: !!at.checked });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar'); at.checked = !at.checked; return; }
+                        CFG.tenedores = CFG.tenedores || {}; CFG.tenedores[u] = r.tenedor;
+                        renderPanelControl(); renderTenedores();
+                    }
+                });
+            }
+            const m = panelModelo();
+            pane.querySelectorAll('[data-panel-vista]').forEach(b => {
+                const on = b.getAttribute('data-panel-vista') === PANEL_VISTA;
+                b.classList.toggle('btn-primary', on); b.classList.toggle('btn-outline-primary', !on);
+            });
+            document.getElementById('panelVistaResumen').style.display = PANEL_VISTA === 'resumen' ? '' : 'none';
+            document.getElementById('panelVistaNegocios').style.display = PANEL_VISTA === 'negocios' ? '' : 'none';
+            document.getElementById('panelVistaTenedores').style.display = PANEL_VISTA === 'tenedores' ? '' : 'none';
+            if (PANEL_VISTA === 'resumen') document.getElementById('panelVistaResumen').innerHTML = panelHtmlResumen(m);
+            if (PANEL_VISTA === 'negocios') document.getElementById('panelVistaNegocios').innerHTML = panelHtmlNegocios(m);
+            if (PANEL_VISTA === 'tenedores') document.getElementById('panelVistaTenedores').innerHTML = panelHtmlTenedores(m);
+        }
+        document.addEventListener('shown.bs.tab', e => {
+            if (e.target && e.target.id === 'tab-panel') {
+                if (typeof GDOCS !== 'undefined' && GDOCS) renderPanelControl();
+                else if (typeof cargarGestorDatos === 'function') cargarGestorDatos();
+            }
+        });
 
         // ===== VISIBILIDAD POR ACTOR (ronda Separación de contextos) =====
         // Dentro de cada negocio solo se ven las opciones de SU actor
@@ -5982,7 +6220,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             li.style.display = hide ? 'none' : '';
         }
         function aplicarVisibilidadActor() {
-            if (isAdmin()) { ACTOR_NEGOCIO = null; window.ACTOR_NEGOCIO = null; return; }
+            /* La administradora y el tenedor (vista de gestión) no tienen
+               actor de negocio: sus menús los fija handleLogin y esta
+               función no debe re-mostrar pestañas como «Registro». */
+            if (isAdmin() || (typeof getRolUsuario === 'function' && getRolUsuario() === 'tenedor')) { ACTOR_NEGOCIO = null; window.ACTOR_NEGOCIO = null; return; }
             const a = actorDelNegocio();
             ACTOR_NEGOCIO = a; window.ACTOR_NEGOCIO = a;
             const tcp = a.tipo === 'tcp', pdl = a.tipo === 'pdl';
@@ -12515,6 +12756,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             try{ renderSuscripciones(); }catch(e){}
             try{ renderTenedores(); }catch(e){}
             try{ renderMiLicencia(); }catch(e){}
+            try{ renderPanelControl(); }catch(e){}
         }
         function getCobrosGestor(){ try{ const s=Store.getItem('finanzas_gestor_'+getCurrentUser()); const d=s?JSON.parse(s):null; if(d&&typeof d==='object'&&d.cobros) return d; }catch(e){} return {cobros:{}}; }
         function saveCobrosGestor(d){ Store.setItem('finanzas_gestor_'+getCurrentUser(), JSON.stringify(d)); }
@@ -13038,6 +13280,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 userRoleBadge.className = `badge ${esAdmin ? 'badge-admin' : 'badge-soft-info'} ms-2 px-3 py-2`;
                 document.getElementById('adminTabNav').style.display = esGestorVista ? '' : 'none';
                 document.getElementById('gestorTabNav').style.display = esGestorVista ? '' : 'none';
+                /* El Panel de control de licencias es SOLO de la
+                   administradora general (ni el tenedor lo ve). */
+                document.getElementById('panelTabNav').style.display = esAdmin ? '' : 'none';
                 if (userData.role === 'tenedor') {
                     /* Vista del tenedor: su cartera en el Gestor y su
                        gestión en Configuración. Las tarjetas de la
@@ -13055,7 +13300,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                        las operativas del negocio, se ocultan DJ, Contabilidad,
                        Gestión+, Ayuda e Instrucciones (decisión de Leonardo,
                        2026-10-25): esos apartados viven dentro de cada negocio. */
-                    ['tab-resumen','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-ayuda','tab-instrucciones'].forEach(id=>{
+                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-ayuda','tab-instrucciones'].forEach(id=>{
                         const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
                     });
                     document.getElementById('negocioNombreBadge').style.display='none';
@@ -15475,7 +15720,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-21';
+        var MANUAL_VERSION = 'v2026.10.26-22';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -15868,9 +16113,15 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>En <b>Configuración</b> (solo la cuenta administradora) la tarjeta <b>Licencias: precios y tenedores</b> guarda la tabla de precios de las licencias. Cambiar un precio aquí vale desde ese momento y <b>no toca el código</b>: la tarifa de cada negocio se recalcula sola con sus datos.</p>' +
             '<ul><li><b>TCP:</b> tarifa básica; si el negocio supera los <b>500 000 CUP de ingresos en el año</b>, paga la tarifa plena (la misma marca que le abre la Contabilidad completa).</li>' +
             '<li><b>MIPYME y PDL:</b> tres tramos por plantilla de trabajadores (hasta 10, de 11 a 35, de 36 a 100) y un <b>recargo por cada socio después del primero</b>; la app cuenta la plantilla de la nómina y los socios de la ficha y de los usuarios.</li>' +
-            '<li><b>Tenedor de libros:</b> paga el <b>porcentaje fijado (10 %) de la tarifa de cada cliente de su cartera, sin base fija</b>. No declara nada: la app calcula la tarifa de cada negocio con sus datos, así nadie puede pagar de menos. Su panel en la misma tarjeta muestra su cartera, la suma de tarifas, su importe del mes, el botón para marcar su mes pagado y el interruptor para desactivarlo (desactivarlo bloquea su cartera entera).</li>' +
+            '<li><b>Tenedor de libros:</b> paga una <b>base fija mensual por el uso de la aplicación</b> — <b>2 000 CUP si su cartera tiene menos de 5 negocios y 1 000 CUP si tiene 5 o más</b> (ambas editables en la misma tabla) — más el <b>porcentaje fijado (10 %) de la tarifa de cada cliente de su cartera</b>, que se paga siempre. No declara nada: la app calcula la tarifa de cada negocio con sus datos, así nadie puede pagar de menos. Su panel en la misma tarjeta muestra su cartera, la suma de tarifas, su importe del mes, el botón para marcar su mes pagado y el interruptor para desactivarlo (desactivarlo bloquea su cartera entera).</li>' +
             '<li><b>El tenedor ve su licencia:</b> al entrar con su cuenta, en Configuración tiene la tarjeta <b>Mi licencia de tenedor</b> con su cartera, sus tarifas y si su mes está pagado.</li>' +
             '<li>Los negocios de un tenedor pagan <b>además</b> su licencia completa: la del tenedor no la cubre, ni la de un negocio cubre la del tenedor.</li></ul>'},
+        {id:'panel-control', modulo:'respaldo', titulo:'Panel de control de licencias (solo la administradora)', html:
+            '<p>El menú <b>Panel de control</b> (solo lo ve la cuenta administradora) reúne en un solo sitio el control de las licencias: el dinero del mes y el historial, la tabla maestra de negocios y el menú de tenedores. Marcar un pago, activar, desactivar o dar una cortesía se guarda al momento y el servidor aplica el bloqueo al instante.</p>' +
+            '<ul><li><b>Resumen:</b> cuánto deberías cobrar este mes en licencias (las licencias de los negocios activos sin cortesía más el porcentaje de cada tenedor activo), cuánto ya cobraste y cuánto falta, con la lista de pendientes y su botón «Marcar pagado». Abajo, los <b>últimos 6 meses</b> (esperado, cobrado y pendiente), calculados con las tarifas de hoy.</li>' +
+            '<li><b>Negocios:</b> cada negocio con su licencia calculada, si es <b>cliente directo</b> o de qué tenedor es, su estado del mes y su <b>historial de 6 meses</b> (toca un mes para cambiarlo). El interruptor <b>Cortesía</b> marca una licencia regalada: ese negocio <b>nunca se bloquea por falta de pago</b>, no cuenta como deuda y tampoco suma a la base del porcentaje de su tenedor (la desactivación manual sí sigue bloqueándolo). La <b>nota privada</b> es solo tuya: teléfono, cómo paga, lo que quieras recordar.</li>' +
+            '<li><b>Tenedores:</b> cada tenedor con los negocios que atiende, el valor de su cartera, <b>lo que te aporta a ti</b> (su base fija por el uso de la aplicación más su porcentaje sobre las tarifas de sus negocios activos y sin cortesía), si pagó su mes y el historial de su licencia. Activarlo, desactivarlo y marcar sus pagos es <b>solo de la administradora</b>: un tenedor no puede inhabilitar ni borrar negocios ni marcar pagos, ni los suyos ni los de nadie.</li>' +
+            '<li>En la vista de <b>Administrador</b> ya no aparece el menú <b>Registro</b>: el Registro de Control es el libro de cada negocio y vive dentro de él; tu panel es Gestor, Panel de control y Configuración.</li></ul>'},
         {id:'actualizacion-offline', modulo:'respaldo', titulo:'Actualización de la versión sin conexión', html:
             '<p>Solo en la <b>versión sin conexión</b>: en <b>Configuración</b> (cuenta administradora) la tarjeta <b>«Actualización de esta instalación»</b> mantiene al día la copia instalada en esta máquina, sin reinstalar nada a mano.</p>' +
             '<ul><li><b>Automática al abrir:</b> si el interruptor está activo (lo está por defecto), al arrancar el programa comprueba en segundo plano si hay una versión nueva y la instala sola; al entrar verás la insignia «Actualizada sola». Sin conexión no pasa nada: trabaja con la versión instalada y lo reintenta en el próximo arranque.</li>' +
