@@ -2165,6 +2165,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     </div>
                 </div>
 
+                <!-- Negocios de esta instalación de tenedor (solo versión sin conexión, F3) -->
+                <div class="col-12 d-none" id="cardTenedorLocal">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="carpeta"></span>Negocios de esta copia de tenedor (sin conexión)</h6>
+                        <p class="small text-muted">Esta copia es de un <b>tenedor de libros</b> y lleva varios negocios. La llave del mes abre la copia, y <b>cada negocio se comprueba además contra el servidor en línea</b> con la misma doble puerta de la versión en línea: si un negocio está desactivado o sin el mes pagado — o tu licencia de tenedor no está pagada —, los usuarios de ese negocio no pueden entrar a sus datos hasta que se pague en línea y pulses «Validar ahora». Los nombres deben coincidir con los de la versión en línea.</p>
+                        <div id="tenedorLocalEstado" class="small mb-2"></div>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-primary" id="btnTenedorLocalValidar">Validar ahora</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Actualización de ESTA instalación (solo versión sin conexión) -->
                 <div class="col-12 d-none" id="cardActualizacionLocal">
                     <div class="card p-3 p-md-4">
@@ -5711,6 +5723,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try{ renderPanelControl(); }catch(e){}
             renderSubsLocal();
             renderLlaveLocal();
+            renderTenedorLocal();
             renderActualizacionLocal();
             renderRecuperaLocal();
             renderCuentasNegocio();
@@ -6796,6 +6809,44 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         if (!r.ok) { alert(r.error || 'La llave no se pudo activar'); return; }
                         pintar(r);
                         alert('✅ Llave activada para ' + (r.periodoActual || 'este mes') + '. La copia quedó desbloqueada.');
+                    });
+                }
+            } catch (e) { card.classList.add('d-none'); }
+        }
+
+        // ===== NEGOCIOS DE ESTA COPIA DE TENEDOR (solo offline, F3) =====
+        async function renderTenedorLocal() {
+            const card = document.getElementById('cardTenedorLocal');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            try {
+                const st = await subsLocalFetch('/tenedor/estado');
+                if (!st || !st.ok || st.modo !== 'tenedor') { card.classList.add('d-none'); return; }
+                card.classList.remove('d-none');
+                const pintar = x => {
+                    const el = document.getElementById('tenedorLocalEstado');
+                    const ns = (x && x.negocios) || [];
+                    if (!ns.length) { el.innerHTML = 'Todavía no hay negocios en esta copia: créalos en el Gestor y aparecerán aquí.'; return; }
+                    const txt = {
+                        vigente: '<span class="badge bg-success">Vigente</span>',
+                        sin_pago: '<span class="badge bg-danger">Sin pago este mes</span>',
+                        desactivado: '<span class="badge bg-dark">Desactivado en línea</span>',
+                        tenedor_sin_pago: '<span class="badge bg-danger">Tu licencia sin pagar</span>',
+                        tenedor_desactivado: '<span class="badge bg-dark">Tenedor desactivado</span>',
+                        sin_comprobar: '<span class="badge bg-warning text-dark">Sin comprobar</span>'
+                    };
+                    el.innerHTML = ns.map(n => `<div class="d-flex justify-content-between border-bottom py-1"><span>${esc(n.negocio)}</span><span>${txt[n.estado] || txt.sin_comprobar}</span></div>`).join('')
+                        + `<div class="text-muted mt-1">Mes en curso: ${esc(x.periodoActual || '')}. «Sin comprobar» se resuelve solo al entrar un usuario del negocio con conexión, o con «Validar ahora».</div>`;
+                };
+                pintar(st);
+                if (!card.dataset.tenInit) {
+                    card.dataset.tenInit = '1';
+                    document.getElementById('btnTenedorLocalValidar').addEventListener('click', async () => {
+                        const r = await subsLocalFetch('/tenedor/validar', {});
+                        if (!r.ok) { alert(r.error || 'No se pudo validar'); return; }
+                        pintar(r);
+                        const mal = (r.negocios || []).filter(n => n.estado !== 'vigente');
+                        alert(mal.length ? '⛔ Quedan negocios sin validar: ' + mal.map(n => n.negocio).join(', ') + '.\nRevisa los pagos en la versión en línea.' : '✅ Todos los negocios están vigentes este mes.');
                     });
                 }
             } catch (e) { card.classList.add('d-none'); }
@@ -16108,7 +16159,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-26';
+        var MANUAL_VERSION = 'v2026.10.28-27';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16524,6 +16575,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Activar:</b> el cliente pega la llave en su copia (con conexión en ese momento) y la copia la verifica contra tu servidor: queda registrada con su negocio/tenedor, la huella de su PC, quién la activó y cuándo — todo visible en tu tabla de llaves.</li>' +
             '<li><b>El amarre:</b> si el programa se mueve a otra PC, la huella no coincide y la llave deja de servir. Sin llave del mes en curso, los usuarios del negocio no entran a los datos; el administrador local siempre entra, para poder pegar la llave nueva.</li>' +
             '<li><b>Revocar:</b> corta el acceso en la próxima verificación de esa copia (al arrancar con conexión o al cambiar de mes). <b>Desvincular PC:</b> libera la llave para que pueda activarse en otra computadora — solo para cambios legítimos de equipo.</li>' +
+            '<li><b>Copia de un tenedor (F3):</b> si la instalación es de un tenedor, lleva varios negocios: la llave abre la copia y, además, <b>cada negocio se comprueba contra tu servidor con la misma doble puerta</b> (negocio desactivado o sin pagar, o el tenedor sin pagar → los usuarios de ese negocio no entran a sus datos). En su Configuración, la tarjeta «Negocios de esta copia de tenedor» muestra el estado de cada uno y el botón «Validar ahora». Los nombres de sus negocios deben coincidir con los de la versión en línea.</li>' +
             '<li>Las instalaciones anteriores a las licencias (sin modo elegido) siguen con la validación de suscripción de siempre; las llaves mandan en las que tienen modo.</li>' +
             '</ul>'},
         {id:'panel-control', modulo:'respaldo', titulo:'Panel de control de licencias (solo la administradora)', html:

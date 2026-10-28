@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-26",
-  "publicada": "2026-10-28 04:51",
-  "notas": "El tenedor también es TCP (tarea 25): al crear un tenedor, la app crea su negocio TCP propio con su usuario de trabajo; ese negocio paga su licencia TCP normal pero NO suma a la base del 10 % ni al tramo del tenedor. Incluye el menú Cierre de la ronda -25.",
-  "requiereServidor": "0.8.0",
+  "version": "v2026.10.28-27",
+  "publicada": "2026-10-28 06:26",
+  "notas": "Tenedor sin conexión F3 (tarea 22 completa): la copia del tenedor lleva varios negocios; su llave abre la copia y cada negocio se comprueba contra el servidor en línea con la doble puerta. Incluye el tenedor-TCP de la -26 y el menú Cierre de la -25.",
+  "requiereServidor": "0.9.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "b2325d55bc8832738324bbcd750f6fefc3c071a1a44aa8c3285fc0a2205be939",
-      "bytes": 1663131
+      "sha256": "f9c5f9c88e09e40b18d7ba5f410fdb7c04d28d097fe03f7a1e5bc515779dac62",
+      "bytes": 1667793
     },
     {
       "ruta": "pdf-import.js",
