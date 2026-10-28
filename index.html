@@ -3162,6 +3162,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="col-md-4"><label class="form-label">Sexo</label><select id="trabSexo" class="form-select"><option value="">—</option><option value="M">Hombre</option><option value="F">Mujer</option></select></div>
         <div class="col-md-4"><label class="form-label">Tarjeta CUP (número)</label><input id="trabTarjeta" class="form-control" maxlength="30" inputmode="numeric" placeholder="Solo números"></div>
         <div class="col-md-4"><label class="form-label">Cuenta asociada a la tarjeta</label><input id="trabCuenta" class="form-control" maxlength="40"></div><div class="col-md-6"><label class="form-label">Nº de Seguridad Social</label><input id="trabNumSS" class="form-control" maxlength="30" placeholder="Si el negocio lo usa"></div><div class="col-md-6"><label class="form-label">Centro de costo</label><input id="trabCentroCosto" class="form-control" maxlength="60" list="trabCentrosList" placeholder="Elige o escribe (opcional)"><datalist id="trabCentrosList"></datalist></div>
+        <div class="col-md-6"><label class="form-label">Categoría ocupacional</label><select id="trabCategoria" class="form-select"><option value="">—</option><option value="obrero">Obrero/a</option><option value="tecnico">Técnico/a</option><option value="administrativo">Administrativo/a</option><option value="servicios">Servicios</option><option value="dirigente">Dirigente</option></select></div>
+        <div class="col-md-6"><label class="form-label">Instrumento de pago</label><select id="trabPago" class="form-select"><option value="">—</option><option value="tarjeta">Tarjeta / acreditación bancaria</option><option value="transferencia">Transferencia a su cuenta</option><option value="efectivo">Efectivo</option><option value="cheque">Cheque</option></select></div>
         <div class="col-md-6"><label class="form-label">Municipio</label><input id="trabMunicipio" class="form-control" maxlength="60"></div>
         <div class="col-md-6"><label class="form-label">Provincia</label><input id="trabProvincia" class="form-control" maxlength="60"></div>
         <div class="col-12"><label class="form-label">Dirección completa</label><input id="trabDireccion" class="form-control" maxlength="180"></div>
@@ -4124,6 +4126,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             tot.totalAFisco = tot.fuerza + tot.ssPresupuesto + tot.retenciones;
             return {rrhh, periodo, lineas, tot};
         }
+        const CATEGORIAS_TRAB={obrero:'Obrero/a',tecnico:'Técnico/a',administrativo:'Administrativo/a',servicios:'Servicios',dirigente:'Dirigente'};
+        const PAGOS_TRAB={tarjeta:'pago por tarjeta',transferencia:'pago por transferencia',efectivo:'pago en efectivo',cheque:'pago con cheque'};
         function renderNomina() {
             const body = document.getElementById('nominaBody');
             if (!body) return;
@@ -4149,7 +4153,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const compTitle=calc.detalle.map(dd=>dd[0]+': '+moneda(dd[1])).join('\n');
                 return `
                 <tr data-worker-row="${t.id}" class="${warnMin?'table-warning':''}">
-                    <td class="trabajador-nombre"><div class="fw-semibold">${esc(t.nombre)}</div><small class="text-muted">${esc(t.cargo||'Sin cargo')}${t.ci?' · CI '+esc(t.ci):''}</small></td>
+                    <td class="trabajador-nombre"><div class="fw-semibold">${esc(t.nombre)}</div><small class="text-muted">${esc(t.cargo||'Sin cargo')}${t.ci?' · CI '+esc(t.ci):''}${t.categoria?' · '+esc(CATEGORIAS_TRAB[t.categoria]||t.categoria):''}${t.instrumentoPago?' · '+esc(PAGOS_TRAB[t.instrumentoPago]||t.instrumentoPago):''}</small></td>
                     <td><input class="form-control form-control-sm pay-salario" type="number" min="0" step="0.01" value="${salario.toFixed(2)}" ${editable?'':'disabled'}></td>
                     <td><input class="form-control form-control-sm pay-otras" type="number" min="0" step="0.01" value="${otras.toFixed(2)}" ${editable?'':'disabled'}></td>
                     <td class="text-end fw-semibold pay-bruto">${moneda(calc.bruto)}</td>
@@ -4375,6 +4379,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('trabCentroCosto').value=t?(t.centroCosto||''):'';
             try{ const _dl=document.getElementById('trabCentrosList'); if(_dl&&typeof getConta==='function') _dl.innerHTML=(getConta().centros||[]).map(c=>'<option value="'+esc(c.nombre||'')+'"></option>').join(''); }catch(e){}
             document.getElementById('trabSexo').value=t?(t.sexo||''):'';
+            document.getElementById('trabCategoria').value=t?(t.categoria||''):'';
+            document.getElementById('trabPago').value=t?(t.instrumentoPago||''):'';
             document.getElementById('trabTarjeta').value=t?(t.tarjeta||''):'';
             document.getElementById('trabCuenta').value=t?(t.cuenta||''):'';
             document.getElementById('trabMunicipio').value=t?(t.municipio||''):'';
@@ -4437,7 +4443,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const _ca={}, _comp={};
             COMP_DEF.forEach(c=>{ const _el=document.getElementById('trab-comp-'+c.id), _on=_el?_el.checked:false; _ca[c.id]=_on; if(_on) Object.assign(_comp, leerCamposConcepto(c.id)); });
             Object.assign(_comp, leerControlDias());
-            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim(),numSegSocial:document.getElementById('trabNumSS').value.trim(),centroCosto:document.getElementById('trabCentroCosto').value.trim(),contrato:{tipo:document.getElementById('trabContratoTipo').value||'indeterminado',fecha:document.getElementById('trabContratoFecha').value||document.getElementById('trabFechaAlta').value||'',fechaFin:document.getElementById('trabContratoFin').value||'',lugar:document.getElementById('trabLugar').value.trim(),jornada:document.getElementById('trabJornada').value.trim()}};
+            const obj={nombre,ci:document.getElementById('trabCI').value.trim(),cargo:document.getElementById('trabCargo').value.trim(),salarioBase:+salario.toFixed(2),fechaAlta:document.getElementById('trabFechaAlta').value||hoy(),fechaBaja:document.getElementById('trabFechaBaja').value||'',notas:document.getElementById('trabNotas').value.trim(),compAplica:_ca,sexo:document.getElementById('trabSexo').value,tarjeta:document.getElementById('trabTarjeta').value.replace(/[\s-]/g,''),cuenta:document.getElementById('trabCuenta').value.trim(),municipio:document.getElementById('trabMunicipio').value.trim(),provincia:document.getElementById('trabProvincia').value.trim(),direccion:document.getElementById('trabDireccion').value.trim(),numSegSocial:document.getElementById('trabNumSS').value.trim(),centroCosto:document.getElementById('trabCentroCosto').value.trim(),categoria:document.getElementById('trabCategoria').value,instrumentoPago:document.getElementById('trabPago').value,contrato:{tipo:document.getElementById('trabContratoTipo').value||'indeterminado',fecha:document.getElementById('trabContratoFecha').value||document.getElementById('trabFechaAlta').value||'',fechaFin:document.getElementById('trabContratoFin').value||'',lugar:document.getElementById('trabLugar').value.trim(),jornada:document.getElementById('trabJornada').value.trim()}};
             let _wid=trabajadorEditId;
             if(_wid){ const i=d.trabajadores.findIndex(x=>String(x.id)===String(_wid)); if(i>=0)d.trabajadores[i]=Object.assign({},d.trabajadores[i],obj); }
             else { obj.id='w'+Date.now(); _wid=obj.id; d.trabajadores.push(obj); }
@@ -6071,7 +6077,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try { const fs = (doc && doc.dj && doc.dj.ficha && Array.isArray(doc.dj.ficha.socios)) ? doc.dj.ficha.socios.length : 0; if (fs > socios) socios = fs; } catch (e) {}
             const tramo = trab <= 10 ? 'micro' : (trab <= 35 ? 'pequena' : 'mediana');
             const tarifa = (+g[tramo] || 0) + (+g.porSocio || 0) * Math.max(0, socios - 1);
-            const tramoTxt = tipo === 'pdl' ? ({ micro: '≤10 empleados', pequena: '11-35 empleados', mediana: '36-100 empleados' })[tramo] : ({ micro: 'micro · ≤10 empleados', pequena: 'pequeña · 11-35 empleados', mediana: 'mediana · 36-100 empleados' })[tramo];
+            const tramoTxt = (tipo === 'pdl' ? ({ micro: '≤10 empleados', pequena: '11-35 empleados', mediana: '36-100 empleados' })[tramo] : ({ micro: 'micro · ≤10 empleados', pequena: 'pequeña · 11-35 empleados', mediana: 'mediana · 36-100 empleados' })[tramo]) + (tramo === 'mediana' && trab > 100 ? ' (más de 100: tarifa de mediana como mínimo)' : '');
             return { tipo, tarifa, detalle: (tipo === 'pdl' ? 'PDL ' : 'MIPYME ') + tramoTxt + ' · ' + socios + ' socio(s)', plantilla: trab, socios };
         }
         function tenRegistro(u) {
@@ -16194,7 +16200,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-28';
+        var MANUAL_VERSION = 'v2026.10.28-29';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16416,7 +16422,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'programador-pagos', modulo:'tesoreria', titulo:'Programador de pagos', html:
             '<p>El <b>Programador de pagos</b> organiza lo que hay que pagar y cuándo (obligaciones, documentos CxP, cuotas de crédito), para que ningún vencimiento te coja por sorpresa. Su documento se imprime con el botón PDF de la tarjeta.</p>'},
         {id:'ficha-trabajador', modulo:'nomina', titulo:'La ficha del trabajador y los Trabajadores del mes', html:
-            '<p>En la ficha de cada trabajador guardas nombre, CI, sexo, tarjeta CUP, cuenta, municipio, provincia y dirección, su cargo (del catálogo <b>Puestos de trabajo</b> o libre) y los <b>complementos que le aplican</b>.</p>' +
+            '<p>En la ficha de cada trabajador guardas nombre, CI, sexo, tarjeta CUP, cuenta, municipio, provincia y dirección, su cargo (del catálogo <b>Puestos de trabajo</b> o libre), su <b>categoría ocupacional</b> (obrero, técnico, administrativo, servicios o dirigente) y su <b>instrumento de pago</b> (tarjeta, transferencia, efectivo o cheque) — ambos se ven junto a su nombre en la nómina del mes — y los <b>complementos que le aplican</b>.</p>' +
             '<ul><li>La tarjeta <b>Trabajadores del mes</b> dice quiénes están vigentes en cada mes; la lista viaja sola al mes siguiente y puedes quitar o añadir a quien sea ese mes.</li>' +
             '<li>En un TCP, el tope es de <b>3 trabajadores</b>: la app te avisa si te pasas.</li></ul>'},
         {id:'complementos', modulo:'nomina', titulo:'Los 16 complementos de la nómina', html:
@@ -16597,7 +16603,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'licencias-precios', modulo:'respaldo', titulo:'Licencias diferenciadas: precios y tenedores de libros', html:
             '<p>En <b>Configuración</b> (solo la cuenta administradora) la tarjeta <b>Licencias: precios y tenedores</b> guarda la tabla de precios de las licencias. Cambiar un precio aquí vale desde ese momento y <b>no toca el código</b>: la tarifa de cada negocio se recalcula sola con sus datos.</p>' +
             '<ul><li><b>TCP:</b> tarifa básica; si el negocio supera los <b>500 000 CUP de ingresos en el año</b>, paga la tarifa plena (la misma marca que le abre la Contabilidad completa).</li>' +
-            '<li><b>MIPYME y PDL:</b> tres tramos por plantilla de trabajadores (hasta 10, de 11 a 35, de 36 a 100) y un <b>recargo por cada socio después del primero</b>; la app cuenta la plantilla de la nómina y los socios de la ficha y de los usuarios.</li>' +
+            '<li><b>MIPYME y PDL:</b> tres tramos por plantilla de trabajadores (hasta 10, de 11 a 35, de 36 a 100) y un <b>recargo por cada socio después del primero</b>; la app cuenta la plantilla de la nómina y los socios de la ficha y de los usuarios. Con <b>más de 100 empleados</b> se cobra la tarifa del tramo mayor (mediana) como mínimo.</li>' +
             '<li><b>Tenedor de libros:</b> paga una <b>base fija mensual por el uso de la aplicación</b> — <b>2 000 CUP si su cartera tiene menos de 5 negocios y 1 000 CUP si tiene 5 o más</b> (ambas editables en la misma tabla) — más el <b>porcentaje fijado (10 %) de la tarifa de cada cliente de su cartera</b>, que se paga siempre. No declara nada: la app calcula la tarifa de cada negocio con sus datos, así nadie puede pagar de menos. Su panel en la misma tarjeta muestra su cartera, la suma de tarifas, su importe del mes, el botón para marcar su mes pagado y el interruptor para desactivarlo (desactivarlo bloquea su cartera entera).</li>' +
             '<li><b>Su TCP propio no suma:</b> el tenedor también es TCP, y al crearlo la app le abre su negocio propio («TCP propio de…») dentro de su cartera, con su usuario de trabajo. Ese negocio paga su licencia TCP como cualquier cliente, pero <b>no entra en la base del 10 % del tenedor ni cuenta para su tramo</b> (el de los 5 negocios): es suyo, no un cliente. En las listas lleva la marca «su TCP propio». Si un tenedor antiguo no lo tiene, la administradora lo crea con el botón «Crear su TCP propio» de su tarjeta.</li>' +
             '<li><b>El tenedor ve su licencia:</b> al entrar con su cuenta, en Configuración tiene la tarjeta <b>Mi licencia de tenedor</b> con su cartera, sus tarifas y si su mes está pagado.</li>' +

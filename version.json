@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-28",
-  "publicada": "2026-10-28 11:29",
-  "notas": "Gestión+ plegable y lenguaje llano (tarea 19): las tarjetas de Gestión+ se abren y cierran por temas, títulos en lenguaje llano y estados vacíos con guía. Incluye F3 (-27), el tenedor-TCP (-26) y el menú Cierre (-25).",
+  "version": "v2026.10.28-29",
+  "publicada": "2026-10-28 11:58",
+  "notas": "Ficha del trabajador con categoría ocupacional e instrumento de pago (tarea 19) y etiqueta de precio MIPYME/PDL con más de 100 empleados. Incluye Gestión+ plegable (-28), F3 (-27), el tenedor-TCP (-26) y el menú Cierre (-25).",
   "requiereServidor": "0.9.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "9d9416a09ef96a76c161ccaa9f1289ffc98eb5be15263f472e4b515de5fd2674",
-      "bytes": 1671753
+      "sha256": "409f696e3c0ed6f01fb7a84bbda70c275267156b0a0a18500e5f072756d707e6",
+      "bytes": 1673688
     },
     {
       "ruta": "pdf-import.js",
