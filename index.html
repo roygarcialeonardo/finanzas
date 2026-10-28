@@ -1422,7 +1422,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><div><h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="calendario-check"></span>Obligaciones tributarias</h6></div><select class="form-select form-select-sm" style="width:auto" id="fiscalFiltro"><option value="periodo">Período actual</option><option value="vector">Año del Vector</option><option value="pendientes">Pendientes</option><option value="todas">Todas</option></select></div>
                 <div class="table-responsive"><table class="table table-hover align-middle fiscal-table mb-0"><thead><tr><th>Código</th><th>Concepto</th><th>Período</th><th>Vence</th><th class="text-end">Importe</th><th>Origen</th><th>Estado</th><th></th></tr></thead><tbody id="fiscalBody"></tbody></table></div>
-                <div class="text-center text-muted py-4" id="fiscalVacio" style="display:none">Importa el Vector Fiscal de ONAT o añade una obligación manual.</div>
+                <div class="text-center text-muted py-4" id="fiscalVacio" style="display:none">📭 Todavía no hay obligaciones cargadas.<br>Importa tu Vector Fiscal desde el PDF de la ONAT y esta lista se llena sola; o añade una obligación a mano.</div>
             </div>
             <div class="row g-3">
                 <div class="col-12"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>Cálculos del período actual</h6><div id="fiscalCalculos" class="aporte-box"></div></div></div>
@@ -1469,7 +1469,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4">
                 <h6 class="fw-semibold mb-2">Anotaciones por día</h6>
                 <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Detalle</th><th class="text-end">Ingresos</th><th class="text-end">Gastos</th><th class="text-end">Tributos</th><th class="text-end">Saldo</th></tr></thead><tbody id="regBody"></tbody></table></div>
-                <div class="text-center text-muted py-4" id="regVacio" style="display:none">Sin operaciones en el año seleccionado. Importa tus estados de cuenta o anota la primera operación a mano.</div>
+                <div class="text-center text-muted py-4" id="regVacio" style="display:none">📭 Sin operaciones en el año seleccionado.<br>Importa tus estados de cuenta y este registro se llena solo, o anota la primera operación a mano.</div>
                 <div id="regTotales" class="mt-2"></div>
                 <p class="small text-secondary mt-2 mb-0">El diseño y formato oficiales de este Registro los fija el Jefe de la ONAT (Res. 272/2024, Disposición Final Primera); esta salida sigue la letra de la norma: anotación diaria, en español y en CUP, con los documentos justificantes conservados. Las transferencias entre tus propias cuentas no son ingresos ni gastos y no se anotan.</p>
             </div>
@@ -1541,7 +1541,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="card p-3 p-md-4 mb-3">
                     <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="usuarios"></span>Sección I · Trabajadores contratados (desde la nómina)</h6>
                     <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Trabajador</th><th>NIT (CI)</th><th>Municipio</th><th>Período</th><th class="text-end">Remuneración anual</th></tr></thead><tbody id="djSeccionIBody"></tbody></table></div>
-                    <div id="djSeccionIVacio" class="text-muted small mt-2" style="display:none">Sin trabajadores registrados en la nómina de este año.</div>
+                    <div id="djSeccionIVacio" class="text-muted small mt-2" style="display:none">Sin trabajadores registrados en la nómina de este año. Al dar de alta a tu primer trabajador en Nómina, su acumulado anual aparecerá aquí solo.</div>
                 </div>
             </div>
             <div id="djCalcGRAT" style="display:none">
@@ -1580,7 +1580,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="doc-check"></span>Declaraciones presentadas (importadas)</h6><span class="badge bg-soft-secondary" id="djPresentadasCount">0</span></div>
                 <p class="small text-secondary">Las DJ oficiales ya presentadas que importaste con «Importar DJ» (PDF o Excel del modelo oficial). La importada manda como «presentada» en el expediente; el cálculo de la app queda como contraste visible. Se guardan los datos leídos y el nombre del archivo de referencia, no el archivo.</p>
                 <div id="djPresentadasBox"></div>
-                <div id="djPresentadasVacio" class="text-muted small">Sin declaraciones importadas todavía.</div>
+                <div id="djPresentadasVacio" class="text-muted small">Sin declaraciones importadas todavía. Cuando presentes tu declaración, impórtala aquí: quedará de referencia junto al cálculo de la app.</div>
             </div>
         </div>
 
@@ -1644,7 +1644,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
         <!-- GESTIÓN AMPLIADA · RONDAS 10-13 (blindaje, cumplimiento, gestión, profundidad) -->
         <div class="tab-pane fade" id="pane-gestion">
-            <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="cuadricula" style="color:#0f766e"></span>Gestión ampliada</h5><div class="small text-secondary">Blindaje de datos, cumplimiento (Res. 86/2026, ONAT), gestión tipo Versat y profundidad. Todo nace de los estados de cuenta, los submayores y el mayor: sin pasos manuales nuevos en el flujo normal.</div></div>
+            <div class="module-hero mb-3"><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="cuadricula" style="color:#0f766e"></span>Gestión ampliada</h5><div class="small text-secondary">Todo lo avanzado, ordenado por temas: toca el título de un tema para abrirlo y vuelve a tocarlo para cerrarlo. La app recuerda los que dejes abiertos. Todo nace de los estados de cuenta, los submayores y el mayor: sin pasos manuales nuevos en el flujo normal.</div></div>
 
             <div class="card p-2 mb-4" id="mjIndiceGestion"><div class="small fw-semibold mb-1">🗂️ En esta pestaña (toca un tema para ir directo):</div><div class="d-flex flex-wrap gap-1">
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="irASeccionGestion('mjBlindajeCard')">🛡️ Blindaje y respaldo</button>
@@ -1656,7 +1656,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div><div class="small text-secondary mt-1">Cada tarjeta es un tema; si una no aparece en tu lista es porque tu tipo de negocio no la usa.</div></div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjBlindajeCard">
-                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="escudo"></span>Blindaje de datos (ronda 10)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="escudo"></span>Blindaje y respaldo de tus datos</h6>
                 <div id="mjTamanoBox" class="small mb-3">Calculando tamaño del documento…</div>
                 <div class="d-flex gap-2 flex-wrap">
                     <button type="button" class="btn btn-sm btn-outline-primary" onclick="mjDescargarCopiaUI()"><span class="icono-anim me-1" data-icono="descargar"></span>Descargar copia local (JSON)</button>
@@ -1673,7 +1673,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjCumplCard">
-                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="doc-check"></span>Cumplimiento (ronda 11)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="doc-check"></span>Cumplimiento: expediente y documentos</h6>
                 <div id="mjRegistroBox" class="small mb-3"></div>
                 <div id="mjEfectivoBox" class="small mb-3"></div>
                 <div id="mjMotorBox" class="small mb-3"></div>
@@ -1690,13 +1690,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjKycCard">
-                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Gestor · Resolución 86/2026 (confidencial, solo tú)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Conoce a tu cliente (Resolución 86/2026) · confidencial</h6>
                 <div class="small text-secondary mb-2">Debida diligencia (KYC) con beneficiario final <b>antes</b> del servicio, evaluación de riesgo, señales de alerta sobre los datos reales, registro de operaciones sospechas (ROS, sin avisar al cliente) y lista de abstención. Archivo confidencial: 5 años.</div>
                 <div id="mjKycBox" class="small"></div>
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjGestionCard">
-                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="cuadricula"></span>Gestión (ronda 12)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="cuadricula"></span>El día a día: facturas, patrones y contratos</h6>
                 <div id="mjIndicadoresBox" class="small mb-3"></div>
                 <div id="mjAlertasBox" class="small mb-3"></div>
                 <div id="mjFlujoProyBox" class="small mb-3"></div>
@@ -1733,7 +1733,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="mjProfCard">
-                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="nodos"></span>Profundidad (ronda 13)</h6>
+                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="nodos"></span>Producción, créditos y personal</h6>
                 <div id="mjCentrosBox" class="small mb-3"></div>
                 <div id="mjOrdenesBox" class="small mb-3"></div>
                 <div id="mjCreditosBox" class="small mb-3"></div>
@@ -1751,7 +1751,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
 
             <div class="card p-3 p-md-4 mb-4" id="lbCalcCard">
-                <h6 class="fw-semibold mb-3">Costos, precios y equilibrio (guía del libro)</h6>
+                <h6 class="fw-semibold mb-3">Costos, precios y punto de equilibrio</h6>
                 <div class="small text-secondary mb-3">Método general del libro «Finanzas Inteligentes en Cuba»: primero el costo real, después el precio y por último cuántas unidades hay que vender para no perder. Esta ficha es el método general del libro y <b>NO sustituye la «Ficha de costos 148/2023»</b> que ya existe en esta misma pantalla (en la tarjeta «Gestión (ronda 12)»), que sigue siendo la de la normativa.</div>
 
                 <div class="fw-semibold mb-2">Ficha de costo (Plantilla 6)</div>
@@ -1887,7 +1887,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-lg-7"><div class="fx-result h-100 d-flex flex-column justify-content-center"><small class="text-muted">Resultado de la consulta</small><div class="fx-rate-big" id="fxResultado">—</div><div id="fxResultadoMeta" class="small text-secondary mt-1">Selecciona fecha y consulta.</div><div class="mt-3 d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-success" id="btnUsarTasaUSDIngreso" disabled><span class="icono-anim me-1" data-icono="flecha-arriba-circulo"></span> Ingreso USD</button><button class="btn btn-sm btn-outline-danger" id="btnUsarTasaUSDGasto" disabled><span class="icono-anim me-1" data-icono="flecha-abajo-circulo"></span> Gasto USD</button><button class="btn btn-sm btn-outline-primary" id="btnUsarTasaMes" disabled><span class="icono-anim me-1" data-icono="calendario"></span> Usar como tasa del mes</button></div></div></div>
             </div>
             <div class="card p-3 p-md-4 mb-3"><div class="d-flex flex-wrap justify-content-between align-items-center gap-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="banco"></span>Banco Central de Cuba</h6><a class="btn btn-outline-primary" href="https://www.bc.gob.cu/tasas-de-cambio" target="_blank" rel="noopener"><span class="icono-anim me-1" data-icono="flecha-der"></span>Ver tasas en BCC</a></div></div>
-            <div class="card p-3 p-md-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="reloj"></span>Tasas utilizadas y guardadas</h6><span class="badge bg-soft-info">Guardadas</span></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Moneda</th><th>Segmento</th><th class="text-end">CUP / 1 unidad</th><th>Fuente</th></tr></thead><tbody id="fxHistBody"></tbody></table></div><div id="fxHistVacio" class="text-muted text-center py-4" style="display:none">Todavía no hay tasas guardadas.</div></div>
+            <div class="card p-3 p-md-4"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="reloj"></span>Tasas utilizadas y guardadas</h6><span class="badge bg-soft-info">Guardadas</span></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Moneda</th><th>Segmento</th><th class="text-end">CUP / 1 unidad</th><th>Fuente</th></tr></thead><tbody id="fxHistBody"></tbody></table></div><div id="fxHistVacio" class="text-muted text-center py-4" style="display:none">Todavía no hay tasas guardadas. Consulta la tasa del día con el botón de arriba y se guarda sola.</div></div>
         </div>
 
         <!-- ACTIVOS FIJOS -->
@@ -1895,7 +1895,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="monitor" style="color:#b45309"></span>Activos Fijos Tangibles</h5><div class="small text-secondary">Inventario, responsables, vida útil y depreciación mensual.</div></div><div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-success" id="btnNuevoActivo"><span class="icono-anim me-1" data-icono="mas"></span> Activo</button><button class="btn btn-sm btn-outline-primary" id="btnContabilizarDep"><span class="icono-anim me-1" data-icono="doc-check"></span> Contabilizar depreciación</button></div></div>
             <div class="row g-3 mb-3"><div class="col-6 col-lg-3"><div class="module-kpi"><small>Costo histórico</small><strong id="aftKpiCosto">$0.00</strong></div></div><div class="col-6 col-lg-3"><div class="module-kpi"><small>Depreciación acumulada</small><strong id="aftKpiAcum">$0.00</strong></div></div><div class="col-6 col-lg-3"><div class="module-kpi"><small>Valor en libros</small><strong id="aftKpiLibros">$0.00</strong></div></div><div class="col-6 col-lg-3"><div class="module-kpi"><small>Depreciación del mes</small><strong id="aftKpiMes">$0.00</strong></div></div></div>
             <div class="card p-3 p-md-4 mb-3"><div class="d-flex flex-wrap align-items-end gap-2"><div><label class="form-label mb-1">Umbral interno para considerar AFT (CUP)</label><input type="number" id="aftUmbral" class="form-control form-control-sm" min="0" step="1" style="width:180px"></div><button class="btn btn-sm btn-outline-secondary" id="btnGuardarPoliticaAFT">Guardar política</button></div></div>
-            <div class="card p-3 p-md-4"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Código</th><th>Activo</th><th>Categoría</th><th>Responsable / ubicación</th><th class="text-end">Costo</th><th class="text-end">Tasa anual</th><th class="text-end">Dep. mes</th><th class="text-end">Acumulada</th><th class="text-end">Valor libros</th><th>Estado</th><th></th></tr></thead><tbody id="aftBody"></tbody></table></div><div id="aftVacio" class="text-muted text-center py-4" style="display:none">No hay activos registrados.</div></div>
+            <div class="card p-3 p-md-4"><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Código</th><th>Activo</th><th>Categoría</th><th>Responsable / ubicación</th><th class="text-end">Costo</th><th class="text-end">Tasa anual</th><th class="text-end">Dep. mes</th><th class="text-end">Acumulada</th><th class="text-end">Valor libros</th><th>Estado</th><th></th></tr></thead><tbody id="aftBody"></tbody></table></div><div id="aftVacio" class="text-muted text-center py-4" style="display:none">No hay activos registrados. Añade tu primer activo con «Nuevo activo»: su depreciación se calculará sola cada mes.</div></div>
         </div>
 
         <!-- HISTORIAL -->
@@ -1918,7 +1918,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mt-3" id="qrRegistroBox">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="qr"></span>Registro de pagos por comercio electrónico (QR)</h6><div class="d-flex gap-2 align-items-center"><select id="qrMesSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary" onclick="docQRPrint()"><span class="icono-anim me-1" data-icono="impresora"></span>PDF</button></div></div>
                 <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto</th><th>Cuenta</th><th class="text-end">Monto (CUP)</th></tr></thead><tbody id="qrRegistroBody"></tbody></table></div>
-                <div id="qrRegistroVacio" class="text-muted small mt-2" style="display:none">Este mes no tiene pagos marcados como comercio electrónico (QR).</div>
+                <div id="qrRegistroVacio" class="text-muted small mt-2" style="display:none">Este mes no tiene pagos marcados como comercio electrónico (QR). Cuando importes un estado de cuenta con créditos recibidos por correo, aparecerán aquí solos.</div>
                 <div class="text-end mt-2"><b>Total QR del mes: <span id="qrRegistroTotal">$0.00</span></b></div>
             </div>
             <div id="docQRBox" class="d-none"></div>
@@ -2718,8 +2718,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="ayuda-sec-tit">Gestión ampliada</div>
                     <p class="small mb-0">Presentación del módulo: blindaje de datos, cumplimiento (Res. 86/2026, ONAT), gestión tipo Versat y profundidad.</p>
                 </div>
-                <div class="ayuda-sec" id="ayuda-gestion-1" data-ayuda-titulo="Blindaje de datos (ronda 10)">
-                    <div class="ayuda-sec-tit">Blindaje de datos</div>
+                <div class="ayuda-sec" id="ayuda-gestion-1" data-ayuda-titulo="Blindaje y respaldo de tus datos">
+                    <div class="ayuda-sec-tit">Blindaje y respaldo de tus datos</div>
                     <ul class="small mb-0">
                         <li><b>Descargar copia local (JSON)</b>: baja todos los datos del negocio en un archivo.</li>
                         <li><b>Restaurar copia local</b>: vuelve a subir los datos desde ese archivo.</li>
@@ -2727,8 +2727,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Reabrir año cerrado (con rastro)</b>: contraasienta los comprobantes del cierre y deja constancia de quién, cuándo y por qué. Solo administrador.</li>
                     </ul>
                 </div>
-                <div class="ayuda-sec" id="ayuda-gestion-2" data-ayuda-titulo="Cumplimiento (ronda 11)">
-                    <div class="ayuda-sec-tit">Cumplimiento</div>
+                <div class="ayuda-sec" id="ayuda-gestion-2" data-ayuda-titulo="Cumplimiento: expediente y documentos">
+                    <div class="ayuda-sec-tit">Cumplimiento: expediente y documentos</div>
                     <p class="small mb-1">Controla el registro de operaciones de hasta 500 000, la bancarización de operaciones en efectivo de más de 5 000 y el calendario de deberes.</p>
                     <ul class="small mb-0">
                         <li><b>Flujo de efectivo + Cambios en el patrimonio</b>: genera ambos estados en pantalla para el año elegido.</li>
@@ -2737,8 +2737,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>DJ de Utilidades PJ (salida para firma)</b>: genera el documento de declaración de utilidades de la persona jurídica, listo para imprimir y firmar (no es el modelo oficial).</li>
                     </ul>
                 </div>
-                <div class="ayuda-sec" id="ayuda-gestion-3" data-ayuda-titulo="Gestor · Resolución 86/2026 (confidencial, solo tú)">
-                    <div class="ayuda-sec-tit">Gestor · Resolución 86/2026</div>
+                <div class="ayuda-sec" id="ayuda-gestion-3" data-ayuda-titulo="Conoce a tu cliente (Resolución 86/2026) · confidencial">
+                    <div class="ayuda-sec-tit">Conoce a tu cliente (Resolución 86/2026)</div>
                     <p class="small mb-1">Debida diligencia del tenedor de libros con sus clientes. Archivo confidencial: 5 años.</p>
                     <ul class="small mb-0">
                         <li><b>Ficha KYC por cliente</b>: identificación y beneficiario final, antes de prestar el servicio.</li>
@@ -2746,8 +2746,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Abstención</b>: registra los clientes con los que no se trabaja.</li>
                     </ul>
                 </div>
-                <div class="ayuda-sec" id="ayuda-gestion-4" data-ayuda-titulo="Gestión (ronda 12)">
-                    <div class="ayuda-sec-tit">Gestión</div>
+                <div class="ayuda-sec" id="ayuda-gestion-4" data-ayuda-titulo="El día a día: facturas, patrones y contratos">
+                    <div class="ayuda-sec-tit">El día a día: facturas, patrones y contratos</div>
                     <p class="small mb-1">Indicadores, alertas y flujo de caja proyectado, más las herramientas de operación:</p>
                     <ul class="small mb-0">
                         <li><b>Facturación integrada</b> — <b>Crear factura</b>: crea la factura en borrador con su consecutivo (F-1, F-2…). <b>Confirmar</b>: genera la cuenta por cobrar, el asiento y la salida de inventario con el costo a 695-000. <b>Anular</b>: la conserva como anulada y crea el contraasiento.</li>
@@ -2760,8 +2760,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Ficha de costos 148/2023</b>: calcula la ficha de costo por producto desde materiales, mano de obra directa, otros directos e indirectos, con su margen.</li>
                     </ul>
                 </div>
-                <div class="ayuda-sec" id="ayuda-gestion-5" data-ayuda-titulo="Profundidad (ronda 13)">
-                    <div class="ayuda-sec-tit">Profundidad</div>
+                <div class="ayuda-sec" id="ayuda-gestion-5" data-ayuda-titulo="Producción, créditos y personal">
+                    <div class="ayuda-sec-tit">Producción, créditos y personal</div>
                     <ul class="small mb-0">
                         <li><b>Centros de costo y traspaso</b>: mueve importes entre centros de costo con su asiento.</li>
                         <li><b>Órdenes de producción</b> — <b>Nueva orden</b>: consume el insumo del inventario y deja el costo en proceso (186-000). <b>Terminar</b>: pasa el costo a producción terminada (187-000). Requiere productos creados en Contabilidad.</li>
@@ -2772,8 +2772,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Consignación</b> — <b>Recibir mercancía</b>: registra la mercancía de terceros. <b>Registrar venta</b>: anota su venta con precio.</li>
                     </ul>
                 </div>
-                <div class="ayuda-sec" id="ayuda-gestion-6" data-ayuda-titulo="Costos, precios y equilibrio (guía del libro)">
-                    <div class="ayuda-sec-tit">Costos, precios y equilibrio (guía del libro)</div>
+                <div class="ayuda-sec" id="ayuda-gestion-6" data-ayuda-titulo="Costos, precios y punto de equilibrio">
+                    <div class="ayuda-sec-tit">Costos, precios y punto de equilibrio</div>
                     <ul class="small mb-0">
                         <li><b>Ficha de costo (Plantilla 6 del libro)</b>: suma los costos directos (materia prima, envases, transporte de la compra y tu propio trabajo) y los indirectos asignados (alquiler, electricidad, depreciación, mantenimiento, administración, cada uno con su criterio de reparto) y divide el costo total entre las unidades <b>vendibles</b> (hechas − perdidas), no entre las producidas. Es el método general del libro para conocer tu costo real: <b>no sustituye la «Ficha de costos 148/2023»</b>, que es la ficha de la normativa y sigue estando en Gestión+ con sus límites de indirectos y su margen por sector. Incluye una mini-calculadora de depreciación mensual (precio del equipo ÷ vida útil en meses) para sumarla a los indirectos.</li>
                         <li><b>Calculadora de precios (Plantilla 7 del libro)</b>: compara el precio con <b>recargo</b> (porcentaje sobre el costo) y el precio con <b>margen</b> (porcentaje sobre el precio). Margen ≠ recargo: con el mismo número, el precio con margen sale más alto. Con «Traer de la ficha» copias el costo unitario calculado en la ficha y, si escribes el precio final que elijas, ves su margen real, su recargo real y su beneficio por unidad.</li>
@@ -10334,8 +10334,42 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function toggleModoSimple(on){ try{ localStorage.setItem('finanzas_modo_'+(getCurrentUser()||''), on?'simple':'completo'); }catch(e){} aplicarModoSimple(); }
         function irAPestana(tabId){ if(!tabId) return; if(document.body.classList.contains('modo-simple') && TABS_AVANZADAS.includes(tabId)) toggleModoSimple(false);
             const t=document.getElementById(tabId); if(t){ t.click(); window.scrollTo({top:0, behavior:'smooth'}); } }
-        function irASeccionGestion(id){ const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior:'smooth', block:'start'});
+        function irASeccionGestion(id){ const el=document.getElementById(id); if(!el) return; gestionAbrirModulo(id); el.scrollIntoView({behavior:'smooth', block:'start'});
             el.classList.add('border-primary','shadow'); setTimeout(()=>el.classList.remove('border-primary','shadow'), 1600); }
+        /* ===== Gestión+ plegable (ronda -28, tarea 19): cada tema es un
+           módulo que se abre y se cierra tocando su título; empiezan
+           cerrados y la app recuerda los que dejaste abiertos. ===== */
+        const GESTION_MODULOS=['mjBlindajeCard','mjCumplCard','mjKycCard','mjGestionCard','mjProfCard','lbCalcCard','lbTableroCard'];
+        (function(){ const st=document.createElement('style'); st.textContent='.gestion-flecha{transition:transform .2s;color:#64748b;font-size:.9em}.gestion-cerrado .gestion-flecha{transform:rotate(-90deg)}'; document.head.appendChild(st); })();
+        function gestionModulosEstado(){ try{ return JSON.parse(localStorage.getItem('finanzas_gestion_modulos')||'{}'); }catch(e){ return {}; } }
+        function gestionAplicarPlegado(){
+            const st=gestionModulosEstado();
+            GESTION_MODULOS.forEach(id=>{
+                const card=document.getElementById(id); if(!card) return;
+                if(!card.dataset.plegable){
+                    const h=card.querySelector(':scope > h6'); if(!h) return;
+                    card.dataset.plegable='1';
+                    const cuerpo=document.createElement('div'); cuerpo.className='gestion-cuerpo';
+                    [...card.children].forEach(ch=>{ if(ch!==h) cuerpo.appendChild(ch); });
+                    card.appendChild(cuerpo);
+                    const flecha=document.createElement('span'); flecha.className='gestion-flecha float-end'; flecha.textContent='▾'; h.appendChild(flecha);
+                    h.style.cursor='pointer'; h.title='Toca para abrir o cerrar este tema';
+                    h.addEventListener('click', ()=>gestionAlternarModulo(id));
+                }
+                const abierto=st[id]===true, cuerpo=card.querySelector(':scope > .gestion-cuerpo');
+                if(cuerpo) cuerpo.style.display=abierto?'':'none';
+                card.classList.toggle('gestion-cerrado', !abierto);
+            });
+        }
+        function gestionFijarModulo(id, abierto){
+            const card=document.getElementById(id); if(!card||!card.dataset.plegable) return;
+            const cuerpo=card.querySelector(':scope > .gestion-cuerpo'); if(cuerpo) cuerpo.style.display=abierto?'':'none';
+            card.classList.toggle('gestion-cerrado', !abierto);
+            const st=gestionModulosEstado(); st[id]=abierto;
+            try{ localStorage.setItem('finanzas_gestion_modulos', JSON.stringify(st)); }catch(e){}
+        }
+        function gestionAlternarModulo(id){ const st=gestionModulosEstado(); gestionFijarModulo(id, st[id]!==true); }
+        function gestionAbrirModulo(id){ gestionAplicarPlegado(); gestionFijarModulo(id, true); }
         (function(){ const st=document.createElement('style'); st.textContent='body.modo-simple #tab-conta,body.modo-simple #tab-gestion,body.modo-simple #tab-aft,body.modo-simple #tab-tasas,body.modo-simple #tab-utilidades,body.modo-simple #tab-ideas{display:none!important}'; document.head.appendChild(st); })();
         function renderAvisosInicio(){ const box=document.getElementById('avisosInicioBox'); if(!box) return; const filas=[];
             try{ const c=getConta(); if(c&&c.activa&&(c.bandeja||[]).length) filas.push({t:'danger', icono:'🧾', txt:`Tienes <b>${(c.bandeja||[]).length} movimiento(s) sin clasificar</b> en la bandeja de Contabilidad: no se contabilizan hasta que digas de qué son.`, tab:'tab-conta', btn:'Clasificarlos'}); }catch(e){}
@@ -12074,6 +12108,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             try{ mjRenderGestionModulos(); }catch(e){}
             try{ mjRenderProfundidad(); }catch(e){}
             try{ mjAplicarActor(); }catch(e){}
+            try{ gestionAplicarPlegado(); }catch(e){}
             if(!mjVal('mjAnioEstados')) mjSetVal('mjAnioEstados', String(new Date().getFullYear()));
             if(!mjVal('mjFacFecha')) mjSetVal('mjFacFecha', hoy());
             if(!mjVal('mjIpvFecha')) mjSetVal('mjIpvFecha', hoy());
@@ -16159,7 +16194,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-27';
+        var MANUAL_VERSION = 'v2026.10.28-28';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16499,7 +16534,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'gestor-respaldo', modulo:'gestor', titulo:'Respaldo por negocio (ZIP) y paquete Res. 86/2026', html:
             '<p>Desde el Gestor exportas el <b>respaldo ZIP de un negocio</b> concreto (su expediente completo) para guardarlo o entregarlo. El paquete de la <b>Resolución 86/2026</b> reúne la documentación del gestor que esa norma exige, separada por cliente y confidencial: solo la ves tú.</p>'},
         {id:'gestion-recorrido', modulo:'gestion', titulo:'Gestión+ de un vistazo', html:
-            '<p>El menú <b>Gestión+</b> reúne las herramientas ampliadas del negocio, agrupadas en tarjetas: Blindaje de datos, Cumplimiento, Gestión (facturación y más) y Profundidad. Cada tarjeta tiene su explicación con el botón «?» y su documento imprimible cuando aplica.</p>' +
+            '<p>El menú <b>Gestión+</b> reúne las herramientas ampliadas del negocio, agrupadas en tarjetas por tema: Blindaje y respaldo, Cumplimiento, Conoce a tu cliente, El día a día, Producción/créditos/personal, Costos y precios y el Tablero de indicadores. <b>Cada tarjeta se abre y se cierra tocando su título</b> (empiezan cerradas y la app recuerda las que dejes abiertas), y el índice de arriba abre el tema elegido de un toque. Cada tarjeta tiene su explicación con el botón «?» y su documento imprimible cuando aplica.</p>' +
             '<p>Las tarjetas que generan asientos lo hacen siempre por comprobantes: nada de Gestión+ toca los libros por la puerta de atrás.</p>'},
         {id:'gestion-herramientas', modulo:'gestion', titulo:'Facturación, instrumentos, contratos y órdenes', html:
             '<ul><li><b>Facturación integrada:</b> facturas con el circuito de estados (borrador → confirmada → cancelada por contraasiento, con devolución de inventario si aplica).</li>' +
@@ -16520,7 +16555,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Ficha Res. 148/2023</b> de costos y el <b>expediente laboral</b> completan el paquete de cumplimiento.</li>' +
             '<li><b>Expediente digital de fiscalización POR ACTOR:</b> cada negocio marca presente/faltante la documentación que le toca a SU tipo — el TCP de nivel Registro lleva su licencia, su cuenta bancaria fiscal, su Registro de Control con los justificantes, su DJ-08 y su afiliación a la Seguridad Social (sin escritura ni Registro Mercantil, que no le aplican); el TCP de contabilidad completa suma libros, submayores y estados financieros; la MIPYME lleva el legajo societario completo; y el PDL, su acuerdo del CAM, el expediente del proyecto y sus evaluaciones semestrales. El expediente del TCP de Registro está en su pestaña <b>Registro</b>; el de los demás, en Gestión+.</li></ul>'},
         {id:'ficha-costo', modulo:'libro', titulo:'Ficha de costo y depreciación', html:
-            '<p>La tarjeta <b>«Costos, precios y equilibrio (guía del libro)»</b> (en Gestión+) arma la ficha de costo completa: costos directos e indirectos, cada indirecto con su criterio de reparto.</p>' +
+            '<p>La tarjeta <b>«Costos, precios y punto de equilibrio»</b> (en Gestión+) arma la ficha de costo completa: costos directos e indirectos, cada indirecto con su criterio de reparto.</p>' +
             '<ul><li>La clave: el <b>costo unitario = costo total ÷ unidades VENDIBLES</b> (producidas − perdidas), no entre las producidas: las que se pierden las pagan las que se venden.</li>' +
             '<li>Valora la materia prima a <b>costo de reposición</b> y no olvides <b>tu propio trabajo</b> como costo directo: sin pagarte, el beneficio es ficticio.</li>' +
             '<li>La mini-calculadora de <b>depreciación</b> (precio ÷ vida útil en meses) suma su resultado a los indirectos con un botón.</li>' +
@@ -16716,6 +16751,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'nominaDocContrato','mjExpedienteDocUI','mjExpedienteRevisionUI','mjEvaluacionUI','mjPlantillaPlazasUI','getRRHH','saveRRHH','mjRenderProfundidad','renderPuestos',
          'mjPatronesAplicarTodosUI','mjPrepararCierreUI','gInformesTodosDescargar','renderAvisosInicio',
          'irAPestana','toggleModoSimple','aplicarModoSimple','irASeccionGestion',
+         'gestionAplicarPlegado','gestionFijarModulo','gestionAbrirModulo','gestionAlternarModulo',
          'mjContratoGuardarForm','mjInstrumentoGuardarForm','mjOrdenGuardarForm','mjConsignacionGuardarForm',
          'nomPrenominaGenerarUI','nomPrenominaAprobarUI','nominaDocPrenomina','nomAdelantoRegistrarUI',
          'contaGenerar','contaRevalBtn','compraDivisaRegistrarUI','getConta','ctaAgregarAsiento','ctaRevalorizacion','ctaMayor','contaAddContraparte','contaAddDocumento','printPane','contaEmitirNotaBtn',
