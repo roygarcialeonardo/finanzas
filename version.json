@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.26-24",
-  "publicada": "2026-10-27 02:57",
-  "notas": "Ronda -24: llaves de acceso mensuales amarradas a la PC (la llave sustituye la validación automática en las instalaciones con modo; manual v2026.10.26-24). Servidor 0.7.0.",
+  "version": "v2026.10.27-25",
+  "publicada": "2026-10-28 02:47",
+  "notas": "Cierre del período: menú nuevo «🧾 Cierre» con la lista de cierre por actor económico (TCP, MIPYME, PDL) y período (mes, trimestre, semestre, año): lo que la app ya tiene, lo que debes entregar y los informes de cada período; «Qué toca hoy» avisa de los cierres incompletos.",
   "requiereServidor": "0.7.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "5ce798f5dd480ef9eebd76aa346d8d657e61eabbd95036c8b6aa5ea587b65ed5",
-      "bytes": 1632101
+      "sha256": "124fee2783246d69fe378152eb6cf93b8719722641893578e5919f58486edae0",
+      "bytes": 1657761
     },
     {
       "ruta": "pdf-import.js",

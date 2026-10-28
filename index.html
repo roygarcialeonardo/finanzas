@@ -1040,6 +1040,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link nomina" id="tab-nomina" data-bs-toggle="tab" data-bs-target="#pane-nomina"><span class="icono-anim me-1" data-icono="usuarios"></span> Nómina</button></li>
         <li class="nav-item"><button class="nav-link utilidades" id="tab-utilidades" data-bs-toggle="tab" data-bs-target="#pane-utilidades"><span class="icono-anim me-1" data-icono="grafico"></span> Trimestres</button></li>
         <li class="nav-item"><button class="nav-link fiscal" id="tab-fiscal" data-bs-toggle="tab" data-bs-target="#pane-fiscal"><span class="icono-anim me-1" data-icono="doc-check"></span> Fiscal</button></li>
+        <li class="nav-item"><button class="nav-link cierrep" id="tab-cierrep" data-bs-toggle="tab" data-bs-target="#pane-cierrep">🧾 Cierre</button></li>
         <li class="nav-item"><button class="nav-link registro" id="tab-registro" data-bs-toggle="tab" data-bs-target="#pane-registro"><span class="icono-anim me-1" data-icono="libro"></span> Registro</button></li>
         <li class="nav-item"><button class="nav-link dj" id="tab-dj" data-bs-toggle="tab" data-bs-target="#pane-dj"><span class="icono-anim me-1" data-icono="doc"></span> DJ</button></li>
         <li class="nav-item"><button class="nav-link ideas" id="tab-ideas" data-bs-toggle="tab" data-bs-target="#pane-ideas">💡 Ideas</button></li>
@@ -1425,6 +1426,25 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>
             <div class="row g-3">
                 <div class="col-12"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>Cálculos del período actual</h6><div id="fiscalCalculos" class="aporte-box"></div></div></div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pane-cierrep">
+            <div class="card p-3 p-md-4 mb-3">
+                <h5 class="mb-1">🧾 Cierre del período</h5>
+                <p class="small text-secondary mb-3">La lista de cierre de tu negocio según tu actor económico: lo que la app ya tiene, lo que debes entregar y los informes que tocan en cada período. Lo que la app no puede inventar queda pendiente hasta que lo entregues o lo marques.</p>
+                <div class="row g-2 mb-3">
+                    <div class="col-6 col-md-3"><label class="form-label small" for="cierreTipoSel">Período</label>
+                        <select id="cierreTipoSel" class="form-select">
+                            <option value="mes">Mes</option>
+                            <option value="trimestre">Trimestre</option>
+                            <option value="semestre">Semestre</option>
+                            <option value="anio">Año</option>
+                        </select></div>
+                    <div class="col-6 col-md-4"><label class="form-label small" for="cierrePeriodoSel">Cuál</label>
+                        <select id="cierrePeriodoSel" class="form-select"></select></div>
+                </div>
+                <div id="cierrepBox"></div>
             </div>
         </div>
 
@@ -4538,7 +4558,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         const MES_ABR={ene:0,feb:1,mar:2,abr:3,may:4,jun:5,jul:6,ago:7,sep:8,sept:8,oct:9,nov:10,dic:11};
         function normTxt(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
         function getFiscalKey(){return `finanzas_fiscal_${getCurrentUser()}`;}
-        function getFiscal(){const x=Store.getItem(getFiscalKey());if(!x)return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};try{const d=JSON.parse(x)||{};if(!d.meta)d.meta={};if(!Array.isArray(d.actividades))d.actividades=[];if(!d.tributos||Array.isArray(d.tributos))d.tributos={};if(!Array.isArray(d.obligaciones))d.obligaciones=[];if(!d.source)d.source={};return d;}catch(e){return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};}}
+        function getFiscal(){const x=Store.getItem(getFiscalKey());if(!x)return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};try{const d=JSON.parse(x)||{};if(!d.meta)d.meta={};if(!Array.isArray(d.actividades))d.actividades=[];if(!d.tributos||Array.isArray(d.tributos))d.tributos={};if(!Array.isArray(d.obligaciones))d.obligaciones=[];if(!d.source)d.source={};if(!d.cierres||typeof d.cierres!=='object'||Array.isArray(d.cierres))d.cierres={};return d;}catch(e){return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};}}
         function saveFiscal(d){Store.setItem(getFiscalKey(),JSON.stringify(d));}
         /* ===== DATOS BANCARIOS DE LAS CUENTAS (pedido de Leonardo, 2026-10-24) =====
            Al importar un estado de cuenta, el importador captura de su
@@ -5159,6 +5179,149 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         async function importarVectorPDF(file){if(!file)return;if(!window.pdfjsLib){alert('No se pudo cargar el lector PDF. Revisa la conexión a Internet o añade la obligación manualmente.');return;}try{const lines=await pdfLineasDe(file);parseVectorLines(lines,file.name);}catch(e){console.error(e);alert('No se pudo leer ese PDF. Puedes añadir las obligaciones manualmente.');}}
         function renderFiscal(){const d=getFiscal(),meta=d.meta||{},periodo=periodoNominaActual(),filtro=document.getElementById('fiscalFiltro')?.value||'periodo';document.getElementById('vectorNIT').textContent=meta.nit||'—';document.getElementById('vectorRazon').textContent=meta.razon||'—';document.getElementById('vectorDPA').textContent=meta.dpa||'—';document.getElementById('vectorAnio').textContent=meta.anio||'—';document.getElementById('vectorFuente').textContent=d.source?.fileName||'—';const acts=Array.isArray(d.actividades)?d.actividades:[],tribs=Object.entries(d.tributos||{}),actBox=document.getElementById('vectorActividades'),taxBox=document.getElementById('vectorTributos'),ac=document.getElementById('vectorActCount'),tc=document.getElementById('vectorTribCount');if(actBox)actBox.innerHTML=acts.length?acts.map(x=>`<div class="mb-1"><i class="bi bi-check2-circle me-1 text-success"></i>${esc(x)}</div>`).join(''):'<span class="text-muted">No se detectaron actividades en el PDF.</span>';if(taxBox)taxBox.innerHTML=tribs.length?tribs.map(([c,n])=>`<div class="mb-1"><code>${esc(c)}</code> · ${esc(n)}</div>`).join(''):'<span class="text-muted">No se detectó el catálogo de tributos.</span>';if(ac)ac.textContent=acts.length;if(tc)tc.textContent=tribs.length;document.getElementById('vectorEstadoBadge').textContent=d.obligaciones.some(o=>o.vector)?`RC-04A · ${meta.anio||''}`:'Sin vector';let rows=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return {o,c,est};});if(filtro==='periodo')rows=rows.filter(x=>x.o.periodo===periodo);else if(filtro==='vector')rows=rows.filter(x=>meta.anio?String(x.o.periodo||'').endsWith(' '+meta.anio):x.o.vector);else if(filtro==='pendientes')rows=rows.filter(x=>x.est.key!=='paid');rows.sort((a,b)=>String(a.o.vence||'9999').localeCompare(String(b.o.vence||'9999')));const body=document.getElementById('fiscalBody');body.innerHTML=rows.map(({o,c,est})=>{const imp=c.importe===null?'—':moneda(c.importe),rest=c.importe===null?null:Math.max(0,c.importe-est.pagado);return `<tr class="${o.periodo===periodo?'fiscal-row-current':''}"><td><span class="fiscal-code">${esc(o.codigo||'—')}</span></td><td><div class="fw-semibold">${esc(o.concepto||'Tributo')}</div>${est.pagado>0?`<small class="text-muted">Pagado: ${moneda(est.pagado)}</small>`:''}${(o.responsable||o.fuenteVerificacion||o.fechaVerificacion)?`<div class="small text-secondary">Resp.: ${esc(o.responsable||'—')} · Fuente: ${esc(o.fuenteVerificacion||'—')}${o.fechaVerificacion?' ('+fisFmtFechaDMY(o.fechaVerificacion)+')':''}</div>`:''}</td><td>${esc(o.periodo||'—')}</td><td>${o.vence?esc(o.vence):'—'}</td><td class="text-end fiscal-money fw-semibold">${imp}</td><td><small>${esc(c.origen)}</small></td><td><span class="fiscal-status ${est.key}">${est.txt}</span></td><td class="text-end"><div class="btn-group btn-group-sm">${puedeEditar()?`<button class="btn btn-outline-secondary fiscal-importe" data-id="${o.id}" title="Fijar/editar importe"><i class="bi bi-pencil-square"></i></button><button class="btn btn-outline-primary fiscal-anotar" data-id="${o.id}" title="Anotar responsable y verificación">Anotar</button>${c.importe!==null&&rest>0?`<button class="btn btn-outline-success fiscal-pagar" data-id="${o.id}" title="Registrar pago"><i class="bi bi-bank"></i></button>`:''}${!o.vector?`<button class="btn btn-outline-danger fiscal-borrar" data-id="${o.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}`:''}</div></td></tr>`;}).join('');document.getElementById('fiscalVacio').style.display=rows.length?'none':'block';const all=d.obligaciones.map(o=>{const c=calcImporteObligacion(o),est=estadoObligacion(o,c.importe);return{o,c,est}}),cur=all.filter(x=>x.o.periodo===periodo),pend=cur.reduce((a,x)=>a+(x.c.importe===null?0:Math.max(0,x.c.importe-x.est.pagado)),0),next=all.filter(x=>x.est.key!=='paid'&&x.o.vence).sort((a,b)=>a.o.vence.localeCompare(b.o.vence))[0];document.getElementById('fiscalKpiTotal').textContent=d.obligaciones.length;document.getElementById('fiscalKpiPeriodo').textContent=cur.length;document.getElementById('fiscalKpiPendiente').textContent=moneda(pend);document.getElementById('fiscalKpiVence').textContent=next?next.o.vence:'—';const cf=calcFiscalPeriodo(periodo);document.getElementById('fiscalCalculos').innerHTML=`<div class="aporte-line"><span>Ingresos operacionales del período</span><b>${moneda(cf.ingresos)}</b></div><div class="aporte-line"><span>Ventas/Servicios · ${CFG.onat.ventas}%</span><b>${moneda(cf.ventas)}</b></div>${cf.tipo==='tcp'?`<div class="aporte-line"><span>Pago a cuenta IIP TCP · 5% sobre exceso de 3.260 CUP</span><b>${moneda(cf.pagoCuentaTCP||0)}</b></div>`:''}${cf.ssTitular>0?`<div class="aporte-line"><span>Seguridad Social del titular · 20 % de su base elegida (082013)</span><b>${moneda(cf.ssTitular)}</b></div>`:''}<div class="aporte-line"><span>Impuesto por la Utilización de la Fuerza de Trabajo (desde nómina)</span><b>${moneda(cf.nom.fuerza||0)}</b></div><div class="aporte-line"><span>Contribución a la Seguridad Social al Presupuesto (desde nómina)</span><b>${moneda(cf.nom.ssPresupuesto||0)}</b></div><div class="aporte-line"><span>Contribución Especial a la Seguridad Social retenida a trabajadores</span><b>${moneda(cf.nom.segTrab||0)}</b></div><div class="aporte-line"><span>Impuesto sobre Ingresos Personales retenido a trabajadores</span><b>${moneda(cf.nom.iip||0)}</b></div>${cf.territorial!==null?`<div class="aporte-line"><span>Contribución territorial configurada · ${CFG.onat.desarrolloLocal}%</span><b>${moneda(cf.territorial)}</b></div>`:''}`;document.querySelectorAll('.fiscal-pagar').forEach(b=>b.onclick=()=>registrarPagoFiscal(b.dataset.id));document.querySelectorAll('.fiscal-importe').forEach(b=>b.onclick=()=>editarImporteFiscal(b.dataset.id));document.querySelectorAll('.fiscal-borrar').forEach(b=>b.onclick=()=>borrarFiscalManual(b.dataset.id));document.querySelectorAll('.fiscal-anotar').forEach(b=>b.onclick=()=>anotarObligacionFiscal(b.dataset.id));}
+        // ===== CIERRE DEL PERÍODO (tarea 28, ronda -25) =====
+        /* Lista de cierre por actor económico y período (mes, trimestre,
+           semestre, año): lo que la app ya tiene (detectado de los datos
+           reales), lo que el usuario debe entregar (la app no lo inventa)
+           y los informes que tocan en cada período. Las marcas manuales
+           viven en el documento fiscal (campo cierres), por negocio. */
+        let CIERREP_SEL = { tipo: 'mes', valor: null };
+        function cierreActorSeguro(){ try{ if(typeof esGestor==='function'&&esGestor()) return null; if(typeof actorDelNegocio==='function') return actorDelNegocio(); }catch(e){} const t=(typeof getEntityType==='function'&&getEntityType())||'tcp'; return { tipo:['tcp','mipyme','pdl'].indexOf(t)>=0?t:'tcp', pleno:false, extras:{} }; }
+        function cierreEstado(){ try{ const f=getFiscal(); return (f&&f.cierres)||{}; }catch(e){ return {}; } }
+        function cierreClave(tipo,valor){ return (tipo==='mes'?'M':tipo==='trimestre'?'T':tipo==='semestre'?'S':'A')+':'+valor; }
+        function cierreMovsDeMes(y,mi){ const pref=y+'-'+String(mi+1).padStart(2,'0'); let todos=[]; try{ todos=allMovimientos()||[]; }catch(e){} return todos.filter(m=>String((m&&m.fecha)||'').slice(0,7)===pref); }
+        function cierreCoberturaBanco(meses){ let con=0; meses.forEach(ms=>{ if(cierreMovsDeMes(ms.y,ms.mi).some(m=>m.origen==='pdf_banco')) con++; }); return { con, total: meses.length }; }
+        function cierreOpcionesPeriodo(tipo){
+            const now=new Date(), Y=now.getFullYear();
+            if(tipo==='mes'){ const set=new Map(); const add=(label)=>{ const p=label?periodoParts(label):null; if(p) set.set(label, p.y*12+p.mi); };
+                add(periodoNominaActual()); add(getMesActualStr());
+                try{ (getHistorial()||[]).forEach(h=>{ if(h&&h.mes) add(h.mes); }); }catch(e){}
+                let lbl=getMesActualStr(); for(let i=0;i<12;i++){ add(lbl); lbl=obtenerMesAnterior(lbl); if(!lbl) break; }
+                return [...set.entries()].sort((a,b)=>b[1]-a[1]).map(e=>({valor:e[0], etiqueta:e[0]})); }
+            if(tipo==='trimestre'){ const out=[]; const cq=Math.floor(now.getMonth()/3)+1;
+                [Y,Y-1].forEach(y=>{ for(let q=4;q>=1;q--){ if(y===Y&&q>cq) continue; out.push({valor:y+'-T'+q, etiqueta:q+'.º trimestre de '+y}); } }); return out; }
+            if(tipo==='semestre'){ const out=[]; const ch=now.getMonth()<6?1:2;
+                [Y,Y-1].forEach(y=>{ for(let h=2;h>=1;h--){ if(y===Y&&h>ch) continue; out.push({valor:y+'-S'+h, etiqueta:h+'.º semestre de '+y}); } }); return out; }
+            return [Y,Y-1].map(y=>({valor:String(y), etiqueta:'Año '+y}));
+        }
+        function cierreMesesDe(tipo,valor){
+            if(tipo==='mes'){ const p=periodoParts(valor); return p?[{y:p.y,mi:p.mi,label:valor}]:[]; }
+            if(tipo==='trimestre'){ const mt=String(valor).match(/^(\d{4})-T([1-4])$/); if(!mt) return []; const y=+mt[1], q=+mt[2]; const out=[]; for(let i=0;i<3;i++){ const mi=(q-1)*3+i; out.push({y,mi,label:getFechaStr(mi+1,y)}); } return out; }
+            if(tipo==='semestre'){ const mt=String(valor).match(/^(\d{4})-S([12])$/); if(!mt) return []; const y=+mt[1], h=+mt[2]; const out=[]; for(let i=0;i<6;i++){ const mi=(h-1)*6+i; out.push({y,mi,label:getFechaStr(mi+1,y)}); } return out; }
+            const y=parseInt(valor,10)||new Date().getFullYear(); const out=[]; const now=new Date(); for(let mi=0;mi<12;mi++){ if(y===now.getFullYear()&&mi>now.getMonth()) break; out.push({y,mi,label:getFechaStr(mi+1,y)}); } return out;
+        }
+        function cierreItems(tipo,valor,actor){
+            const est=cierreEstado(); const clave=cierreClave(tipo,valor); const marcas=(est[clave]||{ent:{},inf:{}});
+            const ent=marcas.ent||{}, inf=marcas.inf||{};
+            const trab=(function(){ try{ return (getRRHH().trabajadores||[]).length; }catch(e){ return 0; } })();
+            const auto=[], entregar=[], informes=[];
+            const meses=cierreMesesDe(tipo,valor);
+            const cob=cierreCoberturaBanco(meses);
+            if(tipo==='mes'){
+                const p=periodoParts(valor); const movs=p?cierreMovsDeMes(p.y,p.mi):[];
+                const imp=movs.filter(m=>m.origen==='pdf_banco');
+                const ing=movs.filter(m=>m.tipo==='ingreso');
+                auto.push({id:'banco', titulo:'Estado de cuenta leído por la app', estado: imp.length?'ok':(movs.length?'warn':'pend'), detalle: movs.length+' movimiento(s) registrados en el mes · '+imp.length+' importados del estado de cuenta BANDEC.'});
+                auto.push({id:'ventas', titulo:'Ingresos y ventas del mes registrados', estado: ing.length?'ok':'pend', detalle: ing.length+' ingreso(s) en el mes.'});
+                if(trab>0){ let nOk=false, det='Sin nómina generada para este mes.'; try{ const r=getRRHH(); const n=r.nominas&&r.nominas[valor]; const pre=r.prenominas&&r.prenominas[valor]; if(n&&Object.keys(n).length){ nOk=true; det='Nómina generada con '+Object.keys(n).length+' trabajador(es).'; } else if(pre){ nOk=true; det='Pre-nómina del mes '+(pre.estado?('en estado «'+pre.estado+'»'):'generada')+'.'; } }catch(e){}
+                    auto.push({id:'nomina', titulo:'Nómina del mes generada (SC-4-06)', estado: nOk?'ok':'pend', detalle: det}); }
+                if(actor.tipo==='tcp'&&!actor.pleno){ auto.push({id:'registro', titulo:'Registro de Control del mes', estado: movs.length?'ok':'pend', detalle:'El Registro se alimenta de los movimientos del mes: con el estado de cuenta importado queda completo.'}); }
+                else { try{ const c=getConta(); if(!c.activa) auto.push({id:'conta', titulo:'Contabilidad del mes generada', estado:'na', detalle:'La contabilidad no está activada en este negocio.'});
+                    else { const pref=p?(p.y+'-'+String(p.mi+1).padStart(2,'0')):''; const nAs=(c.asientos||[]).filter(a=>String((a&&a.fecha)||'').slice(0,7)===pref).length; const band=(c.bandeja||[]).length;
+                        if(nAs>0) auto.push({id:'conta', titulo:'Contabilidad del mes generada', estado: band?'warn':'ok', detalle: nAs+' asiento(s) en el mes'+(band?(' · '+band+' movimiento(s) por clasificar en la bandeja.'):'')});
+                        else auto.push({id:'conta', titulo:'Contabilidad del mes generada', estado:'pend', detalle:'Sin asientos contables en el mes.'}); } }catch(e){ auto.push({id:'conta', titulo:'Contabilidad del mes generada', estado:'pend', detalle:'Sin asientos contables en el mes.'}); } }
+                let obs=[]; try{ obs=(getFiscal().obligaciones||[]).filter(o=>o.periodo===valor); }catch(e){}
+                if(!obs.length) auto.push({id:'impuestos', titulo:'Impuestos del mes calculados', estado:'na', detalle:'Sin obligaciones cargadas para este mes: carga tu Vector Fiscal (RC-04A) en la pestaña Fiscal y la app calcula cada importe sola.'});
+                else { let pag=0; obs.forEach(o=>{ try{ const cc=calcImporteObligacion(o); const es2=estadoObligacion(o,cc.importe); if(es2.key==='paid'||es2.key==='na') pag++; }catch(e){} }); auto.push({id:'impuestos', titulo:'Impuestos del mes calculados y pagados', estado: pag>=obs.length?'ok':(pag>0?'warn':'pend'), detalle: pag+' de '+obs.length+' obligación(es) del mes pagadas (según tu Vector Fiscal).'}); }
+                entregar.push({id:'ecuentas', titulo:'Estados de cuenta del mes de TODAS las cuentas', estado: imp.length?'ok':'pend', detalle:'Chequera y tarjetas: súbelos en su pestaña y la app los lee y clasifica sola. Sin estado de cuenta no hay cierre posible.', irTab:'tab-chequera', irTxt:'Importar'});
+                entregar.push({id:'justificantes', titulo:'Justificantes de gastos y compras en efectivo', estado: ent['justificantes']?'ok':'pend', marcar:'ent', detalle: actor.tipo==='tcp'?'Facturas y vales de lo pagado en efectivo: en la DJ-08 los gastos se deducen al 100 % solo si justificas el 80 %.':'Facturas y vales de lo pagado en efectivo: sin documento, el gasto no entra a la contabilidad.'});
+                if(trab>0) entregar.push({id:'asistencia', titulo:'Datos de asistencia del mes', estado: ent['asistencia']?'ok':'pend', marcar:'ent', detalle:'Días trabajados, ausencias, certificados médicos, vacaciones y horas extras de cada trabajador: con esto sale la nómina.', irTab:'tab-nomina', irTxt:'Ir a Nómina'});
+                entregar.push({id:'facturas_fuera', titulo:'Facturas de venta emitidas fuera de la app', estado: ent['facturas_fuera']?'ok':'pend', marcar:'ent', detalle:'Si facturaste con otro talonario o sistema, entrégalas: el ingreso del mes tiene que quedar completo.'});
+                entregar.push({id:'novedades', titulo:'Novedades del mes', estado: ent['novedades']?'ok':'pend', marcar:'ent', detalle:'Contratos nuevos, altas o bajas de trabajadores, suspensiones, cambios de cuenta o de actividad.'});
+                if(obs.length){ obs.forEach(o=>{ let es3={key:'pending',txt:'Pendiente'}; try{ const cc=calcImporteObligacion(o); es3=estadoObligacion(o,cc.importe); }catch(e){} informes.push({id:'ob-'+o.id, titulo:(o.codigo?('['+o.codigo+'] '):'')+(o.concepto||'Obligación de la ONAT'), estado: es3.key==='paid'?'ok':(es3.key==='partial'?'warn':(es3.key==='na'?'na':'pend')), detalle:(o.vence?('Vence: '+o.vence+' · '):'')+'Estado: '+es3.txt+' (según tu Vector Fiscal).', irTab:'tab-fiscal', irTxt:'Ver en Fiscal'}); }); }
+                else { const gen = actor.tipo==='tcp'
+                    ? ['Anticipo del Impuesto sobre Ingresos Personales (5 % sobre el exceso de 3 260 CUP)','Impuesto sobre Ventas y Servicios (10 %)','Seguridad Social del titular (20 % de su base)','Retenciones a los trabajadores contratados (si los tiene)']
+                    : ['Impuesto sobre Ventas y Servicios (10 %)','Impuesto por la Utilización de la Fuerza de Trabajo (5 %)','Contribución a la Seguridad Social de los trabajadores (14 %)','Retenciones de Ingresos Personales a los trabajadores','Contribución Especial a la Seguridad Social'];
+                    gen.forEach((g,i)=>informes.push({id:'gen-'+i, titulo:g, estado:'na', detalle:'Referencia general de tu actor: carga tu Vector Fiscal (RC-04A) en Fiscal para verla con importe, vencimiento y pago.'})); }
+                return {auto, entregar, informes};
+            }
+            auto.push({id:'cobertura', titulo:'Estados de cuenta importados del período', estado: cob.con>=cob.total?'ok':(cob.con>0?'warn':'pend'), detalle: cob.con+' de '+cob.total+' mes(es) del período con estado de cuenta importado.'});
+            if(tipo==='trimestre'){
+                const mt=String(valor).match(/^(\d{4})-T([1-4])$/); const y=mt?+mt[1]:0, q=mt?+mt[2]:0;
+                if(actor.tipo==='tcp'){ informes.push({id:'iuft', titulo:'IUFT del trimestre', estado: inf['iuft']?'ok':'pend', marcar:'inf', detalle:'El TCP paga el IUFT por trimestre, en los primeros 20 días del mes siguiente al trimestre vencido (párrafo 061032).'});
+                    if(trab>0) informes.push({id:'cssc', titulo:'Contribución Especial a la Seguridad Social de los contratados', estado: inf['cssc']?'ok':'pend', marcar:'inf', detalle:'La de los trabajadores contratados se aporta por trimestre, en los 20 días del mes siguiente.'}); }
+                else if(actor.tipo==='mipyme'){ let pag=0; try{ pag=triPagadoUtilidadesQuarter(y,q-1)||0; }catch(e){}
+                    informes.push({id:'anticipo', titulo:'Anticipo trimestral del Impuesto sobre Utilidades', estado: pag>0?'ok':'pend', detalle: pag>0?('Pagado según los movimientos: '+moneda(pag)+'.'):'Sin pago del anticipo registrado en los movimientos del trimestre.', irTab:'tab-utilidades', irTxt:'Ver Trimestres'}); }
+                else informes.push({id:'pdl-tri', titulo:'Sin informes trimestrales', estado:'na', detalle:'El PDL (Decreto 174/2026) no presenta nada por trimestre: su ritmo es mensual, semestral (evaluación del CAM) y anual.'});
+            }
+            if(tipo==='semestre'){
+                if(actor.tipo==='pdl') informes.push({id:'evalcam', titulo:'Evaluación semestral ante el CAM', estado: inf['evalcam']?'ok':'pend', marcar:'inf', detalle:'El CAM evalúa el proyecto cada semestre (Decreto 174/2026, art. 40.1): tributos al día, ejecución por fuentes y la Reserva dotada.'});
+                else informes.push({id:'sin-sem', titulo:'Sin informes semestrales', estado:'na', detalle:'Este actor no presenta informes por semestre.'});
+            }
+            if(tipo==='anio'){
+                if(actor.tipo==='tcp') informes.push({id:'dj08', titulo:'Declaración Jurada DJ-08 del año', estado: inf['dj08']?'ok':'pend', marcar:'inf', detalle:'Se presenta antes del 30 de abril del año siguiente, con las bonificaciones que correspondan.', irTab:'tab-dj', irTxt:'Abrir la DJ'});
+                else if(actor.tipo==='mipyme'){ informes.push({id:'djutil', titulo:'DJ del Impuesto sobre Utilidades del año', estado: inf['djutil']?'ok':'pend', marcar:'inf', detalle:'Presentación digital obligatoria, dentro del trimestre siguiente al cierre del año fiscal.'});
+                    informes.push({id:'eeff', titulo:'Estados financieros anuales (NCIF)', estado: inf['eeff']?'ok':'pend', marcar:'inf', detalle:'Balance y estado de resultados del año, según las Normas Cubanas de Información Financiera.'});
+                    informes.push({id:'dj01', titulo:'DJ-01 de los socios por dividendos', estado: inf['dj01']?'ok':'pend', marcar:'inf', detalle:'Cada socio declara sus dividendos del año en su DJ-01.', irTab:'tab-dj', irTxt:'Abrir la DJ'}); }
+                else { informes.push({id:'util', titulo:'Liquidación anual del Impuesto sobre Utilidades (040012)', estado: inf['util']?'ok':'pend', marcar:'inf', detalle:'El PDL es contribuyente propio: liquida sus utilidades una vez al año (Res. 202/2026).'});
+                    informes.push({id:'eeff', titulo:'Estados financieros anuales del proyecto (NCIF)', estado: inf['eeff']?'ok':'pend', marcar:'inf', detalle:'La contabilidad del PDL es propia e independiente, bajo las normas empresariales (Decreto 174/2026, art. 16).'}); }
+            }
+            return {auto, entregar, informes};
+        }
+        function cierreItemHTML(it){
+            const icono = it.estado==='ok'?'✅':(it.estado==='warn'?'⚠️':(it.estado==='na'?'ℹ️':'🔴'));
+            const chip = it.estado==='ok'?'<span class="badge bg-success">Listo</span>':(it.estado==='warn'?'<span class="badge bg-warning text-dark">A medias</span>':(it.estado==='na'?'<span class="badge bg-secondary">Referencia</span>':'<span class="badge bg-danger">Pendiente</span>'));
+            let btns='';
+            if(it.marcar && puedeEditar()) btns+=' <button type="button" class="btn btn-sm '+(it.estado==='ok'?'btn-outline-secondary':'btn-primary')+'" data-cierre-marcar="'+it.marcar+':'+it.id+'">'+(it.estado==='ok'?'Quitar marca':(it.marcar==='ent'?'Marcar recibido':'Marcar presentado'))+'</button>';
+            if(it.irTab) btns+=' <button type="button" class="btn btn-sm btn-outline-dark" data-cierre-ir="'+it.irTab+'">'+(it.irTxt||'Abrir')+' →</button>';
+            return '<div class="d-flex flex-wrap align-items-center gap-2 border rounded p-2 mb-2"><span>'+icono+'</span><span class="flex-grow-1"><b>'+esc(it.titulo)+'</b><br><span class="small text-secondary">'+esc(it.detalle||'')+'</span></span>'+chip+btns+'</div>';
+        }
+        function cierreMarcar(clave,bloque,id){ const f=getFiscal(); if(!f.cierres||typeof f.cierres!=='object') f.cierres={}; const c=f.cierres[clave]||(f.cierres[clave]={ent:{},inf:{}}); if(!c.ent)c.ent={}; if(!c.inf)c.inf={}; if(c[bloque][id]) delete c[bloque][id]; else c[bloque][id]=hoy(); saveFiscal(f); renderCierrePeriodo(); }
+        function renderCierrePeriodo(){
+            const box=document.getElementById('cierrepBox'); if(!box) return;
+            if(!getCurrentUser()) return;
+            const actor=cierreActorSeguro(); if(!actor){ box.innerHTML=''; return; }
+            const tipoSel=document.getElementById('cierreTipoSel'), perSel=document.getElementById('cierrePeriodoSel');
+            if(tipoSel&&!tipoSel.dataset.wired){ tipoSel.dataset.wired='1'; tipoSel.addEventListener('change',()=>{ CIERREP_SEL.tipo=tipoSel.value; CIERREP_SEL.valor=null; renderCierrePeriodo(); }); }
+            if(perSel&&!perSel.dataset.wired){ perSel.dataset.wired='1'; perSel.addEventListener('change',()=>{ CIERREP_SEL.valor=perSel.value; renderCierrePeriodo(); }); }
+            if(tipoSel) tipoSel.value=CIERREP_SEL.tipo;
+            const ops=cierreOpcionesPeriodo(CIERREP_SEL.tipo);
+            if(!ops.length){ box.innerHTML='<div class="alert alert-secondary small">Sin períodos disponibles.</div>'; return; }
+            if(!CIERREP_SEL.valor||!ops.some(o=>o.valor===CIERREP_SEL.valor)) CIERREP_SEL.valor=ops[0].valor;
+            if(perSel){ perSel.innerHTML=ops.map(o=>'<option value="'+esc(o.valor)+'"'+(o.valor===CIERREP_SEL.valor?' selected':'')+'>'+esc(o.etiqueta)+'</option>').join(''); }
+            const clave=cierreClave(CIERREP_SEL.tipo, CIERREP_SEL.valor);
+            const datos=cierreItems(CIERREP_SEL.tipo, CIERREP_SEL.valor, actor);
+            const todos=[...datos.auto, ...datos.entregar, ...datos.informes].filter(i=>i.estado!=='na');
+            const listos=todos.filter(i=>i.estado==='ok').length;
+            const actorTxt = actor.tipo==='tcp' ? ('TCP'+(actor.pleno?' · contabilidad completa (supera 500 000 CUP)':' · Registro de Control')) : (actor.tipo==='mipyme'?'MIPYME':'PDL · Proyecto de Desarrollo Local');
+            let h='<div class="d-flex flex-wrap align-items-center gap-2 mb-3"><span class="badge bg-primary">'+esc(actorTxt)+'</span><span class="badge '+(listos>=todos.length?'bg-success':'bg-warning text-dark')+'">'+listos+' de '+todos.length+' listos</span></div>';
+            const bloque=(titulo, arr)=>{ if(!arr.length) return ''; return '<h6 class="mt-3 mb-2">'+titulo+'</h6>'+arr.map(it=>cierreItemHTML(it)).join(''); };
+            h+=bloque('✅ Lo que la app ya tiene', datos.auto);
+            h+=bloque('📥 Lo que debes entregar', datos.entregar);
+            h+=bloque('🏛️ Informes y pagos de este período', datos.informes);
+            if(CIERREP_SEL.tipo!=='mes') h+='<p class="small text-secondary mt-2">Los documentos se piden mes a mes: abre el período «Mes» para ver el detalle de cada uno.</p>';
+            box.innerHTML=h;
+            box.querySelectorAll('[data-cierre-marcar]').forEach(b=>b.addEventListener('click',()=>{ const partes=String(b.dataset.cierreMarcar).split(':'); cierreMarcar(clave, partes[0], partes.slice(1).join(':')); }));
+            box.querySelectorAll('[data-cierre-ir]').forEach(b=>b.addEventListener('click',()=>irAPestana(b.dataset.cierreIr)));
+        }
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-cierrep') renderCierrePeriodo(); });
+        function cierrePendientesHoy(){
+            const filas=[]; const actor=cierreActorSeguro(); if(!actor) return filas;
+            const prev=obtenerMesAnterior(getMesActualStr()); if(!prev) return filas;
+            const pp=periodoParts(prev); if(!pp) return filas;
+            const movs=cierreMovsDeMes(pp.y,pp.mi);
+            if(!movs.some(m=>m.origen==='pdf_banco')) filas.push({t:'danger', icono:'🧾', txt:'El mes de <b>'+esc(prev)+'</b> ya cerró y <b>falta su estado de cuenta</b>: sin él no se puede hacer el cierre del mes.', tab:'tab-cierrep', btn:'Ver el cierre'});
+            try{ const r=getRRHH(); const trab=(r.trabajadores||[]).length; const n=r.nominas&&r.nominas[prev]; const pre=r.prenominas&&r.prenominas[prev];
+                if(trab>0&&!(n&&Object.keys(n).length)&&!pre) filas.push({t:'warning', icono:'👥', txt:'La <b>nómina de '+esc(prev)+'</b> no está generada: pide los datos de asistencia y genérala para cerrar el mes.', tab:'tab-cierrep', btn:'Ver el cierre'}); }catch(e){}
+            try{ const now=new Date(), mes=now.getMonth()+1, anio=now.getFullYear(); const est=cierreEstado();
+                if(mes===1||mes===4||mes===7||mes===10){ const qP = mes===1 ? {y:anio-1,q:4} : {y:anio, q:(mes-1)/3};
+                    if(actor.tipo==='mipyme'){ let pag=0; try{ pag=triPagadoUtilidadesQuarter(qP.y,qP.q-1)||0; }catch(e){} if(!(pag>0)) filas.push({t:'warning', icono:'🏛️', txt:'Falta el <b>anticipo de utilidades del '+qP.q+'.º trimestre de '+qP.y+'</b>.', tab:'tab-cierrep', btn:'Ver el cierre'}); }
+                    else if(actor.tipo==='tcp'){ const k='T:'+qP.y+'-T'+qP.q; if(!(est[k]&&est[k].inf&&est[k].inf['iuft'])) filas.push({t:'warning', icono:'🏛️', txt:'Toca el <b>IUFT del '+qP.q+'.º trimestre de '+qP.y+'</b> (primeros 20 días de este mes).', tab:'tab-cierrep', btn:'Ver el cierre'}); } }
+                if((mes===1||mes===7)&&actor.tipo==='pdl'){ const hP = mes===1 ? {y:anio-1,h:2} : {y:anio,h:1}; const k='S:'+hP.y+'-S'+hP.h; if(!(est[k]&&est[k].inf&&est[k].inf['evalcam'])) filas.push({t:'warning', icono:'🏛️', txt:'Toca la <b>evaluación semestral del CAM</b> del '+hP.h+'.º semestre de '+hP.y+'.', tab:'tab-cierrep', btn:'Ver el cierre'}); }
+                if(mes>=1&&mes<=4){ const k='A:'+(anio-1); const idInf = actor.tipo==='tcp'?'dj08':(actor.tipo==='mipyme'?'djutil':'util'); if(!(est[k]&&est[k].inf&&est[k].inf[idInf])) filas.push({t:'warning', icono:'📊', txt:'La <b>declaración anual de '+(anio-1)+'</b> sigue sin marcarse como presentada en el Cierre.', tab:'tab-cierrep', btn:'Ver el cierre'}); }
+            }catch(e){}
+            return filas.slice(0,3);
+        }
         function editarImporteFiscal(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o)return;const actual=o.importeManual===null||o.importeManual===undefined?'':o.importeManual;const v=prompt('Importe CUP para esta obligación. Deja vacío para volver al cálculo automático:',actual);if(v===null)return;if(String(v).trim()==='')o.importeManual=null;else{const n=Number(v);if(!(n>=0)){alert('Importe inválido.');return;}o.importeManual=n;}saveFiscal(d);renderFiscal();}
         function borrarFiscalManual(id){const d=getFiscal(),o=d.obligaciones.find(x=>x.id===id);if(!o||o.vector)return;if(!confirm('¿Eliminar esta obligación manual?'))return;d.obligaciones=d.obligaciones.filter(x=>x.id!==id);saveFiscal(d);renderFiscal();}
         function fisFmtFechaDMY(iso){const a=String(iso||'').split('-');return a.length===3?(a[2]+'/'+a[1]+'/'+a[0]):String(iso||'');}
@@ -10116,6 +10279,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             try{ const md=getMesActual(); const real=getMesActualStr(); if(md && md.mesSeleccionado && md.mesSeleccionado!==real && !md.cerrado) filas.push({t:'warning', icono:'🔒', txt:`Sigues trabajando en <b>${esc(md.mesSeleccionado)}</b> y ya estamos en <b>${esc(real)}</b>: prepara el cierre de ese mes.`, tab:'tab-conta', btn:'Preparar cierre'}); }catch(e){}
             try{ const ex=mjExpedienteLaboral(getRRHH()); if(ex.incompletos) filas.push({t:'warning', icono:'🗂️', txt:`<b>${ex.incompletos} expediente(s) laboral(es) incompleto(s)</b> según la Ley 189/2026.`, tab:'tab-gestion', btn:'Completarlos'}); }catch(e){}
             try{ if(typeof isAdmin==='function'&&isAdmin()&&typeof subsDeNeg==='function'&&typeof subsMesActual==='function'){ const pend=Object.keys(CFG.negocios||{}).filter(n=>{ const s=subsDeNeg(n); return s&&s.activo!==false&&!(s.pagos&&s.pagos[subsMesActual()]); }); if(pend.length) filas.push({t:'warning', icono:'💳', txt:`<b>${pend.length} negocio(s) sin la suscripción del mes pagada</b>: ${esc(pend.join(', '))}. Quedarán bloqueados al entrar.`, tab:'tab-admin', btn:'Marcar pagos'}); } }catch(e){}
+            try{ (cierrePendientesHoy()||[]).forEach(f=>filas.push(f)); }catch(e){}
             const simple=modoSimpleActivo();
             const cuerpo = filas.length
                 ? filas.map(f=>`<div class="alert alert-${f.t} py-2 px-2 mb-2 d-flex flex-wrap align-items-center gap-2"><span class="flex-grow-1 small">${f.icono} ${f.txt}</span><button type="button" class="btn btn-sm btn-dark" onclick="irAPestana('${f.tab}')">${f.btn} →</button></div>`).join('')
@@ -10145,6 +10309,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             _safe(renderTrimestres,'trimestres');
             _safe(renderCierreAnual,'cierre-anual');
             _safe(renderFiscal,'fiscal');
+            _safe(renderCierrePeriodo,'cierre-periodo');
             _safe(renderDJ,'dj');
             _safe(renderJustificacionActual,'justificacion');
             _safe(renderGestor,'gestor');
@@ -13472,7 +13637,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                        las operativas del negocio, se ocultan DJ, Contabilidad,
                        Gestión+, Ayuda e Instrucciones (decisión de Leonardo,
                        2026-10-25): esos apartados viven dentro de cada negocio. */
-                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-ayuda','tab-instrucciones'].forEach(id=>{
+                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-cierrep','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-ayuda','tab-instrucciones'].forEach(id=>{
                         const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
                     });
                     document.getElementById('negocioNombreBadge').style.display='none';
@@ -15894,7 +16059,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.26-24';
+        var MANUAL_VERSION = 'v2026.10.27-25';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16149,6 +16314,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'obligaciones', modulo:'fiscal', titulo:'Obligaciones, calendario y responsables', html:
             '<p>El menú Fiscal junta las obligaciones del Vector y las manuales con sus vencimientos. Cada obligación puede llevar <b>responsable</b>, <b>fuente de verificación</b> y <b>fecha de verificación</b> (con el botón «Anotar»), y así queda en la tabla fiscal y en el calendario del Gestor: quién responde de qué y contra qué fuente se comprobó.</p>' +
             '<p>También puedes crear <b>obligaciones manuales</b> para lo que no venga en el Vector.</p>'},
+        {id:'cierre-periodo', modulo:'fiscal', titulo:'Cierre del período: documentos e informes según tu actor', html:
+            '<p>El menú <b>🧾 Cierre</b> es la lista de cierre de tu negocio, armada según tu <b>actor económico</b> (TCP, MIPYME o PDL) y el <b>período</b> que elijas arriba: mes, trimestre, semestre o año. Tiene tres bloques:</p>' +
+            '<ul><li><b>✅ Lo que la app ya tiene:</b> se detecta de tus datos reales — el estado de cuenta importado, los ingresos del mes, la nómina generada, la contabilidad y los impuestos pagados según tu Vector Fiscal. Nada se marca listo si el dato no está.</li>' +
+            '<li><b>📥 Lo que debes entregar:</b> lo que la app no puede inventar — los estados de cuenta de todas tus cuentas, los justificantes de gastos en efectivo, los datos de asistencia para la nómina, las facturas emitidas fuera de la app y las novedades del mes. Márcalos «recibido» cuando los tengas; lo que falta queda en rojo.</li>' +
+            '<li><b>🏛️ Informes y pagos del período:</b> en el mes manda tu <b>Vector Fiscal</b> (cada obligación con su vencimiento y su estado de pago). En los demás períodos salen solo los informes que le tocan a tu actor.</li></ul>' +
+            '<p><b>Quién presenta qué, y cuándo:</b></p>' +
+            '<ul><li><b>TCP:</b> mensual lo del Vector; por <b>trimestre</b>, el IUFT y la Contribución Especial de la Seguridad Social de sus contratados; al <b>año</b>, su DJ-08 (antes del 30 de abril).</li>' +
+            '<li><b>MIPYME:</b> mensual lo del Vector; por <b>trimestre</b>, el anticipo del Impuesto sobre Utilidades (la app lo detecta pagado desde tus movimientos); al <b>año</b>, la DJ de Utilidades digital, los estados financieros y la DJ-01 de los socios.</li>' +
+            '<li><b>PDL:</b> mensual lo suyo; por trimestre <b>no presenta nada</b>; por <b>semestre</b>, la evaluación ante el CAM; al <b>año</b>, su liquidación de utilidades y sus estados financieros.</li></ul>' +
+            '<p>Además, el panel <b>«🧭 Qué toca hoy»</b> del Resumen te avisa solo cuando un cierre queda incompleto: el estado de cuenta del mes anterior sin importar, la nómina sin generar o un informe del período vencido sin presentar.</p>'},
         {id:'trimestres', modulo:'fiscal', titulo:'Trimestres y utilidades', html:
             '<p>El menú <b>Trimestres</b> resume las utilidades por trimestre y socio y prepara el pago de utilidades de la MIPYME (código 040072). Recuerda la regla: decretar utilidades crea la obligación en la <b>417 por socio</b> (ver «Dividendos a socios») y su pago baja esa cuenta, no la de resultados.</p>'},
         {id:'parametros-dj', modulo:'dj', titulo:'Parámetros del año y su fuente de verificación', html:
@@ -16219,7 +16394,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>El <b>control de tu cobro</b> registra cuánto te debe pagar cada cliente por la gestión y qué está cobrado o pendiente: tu negocio de gestor también se controla.</li></ul>' +
             '<p><b>Automático:</b> al registrar un pago, el monto viene <b>precargado con la tarifa</b> del cliente y, si el negocio tiene suscripción en la app, el mes en curso <b>se marca pagado solo</b> (ya no hay que marcarlo aparte en Suscripciones). El botón <b>«Descargar informes del mes (todos)»</b> genera los informes de WhatsApp de todos los clientes en un solo archivo de texto.</p>' +
             '<p><b>Avisos al entrar:</b> el Panel muestra una franja de avisos con lo urgente del día: movimientos sin clasificar en la bandeja, obligaciones ONAT que vencen en 7 días, expedientes laborales incompletos y negocios sin la suscripción del mes. También: la tasa consultada al BCC se guarda como <b>tasa del mes</b> con un botón, el IPV precarga el efectivo esperado con los ingresos en Caja del día, el traspaso de indirectos precarga el saldo de la cuenta de origen, y al crear un movimiento manual la clasificación se sugiere desde tu historial si el mismo concepto ya se registró antes (siempre editable).</p>' +
-            '<p><b>«Qué toca hoy» y modo simple:</b> el Panel abre con una tarjeta-guía que lista tus pendientes reales — movimientos sin clasificar, impuestos que vencen, la pre-nómina por aprobar, el mes de trabajo atrasado, expedientes incompletos y suscripciones por cobrar — cada uno con su botón para ir directo a resolverlo; si no hay nada, te lo dice («Todo al día») y te ofrece los accesos rápidos. El <b>modo simple</b> (activado por defecto, interruptor en la propia tarjeta) muestra solo las pestañas esenciales del día a día y esconde las avanzadas (Contabilidad, Gestión+, AFT, Tasas, Utilidades e Ideas); desactívalo para ver todo, y tu elección se recuerda en este equipo. Si un pendiente te lleva a una pestaña avanzada, el modo completo se activa solo para que puedas resolverlo.</p>' +
+            '<p><b>«Qué toca hoy» y modo simple:</b> el Panel abre con una tarjeta-guía que lista tus pendientes reales — movimientos sin clasificar, impuestos que vencen, la pre-nómina por aprobar, el mes de trabajo atrasado, los documentos del cierre del mes anterior que falten (estado de cuenta, nómina, informes del período), expedientes incompletos y suscripciones por cobrar — cada uno con su botón para ir directo a resolverlo; si no hay nada, te lo dice («Todo al día») y te ofrece los accesos rápidos. El <b>modo simple</b> (activado por defecto, interruptor en la propia tarjeta) muestra solo las pestañas esenciales del día a día y esconde las avanzadas (Contabilidad, Gestión+, AFT, Tasas, Utilidades e Ideas); desactívalo para ver todo, y tu elección se recuerda en este equipo. Si un pendiente te lleva a una pestaña avanzada, el modo completo se activa solo para que puedas resolverlo.</p>' +
             '<p><b>Formularios en vez de ventanitas:</b> en Gestión+, registrar un <b>contrato</b> (la contraparte se elige de tus contrapartes de Contabilidad o se escribe una nueva), crear una <b>orden de producción</b> (el insumo se elige del inventario, sin listas numeradas), registrar <b>consignación</b> (el dueño se autocompleta con los ya registrados) y crear un <b>talonario</b> (el número inicial viene sugerido con el siguiente libre) se hace ahora en formularios visibles dentro de cada tarjeta, sin preguntas en cadena. Gestión+ abre además con un <b>índice por temas</b> («En esta pestaña») que te lleva directo a cada bloque sin recorrerla entera.</p>'},
         {id:'gestor-respaldo', modulo:'gestor', titulo:'Respaldo por negocio (ZIP) y paquete Res. 86/2026', html:
             '<p>Desde el Gestor exportas el <b>respaldo ZIP de un negocio</b> concreto (su expediente completo) para guardarlo o entregarlo. El paquete de la <b>Resolución 86/2026</b> reúne la documentación del gestor que esa norma exige, separada por cliente y confidencial: solo la ves tú.</p>'},
