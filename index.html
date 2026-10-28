@@ -1969,7 +1969,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                     <select class="form-select form-select-sm" id="newNegocioSel"></select>
                                 </div>
                             </div>
-                            <div class="form-text d-none mt-1" id="nuevoTenedorAyuda">📚 El <b>tenedor de libros</b> es una cuenta de gestión: <b>no lleva negocio propio</b>, por eso el selector de negocio se desactiva. Después le asignas sus negocios editando cada negocio (campo «Tenedor de libros asignado»).</div>
+                            <div class="form-text d-none mt-1" id="nuevoTenedorAyuda">📚 El <b>tenedor de libros</b> es una cuenta de gestión: por eso el selector de negocio se desactiva. Al crearlo, la app crea también <b>su negocio TCP propio</b> (con su usuario de trabajo «usuario_tcp» y la misma contraseña inicial) para que lleve su Registro, su Vector Fiscal y su DJ-08 como cualquier TCP: ese negocio paga su licencia TCP normal, pero <b>no suma a su base del 10 %</b>. Los demás negocios se le asignan editando cada negocio (campo «Tenedor de libros asignado»).</div>
                             <div class="row g-2 mt-2">
                                 <div class="col-4"><input type="text" class="form-control form-control-sm" id="newUser" placeholder="Usuario"></div>
                                 <div class="col-4"><input type="password" autocomplete="new-password" class="form-control form-control-sm" id="newPass" placeholder="Contraseña"></div>
@@ -6094,6 +6094,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!box.dataset.tenInit) {
                 box.dataset.tenInit = '1';
                 box.addEventListener('click', async e => {
+                    const bp = e.target.closest('[data-ten-propio]');
+                    if (bp) {
+                        const u = bp.getAttribute('data-ten-propio');
+                        const abc = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+                        let tp2 = ''; for (let i = 0; i < 10; i++) tp2 += abc.charAt(Math.floor(Math.random() * abc.length));
+                        const okP = await crearTcpPropioDelTenedor(u, tp2);
+                        if (okP) { renderAdminPanel(); alert('✅ TCP propio creado para «' + u + '».\nSu usuario de trabajo es «' + u + '_tcp» con contraseña temporal: ' + tp2 + '\nDebe cambiarla al entrar.'); }
+                        return;
+                    }
                     const bm = e.target.closest('[data-ten-mes]');
                     if (bm) {
                         const u = bm.getAttribute('data-ten-mes'), clave = bm.getAttribute('data-ten-clave');
@@ -6129,10 +6138,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     /* La base del 10 % solo suma negocios ACTIVOS y sin
                        cortesía (misma regla que el Panel de control):
                        un negocio apagado no se atiende y la cortesía es
-                       un regalo de la administradora, no una deuda. */
+                       un regalo de la administradora, no una deuda.
+                       Tampoco suma su negocio TCP propio (tarea 25):
+                       es suyo, no un cliente. */
                     const sn = subsDeNeg(n);
-                    if (tl && sn.activo && !sn.cortesia) { suma += tl.tarifa; cuenta++; }
-                    return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')}${!sn.activo ? ' · desactivado' : sn.cortesia ? ' · cortesía' : ''})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
+                    const esPropio = meta[n].propio === u;
+                    if (tl && sn.activo && !sn.cortesia && !esPropio) { suma += tl.tarifa; cuenta++; }
+                    return `<div class="small d-flex justify-content-between"><span>${esc(n)}${esPropio ? ' <span class="badge bg-info text-dark">su TCP propio</span>' : ''} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')}${!sn.activo ? ' · desactivado' : sn.cortesia ? ' · cortesía' : ''}${esPropio ? ' · no suma a su 10 %' : ''})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
                 }).join('');
                 const cuota = licCuotaTenedor(suma, cuenta, P);
                 const pagado = !!t.pagos[mes];
@@ -6145,6 +6157,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-ten-activo="${esc(u)}" ${t.activo ? 'checked' : ''}> <span class="form-check-label small">Activo</span></label>
                         </span>
                     </div>
+                    ${cartera.some(n => meta[n].propio === u) ? '' : `<div class="small mt-1"><button type="button" class="btn btn-sm btn-outline-primary" data-ten-propio="${esc(u)}">➕ Crear su TCP propio</button> <span class="text-muted">Este tenedor aún no tiene su negocio TCP propio.</span></div>`}
                     ${filas || '<div class="small text-muted">Sin negocios asignados todavía.</div>'}
                 </div>`;
             }).join('');
@@ -6159,8 +6172,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const filas = cartera.map(n => {
                 const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
                 const sn = subsDeNeg(n);
-                if (tl && sn.activo && !sn.cortesia) { suma += tl.tarifa; cuenta++; }
-                return `<div class="small d-flex justify-content-between"><span>${esc(n)} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')}${!sn.activo ? ' · desactivado' : sn.cortesia ? ' · cortesía' : ''})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
+                const esPropio = meta[n].propio === yo;
+                if (tl && sn.activo && !sn.cortesia && !esPropio) { suma += tl.tarifa; cuenta++; }
+                return `<div class="small d-flex justify-content-between"><span>${esc(n)}${esPropio ? ' <span class="badge bg-info text-dark">tu TCP propio</span>' : ''} <span class="text-muted">(${esc(tl ? tl.detalle : 'sin datos cargados')}${!sn.activo ? ' · desactivado' : sn.cortesia ? ' · cortesía' : ''}${esPropio ? ' · paga su licencia, no suma a tu 10 %' : ''})</span></span><b>${tl ? moneda(tl.tarifa) : '—'}</b></div>`;
             }).join('');
             const cuota = licCuotaTenedor(suma, cuenta, P);
             box.innerHTML = `
@@ -6194,7 +6208,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const meta = getNegociosMeta(), mes = subsMesActual(), P = licPrecios();
             const negocios = Object.keys(meta).sort((a, b) => a.localeCompare(b, 'es')).map(n => {
                 const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
-                return { nombre: n, tipo: meta[n].tipo || 'tcp', tenedor: meta[n].tenedor || '', tarifa: tl ? tl.tarifa : 0, detalle: tl ? tl.detalle : '', s: subsDeNeg(n) };
+                return { nombre: n, tipo: meta[n].tipo || 'tcp', tenedor: meta[n].tenedor || '', propio: meta[n].propio || '', tarifa: tl ? tl.tarifa : 0, detalle: tl ? tl.detalle : '', s: subsDeNeg(n) };
             });
             const usuarios = getUsuarios(), set = new Set();
             Object.keys(usuarios).forEach(u => { if (usuarios[u].role === 'tenedor') set.add(u); });
@@ -6202,7 +6216,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             Object.keys((typeof CFG !== 'undefined' && CFG && CFG.tenedores) || {}).forEach(u => set.add(u));
             const tenedores = [...set].sort().map(u => {
                 const cartera = negocios.filter(x => x.tenedor === u);
-                const computables = cartera.filter(x => x.s.activo && !x.s.cortesia);
+                /* Computable para su licencia: activos y sin cortesía,
+                   SIN su negocio TCP propio (tarea 25: es suyo). */
+                const computables = cartera.filter(x => x.s.activo && !x.s.cortesia && x.propio !== u);
                 const base = computables.reduce((a, x) => a + x.tarifa, 0);
                 const cuota = licCuotaTenedor(base, computables.length, P);
                 return { usuario: u, cartera, base, fijo: cuota.fijo, diezmo: cuota.diezmo, aporte: cuota.total, reg: tenRegistro(u) };
@@ -6269,7 +6285,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!m.tenedores.length) return '<p class="text-muted mb-0">Aún no hay tenedores: crea uno en Configuración → Gestión de Usuarios con el rol «Tenedor de libros» y asígnale negocios desde el editor de cada negocio.</p>';
             return m.tenedores.map(t => {
                 const pagado = !!t.reg.pagos[m.mes];
-                const filas = t.cartera.map(x => `<div class="small d-flex justify-content-between"><span>🏢 ${esc(x.nombre)} <span class="text-muted">(${esc(x.detalle || x.tipo)}${!x.s.activo ? ' · desactivado' : x.s.cortesia ? ' · cortesía' : ''})</span></span><b>${moneda(x.tarifa)}</b></div>`).join('');
+                const filas = t.cartera.map(x => `<div class="small d-flex justify-content-between"><span>🏢 ${esc(x.nombre)}${x.propio === t.usuario ? ' <span class="badge bg-info text-dark">su TCP propio</span>' : ''} <span class="text-muted">(${esc(x.detalle || x.tipo)}${!x.s.activo ? ' · desactivado' : x.s.cortesia ? ' · cortesía' : ''}${x.propio === t.usuario ? ' · no suma a su base' : ''})</span></span><b>${moneda(x.tarifa)}</b></div>`).join('');
                 return `<div class="border rounded p-2 mb-2">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span class="fw-semibold">📚 ${esc(t.usuario)} ${t.reg.activo ? '' : '<span class="badge bg-dark">Desactivado</span>'}</span>
@@ -11871,6 +11887,28 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         }
 
         // ===== CREAR USUARIO NUEVO =====
+        /* ===== EL TCP PROPIO DEL TENEDOR (tarea 25) =====
+           Todo tenedor es también TCP: al crearlo, la app crea su
+           negocio propio (TCP, dentro de su cartera y marcado
+           `propio` en la meta) y su usuario de trabajo
+           «<usuario>_tcp» para llevarlo como cualquier TCP (Registro,
+           Vector Fiscal y DJ-08). Ese negocio paga su licencia TCP
+           normal, pero NO suma a la base del 10 % del tenedor ni a
+           su tramo de negocios de la base fija. */
+        function nombreTcpPropio(username){ return 'TCP propio de ' + username; }
+        async function crearTcpPropioDelTenedor(username, password){
+            const nombre = nombreTcpPropio(username);
+            const r = await api('negocio_save', { nombre, tipo: 'tcp', tenedor: username, propio: username });
+            if (!r.ok) { alert('⚠️ El tenedor «' + username + '» existe, pero su negocio TCP propio no se pudo crear: ' + (r.error || 'error') + '\nPuedes crearlo luego desde la tarjeta del tenedor en Licencias.'); return false; }
+            if (r.negocios) CFG.negocios = r.negocios;
+            const usuarioTcp = username + '_tcp';
+            const users = getUsuarios();
+            if (!users[usuarioTcp]) {
+                users[usuarioTcp] = { password, role: 'editor', entityType: 'tcp', socios: 0, negocio: nombre, negocioId: nombre };
+                await saveUsuarios(users);
+            }
+            return true;
+        }
         function crearUsuario() {
             if (!esGestor()) {
                 alert('Solo el administrador puede crear usuarios.');
@@ -11904,15 +11942,26 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 negocio: negocio,
                 negocioId: negocio
             };
-            saveUsuarios(users);
-            
+            const guardado = saveUsuarios(users);
+
             // Limpiar campos
             document.getElementById('newUser').value = '';
             document.getElementById('newPass').value = '';
             document.getElementById('newSocios').value = 1;
-            
+
             renderAdminPanel();
-            alert(`✅ Usuario "${username}" creado correctamente como ${role}.`);
+            if (esTenedorNuevo && isAdmin()) {
+                /* Tarea 25: el tenedor nace con su TCP propio. Se crea
+                   en cadena, cuando el usuario ya existe en el servidor
+                   (negocio_save valida que el dueño sea tenedor). */
+                guardado.then(async () => {
+                    await crearTcpPropioDelTenedor(username, password);
+                    renderAdminPanel();
+                    alert(`✅ Usuario "${username}" creado correctamente como tenedor de libros.\n\n📚 También se creó su negocio TCP propio «${nombreTcpPropio(username)}» con su usuario de trabajo "${username}_tcp" (la misma contraseña inicial): ahí lleva su Registro, su Vector Fiscal y su DJ-08 como cualquier TCP. Ese negocio paga su licencia TCP normal, pero NO suma a su base del 10 %.`);
+                });
+            } else {
+                alert(`✅ Usuario "${username}" creado correctamente como ${role}.`);
+            }
         }
 
         // ===== CREAR USUARIO ASOCIADO =====
@@ -16059,7 +16108,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.27-25';
+        var MANUAL_VERSION = 'v2026.10.28-26';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16101,7 +16150,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
             '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
             '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
-            '<li><b>Tenedor de libros:</b> la administradora puede crear usuarios con el rol <b>tenedor</b>: es una cuenta de gestión (sin negocio propio) que ve el <b>Gestor</b> y la <b>Configuración</b> SOLO de su cartera — los negocios que la administradora le asigna en el editor de cada negocio —. El tenedor crea negocios y usuarios dentro de su cartera, y a cada negocio entra con un usuario editor suyo, como hace la administradora. El servidor le esconde todo lo demás: ni ve ni puede tocar negocios ajenos. Y <b>no puede desactivar ni borrar negocios, ni marcar pagos de licencias</b>: activar, desactivar y cobrar las licencias (de los negocios y la suya) es solo de la administradora.</li>' +
+            '<li><b>Tenedor de libros:</b> la administradora puede crear usuarios con el rol <b>tenedor</b>: es una cuenta de gestión que ve el <b>Gestor</b> y la <b>Configuración</b> SOLO de su cartera. Como el tenedor también es TCP, al crearlo la app le crea automáticamente <b>su negocio TCP propio</b> dentro de su cartera, con su usuario de trabajo «usuario_tcp», para que lleve su propio Registro, Vector Fiscal y DJ-08; ese negocio paga su licencia TCP normal, pero <b>no suma a su base del 10 %</b> ni a su tramo de negocios — los negocios que la administradora le asigna en el editor de cada negocio —. El tenedor crea negocios y usuarios dentro de su cartera, y a cada negocio entra con un usuario editor suyo, como hace la administradora. El servidor le esconde todo lo demás: ni ve ni puede tocar negocios ajenos. Y <b>no puede desactivar ni borrar negocios, ni marcar pagos de licencias</b>: activar, desactivar y cobrar las licencias (de los negocios y la suya) es solo de la administradora.</li>' +
             '<li><b>Crear el tenedor:</b> en el formulario «Nuevo Usuario» elige el rol <b>📚 Tenedor de libros</b> — está en la lista de <b>Rol</b>, junto a Consultor y Editor, no en la de Tipo —. Al elegirlo, el selector de negocio se desactiva solo: no hay que elegir ninguno. Los negocios que se crearon sin tipo guardado cuentan como <b>TCP</b> en los selectores de negocio.</li>' +
             '<li><b>Inhabilitar un usuario:</b> en la lista de usuarios, el botón de la persona tachada lo <b>inhabilita</b>: no podrá entrar (ni siquiera con una sesión abierta) y su rastro queda guardado. El mismo botón lo rehabilita. Es la forma de «quitar» a alguien sin borrar la historia.</li>' +
             '<li><b>Borrar un usuario está protegido:</b> solo se puede borrar a quien <b>no tenga actividad registrada</b> en los datos. Si ya escribió movimientos o configuró algo, el servidor se niega a borrarlo — su nombre es la prueba de quién hizo qué — y te manda a inhabilitarlo.</li>' +
@@ -16464,6 +16513,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li><b>TCP:</b> tarifa básica; si el negocio supera los <b>500 000 CUP de ingresos en el año</b>, paga la tarifa plena (la misma marca que le abre la Contabilidad completa).</li>' +
             '<li><b>MIPYME y PDL:</b> tres tramos por plantilla de trabajadores (hasta 10, de 11 a 35, de 36 a 100) y un <b>recargo por cada socio después del primero</b>; la app cuenta la plantilla de la nómina y los socios de la ficha y de los usuarios.</li>' +
             '<li><b>Tenedor de libros:</b> paga una <b>base fija mensual por el uso de la aplicación</b> — <b>2 000 CUP si su cartera tiene menos de 5 negocios y 1 000 CUP si tiene 5 o más</b> (ambas editables en la misma tabla) — más el <b>porcentaje fijado (10 %) de la tarifa de cada cliente de su cartera</b>, que se paga siempre. No declara nada: la app calcula la tarifa de cada negocio con sus datos, así nadie puede pagar de menos. Su panel en la misma tarjeta muestra su cartera, la suma de tarifas, su importe del mes, el botón para marcar su mes pagado y el interruptor para desactivarlo (desactivarlo bloquea su cartera entera).</li>' +
+            '<li><b>Su TCP propio no suma:</b> el tenedor también es TCP, y al crearlo la app le abre su negocio propio («TCP propio de…») dentro de su cartera, con su usuario de trabajo. Ese negocio paga su licencia TCP como cualquier cliente, pero <b>no entra en la base del 10 % del tenedor ni cuenta para su tramo</b> (el de los 5 negocios): es suyo, no un cliente. En las listas lleva la marca «su TCP propio». Si un tenedor antiguo no lo tiene, la administradora lo crea con el botón «Crear su TCP propio» de su tarjeta.</li>' +
             '<li><b>El tenedor ve su licencia:</b> al entrar con su cuenta, en Configuración tiene la tarjeta <b>Mi licencia de tenedor</b> con su cartera, sus tarifas y si su mes está pagado.</li>' +
             '<li>Los negocios de un tenedor pagan <b>además</b> su licencia completa: la del tenedor no la cubre, ni la de un negocio cubre la del tenedor.</li></ul>'},
         {id:'llaves-acceso', modulo:'respaldo', titulo:'Llaves de acceso de las copias sin conexión', html:
