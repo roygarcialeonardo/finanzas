@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-31",
-  "publicada": "2026-10-28 15:29",
-  "notas": "Ronda -31: la instalación se registra en el servidor (registrar_instalacion); socios deshabilitado para TCP en la instalación inicial; servidor 0.11.0",
+  "version": "v2026.10.28-33",
+  "publicada": "2026-10-28 17:46",
+  "notas": "Panel a la medida de cada copia: en las de negocio no salen el Gestor ni la vista de Tenedores, la vista «Negocio» y las Llaves se rellenan con los datos de la instalación, el Resumen solo muestra los pagos a su tenedor y la tarjeta de precios ya no aparece en su configuración.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "e0ae97681c6f70e0dae9fe848cea10ccce5534f2d7441376e41096af3999b051",
-      "bytes": 1687567
+      "sha256": "c8eaf09f655fad437b508cdb3b86527e4ad28b3634c3e8d4e5e9eee55f43a6c4",
+      "bytes": 1694473
     },
     {
       "ruta": "pdf-import.js",

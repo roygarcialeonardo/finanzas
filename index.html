@@ -2070,8 +2070,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     </div>
                 </div>
 
-                <!-- Licencias: precios y tenedores (solo administradora) -->
-                <div class="col-12" id="cardLicencias">
+                <!-- Licencias: precios y tenedores (solo administradora en línea
+                     y copias sin conexión de un tenedor de libros; en la copia
+                     de un negocio NO aparece — pedido de Leonardo, 2026-10-28) -->
+                <div class="col-12 d-none" id="cardLicencias">
                     <div class="card p-3 p-md-4">
                         <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="etiqueta"></span>Licencias: precios y tenedores</h6>
                         <p class="small text-muted">La licencia de cada negocio se calcula sola con su tipo, su plantilla de trabajadores y sus socios (el TCP que supera los 500 000 CUP de ingresos del año pasa a la tarifa plena). El tenedor de libros paga una <b>base fija mensual por el uso de la aplicación</b> (2 000 si su cartera tiene menos de 5 negocios; 1 000 si tiene 5 o más) más el <b>10 % de la tarifa fijada de cada cliente de su cartera</b>; los negocios de un tenedor pagan además su licencia completa (doble puerta: si el tenedor no paga, sus negocios también se bloquean). Estos precios son los de la lista fijada; cambiarlos aquí no toca el código.</p>
@@ -6103,9 +6105,23 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const t = ((typeof CFG !== 'undefined' && CFG && CFG.tenedores) || {})[u] || {};
             return { activo: t.activo !== false, pagos: (t.pagos && typeof t.pagos === 'object') ? t.pagos : {} };
         }
-        function renderLicenciasPrecios() {
+        async function renderLicenciasPrecios() {
             const card = document.getElementById('cardLicencias');
-            if (!card || !isAdmin()) return;
+            if (!card) return;
+            if (!isAdmin()) { card.classList.add('d-none'); return; }
+            if (window.FINANZAS_LOCAL) {
+                /* Copia sin conexión (pedido de Leonardo, 2026-10-28): la
+                   tarjeta de precios y tenedores NO va en la configuración
+                   de un negocio; solo la ve la instalación de un tenedor de
+                   libros (modo «tenedor»). El modo se lee del servidor local
+                   una sola vez y se cachea en la propia tarjeta. */
+                if (card.dataset.licModo === undefined) {
+                    try { const st = await subsLocalFetch('/llave/estado'); card.dataset.licModo = (st && st.modo) || 'sin-modo'; }
+                    catch (e) { card.dataset.licModo = 'sin-modo'; }
+                }
+                if (card.dataset.licModo !== 'tenedor') { card.classList.add('d-none'); return; }
+            }
+            card.classList.remove('d-none');
             const P = licPrecios();
             const set = (id, v) => { const el = document.getElementById(id); if (el && document.activeElement !== el) el.value = v; };
             set('licTcp', P.tcp); set('licTcpPleno', P.tcpPleno); set('licPct', P.tenedorPct); set('licTenBase', P.tenedorBase); set('licTenBasePeq', P.tenedorBasePequena);
@@ -6367,7 +6383,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         function pintarLlavesVista() {
             const el = document.getElementById('panelVistaLlaves');
-            if (el && PANEL_VISTA === 'llaves') el.innerHTML = panelHtmlLlaves(panelModelo());
+            if (el && PANEL_VISTA === 'llaves') {
+                el.innerHTML = panelHtmlLlaves(panelModelo());
+                if (esPanelLocalNegocio()) {
+                    /* Relleno automático con los datos de la instalación
+                       (ronda -33): su código de pedido y su negocio. */
+                    const p = document.getElementById('llavePedido'); if (p && PANEL_LOCAL.pedido) p.value = PANEL_LOCAL.pedido;
+                    const t = document.getElementById('llaveTitularTipo'); if (t) t.value = 'negocio';
+                    const s = document.getElementById('llaveTitularSel'); if (s && PANEL_LOCAL.negocioRegistrado) s.value = PANEL_LOCAL.negocioRegistrado;
+                }
+            }
         }
         function llaveEstadoChip(rec) {
             if (rec.revocada) return '<span class="badge bg-danger">Revocada</span>';
@@ -6418,9 +6443,59 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="d-none" id="llaveDatosTenedores" data-tens="${esc(tens.join('|'))}"></div>`;
         }
 
-        function renderPanelControl() {
+        // ===== RECORTE DEL PANEL EN COPIAS DE NEGOCIO (ronda -33) =====
+        // Pedido de Leonardo (2026-10-28): en el perfil de administrador
+        // de una copia sin conexión de NEGOCIO, el Panel de control no es
+        // el mando de la administradora: no sale la vista de Tenedores,
+        // la vista «Negocios» pasa a llamarse «Negocio» y muestra solo el
+        // registrado en la instalación, el Resumen solo pone lo que ese
+        // negocio ha pagado a su tenedor de libros (en blanco si no
+        // tiene) y la vista de Llaves se rellena sola con los datos que
+        // se dieron en la instalación (pedido, negocio y mes). Y el menú
+        // Gestor desaparece por completo en ese perfil: el Gestor solo
+        // lo ve un perfil de tenedor (y la administradora en línea).
+        let PANEL_LOCAL = undefined; // undefined = sin leer; null = en línea o sin modo
+        let PANEL_LOCAL_PROM = null;
+        function panelLocalEstado() {
+            if (!window.FINANZAS_LOCAL) return Promise.resolve(null);
+            if (!PANEL_LOCAL_PROM) PANEL_LOCAL_PROM = subsLocalFetch('/llave/estado').then(st => (st && st.ok && st.modo) ? st : null).catch(() => null);
+            return PANEL_LOCAL_PROM;
+        }
+        async function aplicarRecorteLocal() {
+            PANEL_LOCAL = await panelLocalEstado();
+            if (!esPanelLocalNegocio()) return;
+            const g = document.getElementById('gestorTabNav'); if (g) g.style.display = 'none';
+            aplicarRecortePanelLocal();
+        }
+        function esPanelLocalNegocio() { return !!(PANEL_LOCAL && PANEL_LOCAL.modo === 'negocio'); }
+        function aplicarRecortePanelLocal() {
+            if (!esPanelLocalNegocio()) return;
+            const pane = document.getElementById('pane-panel'); if (!pane) return;
+            const bTen = pane.querySelector('[data-panel-vista="tenedores"]'); if (bTen) bTen.style.display = 'none';
+            const bNeg = pane.querySelector('[data-panel-vista="negocios"]'); if (bNeg) bNeg.textContent = '🏢 Negocio';
+            if (PANEL_VISTA === 'tenedores') PANEL_VISTA = 'resumen';
+        }
+        function panelHtmlResumenLocalNegocio(m) {
+            /* Solo lo que este negocio ha pagado a su tenedor de libros;
+               si no tiene tenedor, el Resumen queda en blanco. */
+            const neg = (m.negocios || []).find(x => x.nombre === (PANEL_LOCAL && PANEL_LOCAL.negocioRegistrado)) || (m.negocios || [])[0];
+            if (!neg || !neg.tenedor) return '';
+            const mesesPagados = Object.keys(neg.s.pagos || {}).filter(k => neg.s.pagos[k]).sort();
+            const total = mesesPagados.length * (neg.tarifa || 0);
+            const chips = panelMeses(12).filter(mm => neg.s.pagos[mm.clave]).map(mm => `<span class="badge bg-success me-1 mb-1">✅ ${esc(mm.corto)}</span>`).join('');
+            return `<h6>📚 Pagos a tu tenedor de libros (${esc(neg.tenedor)})</h6>
+                <div class="row g-2 mb-2">
+                    <div class="col-6 col-md-4"><div class="border rounded p-2 text-center h-100"><div class="small text-muted">Total pagado</div><div class="fs-5 fw-bold text-success">${moneda(total)}</div></div></div>
+                    <div class="col-6 col-md-4"><div class="border rounded p-2 text-center h-100"><div class="small text-muted">Meses pagados</div><div class="fs-5 fw-bold">${mesesPagados.length}</div></div></div>
+                </div>
+                <div>${chips || '<span class="text-muted small">Sin meses pagados registrados.</span>'}</div>`;
+        }
+
+        async function renderPanelControl() {
             const pane = document.getElementById('pane-panel');
             if (!pane || !isAdmin()) return;
+            if (window.FINANZAS_LOCAL && PANEL_LOCAL === undefined) PANEL_LOCAL = await panelLocalEstado();
+            aplicarRecortePanelLocal();
             if (!pane.dataset.panelInit) {
                 pane.dataset.panelInit = '1';
                 pane.addEventListener('click', async e => {
@@ -6547,8 +6622,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('panelVistaTenedores').style.display = PANEL_VISTA === 'tenedores' ? '' : 'none';
             document.getElementById('panelVistaLlaves').style.display = PANEL_VISTA === 'llaves' ? '' : 'none';
             if (PANEL_VISTA === 'llaves') pintarLlavesVista();
-            if (PANEL_VISTA === 'resumen') document.getElementById('panelVistaResumen').innerHTML = panelHtmlResumen(m);
-            if (PANEL_VISTA === 'negocios') document.getElementById('panelVistaNegocios').innerHTML = panelHtmlNegocios(m);
+            if (PANEL_VISTA === 'resumen') document.getElementById('panelVistaResumen').innerHTML = esPanelLocalNegocio() ? panelHtmlResumenLocalNegocio(m) : panelHtmlResumen(m);
+            if (PANEL_VISTA === 'negocios') {
+                let mNeg = m;
+                if (esPanelLocalNegocio()) {
+                    const suyos = (m.negocios || []).filter(x => x.nombre === PANEL_LOCAL.negocioRegistrado);
+                    if (suyos.length) mNeg = Object.assign({}, m, { negocios: suyos });
+                }
+                document.getElementById('panelVistaNegocios').innerHTML = panelHtmlNegocios(mNeg);
+            }
             if (PANEL_VISTA === 'tenedores') document.getElementById('panelVistaTenedores').innerHTML = panelHtmlTenedores(m);
         }
         document.addEventListener('shown.bs.tab', e => {
@@ -13910,6 +13992,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 /* El Panel de control de licencias es SOLO de la
                    administradora general (ni el tenedor lo ve). */
                 document.getElementById('panelTabNav').style.display = esAdmin ? '' : 'none';
+                /* Copia sin conexión: si la instalación es de un negocio,
+                   fuera el menú Gestor y Panel recortado (ronda -33); el
+                   modo se lee del servidor local y se aplica al llegar. */
+                if (window.FINANZAS_LOCAL) { try { aplicarRecorteLocal(); } catch (e) {} }
                 if (userData.role === 'tenedor') {
                     /* Vista del tenedor: su cartera en el Gestor y su
                        gestión en Configuración. Las tarjetas de la
@@ -16349,7 +16435,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-31';
+        var MANUAL_VERSION = 'v2026.10.28-33';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16750,7 +16836,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>La tarifa de cada negocio se calcula sola</b> y se muestra en su fila: TCP básico o pleno (si supera los 500 000 CUP de ingresos del año), MIPYME y PDL por tramos de plantilla (hasta 10, de 11 a 35, de 36 a 100 empleados) más el recargo por cada socio después del primero. Los precios viven en la tarjeta <b>Licencias: precios y tenedores</b>.</li>' +
             '<li><b>Doble puerta con tenedor:</b> si un negocio tiene tenedor asignado, además de su propio pago manda el del tenedor: tenedor desactivado o sin pagar su mes = negocio bloqueado, aunque el negocio haya pagado lo suyo (y al revés). La cuenta de gestión del tenedor, como la administradora, nunca se bloquea: es su llave para entrar a resolver.</li></ul>'},
         {id:'licencias-precios', modulo:'respaldo', titulo:'Licencias diferenciadas: precios y tenedores de libros', html:
-            '<p>En <b>Configuración</b> (solo la cuenta administradora) la tarjeta <b>Licencias: precios y tenedores</b> guarda la tabla de precios de las licencias. Cambiar un precio aquí vale desde ese momento y <b>no toca el código</b>: la tarifa de cada negocio se recalcula sola con sus datos.</p>' +
+            '<p>La tarjeta <b>Licencias: precios y tenedores</b> de <b>Configuración</b> guarda la tabla de precios de las licencias. Solo la ve la cuenta administradora en la versión en línea y, en las copias sin conexión, la instalación de un <b>tenedor de libros</b>: en la copia de un negocio esa tarjeta no aparece. Cambiar un precio aquí vale desde ese momento y <b>no toca el código</b>: la tarifa de cada negocio se recalcula sola con sus datos.</p>' +
             '<ul><li><b>TCP:</b> tarifa básica; si el negocio supera los <b>500 000 CUP de ingresos en el año</b>, paga la tarifa plena (la misma marca que le abre la Contabilidad completa).</li>' +
             '<li><b>MIPYME y PDL:</b> tres tramos por plantilla de trabajadores (hasta 10, de 11 a 35, de 36 a 100) y un <b>recargo por cada socio después del primero</b>; la app cuenta la plantilla de la nómina y los socios de la ficha y de los usuarios. Con <b>más de 100 empleados</b> se cobra la tarifa del tramo mayor (mediana) como mínimo.</li>' +
             '<li><b>Tenedor de libros:</b> paga una <b>base fija mensual por el uso de la aplicación</b> — <b>2 000 CUP si su cartera tiene menos de 5 negocios y 1 000 CUP si tiene 5 o más</b> (ambas editables en la misma tabla) — más el <b>porcentaje fijado (10 %) de la tarifa de cada cliente de su cartera</b>, que se paga siempre. No declara nada: la app calcula la tarifa de cada negocio con sus datos, así nadie puede pagar de menos. Su panel en la misma tarjeta muestra su cartera, la suma de tarifas, su importe del mes, el botón para marcar su mes pagado y el interruptor para desactivarlo (desactivarlo bloquea su cartera entera).</li>' +
@@ -16775,7 +16861,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li><b>Resumen:</b> cuánto deberías cobrar este mes en licencias (las licencias de los negocios activos sin cortesía más el porcentaje de cada tenedor activo), cuánto ya cobraste y cuánto falta, con la lista de pendientes y su botón «Marcar pagado». Abajo, los <b>últimos 6 meses</b> (esperado, cobrado y pendiente), calculados con las tarifas de hoy.</li>' +
             '<li><b>Negocios:</b> cada negocio con su licencia calculada, si es <b>cliente directo</b> o de qué tenedor es, su estado del mes y su <b>historial de 6 meses</b> (toca un mes para cambiarlo). El interruptor <b>Cortesía</b> marca una licencia regalada: ese negocio <b>nunca se bloquea por falta de pago</b>, no cuenta como deuda y tampoco suma a la base del porcentaje de su tenedor (la desactivación manual sí sigue bloqueándolo). La <b>nota privada</b> es solo tuya: teléfono, cómo paga, lo que quieras recordar.</li>' +
             '<li><b>Tenedores:</b> cada tenedor con los negocios que atiende, el valor de su cartera, <b>lo que te aporta a ti</b> (su base fija por el uso de la aplicación más su porcentaje sobre las tarifas de sus negocios activos y sin cortesía), si pagó su mes y el historial de su licencia. Activarlo, desactivarlo y marcar sus pagos es <b>solo de la administradora</b>: un tenedor no puede inhabilitar ni borrar negocios ni marcar pagos, ni los suyos ni los de nadie.</li>' +
-            '<li>En la vista de <b>Administrador</b> ya no aparece el menú <b>Registro</b>: el Registro de Control es el libro de cada negocio y vive dentro de él; tu panel es Gestor, Panel de control y Configuración.</li></ul>'},
+            '<li>En la vista de <b>Administrador</b> ya no aparece el menú <b>Registro</b>: el Registro de Control es el libro de cada negocio y vive dentro de él; tu panel es Gestor, Panel de control y Configuración.</li>' +
+            '<li><b>En la copia sin conexión de un negocio</b> el Panel viene recortado a su medida: no sale la vista de <b>Tenedores</b>, la de Negocios se llama <b>Negocio</b> y muestra solo el negocio registrado en la instalación, el <b>Resumen</b> solo pone lo que ese negocio ha pagado a su tenedor de libros (queda en blanco si no tiene tenedor) y la vista de <b>Llaves</b> se rellena sola con el código de pedido y el negocio de la instalación. En esa copia tampoco aparece el menú <b>Gestor</b>: el Gestor es solo de los perfiles de tenedor (y de la administradora en línea).</li></ul>'},
         {id:'actualizacion-offline', modulo:'respaldo', titulo:'Actualización de la versión sin conexión', html:
             '<p>Solo en la <b>versión sin conexión</b>: en <b>Configuración</b> (cuenta administradora) la tarjeta <b>«Actualización de esta instalación»</b> mantiene al día la copia instalada en esta máquina, sin reinstalar nada a mano.</p>' +
             '<ul><li><b>Automática al abrir:</b> si el interruptor está activo (lo está por defecto), al arrancar el programa comprueba en segundo plano si hay una versión nueva y la instala sola; al entrar verás la insignia «Actualizada sola». Sin conexión no pasa nada: trabaja con la versión instalada y lo reintenta en el próximo arranque.</li>' +
