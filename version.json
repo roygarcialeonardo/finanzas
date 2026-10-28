@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-29",
-  "publicada": "2026-10-28 11:58",
-  "notas": "Ficha del trabajador con categoría ocupacional e instrumento de pago (tarea 19) y etiqueta de precio MIPYME/PDL con más de 100 empleados. Incluye Gestión+ plegable (-28), F3 (-27), el tenedor-TCP (-26) y el menú Cierre (-25).",
-  "requiereServidor": "0.9.0",
+  "version": "v2026.10.28-30",
+  "publicada": "2026-10-28 12:46",
+  "notas": "Base de datos cifrada en reposo (F6, anti-plagio fase 1): los datos de los negocios se guardan cifrados AES-256 atados a esta PC; si la carpeta se copia a otra computadora, la base queda sellada y el administrador la desella en Configuración con su código de recuperación. Programa nuevo 0.10.0. Manual v2026.10.28-30.",
+  "requiereServidor": "0.10.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "409f696e3c0ed6f01fb7a84bbda70c275267156b0a0a18500e5f072756d707e6",
-      "bytes": 1673688
+      "sha256": "a5312fc367f306f98256f107c126161025cd36bc82583ed861af9668c78b0e3f",
+      "bytes": 1679294
     },
     {
       "ruta": "pdf-import.js",

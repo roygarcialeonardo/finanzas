@@ -2177,6 +2177,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     </div>
                 </div>
 
+                <!-- Cifrado en reposo de ESTA instalación (solo versión sin conexión, F6) -->
+                <div class="col-12 d-none" id="cardCifradoLocal">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="candado"></span>Cifrado de los datos de esta instalación (sin conexión)</h6>
+                        <p class="small text-muted">Los datos de los negocios de esta copia se guardan <b>cifrados en el disco</b>, atados a esta PC: si alguien copia la carpeta del programa a otra computadora, la base <b>no se puede leer</b> — queda «sellada». El administrador puede desellarla aquí con su <b>código de recuperación</b> (el mismo de la recuperación de acceso: si aún no tienes uno, genéralo en la tarjeta de recuperación de esta misma pantalla). Usuarios, contraseñas y configuración no se cifran: por eso puedes entrar para desellar.</p>
+                        <div id="cifradoLocalEstado" class="small mb-2"></div>
+                        <div class="row g-2 align-items-end d-none" id="cifradoRescateFila">
+                            <div class="col-md-6"><label class="form-label small">Tu código de recuperación</label><input type="text" class="form-control" id="cifradoCodigo" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase"></div>
+                            <div class="col-md-3"><button type="button" class="btn btn-danger w-100" id="btnCifradoRescate">Desellar la base</button></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Actualización de ESTA instalación (solo versión sin conexión) -->
                 <div class="col-12 d-none" id="cardActualizacionLocal">
                     <div class="card p-3 p-md-4">
@@ -5730,6 +5743,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderSubsLocal();
             renderLlaveLocal();
             renderTenedorLocal();
+            try{ renderCifradoLocal(); }catch(e){}
             renderActualizacionLocal();
             renderRecuperaLocal();
             renderCuentasNegocio();
@@ -6853,6 +6867,47 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         pintar(r);
                         const mal = (r.negocios || []).filter(n => n.estado !== 'vigente');
                         alert(mal.length ? '⛔ Quedan negocios sin validar: ' + mal.map(n => n.negocio).join(', ') + '.\nRevisa los pagos en la versión en línea.' : '✅ Todos los negocios están vigentes este mes.');
+                    });
+                }
+            } catch (e) { card.classList.add('d-none'); }
+        }
+
+        // ===== CIFRADO EN REPOSO DE ESTA INSTALACIÓN (solo offline, F6) =====
+        async function renderCifradoLocal() {
+            const card = document.getElementById('cardCifradoLocal');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL) { card.classList.add('d-none'); return; }
+            try {
+                const st = await subsLocalFetch('/cifrado/estado');
+                if (!st || !st.ok) { card.classList.add('d-none'); return; }
+                card.classList.remove('d-none');
+                const pintar = x => {
+                    const el = document.getElementById('cifradoLocalEstado');
+                    const fila = document.getElementById('cifradoRescateFila');
+                    if (x.sellado) {
+                        el.innerHTML = `<span class="badge bg-danger">Base sellada</span> Esta copia se movió de PC o cambió el sistema: los datos no se pueden leer hasta desellarla con tu código de recuperación.`;
+                        fila.classList.remove('d-none');
+                    } else if (x.activo) {
+                        el.innerHTML = `<span class="badge bg-success">Cifrado activo</span> Los datos de los negocios se guardan cifrados en esta PC.` + (x.tieneRescate
+                            ? ` Tu código de recuperación actual también sirve para desellarla si cambias de PC.`
+                            : ` <b>Aún no hay código de recuperación ligado al cifrado</b>: genéralo (o regenéralo) en la tarjeta de recuperación de acceso de esta pantalla para poder desellarla si cambias de PC.`);
+                        fila.classList.add('d-none');
+                    } else {
+                        el.innerHTML = `<span class="badge bg-warning text-dark">Cifrado no activo</span> El programa lo activa solo al arrancar; si este aviso persiste, avisa a tu proveedor.`;
+                        fila.classList.add('d-none');
+                    }
+                };
+                pintar(st);
+                if (!card.dataset.cifInit) {
+                    card.dataset.cifInit = '1';
+                    document.getElementById('btnCifradoRescate').addEventListener('click', async () => {
+                        const v = document.getElementById('cifradoCodigo').value.trim().toUpperCase();
+                        if (!v) { alert('Escribe primero tu código de recuperación.'); return; }
+                        const r = await subsLocalFetch('/cifrado/rescate', { codigo: v });
+                        if (!r.ok) { alert(r.error || 'No se pudo desellar la base'); return; }
+                        pintar(r);
+                        alert('✅ Base desellada. Ya puedes trabajar con normalidad; la próxima vez que abras el programa en esta PC no pedirá el código.');
+                        try { renderAll(); } catch (e) {}
                     });
                 }
             } catch (e) { card.classList.add('d-none'); }
@@ -16200,7 +16255,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-29';
+        var MANUAL_VERSION = 'v2026.10.28-30';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16638,7 +16693,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li><b>Antes de necesitarla:</b> en Configuración, tarjeta «Recuperación de acceso», genera tu <b>código de recuperación</b> y guárdalo <b>fuera de la PC</b> (papel o tu teléfono). La app guarda solo su huella digital, no el código: quien no lo tenga no puede usar esta vía. Generar uno nuevo invalida el anterior.</li>' +
             '<li><b>Al perder el acceso:</b> en la pantalla de entrada, «¿Perdiste tu contraseña de administrador?» emite un <b>código de solicitud</b> (vale 30 minutos). Dictas a tu proveedor la <b>instalación</b>, la <b>solicitud</b>, tu <b>código de recuperación</b> y tu <b>usuario</b>.</li>' +
             '<li><b>El desbloqueo:</b> el proveedor firma con su llave un <b>código de desbloqueo de un solo uso</b> y te lo devuelve; lo escribes en la misma pantalla con tu código de recuperación y tu contraseña nueva. La app comprueba la firma antes de cambiar nada.</li>' +
-            '<li><b>Tras recuperar:</b> el código de recuperación y la solicitud quedan <b>consumidos</b> y las sesiones abiertas se cierran: al entrar, genera un código nuevo. Cinco intentos fallidos bloquean la vía 15 minutos. Solicitudes, intentos y recuperaciones quedan <b>en las trazas</b>.</li></ul>'}
+            '<li><b>Tras recuperar:</b> el código de recuperación y la solicitud quedan <b>consumidos</b> y las sesiones abiertas se cierran: al entrar, genera un código nuevo. Cinco intentos fallidos bloquean la vía 15 minutos. Solicitudes, intentos y recuperaciones quedan <b>en las trazas</b>.</li>' +
+            '<li><b>Cifrado de los datos (desde la versión 0.10.0 del programa):</b> los datos de los negocios se guardan <b>cifrados en el disco</b>, atados a esta PC. Si la carpeta del programa se copia a otra computadora, la base queda <b>sellada</b>: se puede entrar como administrador, pero los datos no se leen hasta desellarla en Configuración, tarjeta «Cifrado de los datos», con el <b>mismo código de recuperación</b> de esta sección. Por eso el código también hay que generarlo (o regenerarlo) <b>después</b> de actualizar a esta versión: así queda ligado al cifrado.</li>' +
+            '<li><b>Si cambias de PC a propósito:</b> copia la carpeta de datos completa, abre el programa en la PC nueva, entra como administrador y desella con tu código; la copia queda atada a la PC nueva y la antigua deja de poder leerla al mover la carpeta. Sin código de recuperación ligado al cifrado, la vía de emergencia es restaurar tu copia de respaldo con ayuda de tu proveedor.</li></ul>'}
         ];
         function manualEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
         function manualNorm(s){
