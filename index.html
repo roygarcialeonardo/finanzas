@@ -2162,6 +2162,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             <div class="col-md-5"><label class="form-label small">Llave del mes</label><input type="text" class="form-control" id="llaveLocalValor" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase"></div>
                             <div class="col-md-3"><button type="button" class="btn btn-primary w-100" id="btnLlaveLocalActivar">Activar llave</button></div>
                         </div>
+                        <div class="mt-3 border-top pt-3">
+                            <div id="llaveRegistroEstado" class="small mb-2"></div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnLlaveLocalRegistrar">📡 Registrar esta instalación en el servidor</button>
+                            <span class="small text-muted ms-2">Al registrarla, tu proveedor ve tu negocio en su panel y puede darte la llave aunque tu negocio todavía no exista en la versión en línea. Registrarse no crea el negocio ni desbloquea nada por sí solo.</span>
+                        </div>
                     </div>
                 </div>
 
@@ -6337,10 +6342,28 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         // Vista del Panel de control: la administradora genera la llave
         // del mes para el código de pedido de una instalación; la copia
         // la activa contra este servidor y queda amarrada a esa PC.
-        let PANEL_LLAVES = null; let LLAVE_NUEVA = '';
+        let PANEL_LLAVES = null; let PANEL_INSTALACIONES = null; let LLAVE_NUEVA = '';
         async function cargarLlavesPanel() {
             const r = await api('llaves_list', {});
-            if (r && r.ok) { PANEL_LLAVES = r.llaves || []; pintarLlavesVista(); }
+            if (r && r.ok) { PANEL_LLAVES = r.llaves || []; PANEL_INSTALACIONES = r.instalaciones || []; pintarLlavesVista(); }
+        }
+        // Instalaciones registradas (ronda -31) cuyo negocio aún no
+        // existe en línea: también son titulares elegibles de llave.
+        function llaveNombresInstalaciones() {
+            const m = panelModelo();
+            const enLinea = new Set((m.negocios || []).map(n => n.nombre));
+            const vistos = new Set(), out = [];
+            (PANEL_INSTALACIONES || []).forEach(i => {
+                if (i && i.modo === 'negocio' && i.negocio && !enLinea.has(i.negocio) && !vistos.has(i.negocio)) { vistos.add(i.negocio); out.push(i.negocio); }
+            });
+            return out;
+        }
+        function llaveOpcionesTitular(tipo) {
+            const m = panelModelo();
+            if (tipo === 'tenedor') return (m.tenedores || []).map(t => `<option value="${esc(t.usuario)}">${esc(t.usuario)}</option>`).join('');
+            const negs = (m.negocios || []).map(n => `<option value="${esc(n.nombre)}">${esc(n.nombre)}</option>`).join('');
+            const extra = llaveNombresInstalaciones().map(n => `<option value="${esc(n)}">${esc(n)} (instalación offline)</option>`).join('');
+            return negs + extra;
         }
         function pintarLlavesVista() {
             const el = document.getElementById('panelVistaLlaves');
@@ -6353,9 +6376,22 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         function panelHtmlLlaves(m) {
             const mesDef = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); })();
-            const negs = (m.negocios || []).map(n => n.nombre);
             const tens = (m.tenedores || []).map(t => t.usuario);
-            const optsNeg = negs.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+            const optsNeg = llaveOpcionesTitular('negocio');
+            const filasInst = (PANEL_INSTALACIONES || []).map(i => `<tr>
+                <td>${i.negocio ? esc(i.negocio) : '<span class="text-muted">Copia de tenedor</span>'}</td>
+                <td>${esc(i.tipo || '—')}</td>
+                <td><code>${esc(i.pedido)}</code></td>
+                <td><code>${esc(String(i.huella || '').slice(0, 10))}</code></td>
+                <td>${esc(String(i.registradaEn || '').slice(0, 10))}</td>
+                <td class="text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" data-inst-llave="${esc(i.pedido)}" data-inst-modo="${esc(i.modo || 'negocio')}" data-inst-negocio="${esc(i.negocio || '')}">Generar llave</button></td>
+            </tr>`).join('');
+            const bloqueInst = filasInst ? `<h6 class="fw-semibold mt-4 mb-2">📡 Instalaciones registradas</h6>
+            <p class="small text-muted">Copias sin conexión que se anunciaron desde su tarjeta de llave. Todavía no son negocios en línea: con «Generar llave» se rellena el formulario de arriba con su pedido y su nombre, y le das su llave del mes.</p>
+            <div class="table-responsive"><table class="table table-sm align-middle">
+                <thead><tr><th>Negocio</th><th>Tipo</th><th>Pedido</th><th>Huella</th><th>Registrada</th><th></th></tr></thead>
+                <tbody>${filasInst}</tbody>
+            </table></div>` : '';
             const filas = (PANEL_LLAVES || []).map(rec => `<tr>
                 <td><code>${esc(rec.llave)}</code></td>
                 <td>${esc(rec.titular)} <span class="text-muted">(${rec.titularTipo === 'tenedor' ? 'tenedor' : 'negocio'})</span></td>
@@ -6374,6 +6410,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="col-md-2"><button type="button" class="btn btn-primary w-100" id="btnGenerarLlave">Generar llave</button></div>
             </div>
             <div id="llaveNuevaBox">${LLAVE_NUEVA ? `<div class="alert alert-success py-2">Llave generada: <code class="fs-5">${esc(LLAVE_NUEVA)}</code> — pásasela al cliente para que la pegue en su copia.</div>` : ''}</div>
+            ${bloqueInst}
             <div class="table-responsive"><table class="table table-sm align-middle">
                 <thead><tr><th>Llave</th><th>Titular</th><th>Pedido</th><th>Mes</th><th>Estado</th><th></th></tr></thead>
                 <tbody>${filas || '<tr><td colspan="6" class="text-muted">Todavía no hay llaves generadas.</td></tr>'}</tbody>
@@ -6388,7 +6425,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 pane.dataset.panelInit = '1';
                 pane.addEventListener('click', async e => {
                     const v = e.target.closest('[data-panel-vista]');
-                    if (v) { PANEL_VISTA = v.getAttribute('data-panel-vista'); if (PANEL_VISTA === 'llaves') PANEL_LLAVES = null; renderPanelControl(); return; }
+                    if (v) { PANEL_VISTA = v.getAttribute('data-panel-vista'); if (PANEL_VISTA === 'llaves') { PANEL_LLAVES = null; PANEL_INSTALACIONES = null; } renderPanelControl(); return; }
                     const bn = e.target.closest('[data-pneg-nota]');
                     if (bn) {
                         const neg = bn.getAttribute('data-pneg-nota');
@@ -6408,6 +6445,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         if (!r.ok) { alert(r.error || 'No se pudo guardar el pago'); return; }
                         if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
                         renderPanelControl(); renderSuscripciones();
+                        return;
+                    }
+                    const bi = e.target.closest('[data-inst-llave]');
+                    if (bi) {
+                        const tipoSel = document.getElementById('llaveTitularTipo');
+                        const selT = document.getElementById('llaveTitularSel');
+                        document.getElementById('llavePedido').value = bi.getAttribute('data-inst-llave') || '';
+                        tipoSel.value = bi.getAttribute('data-inst-modo') === 'tenedor' ? 'tenedor' : 'negocio';
+                        selT.innerHTML = llaveOpcionesTitular(tipoSel.value);
+                        const negI = bi.getAttribute('data-inst-negocio') || '';
+                        if (negI) selT.value = negI;
+                        document.getElementById('llavePedido').focus();
                         return;
                     }
                     const bg = e.target.closest('#btnGenerarLlave');
@@ -6456,9 +6505,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 pane.addEventListener('change', async e => {
                     if (e.target && e.target.id === 'llaveTitularTipo') {
                         const sel = document.getElementById('llaveTitularSel');
-                        const m2 = panelModelo();
-                        const lista = e.target.value === 'tenedor' ? (m2.tenedores || []).map(t => t.usuario) : (m2.negocios || []).map(n => n.nombre);
-                        sel.innerHTML = lista.map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+                        sel.innerHTML = llaveOpcionesTitular(e.target.value);
                         return;
                     }
                     const ac = e.target.closest('[data-pneg-activo]');
@@ -6811,13 +6858,30 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const st = await subsLocalFetch('/llave/estado');
                 if (!st || !st.ok || !st.aplica) { card.classList.add('d-none'); return; }
                 card.classList.remove('d-none');
+                let ultimoSt = st;
+                // Tipo efectivo del negocio registrado (para anunciarlo al
+                // servidor en el registro, ronda -31): el de los metadatos
+                // en línea si están, si no el del documento fiscal.
+                const tipoEfectivo = x => {
+                    if (x.modo === 'tenedor') return '';
+                    const neg = x.negocioRegistrado || '';
+                    let tipo = (((typeof CFG !== 'undefined' && CFG.negocios) || {})[neg] || {}).tipo || '';
+                    if (!tipo) { try { tipo = (typeof gTipoCliente === 'function' && typeof CACHE !== 'undefined') ? gTipoCliente(CACHE) : ''; } catch (e) {} }
+                    if (!tipo) { try { tipo = getEntityType() || ''; } catch (e) {} }
+                    return ['tcp', 'mipyme', 'pdl'].indexOf(tipo) >= 0 ? tipo : 'tcp';
+                };
                 const pintar = x => {
+                    ultimoSt = x;
                     document.getElementById('llaveLocalPedido').value = x.pedido || '';
                     const el = document.getElementById('llaveLocalEstado');
                     const pc = 'PC ' + esc(x.huellaCorta || '');
                     if (x.estado === 'vigente') el.innerHTML = `<span class="badge bg-success">Llave vigente</span> Mes ${esc(x.periodoActual)} · ${esc(x.titular || '')} · ${pc}.`;
                     else if (x.estado === 'llave_otra_pc') el.innerHTML = `<span class="badge bg-danger">Llave de otra PC</span> El pase guardado pertenece a otra computadora (${pc} es esta). Pide a tu proveedor que desvincule la llave o te genere otra.`;
                     else el.innerHTML = `<span class="badge bg-warning text-dark">Sin llave</span> Falta activar la llave del mes ${esc(x.periodoActual)} (${pc}).`;
+                    const rg = document.getElementById('llaveRegistroEstado');
+                    if (rg) rg.innerHTML = x.registrada
+                        ? `<span class="badge bg-info text-dark">Instalación registrada</span> Tu proveedor ya ve esta instalación en su panel y puede darte la llave.`
+                        : `<span class="badge bg-secondary">Sin registrar en el servidor</span> Registra la instalación para que tu proveedor pueda darte la llave aunque tu negocio aún no exista en línea.`;
                 };
                 pintar(st);
                 if (!card.dataset.llaveInit) {
@@ -6830,6 +6894,22 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         pintar(r);
                         alert('✅ Llave activada para ' + (r.periodoActual || 'este mes') + '. La copia quedó desbloqueada.');
                     });
+                    document.getElementById('btnLlaveLocalRegistrar').addEventListener('click', async () => {
+                        const r = await subsLocalFetch('/llave/registrar', { tipo: tipoEfectivo(ultimoSt) });
+                        if (!r.ok) { alert(r.error || 'No se pudo registrar la instalación'); return; }
+                        pintar(r);
+                        alert('✅ Instalación registrada en el servidor. Tu proveedor ya la ve en su panel y puede darte la llave del mes.');
+                    });
+                }
+                // Intento automático UNA vez por carga de la tarjeta: si la
+                // copia aún no tiene llave ni consta registrada, se anuncia
+                // sola (silencioso si no hay conexión; el botón queda).
+                if (st.estado === 'sin_llave' && !st.registrada && !card.dataset.llaveAutoReg) {
+                    card.dataset.llaveAutoReg = '1';
+                    try {
+                        const r = await subsLocalFetch('/llave/registrar', { tipo: tipoEfectivo(st) });
+                        if (r && r.ok) pintar(r);
+                    } catch (e) { /* sin conexión: queda el botón manual */ }
                 }
             } catch (e) { card.classList.add('d-none'); }
         }
@@ -7128,6 +7208,20 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 if (wrap) wrap.style.display = esTenedor ? 'none' : (chk && chk.checked ? '' : 'none');
             };
             if (modoSel) { modoSel.addEventListener('change', aplicarModo); aplicarModo(); }
+            /* Socios según el tipo (corrección de Leonardo, ronda -31):
+               un TCP no tiene socios — es un dato de la MIPYME y de los
+               titulares del PDL —, así que con tipo TCP el campo queda
+               deshabilitado y en 0 (y al guardar ya se ignoraba: solo
+               la MIPYME guarda socios en sus usuarios). */
+            const tipoSel = document.getElementById('instTipo');
+            const sociosInp = document.getElementById('instSocios');
+            const aplicarTipoSocios = () => {
+                if (!tipoSel || !sociosInp) return;
+                const esTcp = tipoSel.value === 'tcp';
+                sociosInp.disabled = esTcp;
+                if (esTcp) sociosInp.value = '0';
+            };
+            if (tipoSel) { tipoSel.addEventListener('change', aplicarTipoSocios); aplicarTipoSocios(); }
             const btn = document.getElementById('btnInstalar');
             if (!btn || btn.dataset.listo) return;
             btn.dataset.listo = '1';
@@ -16255,7 +16349,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-30';
+        var MANUAL_VERSION = 'v2026.10.28-31';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16286,7 +16380,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'instalacion-offline', modulo:'empezar', titulo:'Primera vez sin conexión: instalar tu copia', html:
             '<p>Solo en la <b>versión sin conexión</b>: la primera vez que abres el programa en una máquina, en vez de la pantalla de entrada sale el <b>formulario de instalación</b>. Se hace una sola vez:</p>' +
             '<ol><li>Primero lo primero: <b>¿qué vas a llevar con esta copia?</b> Si es <b>un negocio</b> (TCP, MIPYME o PDL), la copia queda fijada a ese único negocio y no podrás crear otros: para eso hace falta la licencia de tenedor. Si eres <b>tenedor de libros</b>, elige esa opción: la copia nace sin negocio y los creas dentro de la app; cada negocio paga su propia licencia y la tuya suma el 10 % de lo que declares cobrar a cada uno. <b>Todo negocio nace bloqueado</b>: se activa cuando su mes está pagado y tu proveedor lo valida en línea.</li>' +
-            '<li>Escribe el <b>nombre de tu negocio</b> y su <b>tipo</b> (TCP, MIPYME o PDL; en la MIPYME, también el número de socios). Si elegiste tenedor, este paso no aparece.</li>' +
+            '<li>Escribe el <b>nombre de tu negocio</b> y su <b>tipo</b> (TCP, MIPYME o PDL). El campo de <b>socios</b> solo se usa en la MIPYME y en el PDL (sus titulares): si eliges <b>TCP</b>, queda deshabilitado — un TCP no tiene socios. Si elegiste tenedor, este paso no aparece.</li>' +
             '<li><b>Elige la carpeta donde se guardarán tus datos</b>: ahí vivirá el archivo <b>finanzas.db</b> con todo tu negocio. Elige un sitio seguro y permanente de tu computadora (por ejemplo, dentro de Documentos). Si cambias la carpeta sugerida, la app se rearranca sola en su sitio: espera unos segundos.</li>' +
             '<li>Lee la advertencia amarilla y marca que la entiendes: <b>las copias de seguridad de tu base de datos son tu responsabilidad</b>. Sin una copia en otro lugar (memoria USB, otra carpeta, la nube), una pérdida del archivo no tiene recuperación posible.</li>' +
             '<li>Deja el <b>usuario administrador</b> («admin» o el que prefieras): es la cuenta dueña de la copia, para gestionar usuarios y configuración.</li>' +
@@ -16672,6 +16766,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>El amarre:</b> si el programa se mueve a otra PC, la huella no coincide y la llave deja de servir. Sin llave del mes en curso, los usuarios del negocio no entran a los datos; el administrador local siempre entra, para poder pegar la llave nueva.</li>' +
             '<li><b>Revocar:</b> corta el acceso en la próxima verificación de esa copia (al arrancar con conexión o al cambiar de mes). <b>Desvincular PC:</b> libera la llave para que pueda activarse en otra computadora — solo para cambios legítimos de equipo.</li>' +
             '<li><b>Copia de un tenedor (F3):</b> si la instalación es de un tenedor, lleva varios negocios: la llave abre la copia y, además, <b>cada negocio se comprueba contra tu servidor con la misma doble puerta</b> (negocio desactivado o sin pagar, o el tenedor sin pagar → los usuarios de ese negocio no entran a sus datos). En su Configuración, la tarjeta «Negocios de esta copia de tenedor» muestra el estado de cada uno y el botón «Validar ahora». Los nombres de sus negocios deben coincidir con los de la versión en línea.</li>' +
+            '<li><b>Registrar la instalación:</b> la copia puede anunciarse sola en tu servidor: en su tarjeta de llave, el botón <b>«Registrar esta instalación en el servidor»</b> manda su código de pedido, el nombre de su negocio, su tipo y la huella de su PC (y también lo intenta sola una vez, al abrir la tarjeta, si aún no tiene llave ni consta registrada). Registrarse <b>no crea el negocio en línea ni desbloquea nada</b>: solo te deja la petición visible.</li>' +
+            '<li><b>Instalaciones registradas:</b> en la misma vista 🔑 Llaves verás su lista — negocio, tipo, pedido, huella y fecha —, cada una con su botón <b>«Generar llave»</b>, que rellena el formulario con su pedido y su nombre. Así puedes dar la llave a un negocio que <b>todavía no existe en línea</b>: su nombre aparece también en el selector de titulares con la marca «(instalación offline)».</li>' +
             '<li>Las instalaciones anteriores a las licencias (sin modo elegido) siguen con la validación de suscripción de siempre; las llaves mandan en las que tienen modo.</li>' +
             '</ul>'},
         {id:'panel-control', modulo:'respaldo', titulo:'Panel de control de licencias (solo la administradora)', html:

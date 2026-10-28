@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-30",
-  "publicada": "2026-10-28 12:46",
-  "notas": "Base de datos cifrada en reposo (F6, anti-plagio fase 1): los datos de los negocios se guardan cifrados AES-256 atados a esta PC; si la carpeta se copia a otra computadora, la base queda sellada y el administrador la desella en Configuración con su código de recuperación. Programa nuevo 0.10.0. Manual v2026.10.28-30.",
-  "requiereServidor": "0.10.0",
+  "version": "v2026.10.28-31",
+  "publicada": "2026-10-28 15:29",
+  "notas": "Ronda -31: la instalación se registra en el servidor (registrar_instalacion); socios deshabilitado para TCP en la instalación inicial; servidor 0.11.0",
+  "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "a5312fc367f306f98256f107c126161025cd36bc82583ed861af9668c78b0e3f",
-      "bytes": 1679294
+      "sha256": "e0ae97681c6f70e0dae9fe848cea10ccce5534f2d7441376e41096af3999b051",
+      "bytes": 1687567
     },
     {
       "ruta": "pdf-import.js",
