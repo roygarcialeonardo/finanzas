@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-33",
-  "publicada": "2026-10-28 17:46",
-  "notas": "Panel a la medida de cada copia: en las de negocio no salen el Gestor ni la vista de Tenedores, la vista «Negocio» y las Llaves se rellenan con los datos de la instalación, el Resumen solo muestra los pagos a su tenedor y la tarjeta de precios ya no aparece en su configuración.",
+  "version": "v2026.10.28-34",
+  "publicada": "2026-10-28 21:48",
+  "notas": "Retención de divisa 80/20 del PDL (Res. 103/2026 del MEP): cada ingreso en la Tarjeta USD crea solo su registro de retención, el 20 % se acredita en CUP enlazándose solo con el estado de cuenta y nace el asiento de la conversión; fuentes al 100 % (financiamiento, aportes, donativos) sin aporte.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "c8eaf09f655fad437b508cdb3b86527e4ad28b3634c3e8d4e5e9eee55f43a6c4",
-      "bytes": 1694473
+      "sha256": "01863ff9a06b457b1bf59d9608695b457e1da458cfa8008061c81b02032922c9",
+      "bytes": 1718613
     },
     {
       "ruta": "pdf-import.js",
