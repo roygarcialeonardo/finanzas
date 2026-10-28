@@ -1607,6 +1607,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="mb-3 d-flex flex-wrap gap-2 align-items-center"><span id="contaAvisoPend"></span><span class="small text-secondary" id="contaPreviewTxt"></span></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-currency-exchange me-2"></i>Doble moneda · CUP/USD <span class="small text-secondary">(NCC 6)</span></h6><div id="contaDualBox" class="small"></div><div id="contaCompraBox"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-exclamation-octagon me-2 text-danger"></i>Por clasificar / Pendientes de contabilizar <span class="text-danger">(en rojo)</span></h6><p class="small text-secondary">Estos movimientos NO tienen asiento y NO entran en los estados. Clasifica uno y su asiento se genera en el momento; si marcas «Recordar como regla», los conceptos iguales se contabilizarán solos en adelante.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto y motivo</th><th class="text-end">Monto</th><th>Clasificación / cuenta</th><th></th></tr></thead><tbody id="contaBandejaBody"></tbody></table></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-shield-lock me-2 text-danger"></i>Cuarentena de importaciones <span id="contaCuarentenaPend" class="badge bg-danger" style="display:none"></span></h6><p class="small text-secondary">Aquí quedan los estados y operaciones que el <b>control de totales</b> del importador retuvo: totales que no cuadran con lo que el banco declara (T1/T2), un estado dirigido a otra cuenta (T5), un formato no reconocido, fechas imposibles u operaciones fuera de rango que no confirmaste. Nada de esto es un movimiento todavía: <b>no mueve saldos, no entra en los estados ni en la conciliación</b>. Solo sale de aquí con tu palabra: <b>Liberar</b> lo importa como una importación normal (con su deduplicación y su registro de estado) y <b>Descartar</b> lo archiva para siempre — la app recordará sus referencias y te avisará si el mismo estado vuelve. Cada decisión queda firmada con tu usuario y la fecha.</p><div id="contaCuarentenaBody"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-lightbulb me-2"></i>Reglas aprendidas del negocio</h6><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Patrón</th><th>Cuenta</th><th>Veces</th><th></th></tr></thead><tbody id="contaReglasBody"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-grid-3x3-gap me-2"></i>Panel de cuadres <span class="small text-secondary">· período <span id="contaCuadresPeriodo"></span></span></h6><p class="small text-secondary">Cada submayor contra su cuenta del mayor, en vivo: bancos (saldos por cuenta, con el saldo inicial encadenado), cuentas por cobrar y por pagar, inventarios, activos fijos, la provisión de vacaciones y las retenciones de nómina. Vacaciones y retenciones comparan lo DEVENGADO según Nómina (la misma fuente de los submayores impresos) contra lo devengado en libros; si el negocio no tiene trabajadores, esas filas dicen «No aplica». Lo que no tenga datos fiables sale como «Sin datos», nunca rellenado.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Cuadre</th><th class="text-end">Submayor</th><th class="text-end">Mayor</th><th class="text-end">Diferencia</th><th>Estado</th></tr></thead><tbody id="contaCuadresBody"></tbody></table></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank2 me-2"></i>Conceptos de tesorería <span class="small text-secondary">(catálogo de contrapartidas, editable por ti)</span></h6><p class="small text-secondary">El concepto aporta «el otro elemento de la partida» (partida doble) cuando el banco trae un movimiento con ese texto. <b>El tipo de contrapartida se elige por el ORIGEN de la cuenta</b> (modelo de los manuales del Versat): si la cuenta se teclea directa es <b>Cuenta contable</b> (el único tipo que admite cuenta); si el «gasto» es en realidad un traspaso a otra cuenta tuya es <b>Cuenta bancaria</b>; si liquida una factura es <b>Obligación</b> y si viene de un crédito es <b>Crédito bancario</b> — en esos dos la contrapartida la aporta el documento o el crédito, no una cuenta fija, y el movimiento queda pendiente hasta enlazarlo. <b>Regla de integridad:</b> ningún cobro/pago se asienta sin contrapartida; lo que no la tiene queda en la bandeja, nunca se rellena. Precedencia: manda lo estructural/fiscal (transferencias, ONAT, documentos…), luego tu imputación manual, luego la regla aprendida y este concepto, y por último las genéricas (venta por correo → 801-000) y las plantillas. Ejemplos adaptados a tu plan: «Intereses y comisiones bancarias» → 710-000 (cuenta contable) · «Extraído para nóminas» → traspaso a Caja (tipo «cuenta bancaria»).</p><div class="row g-2 align-items-end mb-2"><div class="col-md-4"><label class="form-label mb-1 small">Texto del concepto (patrón)</label><input id="contaTesPatron" class="form-control form-control-sm" placeholder="Ej.: Pago ETECSA"></div><div class="col-md-2"><label class="form-label mb-1 small">Aplica a</label><select id="contaTesTipo" class="form-select form-select-sm"><option value="ambos">Ingresos y gastos</option><option value="gasto">Solo gastos</option><option value="ingreso">Solo ingresos</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Uso del concepto</label><select id="contaTesUso" class="form-select form-select-sm"><option value="cobro-pago">Al efectuar un Cobro / Pago</option><option value="obligacion">Al crear una Obligación</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Actividad que lo habilita</label><select id="contaTesActividad" class="form-select form-select-sm"><option value="Banco y Caja">Banco y Caja</option><option value="Banco">Banco</option><option value="Caja">Caja</option></select></div></div><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Tipo de contrapartida (por el origen)</label><select id="contaTesTipoCp" class="form-select form-select-sm" onchange="contaTesTipoUI()"><option value="cuenta-contable">Cuenta contable (cuenta directa)</option><option value="cuenta-bancaria">Cuenta bancaria (traspaso)</option><option value="obligacion">Obligación (la aporta el documento)</option><option value="credito-bancario">Crédito bancario (lo aporta el crédito)</option></select></div><div class="col-md-3" id="contaTesCuentaWrap"><label class="form-label mb-1 small">Cuenta contrapartida</label><input id="contaTesCuenta" class="form-control form-control-sm" list="contaCuentasList" placeholder="Código (ej. 705-000)"></div><div class="col-md-3" id="contaTesDestinoWrap" style="display:none"><label class="form-label mb-1 small">Cuenta destino del traspaso</label><select id="contaTesDestino" class="form-select form-select-sm"><option value="">— Elige la cuenta —</option><option value="chequera">Chequera CUP</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option><option value="caja">Caja</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Tipo de comprobante asociado</label><select id="contaTesTComp" class="form-select form-select-sm"><option value="Operaciones">Operaciones</option><option value="Ajuste">Ajuste</option><option value="Traspaso">Traspaso</option></select></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-success" onclick="contaTesAdd()"><i class="bi bi-plus-lg me-1"></i>Guardar concepto</button></div></div><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Uso</th><th>Tipo de contrapartida</th><th>Contrapartida</th><th>Variación del saldo</th><th>Actividad · Comprobante</th><th>Estado</th><th></th></tr></thead><tbody id="contaTesBody"></tbody></table></div><p class="small text-secondary mt-2 mb-0">El tipo de comprobante asociado cubre las tres operaciones del documento: Confirmación, Ajuste y Cancelación.</p></div>
@@ -8130,7 +8131,7 @@ function ctaPlanSemilla(){return [
    - Redondeo: según el signo — pérdida a 710-000, ganancia a 810-000
      (la antigua cuenta 549 desaparece). */
 function ctaPlantillasDef(){return {banco:{chequera:'110-010',tarjeta_cup:'110-010',tarjeta_usd:'110-020'},ventas:'801-000',otrosIngresos:'810-000',cxc:'131-000',cxp:'311-000',inventarios:'188-000',costoVentas:'695-000',gastoOperacion:'705-000',salarios:'614-000',segSocial:'615-000',fuerzaGasto:'615-000',gastoProvVac:'614-000',provVacaciones:'331-000',retencionesPorPagar:'332-000',nominasPorPagar:'331-000',cssPagar:'333-000',iuftPagar:'334-000',iipRetenido:'345-000',onatCargo:'341-000',depreciacionGasto:'613-000',depreciacionAcum:'253-000',extracciones:'135-000',fondoContingencia:'505-000',dividendosPorPagar:'417',adelantosTrab:'139-000',difPos:'805-000',difNeg:'710-000',difPatrimonio:'530-000',bancoNomina:'110-010',resultado:'901-000',liquidacion:'905-000',resultadoEjercicio:'520-000',utilRetenidas:'510-000',redondeoGasto:'710-000',redondeoIngreso:'810-000',caja:'101-010',arqueoFaltante:'720-000',arqueoSobrante:'810-000'};}
-function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],conceptosTes:[],candados:{},bandeja:[],estadosBanco:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqNota:0,seqArqueo:0};}
+function ctaDocVacio(){return {activa:false,plan:ctaPlanSemilla(),plantillas:ctaPlantillasDef(),asientos:[],contrapartes:[],documentos:[],aplicaciones:[],productos:[],movInventario:[],centros:[],cierres:[],aperturas:[],reglas:[],conceptosTes:[],candados:{},bandeja:[],estadosBanco:[],cuarentena:[],importaciones:[],notas:[],arqueos:[],seqAsiento:0,seqComp:{},seqDoc:0,seqProd:0,seqCp:0,seqCentro:0,seqInv:0,seqEstado:0,seqCuar:0,seqImp:0,seqNota:0,seqArqueo:0};}
 function ctaCuenta(conta,cod){return (conta.plan||[]).find(c=>c.codigo===cod)||null;}
 /* Naturaleza como DATO del plan: si una cuenta no la trae (planes viejos o
    altas a mano), se deriva del grupo — nunca se inventa otra cosa. */
@@ -10022,7 +10023,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                (316-000), se recodifica aquí; un valor distinto, puesto a
                mano por el dueño, se respeta. Los asientos históricos ya
                generados con la 316-000 NO se tocan. */
-            if(c.plantillas.dividendosPorPagar==='316-000') c.plantillas.dividendosPorPagar='417'; ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','conceptosTes','bandeja','estadosBanco','notas','arqueos','revalorizaciones'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); if(!c.candados||typeof c.candados!=='object'||Array.isArray(c.candados)) c.candados={}; try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
+            if(c.plantillas.dividendosPorPagar==='316-000') c.plantillas.dividendosPorPagar='417'; ['asientos','contrapartes','documentos','aplicaciones','productos','movInventario','centros','cierres','aperturas','reglas','conceptosTes','bandeja','estadosBanco','cuarentena','importaciones','notas','arqueos','revalorizaciones'].forEach(k=>{ if(!Array.isArray(c[k]))c[k]=[]; }); if(typeof c.seqCuar!=='number') c.seqCuar=0; if(typeof c.seqImp!=='number') c.seqImp=0; if(!c.candados||typeof c.candados!=='object'||Array.isArray(c.candados)) c.candados={}; try{ const _mr=ctaMigrarClasificador(c); if(_mr&&_mr.migrado) window.__contaMigR8=_mr; }catch(e){} return c; }catch(e){ return base; } }
         function saveConta(d){ Store.setItem(getContaKey(), JSON.stringify(d)); }
         function contaEventos(clonar){ const ev=[]; const cp=m=>clonar?JSON.parse(JSON.stringify(m)):m;
             for(const h of getHistorial()){ if(Array.isArray(h.movimientos)) for(const m of h.movimientos) ev.push({tipo:'mov',periodo:h.mes,mov:cp(m),fecha:m.fecha,tasa:Number(h.tasa)||tasaVista()}); }
@@ -10090,6 +10091,24 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            registra con la contabilidad activa, como el resto de la
            cadena automática. */
         window.__contaRegistrarEstadoBanco=function(info){ try{ const c=getConta(); if(!c.activa) return {omitido:true,razon:'inactiva'}; const r=ctaRegistrarEstadoBanco(c,Object.assign({},info||{},{fechaImport:hoy()})); if(r.ok&&!r.duplicado) saveConta(c); return r; }catch(e){ return {ok:false,motivo:'error'}; } };
+        /* Cuarentena de importaciones (ronda -35): retiene en el doc
+           conta lo que el control de totales del importador no dejó
+           pasar. Funciona AUNQUE la contabilidad esté inactiva (es un
+           almacén, no un asiento) y NUNCA en modo edición (ahí todo
+           vive en memoria hasta Guardar). Deduplica por archivo +
+           cuenta + motivo + detalle entre las retenidas: reintentar la
+           misma importación no la duplica. */
+        window.__contaGuardarCuarentena=function(entrada){ try{ if(typeof modoEdicionActivo!=='undefined'&&modoEdicionActivo) return {omitido:'edicion'}; const c=getConta(); const dup=(c.cuarentena||[]).some(x=>x.estado==='retenida'&&x.archivo===entrada.archivo&&x.cuenta===entrada.cuenta&&x.motivo===entrada.motivo&&(x.detalle||'')===(entrada.detalle||'')); if(dup) return {ok:true,duplicada:true}; c.seqCuar=(c.seqCuar||0)+1; const en=Object.assign({},entrada||{},{id:'CU'+c.seqCuar,fechaImport:hoy(),estado:'retenida',decisionDe:'',fechaDecision:''}); if(!Array.isArray(en.ops)) en.ops=[]; c.cuarentena.push(en); saveConta(c); return {ok:true,id:en.id}; }catch(e){ return {ok:false,motivo:'error'}; } };
+        /* Atomicidad práctica de la importación (ronda -35, P4): el
+           importador abre el registro del lote en «aplicando» ANTES de
+           guardar nada y lo cierra en «aplicada» al final. Si algo se
+           corta a mitad, el lote queda «aplicando», «Qué toca hoy»
+           avisa y reimportar el mismo estado lo completa sin duplicar
+           (dedupe por referencias y por clave de estado). La clave es
+           la MISMA del registro de estados de la conciliación. En modo
+           edición no se escribe (todo vive en memoria hasta Guardar). */
+        window.__contaPlanImportacion=function(datos){ try{ if(typeof modoEdicionActivo!=='undefined'&&modoEdicionActivo) return {omitido:'edicion'}; if(!datos||!datos.claveEstado) return {ok:false}; const c=getConta(); let en=(c.importaciones||[]).find(x=>x.claveEstado===datos.claveEstado); if(en){ en.estado='aplicando'; en.archivo=datos.archivo||en.archivo; en.cuenta=datos.cuenta||en.cuenta; en.nOps=datos.nOps||0; en.nCuarentena=datos.nCuarentena||0; en.fechaImport=hoy(); if(datos.conDiferencia) en.conDiferencia=true; } else { c.seqImp=(c.seqImp||0)+1; en=Object.assign({id:'IM'+c.seqImp,fechaImport:hoy(),estado:'aplicando',conDiferencia:false},datos); c.importaciones.push(en); } saveConta(c); return {ok:true,id:en.id}; }catch(e){ return {ok:false,motivo:'error'}; } };
+        window.__contaCerrarImportacion=function(clave){ try{ const c=getConta(); const en=(c.importaciones||[]).find(x=>x.claveEstado===clave); if(!en) return {ok:false}; en.estado='aplicada'; saveConta(c); return {ok:true}; }catch(e){ return {ok:false,motivo:'error'}; } };
         function contaPeriodoRango(periodo){ const p=periodoParts(periodo); if(!p) return null; const desde=p.y+'-'+String(p.mi+1).padStart(2,'0')+'-01'; return {desde:desde, hasta:fechaContablePeriodo(periodo)}; }
         function contaConcCalcular(c){ const selC=document.getElementById('contaConcCuenta'), selP=document.getElementById('contaConcPeriodo');
             const cuenta=selC?selC.value:'chequera'; const periodo=selP?selP.value:periodoNominaActual(); const rg=contaPeriodoRango(periodo); if(!rg) return null;
@@ -10146,6 +10165,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                     +filaPart('Con la misma referencia pero importe distinto',r.diferenciasImporte,p=>`<tr><td class="text-nowrap">${fmtF(p.libro.fecha)}</td><td>${esc(p.libro.concepto||'')}<div class="small text-danger">Libros ${moneda(p.libro.firmado)} ≠ banco ${moneda(ctaFirmadoMov(p.banco.tipo,p.banco.monto))}</div></td><td class="text-end">${moneda(p.diferencia)}</td></tr>`)
                     +(r.saldoBanco!=null?`<div class="mt-2 small">Saldo ajustado según libros: <b>${moneda(r.ajustadoLibros)}</b> · Saldo ajustado según banco: <b>${moneda(r.ajustadoBanco)}</b> ${r.conciliada?'— coinciden: la diferencia queda explicada por las partidas listadas.':'— NO coinciden: queda diferencia sin explicar.'}</div>`:'');
                     box.innerHTML=cuerpo;
+                    const impDif=(c.importaciones||[]).find(x=>x.cuenta===r.cuenta&&x.conDiferencia&&x.estado==='aplicada');
+                    if(impDif) box.innerHTML+=`<div class="small fw-semibold mt-1" style="color:#92400e">⚠ El estado «${esc(impDif.archivo||'')}» quedó marcado «con diferencia» al importarlo (control T3 del importador: saldo inicial + neto ≠ saldo final del banco). Se importó igual — decisión de Leonardo — pero conviene revisarlo: puede faltar un movimiento o sobrar uno.</div>`;
                     if(docBox){ /* MODELO CON-02 — solo plantilla: todos los importes
                        salen de r = contaConcCalcular(c) (ctaConciliacion), la
                        misma fuente de la vista en pantalla #contaConcBox, que
@@ -10385,6 +10406,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                que exige la atención de Leonardo se ve sin entrar. */
             const tabP=document.getElementById('tabContaPend'); if(tabP){ const np=(c.bandeja||[]).length; tabP.style.display=np?'':'none'; tabP.textContent=np?('● '+np+' por clasificar'):''; }
             if(window.__contaMigR8){ const mr=window.__contaMigR8; window.__contaMigR8=null; if(aviso){ aviso.innerHTML+=' <span class="badge bg-info text-dark">🔄 Plan actualizado al Clasificador Maestro: '+mr.lineas+' línea(s) de asientos recodificadas — los saldos no cambiaron.'+((mr.sinClasificar&&mr.sinClasificar.length)?(' Cuentas sin equivalente, conservadas y marcadas: '+mr.sinClasificar.join(', ')+'.'):'')+'</span>'; } }
+            try{ contaRenderCuarentena(c); }catch(e){}
             const prev=c.activa?contaPreview():null; const pv=document.getElementById('contaPreviewTxt'); if(pv) pv.textContent=c.activa?(`Conteo previo: «Generar contabilidad» crearía ${prev.creados} asiento(s) nuevo(s); quedarían ${prev.pendientes.length} pendiente(s) en la bandeja.`):'Activa la contabilidad para que los estados de cuenta importados se contabilicen solos.';
             const dbx=document.getElementById('contaDualBox'); if(dbx){ try{ dbx.innerHTML=contaDualHTML(c); }catch(e){ dbx.innerHTML=''; } }
             const cbx=document.getElementById('contaCompraBox'); if(cbx){ try{ cbx.innerHTML=compraDivisaHTML(); }catch(e){ cbx.innerHTML=''; } }
@@ -10566,6 +10588,79 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(r.asumidosUsados&&r.asumidosUsados.length){ c.candados[per]=Object.assign({},reg,{cerradoConAsumidos:{fecha:hoy(),usuario:getCurrentUser(),claves:r.asumidosUsados}}); saveConta(c); }
             return {ok:true,asumidos:r.asumidosUsados||[]}; }catch(e){ return {ok:true}; } };
 
+        /* ===== Cuarentena de importaciones (ronda -35) =====
+           Lo retenido por el control de totales vive aquí hasta que
+           Leonardo decide: Liberar lo importa por el camino normal del
+           importador (dedupe + registro de estado + contabilidad) y
+           Descartar lo archiva con traza (quién y cuándo). */
+        function contaCuarentenaBuscar(c,id){ return (c.cuarentena||[]).find(x=>x.id===id)||null; }
+        function contaRenderCuarentena(c){
+            const box=document.getElementById('contaCuarentenaBody'); const pend=document.getElementById('contaCuarentenaPend');
+            const lista=((c&&c.cuarentena)||[]).slice();
+            const ret=lista.filter(x=>x.estado==='retenida');
+            if(pend){ pend.style.display=ret.length?'':'none'; pend.textContent=ret.length?('● '+ret.length+' retenido(s)') : ''; }
+            if(!box) return;
+            if(!lista.length){ box.innerHTML='<p class="small text-secondary mb-0">Sin lotes retenidos. Cuando el control de totales de una importación no cuadre, el estado quedará aquí en vez de importarse a ciegas.</p>'; return; }
+            const nomCuenta={chequera:'Chequera',tarjeta_cup:'Tarjeta CUP',tarjeta_usd:'Tarjeta USD'};
+            const nomMotivo={totales:'Control de totales',formato:'Formato / fecha inválida',manual:'Fuera de rango sin confirmar'};
+            const filaOp=(en,o,ix)=>{
+                const est=o.resuelta==='liberada'?'<span class="badge bg-success">Liberada</span>':o.resuelta==='descartada'?'<span class="badge bg-dark">Descartada</span>':'<span class="badge bg-warning text-dark">Retenida</span>';
+                const btn=(!o.resuelta&&en.estado==='retenida')?`<button type="button" class="btn btn-sm btn-outline-success py-0" onclick="contaCuarentenaLiberarOp('${en.id}',${ix})">Liberar</button>`:'';
+                return `<tr><td class="text-nowrap">${esc(o.fecha||'')}</td><td title="${esc(o.concepto||'')}">${esc(String(o.concepto||'').slice(0,80))}</td><td class="text-end text-nowrap">$${Number(o.monto||0).toFixed(2)}</td><td>${o.tipo==='ingreso'?'<span class="badge bg-success">Ingreso</span>':'<span class="badge bg-danger">Gasto</span>'}</td><td>${est}</td><td>${btn}</td></tr>`;
+            };
+            let h='';
+            ret.forEach(en=>{
+                const t=en.totales||{}; const nPend=(en.ops||[]).filter(o=>!o.resuelta).length;
+                h+=`<div class="border border-danger rounded p-2 mb-2"><div class="d-flex flex-wrap gap-2 align-items-center"><span class="badge bg-danger">Retenido</span><b>${esc(en.archivo||'')}</b><span class="small text-secondary">${esc(nomCuenta[en.cuenta]||en.cuenta||'')} · retenido el ${esc(en.fechaImport||'')} · ${esc(nomMotivo[en.motivo]||en.motivo||'')}</span><span class="ms-auto d-flex gap-1"><button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="contaCuarentenaToggle('${en.id}')">Ver operaciones (${(en.ops||[]).length})</button><button type="button" class="btn btn-sm btn-success py-0" onclick="contaCuarentenaLiberar('${en.id}')">Liberar lote (${nPend})</button><button type="button" class="btn btn-sm btn-outline-dark py-0" onclick="contaCuarentenaDescartar('${en.id}')">Descartar</button></span></div>`
+                 +`<div class="small mt-1">${esc(en.detalle||'')}</div>`
+                 +`<div class="small text-secondary">Declaradas: ${t.declaradas==null?'—':t.declaradas} · Extraídas: ${t.extraidas==null?'—':t.extraidas} · Ingresos $${Number(t.ingSuma||0).toFixed(2)} · Gastos $${Number(t.gasSuma||0).toFixed(2)} · Saldo final: ${t.saldoFin==null?'—':('$'+Number(t.saldoFin).toFixed(2)+(t.saldoFiable?' (fiable)':' (no fiable)'))}</div>`
+                 +`<div id="cuarOps-${en.id}" style="display:none"><div class="table-responsive mt-2"><table class="table table-sm align-middle mb-0"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Monto</th><th>Tipo</th><th>Estado</th><th></th></tr></thead><tbody>${(en.ops||[]).map((o,ix)=>filaOp(en,o,ix)).join('')}</tbody></table></div></div></div>`;
+            });
+            const hist=lista.filter(x=>x.estado!=='retenida');
+            if(hist.length){
+                h+='<details><summary class="small fw-semibold text-secondary">Historial: '+hist.length+' lote(s) ya decididos</summary><div class="mt-2">'
+                  +hist.map(en=>`<div class="small border rounded p-2 mb-1"><span class="badge ${en.estado==='liberada'?'bg-success':'bg-dark'}">${en.estado==='liberada'?'Liberado':'Descartado'}</span> <b>${esc(en.archivo||'')}</b> <span class="text-secondary">(${(en.ops||[]).length} op.) — por ${esc(en.decisionDe||'')} el ${esc(en.fechaDecision||'')}${en.detalleDecision?(' · '+esc(en.detalleDecision)):''}</span></div>`).join('')
+                  +'</div></details>';
+            }
+            box.innerHTML=h;
+        }
+        function contaCuarentenaToggle(id){ const el=document.getElementById('cuarOps-'+id); if(el) el.style.display=(el.style.display==='none')?'':'none'; }
+        function contaCuarentenaTrasDecision(id,opsTocadas,resultado){
+            const c=getConta(); const en=contaCuarentenaBuscar(c,id); if(!en) return;
+            if(opsTocadas){ const claves=new Set(opsTocadas.map(o=>(o.refC||'')+'|'+(o.refO||'')+'|'+(o.fecha||'')+'|'+(o.monto||''))); (en.ops||[]).forEach(o=>{ if(!o.resuelta&&claves.has((o.refC||'')+'|'+(o.refO||'')+'|'+(o.fecha||'')+'|'+(o.monto||''))) o.resuelta='liberada'; }); }
+            const pend=(en.ops||[]).some(o=>!o.resuelta);
+            en.estado=pend?'retenida':'liberada';
+            en.decisionDe=getCurrentUser(); en.fechaDecision=hoy();
+            if(!pend&&resultado&&resultado.nuevas===0) en.detalleDecision='liberado sin efecto: todas sus operaciones ya estaban importadas';
+            saveConta(c); renderAll();
+        }
+        function contaCuarentenaLiberar(id){
+            if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const c=getConta(); const en=contaCuarentenaBuscar(c,id); if(!en||en.estado!=='retenida') return;
+            const ops=(en.ops||[]).filter(o=>!o.resuelta);
+            if(!ops.length){ alert('Este lote ya no tiene operaciones retenidas.'); return; }
+            if(!window.__pdfLiberarCuarentena){ alert('El módulo de importación no está cargado; recarga la página e inténtalo de nuevo.'); return; }
+            const algunaResuelta=(en.ops||[]).some(o=>o.resuelta);
+            const r=window.__pdfLiberarCuarentena({archivo:en.archivo,cuenta:en.cuenta,periodoTexto:en.periodoTexto||'',desde:en.desde||'',hasta:en.hasta||'',saldoBancoFin:(en.totales&&en.totales.saldoFin!=null)?en.totales.saldoFin:null,registrarEstado:!algunaResuelta},ops);
+            if(r&&r.ok) contaCuarentenaTrasDecision(id,ops,r);
+        }
+        function contaCuarentenaLiberarOp(id,ix){
+            if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const c=getConta(); const en=contaCuarentenaBuscar(c,id); if(!en||en.estado!=='retenida') return;
+            const op=(en.ops||[])[ix]; if(!op||op.resuelta) return;
+            if(!window.__pdfLiberarCuarentena){ alert('El módulo de importación no está cargado; recarga la página e inténtalo de nuevo.'); return; }
+            const r=window.__pdfLiberarCuarentena({archivo:en.archivo,cuenta:en.cuenta,periodoTexto:en.periodoTexto||'',desde:en.desde||'',hasta:en.hasta||'',saldoBancoFin:(en.totales&&en.totales.saldoFin!=null)?en.totales.saldoFin:null,registrarEstado:false},[op]);
+            if(r&&r.ok) contaCuarentenaTrasDecision(id,[op],r);
+        }
+        function contaCuarentenaDescartar(id){
+            if(!puedeEditar()){ alert('Sin permiso de edición.'); return; }
+            const c=getConta(); const en=contaCuarentenaBuscar(c,id); if(!en||en.estado!=='retenida') return;
+            if(!confirm('¿Descartar el lote «'+(en.archivo||'')+'»? Quedará archivado (no se borra) y la app recordará sus referencias: si el mismo estado vuelve a importarse, sus operaciones se marcarán como ya descartadas y no entrarán.')) return;
+            (en.ops||[]).forEach(o=>{ if(!o.resuelta) o.resuelta='descartada'; });
+            en.estado='descartada'; en.decisionDe=getCurrentUser(); en.fechaDecision=hoy();
+            saveConta(c); renderAll();
+        }
+
         // ===== RENDER TODO =====
         const TABS_AVANZADAS=['tab-conta','tab-gestion','tab-aft','tab-tasas','tab-utilidades','tab-ideas'];
         function modoSimpleActivo(){ try{ return localStorage.getItem('finanzas_modo_'+(getCurrentUser()||''))!=='completo'; }catch(e){ return true; } }
@@ -10622,6 +10717,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             try{ if(typeof isAdmin==='function'&&isAdmin()&&typeof subsDeNeg==='function'&&typeof subsMesActual==='function'){ const pend=Object.keys(CFG.negocios||{}).filter(n=>{ const s=subsDeNeg(n); return s&&s.activo!==false&&!(s.pagos&&s.pagos[subsMesActual()]); }); if(pend.length) filas.push({t:'warning', icono:'💳', txt:`<b>${pend.length} negocio(s) sin la suscripción del mes pagada</b>: ${esc(pend.join(', '))}. Quedarán bloqueados al entrar.`, tab:'tab-admin', btn:'Marcar pagos'}); } }catch(e){}
             try{ (cierrePendientesHoy()||[]).forEach(f=>filas.push(f)); }catch(e){}
             try{ if(retDivisaEsPDL()){ const f=getFiscal(); const hoyT=hoy(); const viejos=(f.retDivisa||[]).filter(r=>(r.estado==='pendiente'||r.estado==='bandeja')&&r.fecha&&isFinite(Date.parse(r.fecha))&&(Date.parse(hoyT)-Date.parse(r.fecha))>5*86400000); if(viejos.length) filas.push({t:'warning', icono:'💱', txt:`<b>${viejos.length} aporte(s) del 20 % por retención de divisa</b> llevan más de 5 días sin acreditarse en tu cuenta CUP (Res. 103/2026 del MEP).`, tab:'tab-tarjeta_usd', btn:'Ver retención'}); } }catch(e){}
+            try{ const cc=getConta(); const retC=(cc.cuarentena||[]).filter(x=>x.estado==='retenida'); if(retC.length) filas.push({t:'danger', icono:'🛡️', txt:`<b>${retC.length} lote(s) en la cuarentena de importaciones</b> esperan tu decisión: el control de totales los retuvo y no son movimientos todavía.`, tab:'tab-conta', btn:'Decidir en Contabilidad'}); }catch(e){}
+            try{ const cc2=getConta(); const aMedias=(cc2.importaciones||[]).filter(x=>x.estado==='aplicando'); if(aMedias.length) filas.push({t:'warning', icono:'🧩', txt:`<b>${aMedias.length} importación(es) quedó(aron) a medias</b>: vuelve a importar el mismo estado de cuenta y la app la completa sin duplicar nada.`, tab:'tab-chequera', btn:'Reimportar el estado'}); }catch(e){}
             const simple=modoSimpleActivo();
             const cuerpo = filas.length
                 ? filas.map(f=>`<div class="alert alert-${f.t} py-2 px-2 mb-2 d-flex flex-wrap align-items-center gap-2"><span class="flex-grow-1 small">${f.icono} ${f.txt}</span><button type="button" class="btn btn-sm btn-dark" onclick="irAPestana('${f.tab}')">${f.btn} →</button></div>`).join('')
@@ -11536,7 +11633,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function cargarSheetJS(){
             if (window.XLSX) return Promise.resolve(window.XLSX);
             if (_xlsxCargando) return _xlsxCargando;
-            _xlsxCargando = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = () => res(window.XLSX); s.onerror = () => rej(new Error('CDN no disponible')); document.head.appendChild(s); });
+            /* D7 (ronda -35): primero la copia local vendor/ (la trae la
+               instalación sin conexión); en línea se cae al CDN. */
+            const intentar = (url) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = url; s.onload = () => res(window.XLSX); s.onerror = () => rej(new Error('CDN no disponible')); document.head.appendChild(s); });
+            _xlsxCargando = intentar('vendor/xlsx.full.min.js').catch(() => intentar('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js')).catch(e => { _xlsxCargando = null; throw e; });
             return _xlsxCargando;
         }
         /* Extracción de líneas de un PDF con pdf.js, agrupadas por
@@ -16491,7 +16591,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             codigoAporteNorm: codigoAporteNorm,
             obligacionParaAporte: obligacionFiscalParaAporte,
             fiscalTributos: function(){ try { const f = getFiscal(); return f.tributos || {}; } catch(e) { return {}; } },
-            registroQRDeMovs: registroQRDeMovs
+            registroQRDeMovs: registroQRDeMovs,
+            /* Ronda -35 (importador reforzado): datos bancarios guardados
+               por cuenta (para la T5) y claves de operaciones ya vistas
+               en estados registrados (para marcar «resucitadas», D10) */
+            datosBancoCuentas: function(){ try { const f = getFiscal(); return (f && f.cuentasBanco) || {}; } catch(e) { return {}; } },
+            clavesEstadosBanco: function(){ const set = {}; try { const c = getConta(); (c.estadosBanco || []).forEach(function(e){ (e.ops || []).forEach(function(o){ if (o.refC && o.refO) set[o.refC + '|' + o.refO] = true; }); }); } catch(e) {} return set; },
+            clavesDescartadasCuarentena: function(){ const set = {}; try { const c = getConta(); (c.cuarentena || []).forEach(function(en){ if (en.estado !== 'descartada') return; (en.ops || []).forEach(function(o){ if (o.refC && o.refO) set[o.refC + '|' + o.refO] = true; }); }); } catch(e) {} return set; },
+            /* Ronda -35 (P5): mapeo de columnas CSV aprendido por negocio */
+            importCfg: function(){ try { const f = getFiscal(); return (f && f.importCfg) || {}; } catch(e) { return {}; } },
+            saveImportCfg: function(cfg){ try { const f = getFiscal(); f.importCfg = cfg || {}; saveFiscal(f); } catch(e) {} }
         };
         /* ===== MANUAL DE INSTRUCCIONES (pedido de Leonardo, 2026-10-25) =====
            FUENTE ÚNICA del manual completo de la app: el array
@@ -16504,7 +16613,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-34';
+        var MANUAL_VERSION = 'v2026.10.28-35';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16626,7 +16735,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Avisos:</b> un aporte que lleva más de <b>5 días</b> sin acreditarse sale en rojo en la tarjeta y en «Qué toca hoy». El resumen de la retención (retenido, a aportar y acreditado) entra en el <b>Cierre del período</b>, en «lo que la app ya tiene».</li></ul>'},
         {id:'importar-pasos', modulo:'importar', titulo:'Importar un estado de cuenta, paso a paso', html:
             '<ol><li>Entra a la cuenta (Chequera, CUP o USD) y pulsa el botón <b>PDF</b> de importar.</li>' +
-            '<li>Elige el PDF del estado de cuenta BANDEC. La app reconoce los <b>dos formatos</b> del banco y lee también el encabezado con los datos del banco.</li>' +
+            '<li>Elige el estado de cuenta BANDEC: <b>PDF</b> (la app reconoce los <b>dos formatos</b> del banco y lee también el encabezado con los datos del banco) o la exportación en <b>CSV/Excel</b>.</li>' +
             '<li>Revisa la <b>vista previa</b>: lo resuelto aparece colapsado con su vía («regla», «ONAT», «transferencia»…) y la tabla muestra <b>solo lo que te necesita</b>.</li>' +
             '<li>Confirma la importación. Los duplicados se saltan solos: la app deduplica por referencia corriente y de origen, así puedes subir el mismo estado dos veces sin duplicar operaciones.</li></ol>'},
         {id:'vista-previa', modulo:'importar', titulo:'La vista previa: qué se resolvió solo y qué llega a la bandeja', html:
@@ -16638,6 +16747,15 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li>Las comisiones «DÉBITO RECIBIDO…» no se marcan como ventas QR: quedan fuera de esa regla.</li>' +
             '<li>La frase de la venta por correo se tolera con acentos y partida entre líneas.</li>' +
             '<li>Si un estado trae un formato nuevo del banco, sube el archivo igualmente: lo no reconocido llega a la bandeja, no se pierde.</li></ul>'},
+        {id:'importar-totales-cuarentena', modulo:'importar', titulo:'Control de totales, cuarentena y CSV/Excel (nuevo)', html:
+            '<p>Antes de importar nada, cada archivo pasa el <b>control de totales</b> y la vista previa lo enseña en un panel por archivo con semáforo (✔ cuadra · ⚠ importa con avisos · ✘ retenido): movimientos <b>declarados contra extraídos</b>, suma de ingresos y gastos, saldo inicial y saldo final según el banco. Las reglas son: <b>T1</b> la cantidad declarada por el banco coincide con la extraída; <b>T2</b> la cadena de saldos corridos cuadra operación a operación; <b>T3</b> saldo inicial + neto = saldo final; <b>T4</b> ninguna operación fuera del rango de fechas del estado; <b>T5</b> el estado es de la cuenta que elegiste (se contrasta con los datos bancarios guardados).</p>' +
+            '<ul><li><b>Bloquean (T1, T2, T5):</b> ninguna operación de ese estado se importa; el estado completo va a la <b>cuarentena</b>. Un archivo bloqueado o ilegible ya no frena a los demás del lote: su error se nombra y el resto continúa.</li>' +
+            '<li><b>T3 no bloquea:</b> el estado se importa con un <b>aviso fuerte</b> y su registro queda marcado «con diferencia» (también se ve en la conciliación), para que lo revises: puede faltar un movimiento o sobrar uno. Cuando el banco trae el saldo corrido a 0.00 (tarjetas), la app lo sabe y no evalúa lo que no es fiable.</li>' +
+            '<li><b>T4 retiene solo esa operación:</b> queda fuera salvo que marques «Importar igualmente» en su fila; si no la confirmas, va a la cuarentena como lote «manual». Las fechas imposibles (99/99/2026) se rechazan: nunca crean un mes fantasma.</li>' +
+            '<li><b>La cuarentena</b> está en la pestaña Contabilidad («Cuarentena de importaciones», con aviso en «Qué toca hoy»). Lo retenido <b>no es un movimiento</b>: no mueve saldos ni entra en los estados ni en la conciliación. Solo sale con tu palabra: <b>Liberar</b> (el lote entero o operación a operación) lo importa por el camino normal, con su deduplicación y su registro de estado; <b>Descartar</b> lo archiva para siempre y la app recordará sus referencias: si el mismo estado vuelve, esas operaciones se marcan «Descartada en cuarentena» y no entran. Cada decisión queda firmada con tu usuario y la fecha.</li>' +
+            '<li><b>Resucitadas:</b> si borraste un movimiento a mano y reimportas su estado, la fila vuelve marcada «Resucitada»: el estado la delata y, si confirmas, se importa de nuevo.</li>' +
+            '<li><b>Importación a medias:</b> cada importación se registra al empezar y se cierra al terminar; si algo se cortara a mitad, «Qué toca hoy» te avisa y basta reimportar el mismo estado: la app lo completa sin duplicar nada.</li>' +
+            '<li><b>CSV y Excel:</b> el mismo botón acepta <b>.csv</b> y <b>.xlsx</b> además de PDF. Las columnas se reconocen por nombre (Fecha, Concepto, Importe, Cr/Db o Debe/Haber, referencias, Saldo); si una exportación trae otros nombres, la app te enseña las primeras filas y <b>tú asignas las columnas una vez</b>: el mapeo se guarda por negocio y la próxima exportación igual entra directa. Las filas con error se listan con su número y motivo y no tumban el lote. Si la tabla no trae referencias, cada operación recibe una <b>clave sintética por contenido</b> (fecha + importe + concepto, con desempate por su orden en el archivo si dos operaciones son idénticas) para deduplicar; si un pago repetido legítimo se marca duplicado, puedes <b>forzarlo</b> desde su fila. Sin conexión, el lector de PDF y el de hojas viajan dentro de la instalación: importar no necesita internet.</li></ul>'},
         {id:'como-clasifica', modulo:'motor', titulo:'Cómo clasifica cada movimiento', html:
             '<p>El motor lee la <b>descripción</b> de cada operación del estado y decide su clase y su cuenta: ingreso normal, transferencia entre tus cuentas, pago ONAT, extracción, documento de cobro o pago, crédito… Con la cuenta elegida genera el asiento en partida doble contra la cuenta de banco que corresponda (110-010 en CUP, 110-020 en USD).</p>' +
             '<p>La decisión queda registrada con su vía («manual», «regla aprendida», «concepto de tesorería», «genérica»…), así siempre puedes auditar por qué un movimiento fue a esa cuenta.</p>'},
@@ -17089,6 +17207,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
+         'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
          'contaCancelarDoc','contaPatronAplicar','contaPatronCrear',
          'lbQuitarFila','lbAddDir','lbAddInd','lbDepUI','lbDepSumarUI','lbFichaUI','lbTraerCostoUI',
          'lbPreciosUI','lbEquilibrioUI','lbTableroRender','lbTableroGuardar',
