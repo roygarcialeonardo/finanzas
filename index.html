@@ -7497,7 +7497,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function renderPos() {
             const root = document.getElementById('posRoot'); if (!root) return;
             const turno = posTurnoAbierto();
-            if (!turno) { posPintarSinTurno(root); return; }
+            if (!turno) { posPintarSinTurno(root); posPintarHistorial(); return; }
             root.innerHTML = `<div class="row g-3">
                 <div class="col-lg-7">
                     <div class="card p-3 mb-3">
@@ -7519,7 +7519,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div id="posInformeBox"></div>
                 </div>
             </div>`;
-            posPintarGrid(); posPintarTurno(); posPintarCarrito();
+            posPintarGrid(); posPintarTurno(); posPintarCarrito(); posPintarHistorial();
         }
         /* ===== POS-2 · Venta y turnos (tarea 38, ronda -54) ===== */
         let POS_CARRITO = [], POS_BUSQ = '', POS_PAGOS = null;
@@ -7643,20 +7643,109 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 try { contaGenerarSilencioso(); } catch (e) {}
             }
             POS_CARRITO = []; POS_PAGOS = null;
-            posPintarCarrito(); posPintarGrid(); posPintarTurno(); posPintarTicket(venta);
+            posPintarCarrito(); posPintarGrid(); posPintarTurno(); posPintarTicket(venta); posPintarHistorial();
         }
-        function posPintarTicket(v) {
-            const box = document.getElementById('posTicketBox'); if (!box) return;
+        function posPintarTicket(v, destinoId) {
+            const box = document.getElementById(destinoId || 'posTicketBox'); if (!box) return;
+            const cardId = 'posTicketCard-' + (destinoId || 'posTicketBox');
             const neg = (typeof getNegocioNombre === 'function' && getNegocioNombre()) || 'Negocio';
-            box.innerHTML = `<div class="card p-3 mb-3" id="posTicketCard"><div class="text-center mb-2"><div class="fw-bold">${esc(neg)}</div><div class="small text-muted">Ticket ${esc(v.id)} · ${esc(v.fecha)} ${esc(v.hora)} · Vendedor: ${esc(v.vendedor)}</div></div>
+            box.innerHTML = `<div class="card p-3 mb-3" id="${cardId}"><div class="text-center mb-2"><div class="fw-bold">${esc(neg)}</div><div class="small text-muted">Ticket ${esc(v.id)} · ${esc(v.fecha)} ${esc(v.hora)} · Vendedor: ${esc(v.vendedor)}</div></div>
+                ${v.anulada ? `<div class="text-center fw-bold text-danger border rounded py-1 mb-2">*** VENTA ANULADA ***<div class="small fw-normal">${esc((v.anulacion && v.anulacion.motivo) || '')}</div></div>` : ''}
                 ${v.lineas.map(l => `<div class="d-flex justify-content-between small"><span>${esc(l.nombre)} × ${l.cantidad}</span><span>${moneda(l.importe)}</span></div>`).join('')}
                 <div class="d-flex justify-content-between border-top pt-1 mt-1"><b>Total</b><b>${moneda(v.total)}</b></div>
                 ${v.pagos.map(p => `<div class="d-flex justify-content-between small text-muted"><span>${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[p.metodo] || p.metodo)}</span><span>${moneda(p.monto)}</span></div>`).join('')}
                 ${v.vuelto > 0 ? `<div class="d-flex justify-content-between small"><span>Vuelto</span><span>${moneda(v.vuelto)}</span></div>` : ''}
-                <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="posTicketImprimir()">🖨️ Imprimir / PDF</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="posTicketCerrar()">Nueva venta</button></div></div>`;
+                <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="posTicketImprimir('${cardId}')">🖨️ Imprimir / PDF</button>${window.FINANZAS_LOCAL ? `<button type="button" class="btn btn-sm btn-outline-primary" onclick="posTicketPos('${esc(v.id)}')">🖨️ POS</button>` : ''}<button type="button" class="btn btn-sm btn-outline-secondary" onclick="posTicketCerrar('${destinoId || 'posTicketBox'}')">Cerrar</button></div></div>`;
         }
-        function posTicketImprimir() { printPane('posTicketCard', 'Ticket de venta'); }
-        function posTicketCerrar() { const box = document.getElementById('posTicketBox'); if (box) box.innerHTML = ''; }
+        function posTicketImprimir(cardId) { printPane(cardId || 'posTicketCard-posTicketBox', 'Ticket de venta'); }
+        function posTicketCerrar(destinoId) { const box = document.getElementById(destinoId || 'posTicketBox'); if (box) box.innerHTML = ''; }
+        /* ===== POS-3 · Anulaciones, historial y ESC/POS (tarea 38, ronda -55) ===== */
+        let POS_HIST_MES = false;
+        function posTicketTexto(v) {
+            const neg = (typeof getNegocioNombre === 'function' && getNegocioNombre()) || 'Negocio';
+            const L = [neg, 'Ticket ' + v.id + ' - ' + v.fecha + ' ' + v.hora, 'Vendedor: ' + v.vendedor, '--------------------------------'];
+            if (v.anulada) L.push('*** VENTA ANULADA ***', 'Motivo: ' + ((v.anulacion && v.anulacion.motivo) || ''), '--------------------------------');
+            for (const l of v.lineas) L.push(l.nombre + ' x' + l.cantidad, '   ' + moneda(l.precio) + '  ->  ' + moneda(l.importe));
+            L.push('--------------------------------', 'TOTAL: ' + moneda(v.total));
+            for (const p of v.pagos) L.push(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[p.metodo] + ': ' + moneda(p.monto));
+            if (v.vuelto > 0) L.push('Vuelto: ' + moneda(v.vuelto));
+            L.push('', 'Gracias por su compra');
+            return L.join('\n');
+        }
+        async function posTicketPos(id) {
+            const { pos } = posDatos();
+            const v = pos.ventas.find(x => x.id === id); if (!v) return;
+            try {
+                const r = await subsLocalFetch('/pos/imprimir', { texto: posTicketTexto(v) });
+                if (r && r.ok) alert('Ticket ' + id + ' enviado a la impresora POS.');
+                else alert('La impresora POS no aceptó el ticket: ' + ((r && r.error) || 'sin respuesta'));
+            } catch (e) { alert('No se pudo hablar con el servidor local para imprimir el ticket.'); }
+        }
+        function posPintarHistorial() {
+            const root = document.getElementById('posRoot'); if (!root) return;
+            let box = document.getElementById('posHistBox');
+            if (!box) { root.insertAdjacentHTML('beforeend', '<div id="posHistBox"></div><div id="posHistTicket"></div>'); box = document.getElementById('posHistBox'); }
+            const { pos } = posDatos();
+            const hoyS = hoy(), mesS = subsMesActual();
+            const ventas = pos.ventas.filter(v => POS_HIST_MES ? String(v.fecha || '').slice(0, 7) === mesS : v.fecha === hoyS).slice(-50).reverse();
+            const yo = getCurrentUser();
+            const cierres = pos.turnos.filter(t => t.cierre && (getRolUsuario() !== 'vendedor' || t.vendedor === yo)).slice(-10).reverse();
+            box.innerHTML = `<div class="card p-3 mb-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><h6 class="fw-semibold mb-0">🗂️ Historial de ventas ${POS_HIST_MES ? 'del mes' : 'de hoy'}</h6>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="posHistVer(${POS_HIST_MES ? 'false' : 'true'})">${POS_HIST_MES ? 'Ver solo hoy' : 'Ver todo el mes'}</button></div>
+                ${ventas.length ? ventas.map(v => { const t = pos.turnos.find(x => x.id === v.turnoId); const anulable = !v.anulada && t && !t.cierre; return `<div class="border-bottom py-2"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><span class="small"><b>${esc(v.id)}</b> · ${esc(v.fecha)} ${esc(v.hora)} · ${esc(v.vendedor)} · <b>${moneda(v.total)}</b>${v.anulada ? ' · <span class="text-danger fw-semibold">ANULADA</span>' : ''}</span><span class="d-flex gap-1"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posReimprimir('${esc(v.id)}')">Ticket</button>${anulable ? `<button type="button" class="btn btn-sm btn-outline-danger" onclick="posAnularAbrir('${esc(v.id)}')">Anular</button>` : ''}</span></div>${v.anulada && v.anulacion ? `<div class="small text-danger">Motivo: ${esc(v.anulacion.motivo)} — por ${esc(v.anulacion.por)}, ${esc(v.anulacion.fecha)} ${esc(v.anulacion.hora)}</div>` : ''}<div id="posAnulBox-${esc(v.id)}"></div></div>`; }).join('') : '<p class="small text-secondary mb-0">Sin ventas en este período.</p>'}
+            </div>
+            <div class="card p-3 mb-3"><h6 class="fw-semibold mb-2">🔒 Cierres de turno</h6>
+                ${cierres.length ? cierres.map(t => `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-2"><span class="small"><b>${esc(t.id)}</b> · ${esc(t.vendedor)} · cerró ${esc(t.cierre.fecha)} ${esc(t.cierre.hora)} · ${t.cierre.numVentas} ventas (${moneda(t.cierre.totalVentas)}) · diferencia <b class="${t.cierre.diferencia !== 0 ? 'text-danger' : ''}">${moneda(t.cierre.diferencia)}</b></span><button type="button" class="btn btn-sm btn-outline-primary" onclick="posInformeZ('${esc(t.id)}')">Informe Z</button></div>`).join('') : '<p class="small text-secondary mb-0">Todavía no hay cierres.</p>'}
+            </div>`;
+        }
+        function posHistVer(mes) { POS_HIST_MES = !!mes; posPintarHistorial(); }
+        function posReimprimir(id) { const { pos } = posDatos(); const v = pos.ventas.find(x => x.id === id); if (v) posPintarTicket(v, 'posHistTicket'); }
+        function posInformeZ(turnoId) {
+            const { pos } = posDatos();
+            const t = pos.turnos.find(x => x.id === turnoId); if (!t || !t.cierre) return;
+            const box = document.getElementById('posHistTicket'); if (!box) return;
+            const porMetodo = {};
+            for (const v of pos.ventas.filter(x => !x.anulada && x.turnoId === t.id)) for (const p of v.pagos) porMetodo[p.metodo] = posR2((porMetodo[p.metodo] || 0) + (Number(p.monto) || 0));
+            const anuladas = pos.ventas.filter(x => x.anulada && x.turnoId === t.id);
+            box.innerHTML = `<div class="card p-3 mb-3" id="posZCard"><h6 class="fw-semibold mb-2">🔒 Informe Z · Turno ${esc(t.id)} · ${esc(t.vendedor)}</h6>
+                <div class="small">Abierto: ${esc(t.fecha)} ${esc(t.apertura)} · Cerrado: ${esc(t.cierre.fecha)} ${esc(t.cierre.hora)} · Fondo: ${moneda(t.fondo)}</div>
+                <div class="small">Ventas: <b>${t.cierre.numVentas}</b> por <b>${moneda(t.cierre.totalVentas)}</b>${anuladas.length ? ' · Anuladas: <b>' + anuladas.length + '</b>' : ''}</div>
+                ${Object.keys(porMetodo).map(m => `<div class="small">· ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[m] || m)}: ${moneda(porMetodo[m])}</div>`).join('')}
+                <div class="small">Efectivo esperado: ${moneda(t.cierre.esperado)} · Contado: ${moneda(t.cierre.contado)} · <b>Diferencia: ${moneda(t.cierre.diferencia)}</b></div>
+                ${t.cierre.nota ? `<div class="small">Nota del cierre: ${esc(t.cierre.nota)}</div>` : ''}
+                <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="printPane('posZCard', 'Informe Z')">🖨️ Imprimir / PDF</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="posTicketCerrar('posHistTicket')">Cerrar</button></div></div>`;
+        }
+        function posAnularAbrir(id) {
+            const cont = document.getElementById('posAnulBox-' + id); if (!cont) return;
+            cont.innerHTML = `<div class="d-flex gap-2 mt-2 flex-wrap"><input type="text" class="form-control form-control-sm" id="posAnulMotivo-${esc(id)}" placeholder="Motivo de la anulación (obligatorio)" style="max-width:320px"><button type="button" class="btn btn-sm btn-danger" onclick="posAnularConfirmar('${esc(id)}')">Confirmar anulación</button></div>`;
+        }
+        function posAnularConfirmar(id) {
+            const motivo = ((document.getElementById('posAnulMotivo-' + id) || {}).value || '').trim();
+            if (!motivo) { alert('Escribe el motivo de la anulación: queda en la traza.'); return; }
+            const { conta, pos } = posDatos();
+            const v = pos.ventas.find(x => x.id === id); if (!v || v.anulada) return;
+            const t = pos.turnos.find(x => x.id === v.turnoId);
+            if (!t || t.cierre) { alert('Esta venta ya no se puede anular: su turno está cerrado.'); return; }
+            v.anulada = true;
+            v.anulacion = { motivo: motivo, por: getCurrentUser(), fecha: hoy(), hora: posHora() };
+            for (const l of v.lineas) {
+                if (!l.productoId) continue;
+                const p = (conta.productos || []).find(x => x.id === l.productoId); if (!p) continue;
+                p.stock = posR2((Number(p.stock) || 0) + l.cantidad);
+                conta.seqInv = (conta.seqInv || 0) + 1;
+                conta.movInventario.push({ id: 'I' + conta.seqInv, productoId: p.id, tipo: 'entrada', cantidad: l.cantidad, costoUnit: Number(p.costoProm) || 0, fecha: hoy(), origenKey: 'pos-anul:' + v.id });
+            }
+            saveConta(conta);
+            const antes = movimientos.length;
+            for (let i = movimientos.length - 1; i >= 0; i--) if (movimientos[i].posVentaId === v.id) movimientos.splice(i, 1);
+            if (movimientos.length !== antes) {
+                try { saveMovimientos(movimientos); } catch (e) {}
+                try { contaGenerarSilencioso(); } catch (e) {}
+            }
+            renderPos();
+            const root = document.getElementById('posRoot');
+            if (root) root.insertAdjacentHTML('afterbegin', `<div class="alert alert-warning py-2 px-3 small">↩️ Venta ${esc(v.id)} anulada (${moneda(v.total)}). Motivo: ${esc(motivo)}. El stock volvió y el ingreso en Finanzas se revirtió.</div>`);
+        }
         function posEsperado(t, pos) {
             const ventasT = pos.ventas.filter(v => !v.anulada && v.turnoId === t.id);
             /* El efectivo que queda en caja por venta = su total menos
@@ -7749,7 +7838,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             saveConta(conta);
             const msg = document.getElementById('posCfgMsg'); if (msg) msg.textContent = '✅ Guardado.';
         }
-        window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual, turnoAbierto: posTurnoAbierto, addProd: posAddProd, cobrar: posCobrar, esperado: posEsperado, carrito: () => POS_CARRITO, setPagos: p => { POS_PAGOS = p; }, cerrarTurno: posCerrarTurno, abrirTurno: posAbrirTurno };
+        window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual, turnoAbierto: posTurnoAbierto, addProd: posAddProd, cobrar: posCobrar, esperado: posEsperado, carrito: () => POS_CARRITO, setPagos: p => { POS_PAGOS = p; }, cerrarTurno: posCerrarTurno, abrirTurno: posAbrirTurno, anular: posAnularConfirmar, anularAbrir: posAnularAbrir, reimprimir: posReimprimir, informeZ: posInformeZ, ticketTexto: posTicketTexto };
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-pos') setTimeout(renderPos, 60); });
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-admin') setTimeout(() => { try { renderPosCfg(); } catch (err) {} }, 80); });
 
@@ -18828,7 +18917,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-54';
+        var MANUAL_VERSION = 'v2026.10.29-55';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19315,6 +19404,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Turnos:</b> para vender hay que <b>abrir el turno</b> con el fondo de caja. Durante el turno puedes registrar <b>entradas y salidas de caja</b> con su motivo (un pago a un proveedor, una retirada), pedir el <b>Informe X</b> (el avance sin cerrar) y al final <b>cerrar el turno (Z)</b> contando el efectivo: si lo contado no coincide con lo esperado, la app exige la <b>nota que explica la diferencia</b> antes de cerrar.</li>' +
             '<li><b>Vender:</b> toca los productos de la parrilla (o busca por nombre o código), ajusta las cantidades — admiten decimales, para vender por peso o por metros —, añade una <b>línea manual</b> si es un concepto sin ficha, y cobra: <b>efectivo, tarjeta o transferencia</b>, también mezclados en una misma venta, con el vuelto calculado solo. Cada venta <b>rebaja el stock</b> del inventario en el acto y deja su <b>ticket</b>, que se imprime o se guarda en PDF.</li>' +
             '<li><b>¿Pasa a los ingresos?</b> Lo decide el negocio en su tarjeta de ajustes: si está encendido, cada cobro nace también como ingreso de Finanzas ya clasificado a ventas (el efectivo a la caja, la tarjeta a la tarjeta CUP y la transferencia a la chequera); si está apagado, la venta solo vive en el POS y en el inventario.</li>' +
+            '<li><b>Anular una venta:</b> en el historial, mientras su turno siga abierto, el botón <b>Anular</b> pide el <b>motivo</b> y lo deja escrito en la traza: el stock vuelve solo, el ingreso en Finanzas se revierte y la venta queda marcada como anulada, sin borrarse nunca. Si el turno ya cerró, la venta ya no se puede anular.</li>' +
+            '<li><b>Historial y cierres:</b> las ventas de hoy (o del mes) se reimprimen cuando haga falta, y de cada cierre queda su <b>Informe Z</b> imprimible con el desglose por forma de cobro.</li>' +
+            '<li><b>Impresora de tickets (solo sin conexión):</b> el botón <b>🖨️ POS</b> del ticket manda el ticket directo a la impresora térmica por el servidor local; se configura una sola vez poniendo la ruta de la impresora en <b>posPrinterPath</b> del archivo config-local.json de la carpeta de datos. Sin impresora, el ticket en PDF sigue ahí.</li>' +
             '<li>En la copia sin conexión, el POS se abre desde cualquier dispositivo de la <b>misma red local</b> (teléfono, tableta u otra PC) contra el servidor del negocio.</li></ul>'},
         {id:'panel-control', modulo:'respaldo', titulo:'Panel de control de licencias (solo la administradora)', html:
             '<p>El menú <b>Panel de control</b> (solo lo ve la cuenta administradora) reúne en un solo sitio el control de las licencias: el dinero del mes y el historial, la tabla maestra de negocios y el menú de tenedores. Marcar un pago, activar, desactivar o dar una cortesía se guarda al momento y el servidor aplica el bloqueo al instante.</p>' +
@@ -19475,7 +19567,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
