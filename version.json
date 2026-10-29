@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-36",
-  "publicada": "2026-10-29 00:37",
-  "notas": "Ronda -36: la alerta de salud del trimestre del Resumen solo se muestra en la MIPYME; el TCP y el PDL no tienen cierre trimestral",
+  "version": "v2026.10.28-37",
+  "publicada": "2026-10-29 02:28",
+  "notas": "Ronda -37: Identidad del negocio. Nueva tarjeta en Configuración con los datos del negocio y del representante, logo, firma y cuño; el logo aparece en la cabecera y la firma en el pie de los documentos de diseño propio (estados de cuenta). Los modelos oficiales no cambian.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "af4784ba57e2b04b022a5b73b748a3fa4e40bd8d5c8a07220dd292ffa02eb6e1",
-      "bytes": 1738215
+      "sha256": "11b2123ae6fcfc3b4d245da31c8eeb91983a4d4d6ed4019b7925ee022e7cf89c",
+      "bytes": 1754674
     },
     {
       "ruta": "pdf-import.js",

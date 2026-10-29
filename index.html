@@ -521,6 +521,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         .docof-firmas{margin-top:.4rem}
         .docof-firmas td{padding:0 12px;text-align:center;font-size:10.5px;vertical-align:top;width:33%}
         .docof-fir{border-top:1px solid #000;margin-top:2rem;padding-top:2px}
+        .docof-logo{float:left;max-height:52px;max-width:170px;margin:0 10px 4px 0}
+        .docof-firma-img{height:2rem;display:flex;align-items:flex-end;justify-content:center;gap:8px}
+        .docof-firma-img img.f{max-height:30px;max-width:150px}
+        .docof-firma-img img.c{max-height:38px;max-width:110px;opacity:.92}
         .docof-pie{font-size:9.5px;margin-top:.55rem}
         .docof-pag{text-align:right;font-size:10px;margin-top:.3rem}
 .app-hero .badge{background:rgba(255,255,255,.12)!important;color:#e6fffb!important;font-weight:600}
@@ -1946,6 +1950,45 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                 <div class="d-flex flex-wrap gap-2 mb-2"><select class="form-select" style="width:auto" id="cfgMesSel"></select><input type="number" class="form-control" style="width:100px" id="cfgAnioSel"><input type="number" step="0.01" min="0" class="form-control" style="width:120px" id="cfgTasaMes" placeholder="Tasa"><button type="button" class="btn btn-outline-secondary" id="btnAddTasaMes"><span class="icono-anim" data-icono="mas"></span> Añadir</button></div>
                                 <div id="listTasasMes"></div></div>
                             <div class="col-12"><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarCfg"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar ajustes</button></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Identidad del negocio -->
+                <div class="col-12">
+                    <div class="card p-3 p-md-4" id="cardIdentidad">
+                        <h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="edificio"></span>Identidad del negocio</h6>
+                        <p class="small text-secondary mb-3">Los datos y las imágenes con que este negocio se presenta en sus documentos: el logo encabeza los documentos de diseño propio, y la firma y el cuño salen en sus pies de firma. En los modelos oficiales cerrados solo van los nombres, como manda el modelo. El NIT y la razón social se toman del Vector Fiscal y de la ficha, no se repiten aquí.</p>
+                        <div class="row g-3">
+                            <div class="col-md-4"><label class="form-label">Nombre comercial (si difiere de la razón social)</label><input type="text" class="form-control" id="idt-nombreComercial"></div>
+                            <div class="col-md-5"><label class="form-label">Dirección</label><input type="text" class="form-control" id="idt-direccion"></div>
+                            <div class="col-md-3"><label class="form-label">Municipio</label><input type="text" class="form-control" id="idt-municipio"></div>
+                            <div class="col-md-3"><label class="form-label">Provincia</label><input type="text" class="form-control" id="idt-provincia"></div>
+                            <div class="col-md-3"><label class="form-label">Teléfonos</label><input type="text" class="form-control" id="idt-telefonos"></div>
+                            <div class="col-md-6"><label class="form-label">Correo del negocio</label><input type="text" class="form-control" id="idt-correo"></div>
+                            <div class="col-12"><hr class="my-1"><div class="fw-semibold small">Representante</div></div>
+                            <div class="col-md-4"><label class="form-label">Nombre y apellidos</label><input type="text" class="form-control" id="idt-repNombre"></div>
+                            <div class="col-md-2"><label class="form-label">Carné de identidad</label><input type="text" class="form-control" id="idt-repCI"></div>
+                            <div class="col-md-3"><label class="form-label">Cargo (representante legal, titular…)</label><input type="text" class="form-control" id="idt-repCargo"></div>
+                            <div class="col-md-3"><label class="form-label">Teléfono</label><input type="text" class="form-control" id="idt-repTelefono"></div>
+                            <div class="col-md-4"><label class="form-label">Correo</label><input type="text" class="form-control" id="idt-repCorreo"></div>
+                            <div class="col-md-8"><label class="form-label">Quién firma «Elaborado por» por defecto</label><input type="text" class="form-control" id="idt-firmaNombreDefecto" placeholder="Por defecto, el representante"></div>
+                            <div class="col-12"><hr class="my-1"><div class="fw-semibold small">Imágenes <span class="text-secondary fw-normal">(se reducen solas al subirlas: logo hasta 60 KB; firma y cuño en PNG transparente, hasta 40 KB)</span></div></div>
+                            <div class="col-md-4">
+                                <label class="form-label d-block">Logo</label>
+                                <div class="border rounded p-2 text-center bg-white"><img id="idt-prev-logo" alt="Logo" style="display:none;max-height:64px;max-width:100%"><span id="idt-vacio-logo" class="small text-secondary">Sin logo</span></div>
+                                <div class="d-flex gap-2 mt-2"><label class="btn btn-sm btn-outline-primary mb-0">Subir<input type="file" accept="image/*" class="d-none" onchange="identidadArchivo('logo',this)"></label><button type="button" class="btn btn-sm btn-outline-danger" onclick="identidadSetImagen('logo','')">Quitar</button></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label d-block">Firma (PNG transparente)</label>
+                                <div class="border rounded p-2 text-center bg-white"><img id="idt-prev-firma" alt="Firma" style="display:none;max-height:64px;max-width:100%"><span id="idt-vacio-firma" class="small text-secondary">Sin firma</span></div>
+                                <div class="d-flex gap-2 mt-2"><label class="btn btn-sm btn-outline-primary mb-0">Subir<input type="file" accept="image/*" class="d-none" onchange="identidadArchivo('firma',this)"></label><button type="button" class="btn btn-sm btn-outline-danger" onclick="identidadSetImagen('firma','')">Quitar</button></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label d-block">Cuño (PNG transparente)</label>
+                                <div class="border rounded p-2 text-center bg-white"><img id="idt-prev-cuno" alt="Cuño" style="display:none;max-height:64px;max-width:100%"><span id="idt-vacio-cuno" class="small text-secondary">Sin cuño</span></div>
+                                <div class="d-flex gap-2 mt-2"><label class="btn btn-sm btn-outline-primary mb-0">Subir<input type="file" accept="image/*" class="d-none" onchange="identidadArchivo('cuno',this)"></label><button type="button" class="btn btn-sm btn-outline-danger" onclick="identidadSetImagen('cuno','')">Quitar</button></div>
+                            </div>
+                            <div class="col-12"><button type="button" class="btn btn-primary-custom text-white px-4" onclick="identidadGuardar()"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar identidad</button><div id="idt-msg" class="small mt-2"></div></div>
                         </div>
                     </div>
                 </div>
@@ -4598,8 +4641,72 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         const MES_ABR={ene:0,feb:1,mar:2,abr:3,may:4,jun:5,jul:6,ago:7,sep:8,sept:8,oct:9,nov:10,dic:11};
         function normTxt(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
         function getFiscalKey(){return `finanzas_fiscal_${getCurrentUser()}`;}
-        function getFiscal(){const x=Store.getItem(getFiscalKey());if(!x)return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};try{const d=JSON.parse(x)||{};if(!d.meta)d.meta={};if(!Array.isArray(d.actividades))d.actividades=[];if(!d.tributos||Array.isArray(d.tributos))d.tributos={};if(!Array.isArray(d.obligaciones))d.obligaciones=[];if(!d.source)d.source={};if(!d.cierres||typeof d.cierres!=='object'||Array.isArray(d.cierres))d.cierres={};if(!Array.isArray(d.retDivisa))d.retDivisa=[];if(!d.retDivisaCfg||typeof d.retDivisaCfg!=='object'||Array.isArray(d.retDivisaCfg))d.retDivisaCfg={activo:true,coeficiente:''};return d;}catch(e){return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};}}
+        function getFiscal(){const x=Store.getItem(getFiscalKey());if(!x)return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};try{const d=JSON.parse(x)||{};if(!d.meta)d.meta={};if(!Array.isArray(d.actividades))d.actividades=[];if(!d.tributos||Array.isArray(d.tributos))d.tributos={};if(!Array.isArray(d.obligaciones))d.obligaciones=[];if(!d.source)d.source={};if(!d.cierres||typeof d.cierres!=='object'||Array.isArray(d.cierres))d.cierres={};if(!Array.isArray(d.retDivisa))d.retDivisa=[];if(!d.retDivisaCfg||typeof d.retDivisaCfg!=='object'||Array.isArray(d.retDivisaCfg))d.retDivisaCfg={activo:true,coeficiente:''};if(!d.identidad||typeof d.identidad!=='object'||Array.isArray(d.identidad))d.identidad={};return d;}catch(e){return {meta:{},actividades:[],tributos:{},obligaciones:[],source:{}};}}
         function saveFiscal(d){Store.setItem(getFiscalKey(),JSON.stringify(d));}
+        /* ===== IDENTIDAD DEL NEGOCIO (tarea 34, ronda -37) =====
+           Bloque `identidad` dentro del doc fiscal: datos del negocio y de
+           su representante + logo, firma y cuño (data URL reducidos en el
+           navegador). Alimenta la cabecera y los pies de firma de los
+           documentos de diseño propio y, desde la ronda de Facturas, el
+           emisor de la factura SC-2-012. Sin cambios de backend: viaja por
+           el slot fiscal existente. Topes de imagen (D2): logo ≤60 KB,
+           firma/cuño ≤40 KB; la guarda bloquea el guardado si el doc
+           fiscal completo supera 900 000 caracteres (avisa a los 600 000),
+           porque en línea el documento entero del negocio tiene un tope
+           duro de ~1 920 000 caracteres. */
+        const IDT_CAMPOS=['nombreComercial','direccion','municipio','provincia','telefonos','correo','repNombre','repCI','repCargo','repTelefono','repCorreo','firmaNombreDefecto'];
+        const IDT_LIMITES={logo:{kb:60,px:800},firma:{kb:40,px:600},cuno:{kb:40,px:600}};
+        let IDT_PENDING={logo:null,firma:null,cuno:null};
+        function identidadDelNegocio(){ const f=getFiscal(); const d=(f&&f.identidad&&typeof f.identidad==='object'&&!Array.isArray(f.identidad))?f.identidad:{}; const o={}; IDT_CAMPOS.forEach(k=>{ o[k]=d[k]||''; }); ['logo','firma','cuno'].forEach(k=>{ o[k]=d[k]||''; }); return o; }
+        function identidadAviso(msg,esError){ const el=document.getElementById('idt-msg'); if(el){ el.textContent=msg||''; el.className='small mt-2 '+(esError?'text-danger':'text-success'); } else if(msg) alert(msg); }
+        function identidadTamFiscal(f){ try{ return JSON.stringify(f).length; }catch(e){ return 0; } }
+        function identidadGuardia(tam){ return tam>900000?'bloqueo':(tam>600000?'aviso':'ok'); }
+        function identidadSetImagen(tipo,dataUrl){ if(!(tipo in IDT_PENDING)) return; IDT_PENDING[tipo]=dataUrl||''; identidadPintarPrevias(); identidadAviso(dataUrl?'Imagen lista: se aplicará al guardar la identidad.':'Imagen marcada para quitar: se aplicará al guardar la identidad.'); }
+        function identidadPintarPrevias(){ ['logo','firma','cuno'].forEach(k=>{ const img=document.getElementById('idt-prev-'+k), vacio=document.getElementById('idt-vacio-'+k); if(!img) return; const url=IDT_PENDING[k]!==null?IDT_PENDING[k]:(identidadDelNegocio()[k]||''); if(url){ img.src=url; img.style.display=''; if(vacio) vacio.style.display='none'; } else { img.removeAttribute('src'); img.style.display='none'; if(vacio) vacio.style.display=''; } }); }
+        function renderIdentidad(){ const card=document.getElementById('cardIdentidad'); if(!card) return; if(card.contains(document.activeElement)&&document.activeElement.tagName!=='BODY') return; const id=identidadDelNegocio(); const f=getFiscal(); IDT_CAMPOS.forEach(k=>{ const el=document.getElementById('idt-'+k); if(!el) return; let v=id[k]||''; if(!v&&k==='municipio') v=(f.meta&&f.meta.dpa)||''; el.value=v; }); identidadPintarPrevias(); }
+        function identidadCargarImagen(file){ return new Promise((res,rej)=>{ const url=URL.createObjectURL(file); const img=new Image(); img.onload=()=>{ try{URL.revokeObjectURL(url);}catch(e){} res(img); }; img.onerror=()=>{ try{URL.revokeObjectURL(url);}catch(e){} rej(new Error('No se pudo leer esa imagen')); }; img.src=url; }); }
+        function identidadRecorteTransparente(ctx,w,h){ try{ const d=ctx.getImageData(0,0,w,h).data; let minX=w,minY=h,maxX=-1,maxY=-1; for(let y=0;y<h;y++){ for(let x=0;x<w;x++){ if(d[(y*w+x)*4+3]>8){ if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y; } } } if(maxX<0) return null; const pad=4; const x0=Math.max(0,minX-pad), y0=Math.max(0,minY-pad), x1=Math.min(w,maxX+1+pad), y1=Math.min(h,maxY+1+pad); return {x:x0,y:y0,w:Math.max(1,x1-x0),h:Math.max(1,y1-y0)}; }catch(e){ return null; } }
+        async function identidadProcesarImagen(tipo,file){
+            const L=IDT_LIMITES[tipo]||IDT_LIMITES.logo;
+            const img=await identidadCargarImagen(file);
+            const sw0=img.naturalWidth||img.width, sh0=img.naturalHeight||img.height;
+            if(!sw0||!sh0) throw new Error('La imagen está vacía');
+            const esc0=Math.min(1,1600/Math.max(sw0,sh0));
+            const base=document.createElement('canvas'); base.width=Math.max(1,Math.round(sw0*esc0)); base.height=Math.max(1,Math.round(sh0*esc0));
+            const bctx=base.getContext('2d'); bctx.drawImage(img,0,0,base.width,base.height);
+            let rec=null; if(tipo!=='logo') rec=identidadRecorteTransparente(bctx,base.width,base.height);
+            const sx=rec?rec.x:0, sy=rec?rec.y:0, swd=rec?rec.w:base.width, shd=rec?rec.h:base.height;
+            let conAlfa=false;
+            if(tipo==='logo'){ try{ const d=bctx.getImageData(0,0,base.width,base.height).data; for(let i=3;i<d.length;i+=4){ if(d[i]<250){ conAlfa=true; break; } } }catch(e){} }
+            let lado=L.px;
+            while(true){
+                const escala=Math.min(1,lado/Math.max(swd,shd));
+                const w=Math.max(1,Math.round(swd*escala)), h=Math.max(1,Math.round(shd*escala));
+                const c=document.createElement('canvas'); c.width=w; c.height=h;
+                c.getContext('2d').drawImage(base,sx,sy,swd,shd,0,0,w,h);
+                let url=c.toDataURL('image/png');
+                if(tipo==='logo'&&!conAlfa){ const j=c.toDataURL('image/jpeg',0.9); if(j.length<url.length) url=j; }
+                const bytes=Math.floor((url.length-(url.indexOf(',')+1))*3/4);
+                if(bytes<=L.kb*1024) return url;
+                if(lado<=140) throw new Error('No se pudo reducir la imagen a '+L.kb+' KB: usa una más simple o más pequeña');
+                lado=Math.round(lado*0.78);
+            }
+        }
+        function identidadArchivo(tipo,input){ const file=input.files&&input.files[0]; input.value=''; if(!file) return; identidadProcesarImagen(tipo,file).then(url=>identidadSetImagen(tipo,url)).catch(e=>identidadAviso(e.message||'No se pudo procesar la imagen',true)); }
+        function identidadGuardar(){
+            if(typeof puedeEditar==='function'&&!puedeEditar()){ identidadAviso('No tienes permiso para editar la identidad de este negocio',true); return false; }
+            const f=getFiscal(); const id=identidadDelNegocio();
+            IDT_CAMPOS.forEach(k=>{ const el=document.getElementById('idt-'+k); if(el) id[k]=el.value.trim(); });
+            ['logo','firma','cuno'].forEach(k=>{ if(IDT_PENDING[k]!==null) id[k]=IDT_PENDING[k]; });
+            const g=identidadGuardia(identidadTamFiscal(Object.assign({},f,{identidad:id})));
+            if(g==='bloqueo'){ identidadAviso('No se guardó: con estos datos el documento del negocio superaría el límite de tamaño en línea. Quita o reduce las imágenes (logo ≤60 KB, firma y cuño ≤40 KB).',true); return false; }
+            f.identidad=id; saveFiscal(f);
+            IDT_PENDING={logo:null,firma:null,cuno:null}; identidadPintarPrevias();
+            identidadAviso(g==='aviso'?'Identidad guardada ✔ Ojo: el documento del negocio ya pesa mucho; queda poco margen para imágenes.':'Identidad guardada ✔');
+            return true;
+        }
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-admin') setTimeout(renderIdentidad, 60); });
+        window.__identTest={get:identidadDelNegocio,guardar:identidadGuardar,setImg:identidadSetImagen,guardia:identidadGuardia,tam:identidadTamFiscal,procesar:identidadProcesarImagen,html:null};
         /* ===== DATOS BANCARIOS DE LAS CUENTAS (pedido de Leonardo, 2026-10-24) =====
            Al importar un estado de cuenta, el importador captura de su
            encabezado titular, banco, sucursal y número de cuenta/tarjeta
@@ -10744,6 +10851,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             _safe(renderAlertaTrimestral,'alerta-trimestral');
             _safe(renderAlertaSalarioNomina,'alerta-salario');
             _safe(renderAvisosInicio,'avisos-inicio');
+            _safe(renderIdentidad,'identidad');
             _safe(aplicarModoSimple,'modo-simple');
             ['chequera', 'tarjeta_cup', 'tarjeta_usd'].forEach(c => _safe(() => renderTablaCuenta(c),'cuenta-'+c));
             _safe(renderHistorial,'historial');
@@ -14276,6 +14384,11 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function docOficialNum(n) { return (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
         function docOficialHoy() { const d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
         function docOficialNegocio() { try { const n = getNegocioNombre(); if (n) return n; } catch(e) {} const el = document.getElementById('negocioNombreDisplay'); return el ? el.textContent : ''; }
+        /* Identidad en los documentos de DISEÑO PROPIO (D3): el generador
+           opta con op.identidad=true. Los modelos oficiales cerrados no la
+           piden: en ellos solo van los nombres, como manda el modelo. */
+        function docOficialLogoHTML() { try { const id = identidadDelNegocio(); return (id.logo && /^data:image\//.test(id.logo)) ? `<img class="docof-logo" src="${id.logo}" alt="">` : ''; } catch(e) { return ''; } }
+        function docOficialFirmaHTML() { try { const id = identidadDelNegocio(); const f = (id.firma && /^data:image\//.test(id.firma)) ? `<img class="f" src="${id.firma}" alt="">` : ''; const c = (id.cuno && /^data:image\//.test(id.cuno)) ? `<img class="c" src="${id.cuno}" alt="">` : ''; return (f || c) ? `<div class="docof-firma-img">${f}${c}</div>` : ''; } catch(e) { return ''; } }
         function docOficialNIT() { try { const d = getDatos(); const meta = (d.fiscal || {}).importMeta || {}; const dj = (d.dj || {}).ficha || {}; return meta.nit || dj.nit || ''; } catch(e) { return ''; } }
         function docOficialTabla(cols, filas, pies) {
             const th = cols.map(c => { const o = (typeof c === 'string') ? { t: c } : c; return `<th>${esc(o.t)}</th>`; }).join('');
@@ -14295,18 +14408,19 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             return `<div class="docof">
             ${op.sup ? `<div class="docof-sup">${esc(op.sup)}</div>` : ''}
             <table class="docof-cab"><tbody><tr>
-              <td><div class="docof-ent">${esc(docOficialNegocio().toUpperCase())}</div>
+              <td>${op.identidad ? docOficialLogoHTML() : ''}<div class="docof-ent">${esc(docOficialNegocio().toUpperCase())}</div>
               <div class="docof-tit">${esc(op.titulo || '')}</div>
               ${op.subtitulo ? `<div class="docof-sub">${op.subtitulo}</div>` : ''}</td>
               ${op.modelo ? `<td class="docof-modelo">${esc(op.modelo)}</td>` : ''}
             </tr></tbody></table>
             ${filasCampos ? `<table class="docof-campos"><tbody>${filasCampos}</tbody></table>` : ''}
             ${op.cuerpo || ''}
-            <table class="docof-firmas"><tbody><tr>${firmas.map(f => { const o = (f && typeof f === 'object') ? f : { rol: f, nombre: '' }; return `<td style="width:${Math.floor(100 / colsF)}%">${o.nombre ? `<div>${esc(o.nombre)}</div>` : ''}<div class="docof-fir"><b>${esc(o.rol || '')}</b><br>Nombre y firma</div></td>`; }).join('')}</tr></tbody></table>
+            <table class="docof-firmas"><tbody><tr>${firmas.map((f, i) => { const o = (f && typeof f === 'object') ? f : { rol: f, nombre: '' }; return `<td style="width:${Math.floor(100 / colsF)}%">${o.nombre ? `<div>${esc(o.nombre)}</div>` : ''}${(i === 0 && op.identidad) ? docOficialFirmaHTML() : ''}<div class="docof-fir"><b>${esc(o.rol || '')}</b><br>Nombre y firma</div></td>`; }).join('')}</tr></tbody></table>
             ${op.pie ? `<div class="docof-pie">${op.pie}</div>` : ''}
             <div class="docof-pag">Página 1</div>
             </div>`;
         }
+        if (window.__identTest) window.__identTest.html = docOficialHTML;
         function docOficialImprimirEn(boxId, titulo, html) {
             const box = document.getElementById(boxId);
             if (!box) { alert('No se encontró el contenedor de documentos.'); return; }
@@ -14372,6 +14486,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 ? bancoDoc.numeroTarjeta + (bancoDoc.numeroCuenta ? ' · Cuenta ' + bancoDoc.numeroCuenta : '')
                 : (bancoDoc.numeroCuenta || '—');
             const html = docOficialHTML({
+                identidad: true,
                 titulo: cfgDoc.titulo,
                 subtitulo: cfgDoc.subtitulo,
                 campos: [
@@ -16573,6 +16688,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         window.setTipoUsuario = setTipoUsuario;
         window.verMesDetalle = verMesDetalle;
         window.editarSaldoInicial = editarSaldoInicial;
+        window.identidadGuardar = identidadGuardar;
+        window.identidadArchivo = identidadArchivo;
+        window.identidadSetImagen = identidadSetImagen;
         /* API para el importador de estados de cuenta (pdf-import.js) */
         window.FinanzasPDF = {
             movs: function(){ return movimientos; },
@@ -16618,7 +16736,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-36';
+        var MANUAL_VERSION = 'v2026.10.28-37';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -17080,7 +17198,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>El desbloqueo:</b> el proveedor firma con su llave un <b>código de desbloqueo de un solo uso</b> y te lo devuelve; lo escribes en la misma pantalla con tu código de recuperación y tu contraseña nueva. La app comprueba la firma antes de cambiar nada.</li>' +
             '<li><b>Tras recuperar:</b> el código de recuperación y la solicitud quedan <b>consumidos</b> y las sesiones abiertas se cierran: al entrar, genera un código nuevo. Cinco intentos fallidos bloquean la vía 15 minutos. Solicitudes, intentos y recuperaciones quedan <b>en las trazas</b>.</li>' +
             '<li><b>Cifrado de los datos (desde la versión 0.10.0 del programa):</b> los datos de los negocios se guardan <b>cifrados en el disco</b>, atados a esta PC. Si la carpeta del programa se copia a otra computadora, la base queda <b>sellada</b>: se puede entrar como administrador, pero los datos no se leen hasta desellarla en Configuración, tarjeta «Cifrado de los datos», con el <b>mismo código de recuperación</b> de esta sección. Por eso el código también hay que generarlo (o regenerarlo) <b>después</b> de actualizar a esta versión: así queda ligado al cifrado.</li>' +
-            '<li><b>Si cambias de PC a propósito:</b> copia la carpeta de datos completa, abre el programa en la PC nueva, entra como administrador y desella con tu código; la copia queda atada a la PC nueva y la antigua deja de poder leerla al mover la carpeta. Sin código de recuperación ligado al cifrado, la vía de emergencia es restaurar tu copia de respaldo con ayuda de tu proveedor.</li></ul>'}
+            '<li><b>Si cambias de PC a propósito:</b> copia la carpeta de datos completa, abre el programa en la PC nueva, entra como administrador y desella con tu código; la copia queda atada a la PC nueva y la antigua deja de poder leerla al mover la carpeta. Sin código de recuperación ligado al cifrado, la vía de emergencia es restaurar tu copia de respaldo con ayuda de tu proveedor.</li></ul>'},
+        {id:'identidad-negocio', modulo:'respaldo', titulo:'Identidad del negocio: logo, firma y cuño', html:
+            '<p>En <b>Configuración</b>, la tarjeta <b>«Identidad del negocio»</b> guarda cómo se presenta tu negocio en sus documentos: nombre comercial, dirección, teléfonos y correo, los datos de tu <b>representante</b> y tres imágenes: el <b>logo</b>, la <b>firma</b> y el <b>cuño</b>. El NIT y la razón social no se escriben aquí: se toman del Vector Fiscal y de tu ficha.</p>' +
+            '<ul><li><b>Las imágenes se reducen solas</b> al subirlas: el logo hasta 60 KB y la firma y el cuño (en PNG con fondo transparente) hasta 40 KB; la firma y el cuño se recortan al trazo. Si el documento completo de tu negocio creciera demasiado, la app <b>no guarda</b> y te dice que reduzcas las imágenes.</li>' +
+            '<li><b>Dónde salen:</b> el logo encabeza los <b>documentos de diseño propio</b> (por ejemplo, los estados de cuenta internos y las facturas) y la firma y el cuño van en su pie de firma. En los <b>modelos oficiales cerrados</b> solo aparecen los nombres, porque el modelo no admite imágenes.</li>' +
+            '<li><b>Quién firma:</b> el campo «Quién firma Elaborado por» fija el nombre que se usa por defecto en los pies de firma; si lo dejas vacío, se usa el del representante.</li></ul>'}
         ];
         function manualEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
         function manualNorm(s){
