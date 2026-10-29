@@ -1742,6 +1742,25 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     </div>
                     <div id="djLineas01" class="aporte-box"></div>
                     <div class="small text-secondary mt-2">La DJ-01 se presenta solo en formato digital con firma electrónica (servicio de la ONAT); usa esta hoja como borrador de cálculo.</div>
+                    <hr>
+                    <h6 class="fw-semibold mb-2">DJ-01 en el modelo oficial (Anexos 4.1 y 4.2)</h6>
+                    <p class="small text-secondary">El documento con la estructura exacta del Excel oficial de la ONAT: las ventas, los costos y los gastos salen solos de tu contabilidad (los mismos de los estados EFE 5921), la reserva de contingencias de su dotación del año, las pérdidas y los pagos a cuenta de los datos de arriba. Lo que la contabilidad no puede saber se captura aquí (todo queda guardado por año):</p>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(-) Devoluciones (Ind 02)</label><input id="dj01Dev" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(-) Impuesto sobre las ventas devengado (Ind 03)</label><input id="dj01ImpVtas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(+o-) Ajuste por depreciación (Ind 14)</label><input id="dj01AjusteDep" type="number" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(-) Bonificaciones autorizadas (Ind 19)</label><input id="dj01Bonif" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Adición de reservas no deducibles (Ind 22)</label><input id="dj01AdicRes" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Multas y recargos (Ind 28)</label><input id="dj01Multas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Cancelación de cuentas por cobrar (Ind 29)</label><input id="dj01CancelCxC" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Penalizaciones de la OBE (Ind 30)</label><input id="dj01PenalOBE" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Otros gastos no deducibles (Ind 31)</label><input id="dj01OtrosNoDed" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Ingresos no imponibles (Ind 36)</label><input id="dj01IngNoImp" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Deducción por reinversión (Ind 44)</label><input id="dj01Reinversion" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Ingresos financieros Res. 374/2025 (Ind 46)</label><input id="dj01IngFin374" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap mb-2"><button type="button" class="btn btn-sm btn-primary" onclick="dj01DocGenerar()">📄 Generar la DJ-01 oficial</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('dj01DocBox','DJ-01 Impuesto sobre Utilidades')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div>
+                    <div id="dj01DocBox" class="border rounded p-3"></div>
                 </div>
                 <div class="card p-3 p-md-4 mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="usuarios"></span>DJ de socios por dividendos</h6><button class="btn btn-sm btn-outline-primary" id="btnDjAddSocio"><span class="icono-anim me-1" data-icono="mas"></span> Socio</button></div>
@@ -12860,7 +12879,15 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                     sinOtraActividad: !!m.grat.sinOtraActividad, retenciones: Number(m.grat.retenciones) || 0,
                     pagosCuenta: Number(m.grat.pagosCuenta) || 0,
                     fechaPago: m.grat.fechaPago || '', canalElectronico: !!m.grat.canalElectronico
-                } : { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, pagosCuenta: 0, fechaPago: '', canalElectronico: false }
+                } : { divisa: 0, tasaBCC: 0, sinOtraActividad: false, retenciones: 0, pagosCuenta: 0, fechaPago: '', canalElectronico: false },
+                dj01: (m.dj01 && typeof m.dj01 === 'object') ? {
+                    devoluciones: Number(m.dj01.devoluciones) || 0, impVentas: Number(m.dj01.impVentas) || 0,
+                    ajusteDep: Number(m.dj01.ajusteDep) || 0, bonificaciones: Number(m.dj01.bonificaciones) || 0,
+                    adicReservas: Number(m.dj01.adicReservas) || 0, multas: Number(m.dj01.multas) || 0,
+                    cancelCxC: Number(m.dj01.cancelCxC) || 0, penalOBE: Number(m.dj01.penalOBE) || 0,
+                    otrosNoDed: Number(m.dj01.otrosNoDed) || 0, ingNoImp: Number(m.dj01.ingNoImp) || 0,
+                    reinversion: Number(m.dj01.reinversion) || 0, ingFin374: Number(m.dj01.ingFin374) || 0
+                } : { devoluciones: 0, impVentas: 0, ajusteDep: 0, bonificaciones: 0, adicReservas: 0, multas: 0, cancelCxC: 0, penalOBE: 0, otrosNoDed: 0, ingNoImp: 0, reinversion: 0, ingFin374: 0 }
             };
         }
         function djEscalaTexto(esc){ return esc.map(t => (isFinite(t[0]) ? t[0] : '') + ':' + t[1]).join(', '); }
@@ -13059,6 +13086,145 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             add(saldo >= 0 ? 'IMPORTE A PAGAR' : 'SALDO A FAVOR', saldo, 'Liquidación anual DJ-01', 'total');
             return { lineas: L, base: base, impuesto: impuesto, resultado: saldo };
         }
+        /* DJ-01 en el MODELO OFICIAL (Anexos 4.1 y 4.2 del Excel
+           de la ONAT) — tarea 17, ronda -57. Núcleo puro: las
+           secciones A sale de la EFE 5921 del año (la misma
+           contabilidad de los estados oficiales), la B y la C
+           aplican las fórmulas del propio Excel, la D y el
+           Anexo 4.2 combinan la dotación real de la reserva,
+           las pérdidas y pagos ya capturados en esta pestaña y
+           los datos manuales del modelo (man.dj01). El tipo es
+           el parámetro del año (35 % por la Ley 113). */
+        function dj01Oficial(conta, anio, man, P, datos){
+            const d = (man && man.dj01) || {};
+            const efe = ctaEfe5921(conta, Number(anio), String(anio) + '-12-31').valores;
+            const v = {};
+            const N = x => { const n = Number(x) || 0; return Math.round(n * 100) / 100; };
+            v['01'] = N(efe['01']);
+            v['02'] = N(d.devoluciones);
+            v['03'] = N(d.impVentas);
+            v['04'] = N(v['01'] - v['02'] - v['03']);
+            v['05'] = N((efe['31'] || 0) + (efe['38'] || 0));
+            v['06'] = N(v['04'] + v['05']);
+            v['07'] = N(efe['09']);
+            v['08'] = N((efe['12'] || 0) + (efe['14'] || 0));
+            v['09'] = N(efe['15']);
+            v['10'] = N((efe['19'] || 0) + (efe['28'] || 0));
+            v['11'] = N(v['06'] - v['07'] - v['08'] - v['09'] - v['10']);
+            /* Sección D: adiciones. */
+            v['22'] = N(d.adicReservas);
+            v['28'] = N(d.multas); v['29'] = N(d.cancelCxC); v['30'] = N(d.penalOBE); v['31'] = N(d.otrosNoDed);
+            v['27'] = N(v['28'] + v['29'] + v['30'] + v['31']);
+            v['21'] = N(v['22'] + v['27']);
+            v['12'] = v['21'];
+            /* Anexo 4.2: deducciones. */
+            v['36'] = N(d.ingNoImp);
+            let reservaAnio = 0;
+            try { const g = mjGestionDe(conta); reservaAnio = (g.reservas || []).filter(r => String(r.anio) === String(anio)).reduce((s, r) => s + (Number(r.dotacion) || 0), 0); } catch (e) {}
+            v['42'] = N(reservaAnio);
+            v['43'] = N(reservaAnio > 0 ? 0 : (Number(man && man.reservas) || 0));
+            v['44'] = N(d.reinversion);
+            v['45'] = N(man && man.perdidas);
+            v['46'] = N(d.ingFin374);
+            v['47'] = N(man && man.otrasDeducciones);
+            v['41'] = N(v['42'] + v['43'] + v['44'] + v['45'] + v['46'] + v['47']);
+            v['35'] = N(v['36'] + v['41']);
+            v['13'] = v['35'];
+            v['14'] = N(d.ajusteDep);
+            v['15'] = N(v['11'] + v['12'] - v['13'] + v['14']);
+            /* Sección C: deuda tributaria (fórmulas del Excel). */
+            const tipo = Number(P && P.tipoUtilidades) > 0 ? Number(P.tipoUtilidades) : 35;
+            v['16'] = v['15'] >= 0 ? N(v['15'] * tipo / 100) : 0;
+            v['17'] = 0;
+            const pcManual = ((man && man.pagosCuenta) || []).reduce((a, x) => a + (Number(x) || 0), 0);
+            const pcDet = datos && datos.trib ? (Number(datos.trib.pago_cuenta_utilidades) || 0) : 0;
+            v['18'] = N(pcManual > 0 ? pcManual : pcDet);
+            v['19'] = N(d.bonificaciones);
+            v['20'] = v['15'] > 0 ? N(v['16'] - v['18'] - v['19']) : 0;
+            return { valores: v, tipo: tipo, anio: String(anio) };
+        }
+        function dj01DocGenerar(){
+            const box = document.getElementById('dj01DocBox'); if (!box) return;
+            const anio = djAnioSel;
+            const dd = getDJ();
+            const man = djManualAnio(anio);
+            const P = (dd.params && dd.params[anio]) || {};
+            const datos = djDatosAnio(anio);
+            const r = dj01Oficial(getConta(), anio, man, P, datos);
+            const v = r.valores;
+            const idt = (typeof identidadDelNegocio === 'function') ? identidadDelNegocio() : {};
+            const ficha = dd.ficha || {};
+            const razon = idt.nombreComercial || ficha.nombre || getNegocioNombre() || '';
+            const nit = ficha.nit || '';
+            const domicilio = [idt.direccion, idt.municipio, idt.provincia].filter(Boolean).join(', ');
+            const fila = (ind, concepto, cls) => cls ? { c: [esc(concepto), esc(ind), docOficialNum(v[ind])], cls: cls } : [esc(concepto), esc(ind), docOficialNum(v[ind])];
+            const seccion = t => ({ c: [esc(t), '', ''], cls: 'docof-subtotal' });
+            const filasA = [
+                seccion('Sección A · Determinación de la Utilidad o Pérdida del Período'),
+                fila('01', 'Ventas Brutas o Ingresos Brutos'),
+                fila('02', '(-) Devoluciones'),
+                fila('03', '(-) Impuesto sobre las ventas'),
+                fila('04', 'Ventas Netas o Ingresos Netos', 'docof-subtotal'),
+                fila('05', '(+) Otros Ingresos'),
+                fila('06', 'Total de Ingresos', 'docof-subtotal'),
+                fila('07', '(-) Costo de Ventas'),
+                fila('08', '(-) Gastos de Ventas, Administración y Generales'),
+                fila('09', '(-) Gastos de Operación'),
+                fila('10', '(-) Otros Gastos'),
+                fila('11', 'Utilidad o Pérdida del Período', 'docof-total'),
+                seccion('Sección B · Determinación de la Utilidad Fiscal Imponible'),
+                fila('12', '(+) Adiciones para calcular Utilidad Neta Imponible'),
+                fila('13', '(-) Deducciones para calcular Utilidad Neta Imponible'),
+                fila('14', '(+o-) Ajuste por Depreciación'),
+                fila('15', 'Utilidad Neta Imponible o Pérdida Fiscal', 'docof-total'),
+                seccion('Sección C · Determinación de la Deuda Tributaria'),
+                fila('16', r.tipo + ' % Sobre Utilidad Neta Imponible, Ley No. 113', 'docof-subtotal'),
+                fila('18', '(-) Pagos a Cuenta'),
+                fila('19', '(-) Bonificaciones Autorizadas'),
+                fila('20', 'Impuesto a pagar al cierre del período', 'docof-total'),
+                seccion('Sección D · Adiciones para calcular la Utilidad Neta Imponible'),
+                fila('21', 'Total de Adiciones', 'docof-subtotal'),
+                fila('22', 'Total de Adición de Reservas'),
+                fila('27', 'Total de Gastos no Deducibles', 'docof-subtotal'),
+                fila('28', 'Multas y Recargos'),
+                fila('29', 'Cancelación de cuentas por cobrar'),
+                fila('30', 'Penalizaciones de la OBE')
+            ];
+            if (v['31']) filasA.push(fila('31', 'Otros gastos no deducibles'));
+            const filasB = [
+                seccion('Anexo 4.2 · Deducciones para calcular la Utilidad Neta Imponible'),
+                fila('35', 'Total de Deducciones', 'docof-subtotal'),
+                fila('36', 'Total de Ingresos no Imponibles'),
+                fila('41', 'Total de Otras Deducciones', 'docof-subtotal'),
+                fila('42', 'Reserva para Contingencias y Pérdidas Futuras'),
+                fila('43', 'Reservas Voluntarias Autorizadas a Deducir'),
+                fila('44', 'Deducción por Reinversión'),
+                fila('45', 'Pérdida Fiscal Períodos Anteriores'),
+                fila('46', 'Ingresos financieros (Resolución 374/2025 MFP)')
+            ];
+            if (v['47']) filasB.push(fila('47', 'Otras deducciones'));
+            const cuerpo = '<div class="docof-sec">ANEXO 4.1</div>' + docOficialTabla(['Concepto', 'Ind', { t: 'Importe', n: true }], filasA)
+                + '<div class="docof-sec">ANEXO 4.2</div>' + docOficialTabla(['Concepto', 'Ind', { t: 'Importe', n: true }], filasB)
+                + '<div class="docof-sec">Sección E · Documentos que complementan el Modelo</div>'
+                + '<p class="docof-txt">(1) Estados Financieros Certificados — los genera la propia app en Contabilidad (EFE 5920-04 y EFE 5921-04, NEC 5). (2) Autorización para Compensación de Grupo. (3) Estados Financieros Certificados y Declaraciones Juradas de las Sociedades.</p>'
+                + '<p class="docof-txt">DECLARO BAJO JURAMENTO LA VERACIDAD DE LOS DATOS CONSIGNADOS EN LA PRESENTE, aceptando las responsabilidades que la ley establece por cualquier falsedad u omisión.</p>';
+            box.innerHTML = docOficialHTML({
+                sup: 'OFICINA NACIONAL DE ADMINISTRACIÓN TRIBUTARIA',
+                titulo: 'DECLARACIÓN JURADA DE IMPUESTO SOBRE UTILIDADES',
+                modelo: 'DJ-01',
+                campos: [
+                    ['Nombre o Razón Social', esc(razon)],
+                    ['N.I.T.', esc(nit || '—')],
+                    ['Domicilio Fiscal', esc(domicilio || '—')],
+                    ['Período', 'Enero a diciembre de ' + anio],
+                    ['Tipo de Moneda', 'CUP'],
+                    ['Tipo de Declaración', 'Inicial']
+                ],
+                cuerpo: cuerpo,
+                firmas: [{ rol: 'Contribuyente o Representante Legal', nombre: idt.repNombre || '' }, { rol: 'Recibido por la Oficina de Administración Tributaria', nombre: '' }]
+            });
+        }
+        window.__dj01Test = { oficial: dj01Oficial, generar: dj01DocGenerar };
         /* Núcleo puro de la DJ de un socio por dividendos */
         function djCoreDiv(socio, P, man, anio){
             const L = [];
@@ -13232,6 +13398,19 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 document.getElementById('djCanalElec').checked = !!man.canalElectronico;
                 document.getElementById('djPerdidas').value = man.perdidas || '';
                 document.getElementById('djReservas').value = man.reservas || '';
+                const d01 = man.dj01 || {};
+                document.getElementById('dj01Dev').value = d01.devoluciones || '';
+                document.getElementById('dj01ImpVtas').value = d01.impVentas || '';
+                document.getElementById('dj01AjusteDep').value = d01.ajusteDep || '';
+                document.getElementById('dj01Bonif').value = d01.bonificaciones || '';
+                document.getElementById('dj01AdicRes').value = d01.adicReservas || '';
+                document.getElementById('dj01Multas').value = d01.multas || '';
+                document.getElementById('dj01CancelCxC').value = d01.cancelCxC || '';
+                document.getElementById('dj01PenalOBE').value = d01.penalOBE || '';
+                document.getElementById('dj01OtrosNoDed').value = d01.otrosNoDed || '';
+                document.getElementById('dj01IngNoImp').value = d01.ingNoImp || '';
+                document.getElementById('dj01Reinversion').value = d01.reinversion || '';
+                document.getElementById('dj01IngFin374').value = d01.ingFin374 || '';
                 document.getElementById('djPC1').value = man.pagosCuenta[0] || '';
                 document.getElementById('djPC2').value = man.pagosCuenta[1] || '';
                 document.getElementById('djPC3').value = man.pagosCuenta[2] || '';
@@ -13281,10 +13460,24 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                     m.canalElectronico = document.getElementById('djCanalElec').checked;
                     m.perdidas = parseFloat(document.getElementById('djPerdidas').value) || 0;
                     m.reservas = parseFloat(document.getElementById('djReservas').value) || 0;
+                    m.dj01 = {
+                        devoluciones: parseFloat(document.getElementById('dj01Dev').value) || 0,
+                        impVentas: parseFloat(document.getElementById('dj01ImpVtas').value) || 0,
+                        ajusteDep: parseFloat(document.getElementById('dj01AjusteDep').value) || 0,
+                        bonificaciones: parseFloat(document.getElementById('dj01Bonif').value) || 0,
+                        adicReservas: parseFloat(document.getElementById('dj01AdicRes').value) || 0,
+                        multas: parseFloat(document.getElementById('dj01Multas').value) || 0,
+                        cancelCxC: parseFloat(document.getElementById('dj01CancelCxC').value) || 0,
+                        penalOBE: parseFloat(document.getElementById('dj01PenalOBE').value) || 0,
+                        otrosNoDed: parseFloat(document.getElementById('dj01OtrosNoDed').value) || 0,
+                        ingNoImp: parseFloat(document.getElementById('dj01IngNoImp').value) || 0,
+                        reinversion: parseFloat(document.getElementById('dj01Reinversion').value) || 0,
+                        ingFin374: parseFloat(document.getElementById('dj01IngFin374').value) || 0
+                    };
                     m.pagosCuenta = [parseFloat(document.getElementById('djPC1').value) || 0, parseFloat(document.getElementById('djPC2').value) || 0, parseFloat(document.getElementById('djPC3').value) || 0];
                     saveDJ(dd); renderDJCalculo();
                 };
-                ['djGastosJust','djArrend','djOtrasDed','djFechaPago','djCanalElec','djPerdidas','djReservas','djPC1','djPC2','djPC3'].forEach(id => {
+                ['djGastosJust','djArrend','djOtrasDed','djFechaPago','djCanalElec','djPerdidas','djReservas','djPC1','djPC2','djPC3','dj01Dev','dj01ImpVtas','dj01AjusteDep','dj01Bonif','dj01AdicRes','dj01Multas','dj01CancelCxC','dj01PenalOBE','dj01OtrosNoDed','dj01IngNoImp','dj01Reinversion','dj01IngFin374'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.addEventListener('change', guardarManual);
                 });
@@ -19062,7 +19255,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-56';
+        var MANUAL_VERSION = 'v2026.10.29-57';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19374,7 +19567,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>El anticipo del 5 % grava solo los ingresos mensuales que excedan 3 260 CUP; el Impuesto sobre Ventas (10 %) es otro tributo.</li>' +
             '<li>Las <b>gratificaciones</b> tienen régimen propio (su escala, gastos deducibles del 10 % y exento condicionado) y su propia variante de la DJ-08.</li></ul>'},
         {id:'dj01', modulo:'dj', titulo:'DJ-01 de la MIPYME', html:
-            '<p>La <b>DJ-01</b> liquida el impuesto sobre utilidades de la MIPYME sobre el resultado contable de la app: por eso importa que la contabilidad esté cerrada y cuadrada antes de calcularla. Las pérdidas y reservas se registran en la propia DJ, y los pagos a cuenta se toman de los pagos con el código 040072 o se escriben a mano.</p>'},
+            '<p>La <b>DJ-01</b> liquida el impuesto sobre utilidades de la MIPYME sobre el resultado contable de la app: por eso importa que la contabilidad esté cerrada y cuadrada antes de calcularla. Las pérdidas y reservas se registran en la propia DJ, y los pagos a cuenta se toman de los pagos con el código 040072 o se escriben a mano.</p>' +
+            '<p><b>En el modelo oficial:</b> el botón «Generar la DJ-01 oficial» compone el documento con la estructura de los <b>Anexos 4.1 y 4.2</b> del modelo de la ONAT, con sus indicadores (01 a 47) y sus fórmulas: la Sección A sale de tus estados financieros (EFE 5921), la reserva de contingencias de su dotación del año, y la deuda se calcula al tipo del año (35 %, Ley 113). Los datos que la contabilidad no puede saber —devoluciones, el impuesto sobre las ventas devengado, multas, bonificaciones y demás ajustes del modelo— se capturan en la propia tarjeta y quedan guardados por año. El documento es la transcripción fiel para la presentación digital con firma electrónica; conserva también el borrador de cálculo de arriba para contrastar.</p>'},
         {id:'dividendos', modulo:'dj', titulo:'Dividendos a socios: la 417 por socio', html:
             '<p>Al decretar dividendos, la app genera el asiento <b>Dr Utilidades Retenidas / Cr 417 · Dividendos y Participaciones por Pagar</b>, con <b>análisis por socio</b>, y aplica la escala de dividendos (3/5/10/15/20 %). La MIPYME retiene el 5 % de las distribuciones anticipadas.</p>' +
             '<ul><li>La 417 es la cuenta oficial del Procedimiento Contable No. 28 del MFP porque los dividendos decretados son un <b>pasivo corriente exigible</b>: deuda aprobada por la Junta y pendiente de desembolso.</li>' +
@@ -19713,7 +19907,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar','contaEfeGenerar',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar','contaEfeGenerar','dj01DocGenerar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
