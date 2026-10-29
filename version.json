@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-41",
-  "publicada": "2026-10-29 11:29",
-  "notas": "v2026.10.29-41: menú Contratos — registro completo con rol CLIENTE/PRESTADOR, avisos de vencimiento y de vencidos, y enlace con las facturas",
+  "version": "v2026.10.29-42",
+  "publicada": "2026-10-29 11:58",
+  "notas": "v2026.10.29-42: Menú Contratos — adjuntos del contrato firmado (Vía A): páginas de PDF o fotos reducidas dentro de la app (hasta 6 páginas por contrato), con visor, descarga y medidor de espacio. La factura sigue sin tocar la contabilidad.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "e1cce6a9516504c19bab0292ea624bb68b0342da4c26c13fe6756327c9eb3d8d",
-      "bytes": 1805438
+      "sha256": "4ba61ddd717af4ee7ae37ad6e69b14adde958eebab32a0bb7f408862079035de",
+      "bytes": 1818159
     },
     {
       "ruta": "pdf-import.js",

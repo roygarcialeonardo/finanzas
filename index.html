@@ -1926,6 +1926,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 </div>
                 <div id="ctorListBox" class="small"></div>
             </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ctorAdjCard" style="display:none">
+                <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="carpeta"></span>Documento del contrato <span id="ctorAdjTitulo" class="text-secondary"></span></h6>
+                <p class="small text-secondary mb-2">Adjunta el contrato firmado como <b>foto o PDF</b>: la app guarda cada página reducida para abrirla en segundos, sin depender del papel. Máximo 6 páginas por contrato. <span id="ctorAdjEspacio"></span></p>
+                <div class="d-flex gap-2 flex-wrap mb-2">
+                    <label class="btn btn-sm btn-success mb-0"><span class="icono-anim me-1" data-icono="mas"></span>Adjuntar foto o PDF<input type="file" id="ctorAdjFile" accept="image/*,.pdf,application/pdf" class="d-none" onchange="ctorAdjArchivo(this)"></label>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorAdjCerrar()">Cerrar</button>
+                </div>
+                <div id="ctorAdjMsg" class="small mb-2"></div>
+                <div id="ctorAdjThumbs" class="d-flex gap-2 flex-wrap mb-2"></div>
+                <div id="ctorAdjVisor"></div>
+            </div>
         </div>
 
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
@@ -13053,7 +13065,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            puede enlazar su contrato (solo referencia, sin efectos
            contables, doctrina de la -39). El mini-registro de Gestión+
            queda como resumen con puente a este menú. Los adjuntos
-           del documento llegan en la ronda 2 (Vía A). */
+           del documento (Vía A) llegaron en la ronda 2 (-42). */
         var ctorEditId='';
         function ctorEl(id){ return document.getElementById(id); }
         function ctorVal(id){ const el=ctorEl(id); return el?String(el.value||'').trim():''; }
@@ -13072,12 +13084,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 return true; }).slice().reverse();
             if(!(g.contratos||[]).length){ box.innerHTML='<span class="text-secondary">Todavía no hay contratos: registra el primero con el formulario.</span>'; return; }
             if(!lista.length){ box.innerHTML='<span class="text-secondary">Ningún contrato coincide con la búsqueda o los filtros.</span>'; return; }
-            box.innerHTML=`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Contraparte</th><th>Tipo</th><th>Rol</th><th>Vigencia</th><th class="text-end">Monto</th><th>Estado</th><th></th></tr></thead><tbody>${lista.map(x=>{ const ef=ctorEstadoEfectivo(x,hoyF); const porVencer=ef==='vigente'&&mjContratosPorVencer([x],hoyF,30).length>0;
+            box.innerHTML=`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Contraparte</th><th>Tipo</th><th>Rol</th><th>Vigencia</th><th class="text-end">Monto</th><th>Estado</th><th></th></tr></thead><tbody>${lista.map(x=>{ const ef=ctorEstadoEfectivo(x,hoyF); const porVencer=ef==='vigente'&&mjContratosPorVencer([x],hoyF,30).length>0; const nAdj=Array.isArray(x.adjuntos)?x.adjuntos.length:0;
                 const badge=ef==='vencido'?'<span class="badge bg-danger">VENCIDO</span>':ef==='terminado'?'<span class="badge bg-secondary">TERMINADO</span>':ef==='cancelado'?'<span class="badge bg-dark">CANCELADO</span>':(porVencer?'<span class="badge bg-warning text-dark">POR VENCER</span>':'<span class="badge bg-success">VIGENTE</span>');
                 const rol=x.rol==='cliente'?'<span class="badge bg-info text-dark">CLIENTE</span>':x.rol==='prestador'?'<span class="badge bg-primary">PRESTADOR</span>':'<span class="text-secondary">—</span>';
                 const vig=(x.vigenciaDesde||'')||(x.vigenciaHasta||'')?esc((x.vigenciaDesde||'…')+' → '+(x.vigenciaHasta||'…')):'—';
                 const monto=Number(x.monto)>0?moneda(Number(x.monto))+' '+(x.moneda||'CUP'):'—';
-                return `<tr><td>${esc(x.numero||x.id)}${x.nombre?`<div class="text-secondary">${esc(x.nombre)}</div>`:''}</td><td>${esc(ctorNombreContraparte(c,x))}</td><td>${esc(x.tipo||'')}</td><td>${rol}</td><td>${vig}</td><td class="text-end">${monto}</td><td>${badge}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorEditarUI('${x.id}')">Editar</button> ${ef!=='terminado'&&ef!=='cancelado'?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorEstadoUI('${x.id}','terminado')">Terminar</button>`:''} <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorEliminarUI('${x.id}')">Eliminar</button></td></tr>`; }).join('')}</tbody></table></div>`; }
+                return `<tr><td>${esc(x.numero||x.id)}${x.nombre?`<div class="text-secondary">${esc(x.nombre)}</div>`:''}</td><td>${esc(ctorNombreContraparte(c,x))}</td><td>${esc(x.tipo||'')}</td><td>${rol}</td><td>${vig}</td><td class="text-end">${monto}</td><td>${badge}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorEditarUI('${x.id}')">Editar</button> <button type="button" class="btn btn-sm btn-outline-info" onclick="ctorAdjAbrir('${x.id}')">${nAdj?('📎 '+nAdj+' pág.'):'Adjuntar'}</button> ${ef!=='terminado'&&ef!=='cancelado'?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorEstadoUI('${x.id}','terminado')">Terminar</button>`:''} <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorEliminarUI('${x.id}')">Eliminar</button></td></tr>`; }).join('')}</tbody></table></div>`; }
         function ctorGuardarUI(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
             const numero=ctorVal('ctorNumero'); if(!numero){ alert('Escribe el número del contrato.'); return; }
             const c=getConta(); const g=mjGestionDe(c);
@@ -13123,10 +13135,70 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             x.estado=estado; saveConta(c); renderContratos(); }
         function ctorEliminarUI(id){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
             const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(!x) return;
-            if(!confirm('¿Eliminar el contrato '+(x.numero||x.id)+' del registro? Esta acción no se deshace.')) return;
+            const nAdjE=Array.isArray(x.adjuntos)?x.adjuntos.length:0;
+            if(!confirm('¿Eliminar el contrato '+(x.numero||x.id)+' del registro?'+(nAdjE?' Se borran también sus '+nAdjE+' página(s) adjuntas.':'')+' Esta acción no se deshace.')) return;
             g.contratos=g.contratos.filter(k=>k.id!==id); saveConta(c); if(ctorEditId===id) ctorLimpiarUI(); renderContratos(); if(typeof mjRenderGestion==='function') mjRenderGestion(); }
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-contratos') setTimeout(renderContratos, 60); });
-        window.__ctorTest={estadoEfectivo:ctorEstadoEfectivo, nombre:ctorNombreContraparte, guardar:ctorGuardarUI, editar:ctorEditarUI, lista:ctorRenderLista, asegurar:mjAsegurarGestion, alertas:function(conta,hoyF){ return mjAlertasGestion(conta,{hoy:hoyF}); }};
+        window.__ctorTest={estadoEfectivo:ctorEstadoEfectivo, nombre:ctorNombreContraparte, guardar:ctorGuardarUI, editar:ctorEditarUI, lista:ctorRenderLista, asegurar:mjAsegurarGestion, alertas:function(conta,hoyF){ return mjAlertasGestion(conta,{hoy:hoyF}); }, adjBytes:function(conta){ return ctorAdjBytes(conta); }, adjPresupuesto:function(conta,extra){ return ctorAdjPresupuesto(conta,extra); }, adjAbrir:ctorAdjAbrir, adjPintar:ctorAdjPintar, adjPoner:function(id,pags){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(x){ x.adjuntos=pags; saveConta(c); } }};
+        /* ===== Adjuntos de contratos (ronda -42, tarea 35 ronda 2, Vía A) =====
+           El documento firmado se guarda DENTRO de la app como páginas
+           reducidas (foto o PDF convertido página a página con el mismo
+           lector pdf.js del importador, local primero y CDN de respaldo):
+           JPEG legible de hasta ~120 KB por página, máx. 6 páginas por
+           contrato, con presupuesto total de adjuntos por negocio
+           (~900 mil caracteres de datos) con aviso y bloqueo limpio,
+           porque el documento conta en línea tiene un techo de ~1,92 MB
+           compartido con la contabilidad. Sin tocar servidores ni el
+           contrato de 29 acciones: la paridad en línea/sin conexión es
+           automática. No es el PDF original byte a byte: es su imagen
+           legible, que es lo que resuelve «se pierden muchos». */
+        var CTOR_ADJ_MAX_PAG=6, CTOR_ADJ_MAX_KB_PAG=120, CTOR_ADJ_LIMITE=900000;
+        var ctorAdjId='', ctorAdjPag=0, ctorPdfPromesa=null;
+        function ctorAdjBytes(conta){ const g=mjGestionDe(conta); let t=0; (g.contratos||[]).forEach(x=>{ (Array.isArray(x.adjuntos)?x.adjuntos:[]).forEach(p=>{ t+=(p&&p.img?String(p.img).length:0); }); }); return t; }
+        function ctorAdjPresupuesto(conta,extra){ const total=ctorAdjBytes(conta)+(extra||0); return { total:total, limite:CTOR_ADJ_LIMITE, ok:total<=CTOR_ADJ_LIMITE, aviso:total>CTOR_ADJ_LIMITE*0.78 }; }
+        function ctorAdjMsg(txt,err){ const el=ctorEl('ctorAdjMsg'); if(el){ el.innerHTML=txt||''; el.className='small mb-2 '+(err?'text-danger':'text-secondary'); } }
+        function ctorAdjContrato(conta){ const g=mjGestionDe(conta); return (g.contratos||[]).find(k=>k.id===ctorAdjId)||null; }
+        function ctorAdjAbrir(id){ ctorAdjId=id; ctorAdjPag=0; const card=ctorEl('ctorAdjCard'); if(card) card.style.display=''; ctorAdjPintar(); if(card&&card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'start'}); }
+        function ctorAdjCerrar(){ ctorAdjId=''; const card=ctorEl('ctorAdjCard'); if(card) card.style.display='none'; }
+        function ctorAdjPintar(){ const c=getConta(); const x=ctorAdjContrato(c); const tit=ctorEl('ctorAdjTitulo'); const esp=ctorEl('ctorAdjEspacio'); const th=ctorEl('ctorAdjThumbs'); const vis=ctorEl('ctorAdjVisor'); if(!x){ if(tit) tit.textContent=''; if(th) th.innerHTML=''; if(vis) vis.innerHTML=''; return; }
+            if(tit) tit.textContent='— Contrato '+(x.numero||x.id)+' · '+ctorNombreContraparte(c,x);
+            const pre=ctorAdjPresupuesto(c,0); if(esp) esp.textContent='Espacio de adjuntos del negocio: '+Math.round(pre.total/1024)+' KB de ~'+Math.round(pre.limite/1024)+' KB.'+(pre.aviso?' Estás cerca del límite: los contratos más viejos se pueden dejar en papel.':'');
+            const pags=Array.isArray(x.adjuntos)?x.adjuntos:[];
+            if(th) th.innerHTML=pags.length?pags.map((p,i)=>`<button type="button" class="btn btn-sm ${i===ctorAdjPag?'btn-primary':'btn-outline-secondary'}" onclick="ctorAdjVer(${i})">Página ${i+1}</button>`).join(''):'<span class="text-secondary">Este contrato todavía no tiene el documento adjunto.</span>';
+            ctorAdjPintarVisor(); }
+        function ctorAdjVer(i){ ctorAdjPag=i; ctorAdjPintar(); }
+        function ctorAdjPintarVisor(){ const vis=ctorEl('ctorAdjVisor'); if(!vis) return; const c=getConta(); const x=ctorAdjContrato(c); const pags=x&&Array.isArray(x.adjuntos)?x.adjuntos:[]; const p=pags[ctorAdjPag];
+            if(!p){ vis.innerHTML=''; return; }
+            vis.innerHTML=`<div class="border rounded p-2 bg-light"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><span class="small text-secondary">Página ${ctorAdjPag+1} de ${pags.length}${p.nombre?' · '+esc(p.nombre):''}${p.fecha?' · adjunta el '+esc(p.fecha):''}</span><span><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorAdjDescargar()">Descargar</button> <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorAdjQuitar()">Quitar página</button></span></div><img src="${p.img}" alt="Página ${ctorAdjPag+1} del contrato" style="max-width:100%;height:auto" class="border bg-white"></div>`; }
+        function ctorAdjDescargar(){ const c=getConta(); const x=ctorAdjContrato(c); const pags=x&&Array.isArray(x.adjuntos)?x.adjuntos:[]; const p=pags[ctorAdjPag]; if(!p||!x) return; const a=document.createElement('a'); a.href=p.img; a.download='contrato-'+String(x.numero||x.id).replace(/[^\w-]+/g,'_')+'-pag-'+(ctorAdjPag+1)+'.jpg'; document.body.appendChild(a); a.click(); a.remove(); }
+        function ctorAdjQuitar(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; } const c=getConta(); const x=ctorAdjContrato(c); if(!x||!Array.isArray(x.adjuntos)||!x.adjuntos.length) return; if(!confirm('¿Quitar la página '+(ctorAdjPag+1)+' del contrato '+(x.numero||x.id)+'?')) return; x.adjuntos.splice(ctorAdjPag,1); if(ctorAdjPag>=x.adjuntos.length) ctorAdjPag=Math.max(0,x.adjuntos.length-1); saveConta(c); ctorAdjPintar(); ctorRenderLista(); }
+        function ctorReducirPagina(canvas){ const maxChars=Math.round(CTOR_ADJ_MAX_KB_PAG*1024*4/3); let lado=Math.max(canvas.width,canvas.height); const minLado=620;
+            while(true){ const esc2=Math.min(1,lado/Math.max(canvas.width,canvas.height)); const w=Math.max(1,Math.round(canvas.width*esc2)), h=Math.max(1,Math.round(canvas.height*esc2)); const t=document.createElement('canvas'); t.width=w; t.height=h; const ctx=t.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,w,h); ctx.drawImage(canvas,0,0,w,h);
+                let url=t.toDataURL('image/jpeg',0.82);
+                if(url.length>maxChars){ const u2=t.toDataURL('image/jpeg',0.66); if(u2.length<url.length) url=u2; }
+                if(url.length>maxChars){ const u3=t.toDataURL('image/jpeg',0.52); if(u3.length<url.length) url=u3; }
+                if(url.length<=maxChars) return url;
+                if(lado<=minLado) throw new Error('Una página no se pudo reducir a '+CTOR_ADJ_MAX_KB_PAG+' KB.');
+                lado=Math.round(lado*0.8); } }
+        function ctorAsegurarPdfJs(){ if(window.pdfjsLib) return Promise.resolve(); if(ctorPdfPromesa) return ctorPdfPromesa;
+            const intento=(url,worker)=>new Promise((res,rej)=>{ let listo=false; const fail=e=>{ if(!listo){ listo=true; rej(e); } }; const s=document.createElement('script'); s.src=url; s.onload=()=>{ if(listo) return; listo=true; try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=worker; res(); }catch(e){ fail(e); } }; s.onerror=()=>fail(new Error('no-cdn')); document.head.appendChild(s); setTimeout(()=>fail(new Error('timeout')),25000); });
+            ctorPdfPromesa=intento('vendor/pdf.min.js','vendor/pdf.worker.min.js').catch(()=>intento('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')).catch(e=>{ ctorPdfPromesa=null; throw e; });
+            return ctorPdfPromesa; }
+        async function ctorAdjProcesar(file){ const esPdf=/\.pdf$/i.test(file.name||'')||file.type==='application/pdf'; const paginas=[]; let aviso='';
+            if(esPdf){ await ctorAsegurarPdfJs(); const buf=await file.arrayBuffer(); const pdf=await window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise; const n=Math.min(pdf.numPages,CTOR_ADJ_MAX_PAG);
+                for(let i=1;i<=n;i++){ const page=await pdf.getPage(i); const vp1=page.getViewport({scale:1}); const esc3=Math.min(2.2,1500/Math.max(vp1.width,vp1.height)); const vp=page.getViewport({scale:Math.max(0.6,esc3)}); const cnv=document.createElement('canvas'); cnv.width=Math.round(vp.width); cnv.height=Math.round(vp.height); const ctx=cnv.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,cnv.width,cnv.height); await page.render({canvasContext:ctx,viewport:vp}).promise; paginas.push({img:ctorReducirPagina(cnv), nombre:file.name, origen:'pdf', fecha:hoy()}); }
+                if(pdf.numPages>CTOR_ADJ_MAX_PAG) aviso=' El PDF tiene '+pdf.numPages+' páginas: se guardaron las primeras '+CTOR_ADJ_MAX_PAG+'.'; }
+            else { const img=await identidadCargarImagen(file); const sw=img.naturalWidth||img.width, sh=img.naturalHeight||img.height; if(!sw||!sh) throw new Error('La imagen está vacía'); const esc0=Math.min(1,1600/Math.max(sw,sh)); const cnv=document.createElement('canvas'); cnv.width=Math.max(1,Math.round(sw*esc0)); cnv.height=Math.max(1,Math.round(sh*esc0)); cnv.getContext('2d').drawImage(img,0,0,cnv.width,cnv.height); paginas.push({img:ctorReducirPagina(cnv), nombre:file.name, origen:'foto', fecha:hoy()}); }
+            return {paginas:paginas, aviso:aviso}; }
+        async function ctorAdjArchivo(input){ const file=input.files&&input.files[0]; input.value=''; if(!file) return; if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
+            const c=getConta(); const x=ctorAdjContrato(c); if(!x) return; if(!Array.isArray(x.adjuntos)) x.adjuntos=[];
+            if(x.adjuntos.length>=CTOR_ADJ_MAX_PAG){ ctorAdjMsg('Este contrato ya tiene las '+CTOR_ADJ_MAX_PAG+' páginas máximas. Quita alguna para añadir otra.',true); return; }
+            ctorAdjMsg('Procesando el documento…');
+            try{ const r=await ctorAdjProcesar(file); const caben=CTOR_ADJ_MAX_PAG-x.adjuntos.length; const recortadas=r.paginas.slice(0,caben);
+                const extra=recortadas.reduce((s,p)=>s+p.img.length,0); const pre=ctorAdjPresupuesto(c,extra);
+                if(!pre.ok){ ctorAdjMsg('No cabe: el negocio ya usa '+Math.round(ctorAdjBytes(c)/1024)+' KB de adjuntos y el límite es ~'+Math.round(pre.limite/1024)+' KB. Quita páginas de otros contratos o deja este en papel.',true); return; }
+                x.adjuntos=x.adjuntos.concat(recortadas); ctorAdjPag=x.adjuntos.length-recortadas.length; saveConta(c); ctorAdjPintar(); ctorRenderLista(); ctorAdjMsg('✅ Documento guardado: '+recortadas.length+' página(s). Ábrelo cuando quieras con el botón 📎 de su fila.'+r.aviso); }
+            catch(e){ console.error(e); ctorAdjMsg('No se pudo procesar ese archivo: '+((e&&e.message)||e),true); } }
         function mjDepreciacionAFUI(){ const c=getConta(); const aft=getAFT(); const per=periodoNominaActual();
             const r=mjDepreciacionMensualAsiento(c,(aft.activos||[]).map(a=>({id:a.id,nombre:a.nombre,costo:a.costo,valorResidual:0,vidaUtilAnios:Number(a.tasa)>0?100/Number(a.tasa):0,fechaAlta:a.fechaServicio||a.fechaAlta||'',estado:a.estado,metodo:a.metodoDepreciacion||'linea'})),per,fechaContablePeriodo(per),getCurrentUser());
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'La depreciación de '+per+' ya estaba asentada.':('✅ Depreciación de '+per+' asentada: '+moneda(r.total)+' (Dr 613-000 / Cr 253-000).')); }
@@ -17079,7 +17151,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-41';
+        var MANUAL_VERSION = 'v2026.10.29-42';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -17443,7 +17515,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'gestion-herramientas', modulo:'gestion', titulo:'Instrumentos, contratos y órdenes', html:
             '<ul><li><b>Facturas:</b> tienen su propio menú <b>Facturas</b> (ficha de clientes, emisión y documento), con su sección en este manual.</li>' +
             '<li><b>Instrumentos de pago:</b> registro y uso de cheques y otros instrumentos con su anulación.</li>' +
-            '<li><b>Contratos:</b> el registro completo está en el menú Contratos (tipo, rol CLIENTE/PRESTADOR, vigencia, monto y estado); aquí queda el resumen y su expediente.</li>' +
+            '<li><b>Contratos:</b> el registro completo está en el menú Contratos (tipo, rol CLIENTE/PRESTADOR, vigencia, monto y estado, y el documento firmado adjunto como foto o PDF); aquí queda el resumen y su expediente.</li>' +
             '<li><b>Órdenes de producción:</b> con sus materiales, mano de obra y producción terminada; estados en edición → en ejecución → terminada → cerrada.</li>' +
             '<li><b>Activos fijos y depreciación:</b> altas de AFT, su depreciación (también desde el menú Activos) y la revalorización cuando la pides.</li></ul>'},
         {id:'facturas-menu', modulo:'gestion', titulo:'Facturas: clientes, emisión y el documento', html:
@@ -17465,6 +17537,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>La lista</b> se busca por número, contraparte u objeto y se filtra por rol y por estado. El estado <b>VENCIDO</b> se calcula solo al pasar la vigencia; <b>Terminado</b> y <b>Cancelar/Eliminar</b> están en cada fila, y con <b>Editar</b> corriges lo que sea.</li>' +
             '<li><b>Avisos:</b> «Qué toca hoy» avisa de los contratos que vencen en 30 días y de los vencidos que siguen sin cerrar.</li>' +
             '<li><b>Enlace con Facturas:</b> al emitir una factura puedes elegir su contrato (solo quedan los de ese cliente): queda como referencia impresa en la factura, sin cambiar nada de la contabilidad.</li>' +
+            '<li><b>El documento adjunto:</b> con el botón <b>Adjuntar</b> de cada fila guardas el contrato firmado como <b>foto o PDF</b>: la app lo convierte en páginas reducidas (máximo 6 por contrato) que quedan dentro de la app para verlas en segundos con el botón 📎 de su fila, ampliarlas y descargarlas; también puedes quitar una página. Como las páginas pesan, hay un espacio total de adjuntos por negocio: la tarjeta del documento te dice cuánto llevas y cuánto queda.</li>' +
             '<li>En Gestión+ queda un resumen con el total de contratos y el botón para abrir este menú.</li></ul>'},
         {id:'gestion-control', modulo:'gestion', titulo:'Presupuesto, flujo proyectado e indicadores', html:
             '<ul><li><b>Presupuesto vs. real:</b> compara lo planificado con lo ejecutado por cuenta o partida.</li>' +
@@ -17696,7 +17769,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
