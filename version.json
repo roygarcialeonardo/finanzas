@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-43",
-  "publicada": "2026-10-29 12:32",
-  "notas": "v2026.10.29-43: Menú Contratos — generar el Contrato de Compraventa desde el modelo del negocio: botón «Generar» en los contratos donde eres el PRESTADOR; comparecencias desde la Identidad (nuevos campos: escritura, cuenta MLC y resolución del representante) y la ficha legal del cliente, que se completa en el diálogo y queda guardada en su ficha; cuentas del vendedor elegibles por contrato (CUP/USD), forma de pago marcada en la cláusula 3.2, Anexo 1 de precios manual y Ficha del Cliente con el personal autorizado, listo para imprimir.",
+  "version": "v2026.10.29-44",
+  "publicada": "2026-10-29 12:54",
+  "notas": "v2026.10.29-44: Nómina — botón «Contrato» en la fila de cada trabajador: genera al momento su contrato de trabajo POR TIEMPO DETERMINADO con los datos de su ficha (cargo, salario escala, CI, dirección), en el formato del modelo del negocio; el término se escribe al generarlo; horario, jornada, régimen, seguridad y día de pago son valores del negocio que se guardan y salen solos; el empleador sale de la Identidad con la resolución de su representante; si el cargo es Trabajador Integral, lleva su ANEXO con el contenido de trabajo. El contrato se genera al verlo, no se guarda copia.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "81f01f76fda381c42ba51a884de325c4e886cf05766d98ce5bdc9ec0062e112a",
-      "bytes": 1863041
+      "sha256": "423f14cb697fe9bcb49be7b9e1ecfe626d2fe73065bf1314ab832b1c34c756e7",
+      "bytes": 1881785
     },
     {
       "ruta": "pdf-import.js",

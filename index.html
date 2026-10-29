@@ -1241,6 +1241,43 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div id="nominaVacia" class="text-center text-muted py-4" style="display:none;">No hay trabajadores registrados.</div>
             </div>
 
+            <div class="card p-3 p-md-4 mb-3" id="ctrabCard" style="display:none">
+                <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="doc"></span>Contrato de trabajo <span id="ctrabTitulo" class="text-secondary"></span></h6>
+                <p class="small text-secondary mb-2">Se genera al momento con los datos actuales de su ficha, en el formato de tu modelo y <b>por tiempo determinado</b>. Los valores de horario, jornada, régimen, seguridad y día de pago son los del negocio: se guardan la primera vez y salen solos en los demás contratos (puedes ajustarlos aquí mismo para este).</p>
+                <input type="hidden" id="ctTrabId">
+                <div class="row g-2">
+                    <div class="col-md-4"><label class="form-label">Cargo u ocupación</label><input type="text" class="form-control" id="ctCargo"></div>
+                    <div class="col-md-3"><label class="form-label">Salario escala</label><input type="number" class="form-control" id="ctSalario" min="0" step="0.01"></div>
+                    <div class="col-md-3"><label class="form-label">Término del contrato</label><input type="text" class="form-control" id="ctTermino" placeholder="Ej.: 3 meses / una temporada"></div>
+                    <div class="col-md-2"><label class="form-label">Fecha de inicio</label><input type="date" class="form-control" id="ctInicio"></div>
+                    <div class="col-md-4"><label class="form-label">Lugar de trabajo</label><input type="text" class="form-control" id="ctLugar"></div>
+                    <div class="col-md-2"><label class="form-label">Horario</label><input type="text" class="form-control" id="ctHorario"></div>
+                    <div class="col-md-2"><label class="form-label">Jornada</label><input type="text" class="form-control" id="ctJornada"></div>
+                    <div class="col-md-4"><label class="form-label">Régimen de trabajo y descanso</label><input type="text" class="form-control" id="ctRegimen"></div>
+                    <div class="col-md-6"><label class="form-label">Condiciones de seguridad y salud</label><input type="text" class="form-control" id="ctSST"></div>
+                    <div class="col-md-2"><label class="form-label">Día de pago (mensual)</label><input type="text" class="form-control" id="ctDiaPago"></div>
+                    <div class="col-md-4"><label class="form-label">Pagos adicionales (si los hay)</label><input type="text" class="form-control" id="ctAdicionales"></div>
+                    <div class="col-12"><label class="form-check"><input class="form-check-input" type="checkbox" id="ctAnexoIncluir"> <span class="form-check-label">Incluir el ANEXO con el contenido de trabajo del cargo</span></label></div>
+                    <div class="col-12"><label class="form-label">Texto del ANEXO <span class="text-secondary">(es el texto del negocio: si lo cambias, queda guardado para los próximos)</span></label><textarea class="form-control" id="ctAnexo" rows="7"></textarea></div>
+                </div>
+                <div id="ctMsg" class="small mt-2"></div>
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                    <button type="button" class="btn btn-primary-custom text-white" onclick="ctrabGenerar()"><span class="icono-anim me-1" data-icono="doc-check"></span> Generar el contrato</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="ctrabCerrar()">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-3" id="ctrabDocCard" style="display:none">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="doc"></span><span id="ctrabDocTitulo">Contrato de trabajo</span></h6>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="ctrabDocImprimir()">🖨 Imprimir</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctrabDocCerrar()">Cerrar</button>
+                    </div>
+                </div>
+                <div id="ctrabDocBox"></div>
+            </div>
+
             <div class="card p-3 p-md-4 mb-3" id="cardCompParams" style="display:none;"></div>
             <div class="card p-3 p-md-4 mb-3" id="cardCompAnual" style="display:none;"></div>
             <div class="card card-custom p-3 mb-3">
@@ -2537,6 +2574,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <ul class="small mb-0">
                         <li><b>Guardar nómina</b>: calcula y guarda la nómina del mes con los complementos marcados por trabajador, y alimenta los documentos y la Declaración Jurada.</li>
                         <li><b>Complementos aplicables</b> (por trabajador): interruptores individuales —sin ninguno marcado, la nómina queda igual—: salario proporcional, vacaciones promedio de 12 meses, certificado por enfermedad 60/80/90 %, licencia de maternidad/paternidad 100 %, horas extras ×2, feriados trabajados, plus por antigüedad, pago por resultados, interrupción laboral 60 %, licencia no retribuida, finiquito, retenciones (judiciales, créditos, responsabilidad material), provisión de vacaciones 9.09 % (informativa), aviso de salario mínimo (2 100 CUP hasta julio de 2026 y 3 210 CUP desde agosto de 2026, Res. 14/2026 del MTSS) y acumulado anual para la DJ.</li>
+                        <li><b>Contrato</b> (botón en la fila de cada trabajador): genera al momento su contrato de trabajo por tiempo determinado con los datos de su ficha, listo para imprimir, con su ANEXO si es Trabajador Integral.</li>
                     </ul>
                 </div>
                 <div class="ayuda-sec" id="ayuda-nomina-2" data-ayuda-titulo="Documentos de nómina">
@@ -4404,13 +4442,98 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <td class="text-end pay-ssemp">${moneda(calc.ssEmp)}</td>
                     <td class="text-end pay-comp" title="${esc(compTitle)}">${moneda(compTotal)}</td>
                     <td class="text-end fw-semibold pay-costo">${moneda(calc.costo)}</td>
-                    <td class="text-end"><div class="btn-group btn-group-sm">${editable?`<button class="btn btn-outline-primary editar-trab" data-id="${t.id}" title="Editar"><i class="bi bi-pencil"></i></button><button class="btn btn-outline-danger borrar-trab" data-id="${t.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}</div></td>
+                    <td class="text-end"><button class="btn btn-sm btn-outline-success contrato-trab me-1" data-id="${t.id}" title="Generar su contrato de trabajo">Contrato</button><div class="btn-group btn-group-sm">${editable?`<button class="btn btn-outline-primary editar-trab" data-id="${t.id}" title="Editar"><i class="bi bi-pencil"></i></button><button class="btn btn-outline-danger borrar-trab" data-id="${t.id}" title="Eliminar"><i class="bi bi-trash3"></i></button>`:''}</div></td>
                 </tr>`;}).join('');
             actualizarResumenNominaDesdeDOM();
             document.querySelectorAll('#nominaBody .pay-salario,#nominaBody .pay-otras').forEach(i => i.addEventListener('input', actualizarResumenNominaDesdeDOM));
             document.querySelectorAll('.editar-trab').forEach(b => b.addEventListener('click',()=>abrirTrabajador(b.dataset.id)));
             document.querySelectorAll('.borrar-trab').forEach(b => b.addEventListener('click',()=>eliminarTrabajador(b.dataset.id)));
+            document.querySelectorAll('.contrato-trab').forEach(b => b.addEventListener('click',()=>ctrabAbrir(b.dataset.id)));
         }
+        /* ===== CONTRATO DE TRABAJO (tarea 41) =====
+           Botón «Contrato» en la fila de cada trabajador de la Nómina:
+           genera y muestra AL MOMENTO su contrato con los datos
+           actuales de su ficha, en el formato del modelo del negocio,
+           listo para imprimir (no se guarda copia: se genera al
+           verlo). Por orden de Leonardo, TODOS se generan POR TIEMPO
+           DETERMINADO (su flujo es por temporadas) aunque el modelo
+           dice «indeterminado»: el título y la cláusula PRIMERO llevan
+           el término editable. El EMPLEADOR sale de la Identidad
+           (representante + «resolucionRep», añadida en la ronda -43);
+           horario, jornada, régimen, SST, día de pago y el texto del
+           ANEXO son valores por defecto DEL NEGOCIO (fiscal.laboral):
+           se guardan al generar y salen solos en los demás contratos.
+           El ANEXO es el contenido de trabajo del Trabajador Integral,
+           redactado según su encargo (el trabajador integral existe por
+           necesidad y, de acuerdo con él, desempeña funciones múltiples
+           según la temporada); su texto por defecto es editable. */
+        const CTRAB_ANEXO_DEF='En los negocios pequeños, medianos y grandes de nuestro país, el trabajador integral existe por necesidad: una misma persona sostiene varias funciones del negocio según la temporada y la necesidad del momento. De acuerdo con el trabajador, y garantizándole siempre la idoneidad demostrada y las condiciones de seguridad y salud requeridas en cada labor, el Trabajador Integral puede desempeñar, entre otras, las funciones siguientes:\n\n1. Atención al cliente y venta de productos y servicios, con su cobro en caja o por las vías electrónicas habilitadas.\n2. Elaboración y preparación de productos (cocina, dulcería, fregado y apoyo en la producción, según el negocio).\n3. Recepción, conteo, pesaje, almacenamiento y control de mercancías e insumos; participación en inventarios.\n4. Carga, descarga y traslado interno de mercancías y medios.\n5. Limpieza, orden e higiene de las áreas de trabajo, equipos y utensilios.\n6. Apoyo en caja y en las conciliaciones de ventas e ingresos.\n7. Trámites, mensajería y gestiones fuera del local que el empleador le encomiende.\n8. Cuidado, conservación y uso correcto de los medios de trabajo, equipos, herramientas y recursos puestos a su disposición.\n9. Cualquier otra función afín a la actividad del negocio que se le asigne por necesidad de la temporada, sin que implique una labor para la que no esté capacitado ni se le garanticen las condiciones de seguridad establecidas.\n\nLa asignación de funciones se hace de mutuo acuerdo con el trabajador y se le comunica con la antelación posible; ninguna función asignada puede poner en riesgo su salud ni la de terceros.';
+        function ctrabDefaults(){ const f=getFiscal(); const d=(f&&f.laboral&&typeof f.laboral==='object'&&!Array.isArray(f.laboral))?f.laboral:{}; return { horario:d.horario||'8h', jornada:d.jornada||'24h', regimen:d.regimen||'72h', sst:d.sst||'Buena Higiene, Buena Iluminación', diaPago:d.diaPago||'1ro', anexo:(typeof d.anexo==='string'&&d.anexo)?d.anexo:CTRAB_ANEXO_DEF }; }
+        function ctrabGuardarDefaults(v){ const f=getFiscal(); f.laboral={horario:v.horario,jornada:v.jornada,regimen:v.regimen,sst:v.sst,diaPago:v.diaPago,anexo:v.anexo}; saveFiscal(f); }
+        var ctrabId=null;
+        function ctrabEl(id){ return document.getElementById(id); }
+        function ctrabAbrir(trabId){ const r=getRRHH(); const t=(r.trabajadores||[]).find(x=>x.id===trabId); if(!t) return; ctrabId=trabId; const def=ctrabDefaults(); const razon=(typeof docOficialNegocio==='function'&&docOficialNegocio())||'';
+            const card=ctrabEl('ctrabCard'); if(card) card.style.display='';
+            const tit=ctrabEl('ctrabTitulo'); if(tit) tit.textContent='· '+t.nombre;
+            ctrabEl('ctTrabId').value=trabId;
+            ctrabEl('ctCargo').value=t.cargo||'Trabajador Integral';
+            ctrabEl('ctSalario').value=(Number(t.salarioBase)||0)||'';
+            ctrabEl('ctTermino').value=(t.contrato&&t.contrato.fechaFin)?('hasta el '+t.contrato.fechaFin):'3 meses';
+            ctrabEl('ctInicio').value=(t.contrato&&t.contrato.fecha)||t.fechaAlta||new Date().toISOString().slice(0,10);
+            ctrabEl('ctLugar').value=(t.contrato&&t.contrato.lugar)||razon;
+            ctrabEl('ctHorario').value=def.horario;
+            ctrabEl('ctJornada').value=(t.contrato&&t.contrato.jornada)||def.jornada;
+            ctrabEl('ctRegimen').value=def.regimen;
+            ctrabEl('ctSST').value=def.sst;
+            ctrabEl('ctDiaPago').value=def.diaPago;
+            ctrabEl('ctAdicionales').value='';
+            ctrabEl('ctAnexoIncluir').checked=/integral/i.test(ctrabEl('ctCargo').value);
+            ctrabEl('ctAnexo').value=def.anexo;
+            const msg=ctrabEl('ctMsg'); if(msg) msg.innerHTML='';
+            if(card&&card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'start'}); }
+        function ctrabCerrar(){ const card=ctrabEl('ctrabCard'); if(card) card.style.display='none'; ctrabId=null; }
+        function ctrabLeer(){ return { cargo:ctrabEl('ctCargo').value.trim(), salario:Number(ctrabEl('ctSalario').value)||0, termino:ctrabEl('ctTermino').value.trim(), inicio:ctrabEl('ctInicio').value||'', lugar:ctrabEl('ctLugar').value.trim(), horario:ctrabEl('ctHorario').value.trim(), jornada:ctrabEl('ctJornada').value.trim(), regimen:ctrabEl('ctRegimen').value.trim(), sst:ctrabEl('ctSST').value.trim(), diaPago:ctrabEl('ctDiaPago').value.trim(), adicionales:ctrabEl('ctAdicionales').value.trim(), anexoIncluir:!!ctrabEl('ctAnexoIncluir').checked, anexo:ctrabEl('ctAnexo').value }; }
+        function ctrabGenerar(){ const r=getRRHH(); const t=(r.trabajadores||[]).find(x=>x.id===(ctrabId||(ctrabEl('ctTrabId')||{}).value)); if(!t) return; const d=ctrabLeer();
+            ctrabGuardarDefaults({horario:d.horario,jornada:d.jornada,regimen:d.regimen,sst:d.sst,diaPago:d.diaPago,anexo:d.anexo});
+            const card=ctrabEl('ctrabDocCard'); if(card) card.style.display=''; const tit=ctrabEl('ctrabDocTitulo'); if(tit) tit.textContent='Contrato de trabajo · '+t.nombre;
+            ctrabEl('ctrabDocBox').innerHTML=ctrabDocumento(t,d);
+            const msg=ctrabEl('ctMsg'); if(msg) msg.innerHTML='<span class="text-success">✅ Contrato generado abajo, listo para imprimir.</span>';
+            if(card&&card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'start'}); }
+        function ctrabDocCerrar(){ const card=ctrabEl('ctrabDocCard'); if(card) card.style.display='none'; }
+        function ctrabDocImprimir(){ printPane('ctrabDocBox','Contrato de trabajo'); }
+        function ctrabFechaLarga(f){ if(!f) return ''; const p=String(f).split('-'); if(p.length!==3) return f; const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']; return (p[2].replace(/^0/,'')||p[2])+' de '+meses[Math.min(11,Math.max(0,Number(p[1])-1))]+' de '+p[0]; }
+        function ctrabFechaCierre(f){ if(!f) return '___________ días del mes de ___________________ del _____________'; const p=String(f).split('-'); if(p.length!==3) return f; const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']; return (p[2].replace(/^0/,'')||p[2])+' días del mes de '+meses[Math.min(11,Math.max(0,Number(p[1])-1))]+' del '+p[0]; }
+        function ctrabDocumento(t, d){ const idt=identidadDelNegocio(); const razon=(typeof docOficialNegocio==='function'&&docOficialNegocio())||idt.nombreComercial||'';
+            const domicilio=[idt.direccion,idt.municipio,idt.provincia].filter(s=>s&&String(s).trim()).join(', ');
+            const empleador=(idt.repNombre?esc(idt.repNombre):'________________')+' en representación de '+esc(razon||'________________')+', facultado por '+esc(idt.resolucionRep||'________________')+', a los efectos del presente contrato, se denomina el EMPLEADOR, con domicilio en: '+esc(domicilio||'________________');
+            const P=x=>'<p style="margin:0 0 8px">'+x+'</p>';
+            const sal=docOficialNum(d.salario);
+            const inicioTxt=d.inicio?('el '+ctrabFechaLarga(d.inicio)):'a partir de la firma de las partes';
+            let h='<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:13.5px;line-height:1.55;color:#111;text-align:justify">';
+            h+='<p style="text-align:center;margin:0 0 12px"><b>CONTRATO DE TRABAJO POR TIEMPO DETERMINADO</b></p>';
+            h+=P('Al efecto de suscribir el presente contrato de trabajo, el que tiene toda la fuerza legal que en derecho se requiere, comparecen:');
+            h+=P('DE UNA PARTE: '+empleador);
+            h+=P('Y DE OTRA PARTE: <b>'+esc(t.nombre||'')+'</b>, quien concurre por su propio derecho y cuyos datos personales son:<br>No. Carné de Identidad: '+esc(t.ci||'________________')+'<br>Dirección: '+esc(t.direccion||'________________________________________________________')+'<br>el que en lo sucesivo y a los efectos del presente documento se denomina el TRABAJADOR.');
+            h+=P('Ambas partes, libre y voluntariamente:');
+            h+='<p style="text-align:center;margin:10px 0"><b>C O N V I E N E N</b></p>';
+            h+=P('<b>PRIMERO:</b> Establecer el presente contrato de trabajo por tiempo determinado, por el término de '+esc(d.termino||'________________')+', con fecha de inicio '+inicioTxt+'.');
+            h+=P('<b>SEGUNDO:</b> El Trabajador prestará sus servicios a la entidad bajo las condiciones siguientes:');
+            h+=P('a) Desempeñará la ocupación o cargo denominado: '+esc(d.cargo||'Trabajador Integral')+(d.anexoIncluir?' cuyo contenido de trabajo aparece en ANEXO.':' cuyo contenido de trabajo es el propio de su ocupación.'));
+            h+=P('b) El lugar de trabajo será en: '+esc(d.lugar||razon)+' con un horario de '+esc(d.horario)+', una jornada de '+esc(d.jornada)+' y un régimen de trabajo y descanso de: '+esc(d.regimen));
+            h+=P('c) El puesto de trabajo tiene las condiciones de seguridad y salud en el trabajo, en correspondencia con el cargo o labor son las siguientes: '+esc(d.sst)+'.');
+            h+=P('e) Se exige una idoneidad demostrada basada en lo dispuesto en el Artículo 36 del Código de Trabajo y el Convenio Colectivo de Trabajo.');
+            h+=P('<b>TERCERO:</b> La cuantía de la remuneración es de: '+sal+'<br>Salario escala: $'+sal+'<br>a) Pagos adicionales siguientes: '+(d.adicionales?esc(d.adicionales):'______________________________________')+'<br>El pago se realiza con un periodicidad: Mensual los días '+esc(d.diaPago||'1ro')+'.');
+            h+=P('<b>CUARTO:</b> El trabajador se compromete a cumplir con el contenido de trabajo que aparece descrito en este contrato, a mantener la idoneidad demostrada requerida, a obedecer las órdenes impartidas por los superiores y a acatar el Convenio Colectivo de Trabajo y el Reglamento Disciplinario Interno de la entidad, así como las demás disposiciones vigentes que rigen las materias de organización del trabajo y seguridad y salud en el trabajo.');
+            h+=P('<b>QUINTO:</b> El empleador se compromete a abonar al trabajador su salario en la forma establecida y a cumplir las normas de seguridad y salud, seguridad social, vacaciones anuales pagadas y demás disposiciones vigentes, que constituyen derechos laborales.');
+            h+=P('<b>SEXTO:</b> El presente contrato de trabajo se dará por terminado al concluir el término por el cual ha sido pactado o por otra causa establecida en la legislación laboral y se modifica según lo dispuesto en el Artículo 42 del Código de Trabajo.');
+            h+=P('<b>SÉPTIMO:</b> Ambas partes convienen en lo expresado en el siguiente documento, comprometiéndose a su más estricto cumplimiento.');
+            h+=P('Y PARA QUE ASÍ CONSTE se extiende el presente contrato de trabajo que suscriben las partes de común acuerdo, en original y copia, en '+esc(d.lugar||razon)+' a los '+ctrabFechaCierre(d.inicio)+'.');
+            h+='<table style="width:100%;margin-top:30px"><tr><td style="width:50%;text-align:center">______________________<br><b>El empleador</b></td><td style="width:50%;text-align:center">____________________________<br><b>El Trabajador</b></td></tr></table>';
+            if(d.anexoIncluir){ h+='<div style="page-break-before:always"></div>'; h+='<p style="text-align:center;margin:0 0 4px"><b>ANEXO</b></p>'; h+='<p style="text-align:center;margin:0 0 10px"><b>Contenido de trabajo del cargo '+esc(d.cargo||'Trabajador Integral')+'</b></p>';
+                String(d.anexo||'').split(/\n\n+/).forEach(par=>{ const tx=par.trim(); if(tx) h+='<p style="margin:0 0 8px">'+esc(tx).replace(/\n/g,'<br>')+'</p>'; }); }
+            h+='</div>';
+            return h; }
+        window.__ctrabTest={abrir:ctrabAbrir, generar:ctrabGenerar, doc:ctrabDocumento, defaults:ctrabDefaults, leer:ctrabLeer};
         function leerNominaDOM() {
             const filas = [];
             const periodo = periodoNominaActual(), rrhh = getRRHH(), n = rrhh.nominas[periodo]||{};
@@ -17429,7 +17552,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-43';
+        var MANUAL_VERSION = 'v2026.10.29-44';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -17672,7 +17795,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'ficha-trabajador', modulo:'nomina', titulo:'La ficha del trabajador y los Trabajadores del mes', html:
             '<p>En la ficha de cada trabajador guardas nombre, CI, sexo, tarjeta CUP, cuenta, municipio, provincia y dirección, su cargo (del catálogo <b>Puestos de trabajo</b> o libre), su <b>categoría ocupacional</b> (obrero, técnico, administrativo, servicios o dirigente) y su <b>instrumento de pago</b> (tarjeta, transferencia, efectivo o cheque) — ambos se ven junto a su nombre en la nómina del mes — y los <b>complementos que le aplican</b>.</p>' +
             '<ul><li>La tarjeta <b>Trabajadores del mes</b> dice quiénes están vigentes en cada mes; la lista viaja sola al mes siguiente y puedes quitar o añadir a quien sea ese mes.</li>' +
-            '<li>En un TCP, el tope es de <b>3 trabajadores</b>: la app te avisa si te pasas.</li></ul>'},
+            '<li>En un TCP, el tope es de <b>3 trabajadores</b>: la app te avisa si te pasas.</li>' +
+            '<li><b>Su contrato de trabajo:</b> cada fila de la nómina del mes lleva el botón <b>Contrato</b>, que genera y muestra al momento el contrato del trabajador con sus datos de la ficha, en el formato del modelo del negocio y <b>por tiempo determinado</b> (el término se escribe ahí mismo). El empleador sale de la Identidad del negocio — con la resolución que faculta a su representante — y el horario, la jornada, el régimen, las condiciones de seguridad y el día de pago son valores del negocio que se guardan la primera vez y salen solos en los demás. Si el cargo es Trabajador Integral, el contrato lleva su <b>ANEXO</b> con el contenido de trabajo (texto del negocio, editable). El contrato se genera al verlo: no se guarda copia en la app.</li></ul>'},
         {id:'complementos', modulo:'nomina', titulo:'Los 16 complementos de la nómina', html:
             '<p>La nómina trae <b>16 complementos opcionales por trabajador</b>: sin marcar ninguno, la nómina queda exactamente como la básica. Se activan en la ficha, en «Complementos aplicables», y la activación viaja al guardar, al cambiar de mes y en el arrastre de diciembre a enero.</p>' +
             '<p>Incluyen: salario proporcional, vacaciones con promedio de 12 meses, certificado por enfermedad (60/80/90 % configurable), licencia de maternidad/paternidad al 100 %, horas extras ×2, feriados trabajados, plus por antigüedad, pago por resultados, interrupción laboral al 60 %, licencia no retribuida, finiquito, retenciones judiciales, créditos y responsabilidad material, salario mínimo de 2 100 CUP con aviso, y el acumulado anual por trabajador para la DJ.</p>' +
@@ -18048,7 +18172,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
