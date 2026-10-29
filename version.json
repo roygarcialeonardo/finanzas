@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-57",
-  "publicada": "2026-10-29 20:58",
-  "notas": "Mejoras de la app",
+  "version": "v2026.10.29-58",
+  "publicada": "2026-10-29 23:38",
+  "notas": "Pantalla de bloqueo: registrar la instalación y pegar la llave sin entrar a la app",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "bed2d9381aa597a4f35c9f964ac960b595f9199b1dbe4bc3b8103edb8788f415",
-      "bytes": 2051753
+      "sha256": "9d5f9be3d3a971843397817ee738ac0d2c797a7a6d9fe92f55e9c1e6e62df882",
+      "bytes": 2058157
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "WCYvGoasz3ACa1G43LyHqkefdJEkLDjF3BN3M+ZtGK+lKxoKXv3sl5o+2yuJ2c1pWJFQilaZHgivf73tKaGzDQ=="
+  "firma": "/IRh1dSMjS5yGwLGu6fCSbfVlrBuvL+7K4whRnEA3Clu+bSkZyqsw2NePC1964WwEN3VUh5Db8/tJPSJIgHbAw=="
 }

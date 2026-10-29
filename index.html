@@ -896,7 +896,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="mb-3" style="font-size:3rem;">🔒</div>
             <h4 class="fw-bold" id="subsBloqueoTitulo">Suscripción del mes no pagada</h4>
             <p class="text-secondary" id="subsBloqueoTexto">Contacta a tu gestor para reactivar el acceso a este negocio.</p>
-            <button type="button" class="btn btn-primary-custom w-100 text-white" id="btnSubsBloqueoSalir">Salir</button>
+            <div id="subsBloqueoLlave" class="text-start mt-4" style="display:none">
+                <div class="small text-muted mb-2">Tu código de pedido: <b id="subsLlavePedido" class="text-dark">…</b></div>
+                <div id="subsLlaveRegEstado" class="small mb-2"></div>
+                <button type="button" class="btn btn-outline-primary w-100 mb-3" id="btnSubsLlaveRegistrar" style="display:none">📡 Registrar esta instalación ahora</button>
+                <label class="form-label small" for="subsLlaveValor">Llave del mes (pégala aquí)</label>
+                <input type="text" class="form-control" id="subsLlaveValor" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase" autocomplete="off">
+                <button type="button" class="btn btn-success w-100 mt-2" id="btnSubsLlaveActivar">Activar llave</button>
+                <div id="subsLlaveMsg" class="small mt-2"></div>
+            </div>
+            <button type="button" class="btn btn-primary-custom w-100 text-white mt-3" id="btnSubsBloqueoSalir">Salir</button>
         </div>
     </div>
 </div>
@@ -3813,8 +3822,65 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             dashboardContainer.classList.remove('visible');
             const o = document.getElementById('subsBloqueo');
             if (o) o.style.display = 'block';
+            if (window.FINANZAS_LOCAL) prepararBloqueoLlave();
             return false;
         }
+        /* Ronda -58: en una copia SIN CONEXIÓN bloqueada por llave, la
+           propia pantalla de bloqueo deja salir del callejón: muestra el
+           código de pedido, registra la instalación en el servidor si
+           falta (automático al mostrarse y con botón de reintento) y
+           permite pegar y activar la llave del mes sin entrar a la app.
+           Antes el único sitio para pegar la llave era Configuración,
+           inalcanzable con la copia bloqueada. */
+        async function prepararBloqueoLlave() {
+            const box = document.getElementById('subsBloqueoLlave');
+            if (!box) return;
+            let st;
+            try { st = await subsLocalFetch('/llave/estado'); } catch (e) { return; }
+            if (!st || !st.ok || !st.aplica || st.estado === 'vigente') return;
+            box.style.display = '';
+            document.getElementById('subsLlavePedido').textContent = st.pedido || '—';
+            const reg = document.getElementById('subsLlaveRegEstado');
+            const btnReg = document.getElementById('btnSubsLlaveRegistrar');
+            const msg = h => { document.getElementById('subsLlaveMsg').innerHTML = h; };
+            const pintarReg = x => {
+                if (x && x.registrada) { reg.innerHTML = '<span class="badge bg-info text-dark">Instalación registrada</span> Tu proveedor ya ve esta copia en su panel y puede darte la llave.'; btnReg.style.display = 'none'; }
+                else { reg.innerHTML = '<span class="badge bg-warning text-dark">Sin registrar en el servidor</span> Sin registro, tu proveedor no puede darte la llave: conéctate a internet y pulsa «Registrar esta instalación ahora».'; btnReg.style.display = ''; }
+            };
+            pintarReg(st);
+            if (!box.dataset.llaveInit) {
+                box.dataset.llaveInit = '1';
+                btnReg.addEventListener('click', async () => {
+                    btnReg.disabled = true; msg('Registrando en el servidor…');
+                    try {
+                        const r = await subsLocalFetch('/llave/registrar', { tipo: '', resumen: await llaveResumenLocal(st) });
+                        if (r && r.ok) { pintarReg(r); msg('<span class="text-success">✅ Instalación registrada. Ya puedes pedir tu llave a tu proveedor.</span>'); }
+                        else msg('<span class="text-danger">' + esc((r && r.error) || 'No se pudo registrar la instalación.') + '</span>');
+                    } catch (e) { msg('<span class="text-danger">Sin conexión con el servidor — inténtalo con internet.</span>'); }
+                    btnReg.disabled = false;
+                });
+                const activar = async () => {
+                    const inp = document.getElementById('subsLlaveValor');
+                    const v = (inp.value || '').trim().toUpperCase();
+                    if (!v) { msg('<span class="text-danger">Pega primero la llave que te dio tu proveedor.</span>'); return; }
+                    const btn = document.getElementById('btnSubsLlaveActivar');
+                    btn.disabled = true; msg('Comprobando la llave…');
+                    try {
+                        const r = await subsLocalFetch('/llave/activar', { llave: v });
+                        if (!r || !r.ok) { msg('<span class="text-danger">' + esc((r && r.error) || 'La llave no se pudo activar.') + '</span>'); btn.disabled = false; return; }
+                        msg('<span class="text-success fw-semibold">✅ Llave activada para ' + esc(r.periodoActual || 'este mes') + '. Entrando…</span>');
+                        setTimeout(() => location.reload(), 900);
+                    } catch (e) { msg('<span class="text-danger">Sin conexión con el servidor — la llave se comprueba en línea al activarla.</span>'); btn.disabled = false; }
+                };
+                document.getElementById('btnSubsLlaveActivar').addEventListener('click', activar);
+                document.getElementById('subsLlaveValor').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); activar(); } });
+            }
+            if (!st.registrada && !box.dataset.llaveAutoReg) {
+                box.dataset.llaveAutoReg = '1';
+                try { const r = await subsLocalFetch('/llave/registrar', { tipo: '', resumen: await llaveResumenLocal(st) }); if (r && r.ok) pintarReg(r); } catch (e) { /* sin conexión: queda el botón */ }
+            }
+        }
+        window.__bloqueoTest = { mostrar: mostrarBloqueoSuscripcion, preparar: prepararBloqueoLlave };
         document.getElementById('btnSubsBloqueoSalir').addEventListener('click', () => {
             api('logout').finally(() => { try { localStorage.removeItem('finanzas_token'); sessionStorage.removeItem('finanzas_token'); } catch (e) {} location.reload(); });
         });
@@ -19255,7 +19321,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-57';
+        var MANUAL_VERSION = 'v2026.10.29-58';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19728,7 +19794,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>El pedido:</b> en la copia, Configuración → tarjeta «Llave de acceso de esta instalación» muestra el <b>código de pedido</b> de esa instalación y la huella corta de su PC. El cliente te lo dicta.</li>' +
             '<li><b>Generar:</b> en tu Panel de control → vista <b>🔑 Llaves</b>: escribe el pedido, elige el titular (un negocio o un tenedor) y el mes, y pulsa «Generar llave». Una llave por pedido y mes: si ya hay una viva, revócala antes de generar otra.</li>' +
             '<li><b>Activar:</b> el cliente pega la llave en su copia (con conexión en ese momento) y la copia la verifica contra tu servidor: queda registrada con su negocio/tenedor, la huella de su PC, quién la activó y cuándo — todo visible en tu tabla de llaves.</li>' +
-            '<li><b>El amarre:</b> si el programa se mueve a otra PC, la huella no coincide y la llave deja de servir. Sin llave del mes en curso, los usuarios del negocio no entran a los datos; el administrador local siempre entra, para poder pegar la llave nueva.</li>' +
+            '<li><b>El amarre:</b> si el programa se mueve a otra PC, la huella no coincide y la llave deja de servir. Sin llave del mes en curso, los usuarios del negocio no entran a los datos — pero la propia <b>pantalla de bloqueo</b> trae el código de pedido, el registro de la instalación y el cuadro para pegar la llave nueva, así que nadie queda fuera sin remedio.</li>' +
+            '<li><b>La pantalla de bloqueo lo resuelve todo (ronda -58):</b> en una copia sin conexión bloqueada por llave, esa pantalla muestra el <b>código de pedido</b>, intenta <b>registrar la instalación sola</b> al mostrarse si hay conexión (con botón «Registrar esta instalación ahora» para reintentar) y trae el cuadro <b>«Llave del mes»</b> con su botón «Activar llave»: el cliente no necesita entrar a la app para desbloquearla.</li>' +
+            '<li><b>Instalar exige conexión (servidor 0.14.2):</b> la instalación inicial en modo negocio o tenedor <b>no se completa sin internet</b>: la copia debe registrarse en el servidor al instalarse; sin conexión, el programa lo avisa y no crea nada.</li>' +
             '<li><b>Revocar:</b> corta el acceso en la próxima verificación de esa copia (al arrancar con conexión o al cambiar de mes). <b>Desvincular PC:</b> libera la llave para que pueda activarse en otra computadora — solo para cambios legítimos de equipo.</li>' +
             '<li><b>Copia de un tenedor (F3):</b> si la instalación es de un tenedor, lleva varios negocios: la llave abre la copia y, además, <b>cada negocio se comprueba contra tu servidor con la misma doble puerta</b> (negocio desactivado o sin pagar, o el tenedor sin pagar → los usuarios de ese negocio no entran a sus datos). En su Configuración, la tarjeta «Negocios de esta copia de tenedor» muestra el estado de cada uno y el botón «Validar ahora». Los nombres de sus negocios deben coincidir con los de la versión en línea.</li>' +
             '<li><b>Registrar la instalación:</b> la copia puede anunciarse sola en tu servidor: en su tarjeta de llave, el botón <b>«Registrar esta instalación en el servidor»</b> manda su código de pedido, el nombre de su negocio, su tipo y la huella de su PC (y también lo intenta sola una vez, al abrir la tarjeta, si aún no tiene llave ni consta registrada). Registrarse <b>no crea el negocio en línea ni desbloquea nada</b>: solo te deja la petición visible.</li>' +
