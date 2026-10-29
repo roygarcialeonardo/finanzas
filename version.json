@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-52",
-  "publicada": "2026-10-29 18:55",
-  "notas": "Ronda -52: registro de negocios del administrador (tarea 44)",
+  "version": "v2026.10.29-53",
+  "publicada": "2026-10-29 19:27",
+  "notas": "Mejoras de la app",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "602d1f6ec646f05ee0ef520d5df1ef420cb8e82d0295d4735fa3f17e235f4eb8",
-      "bytes": 1970889
+      "sha256": "6e51bd68b4990e3870afa3ff418407f2d08dabae3bd8879a029318e03e470c9b",
+      "bytes": 1984875
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "7OQ+hiygYTRXNTXs99i/hvJ2kqfBstVp9TTmjimQKrkG1bfm++K2m56p+VkOAc3XYVk7Xm221T2RdNjFmM9wDg=="
+  "firma": "54B5eKU2R8LnsX+bPyYO+rV/ek5gjt/qtXLgEIjlmGZ6G2HfJLI1dzGbShZMBCjx/pxOhLYNHbQMigYcTAD+Bw=="
 }

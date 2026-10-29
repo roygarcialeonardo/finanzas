@@ -1062,6 +1062,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link gestion" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#pane-gestion"><span class="icono-anim me-1" data-icono="cuadricula"></span> Gestión+</button></li>
         <li class="nav-item"><button class="nav-link facturas" id="tab-facturas" data-bs-toggle="tab" data-bs-target="#pane-facturas"><span class="icono-anim me-1" data-icono="factura"></span> Facturas</button></li>
         <li class="nav-item"><button class="nav-link contratos" id="tab-contratos" data-bs-toggle="tab" data-bs-target="#pane-contratos"><span class="icono-anim me-1" data-icono="firma"></span> Contratos</button></li>
+        <li class="nav-item" style="display:none"><button class="nav-link" id="tab-pos" data-bs-toggle="tab" data-bs-target="#pane-pos"><span class="icono-anim me-1" data-icono="tienda"></span> Punto de Venta</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><span class="icono-anim me-1" data-icono="archivo"></span> Historial</button></li>
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><span class="icono-anim me-1" data-icono="maletin"></span> Gestor</button></li>
         <li class="nav-item" id="panelTabNav" style="display:none"><button class="nav-link" id="tab-panel" data-bs-toggle="tab" data-bs-target="#pane-panel"><span class="icono-anim me-1" data-icono="velocimetro"></span> Panel de control</button></li>
@@ -2049,6 +2050,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div id="facDocBox" class="d-none"></div>
         </div>
 
+        <div class="tab-pane fade" id="pane-pos">
+            <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="tienda" style="color:#0f766e"></span>Punto de Venta</h5><div class="small text-secondary">El módulo de venta en mostrador de tu negocio: turnos, caja y tickets. Solo existe si el módulo está contratado y pagado este mes.</div></div>
+            </div>
+            <div id="posRoot"><div class="card p-3 p-md-4"><p class="small text-secondary mb-0">Cargando el punto de venta…</p></div></div>
+        </div>
+
         <div class="tab-pane fade" id="pane-contratos">
             <div class="card p-3 p-md-4 mb-4" id="ctorFormCard">
                 <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="firma"></span><span id="ctorFormTitulo">Registrar contrato</span></h6>
@@ -2280,6 +2288,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                                 <div id="listTasasMes"></div></div>
                             <div class="col-12"><button type="button" class="btn btn-primary-custom text-white px-4" id="btnGuardarCfg"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar ajustes</button></div>
                         </div>
+                    </div>
+                </div>
+                <!-- Punto de Venta (módulo POS, tarea 38): solo con el módulo contratado y vigente -->
+                <div class="col-12 d-none" id="cardPosCfg">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="tienda"></span>Punto de Venta (POS)</h6>
+                        <p class="small text-secondary mb-3">Tu negocio tiene el módulo de Punto de Venta. Aquí lo administras: si sus ventas pasan a los ingresos de Finanzas y el precio de venta de cada producto. Los <b>vendedores</b> se crean en «Gestión de Usuarios» con el rol <b>🛒 Vendedor</b>: al entrar, van directos al Punto de Venta y no ven nada más del negocio.</p>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="posCfgIngresos">
+                            <label class="form-check-label" for="posCfgIngresos"><b>Las ventas del POS pasan a los ingresos de Finanzas</b> <span class="text-secondary">(cada venta cobrada nace también como ingreso del negocio; si lo apagas, las ventas solo viven en el POS y en el inventario)</span></label>
+                        </div>
+                        <h6 class="fw-semibold mb-2">Precio de venta de los productos</h6>
+                        <p class="small text-secondary mb-2">Los productos son los del inventario de la Contabilidad (mismo stock). Ponle a cada uno su precio de venta; con precio 0 no sale en la parrilla del POS.</p>
+                        <div id="posPreciosBox" class="small"></div>
+                        <div class="mt-3"><button type="button" class="btn btn-primary btn-sm" onclick="posCfgGuardar()">Guardar ajustes del POS</button> <span id="posCfgMsg" class="small text-secondary ms-2"></span></div>
                     </div>
                 </div>
                 <!-- Identidad del negocio -->
@@ -6798,6 +6821,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try{ renderTenedores(); }catch(e){}
             try{ renderMiLicencia(); }catch(e){}
             try{ renderPanelControl(); }catch(e){}
+            try{ renderPosCfg(); }catch(e){}
             renderSubsLocal();
             renderLlaveLocal();
             renderTenedorLocal();
@@ -7005,7 +7029,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function subsDeNeg(neg) {
             const m = getNegociosMeta()[neg] || {};
             const s = (m.subs && typeof m.subs === 'object') ? m.subs : {};
-            return { activo: s.activo !== false, pagos: (s.pagos && typeof s.pagos === 'object') ? s.pagos : {}, cortesia: s.cortesia === true, nota: String(s.nota || '') };
+            return { activo: s.activo !== false, pagos: (s.pagos && typeof s.pagos === 'object') ? s.pagos : {}, cortesia: s.cortesia === true, nota: String(s.nota || ''), modulos: posModulosDe(s) };
+        }
+        /* Módulos contratados (tarea 38): normaliza subs.modulos —
+           hoy solo el POS; la lista crece sin tocar esta forma. */
+        function posModulosDe(s) {
+            const m = (s && s.modulos && typeof s.modulos === 'object' && !Array.isArray(s.modulos)) ? s.modulos : {};
+            const p = (m.pos && typeof m.pos === 'object' && !Array.isArray(m.pos)) ? m.pos : {};
+            return { pos: { activo: p.activo === true, pagos: (p.pagos && typeof p.pagos === 'object' && !Array.isArray(p.pagos)) ? p.pagos : {} } };
         }
         function extrasDeNeg(neg) {
             const m = getNegociosMeta()[neg] || {};
@@ -7380,6 +7411,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <button type="button" class="btn btn-sm ${x.s.pagos[m.mes] ? 'btn-success' : 'btn-outline-danger'}" data-pneg-mes="${esc(x.nombre)}" data-pneg-clave="${m.mes}">${x.s.pagos[m.mes] ? '✅ ' + m.mes + ' pagado' : '🚫 ' + m.mes + ' sin pagar'}</button>
                 </div>
                 <div class="small mt-1"><span class="text-muted">Historial:</span> ${panelChipsHist(x.s.pagos, 'neg', x.nombre)}</div>
+                <div class="small mt-1"><span class="text-muted">🛒 Módulo POS (${moneda(POS_PRECIO_MES)}/mes, aparte de la licencia):</span> <label class="form-check form-switch d-inline-flex align-items-center mb-0 ms-1 me-2"><input class="form-check-input mt-0" type="checkbox" data-ppos-activo="${esc(x.nombre)}" ${x.s.modulos.pos.activo ? 'checked' : ''}> <span class="form-check-label small ms-1">Contratado</span></label> ${panelChipsHist(x.s.modulos.pos.pagos, 'pos', x.nombre)}</div>
                 <div class="input-group input-group-sm mt-1" style="max-width:560px">
                     <input type="text" class="form-control panel-nota-input" placeholder="Nota privada (solo la ves tú): teléfono, cómo paga…" value="${esc(x.s.nota)}" maxlength="300">
                     <button type="button" class="btn btn-outline-secondary" data-pneg-nota="${esc(x.nombre)}">Guardar nota</button>
@@ -7405,6 +7437,102 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             </div>`;
             }).join('');
         }
+        // ===== PUNTO DE VENTA (POS) · CIMIENTOS (tarea 38, ronda -53) =====
+        // El módulo se paga APARTE de la licencia base (5 000 CUP/mes,
+        // decisión de Leonardo): hasta que no está contratado y pagado
+        // el mes, NO SE VE (ni pestaña, ni tarjeta, ni el rol). Los
+        // datos del POS viven en el doc conta, en gestion.pos.
+        const POS_PRECIO_MES = 5000;
+        function posVigenteEn(s) { const p = posModulosDe(s).pos; return p.activo && !!p.pagos[subsMesActual()]; }
+        async function posModuloActivoAsync() {
+            if (window.FINANZAS_LOCAL) {
+                const st = await panelLocalEstado();
+                const p = st && st.modulos && st.modulos.pos;
+                return !!(p && p.vigente);
+            }
+            const neg = (typeof getNegocioNombre === 'function') ? getNegocioNombre() : '';
+            if (!neg) return false;
+            return posVigenteEn(subsDeNeg(neg));
+        }
+        function posDatos() {
+            const c = getConta(); const g = mjGestionDe(c);
+            if (!g.pos || typeof g.pos !== 'object' || Array.isArray(g.pos)) g.pos = { cfg: { aIngresos: false }, ventas: [], turnos: [], seqVenta: 0, seqTurno: 0 };
+            if (!g.pos.cfg || typeof g.pos.cfg !== 'object') g.pos.cfg = { aIngresos: false };
+            if (!Array.isArray(g.pos.ventas)) g.pos.ventas = [];
+            if (!Array.isArray(g.pos.turnos)) g.pos.turnos = [];
+            return { conta: c, pos: g.pos };
+        }
+        /* Aplica la visibilidad del módulo: pestaña solo con el POS
+           vigente; el vendedor solo ve el POS (y entra directo). */
+        async function aplicarVisibilidadPos() {
+            const on = await posModuloActivoAsync();
+            tabOcultaActor('tab-pos', !on);
+            posAjustarRolVendedor(on);
+            if (typeof getRolUsuario === 'function' && getRolUsuario() === 'vendedor') {
+                document.querySelectorAll('.nav-link[data-bs-toggle="tab"]').forEach(b => { if (b.id !== 'tab-pos') tabOcultaActor(b.id, true); });
+                if (on) {
+                    const t = document.getElementById('tab-pos');
+                    if (t && window.bootstrap) bootstrap.Tab.getOrCreateInstance(t).show();
+                } else {
+                    const pane = document.getElementById('pane-resumen');
+                    if (pane && !document.getElementById('posSinModulo')) {
+                        const d = document.createElement('div');
+                        d.id = 'posSinModulo'; d.className = 'alert alert-warning py-2 px-3 small mb-3';
+                        d.textContent = '🛒 Este negocio no tiene el módulo de Punto de Venta vigente este mes: habla con tu proveedor para activarlo.';
+                        pane.insertBefore(d, pane.firstChild);
+                    }
+                }
+            }
+            return on;
+        }
+        /* El rol «vendedor» solo se ofrece con el módulo activo. */
+        function posAjustarRolVendedor(on) {
+            ['newRole', 'editRole'].forEach(id => {
+                const s = document.getElementById(id); if (!s) return;
+                const o = s.querySelector('option[value="vendedor"]');
+                if (on && !o) { const op = document.createElement('option'); op.value = 'vendedor'; op.textContent = '🛒 Vendedor'; s.appendChild(op); }
+                if (!on && o) o.remove();
+            });
+        }
+        function renderPos() {
+            const root = document.getElementById('posRoot'); if (!root) return;
+            const { pos } = posDatos();
+            const ventas = pos.ventas.filter(v => !v.anulada);
+            const totalMes = ventas.filter(v => String(v.fecha || '').slice(0, 7) === subsMesActual()).reduce((a, v) => a + (Number(v.total) || 0), 0);
+            root.innerHTML = `<div class="card p-3 p-md-4 mb-3">
+                <h6 class="fw-semibold mb-2">🛒 Módulo activo</h6>
+                <p class="small mb-2">Ventas registradas: <b>${ventas.length}</b> · Este mes: <b>${moneda(totalMes)}</b> · Turnos: <b>${pos.turnos.length}</b>.</p>
+                <p class="small text-secondary mb-0">La pantalla de venta con sus turnos llega en la siguiente ronda del módulo. Los ajustes (si las ventas pasan a los ingresos y el precio de cada producto) están en <b>Configuración → Punto de Venta (POS)</b>.</p>
+            </div>`;
+        }
+        /* Tarjeta de Configuración del negocio: ajustes del POS. */
+        async function renderPosCfg() {
+            const wrap = document.getElementById('cardPosCfg'); if (!wrap) return;
+            const on = await posModuloActivoAsync();
+            wrap.classList.toggle('d-none', !on);
+            if (!on) return;
+            const { conta, pos } = posDatos();
+            const sw = document.getElementById('posCfgIngresos'); if (sw) sw.checked = !!pos.cfg.aIngresos;
+            const box = document.getElementById('posPreciosBox'); if (!box) return;
+            const prods = (conta.productos || []).slice().sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)));
+            box.innerHTML = prods.length ? prods.map(p => `<div class="d-flex align-items-center gap-2 mb-1"><span class="flex-grow-1">${esc(p.nombre)} <span class="text-muted">(${esc(p.codigo || '')} · stock ${p.stock != null ? p.stock : 0})</span></span><input type="number" class="form-control form-control-sm" style="max-width:130px" min="0" step="0.01" data-pos-precio="${esc(p.id)}" value="${Number(p.precio) || 0}"></div>`).join('')
+                : '<p class="text-secondary mb-0">Aún no hay productos: créalos en Contabilidad → Inventario.</p>';
+        }
+        function posCfgGuardar() {
+            const { conta, pos } = posDatos();
+            const sw = document.getElementById('posCfgIngresos');
+            pos.cfg.aIngresos = !!(sw && sw.checked);
+            document.querySelectorAll('[data-pos-precio]').forEach(inp => {
+                const p = (conta.productos || []).find(x => x.id === inp.getAttribute('data-pos-precio'));
+                if (p) p.precio = Math.max(0, Number(inp.value) || 0);
+            });
+            saveConta(conta);
+            const msg = document.getElementById('posCfgMsg'); if (msg) msg.textContent = '✅ Guardado.';
+        }
+        window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual };
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-pos') setTimeout(renderPos, 60); });
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-admin') setTimeout(() => { try { renderPosCfg(); } catch (err) {} }, 80); });
+
         // ===== LLAVES DE ACCESO (ronda -24) =====
         // Vista del Panel de control: la administradora genera la llave
         // del mes para el código de pedido de una instalación; la copia
@@ -7465,7 +7593,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 if (!s.activo) return { estado: 'Inactivo', cls: 'bg-secondary' };
                 return s.pagos[subsMesActual()] ? { estado: 'Activo · pagado este mes', cls: 'bg-success' } : { estado: 'Activo · pendiente de pago', cls: 'bg-warning text-dark' };
             } },
-            { id: 'pos', nombre: 'Punto de Venta (POS)', estadoDe: function () { return { estado: 'No contratado', cls: 'bg-light text-dark border' }; } }
+            { id: 'pos', nombre: 'Punto de Venta (POS)', estadoDe: function (x) {
+                const s = x.s; if (!s) return { estado: 'Sin negocio en línea', cls: 'bg-secondary' };
+                const p = (s.modulos && s.modulos.pos) || { activo: false, pagos: {} };
+                if (p.activo && p.pagos[subsMesActual()]) return { estado: 'Activo · pagado este mes', cls: 'bg-success' };
+                if (p.activo) return { estado: 'Contratado · pendiente de pago', cls: 'bg-warning text-dark' };
+                return { estado: 'No contratado', cls: 'bg-light text-dark border' };
+            } }
         ];
         function panelRegistroFilas(m) {
             const usuarios = getUsuarios();
@@ -7649,6 +7783,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         renderPanelControl(); renderSuscripciones();
                         return;
                     }
+                    const bp = e.target.closest('[data-ppos-mes]');
+                    if (bp) {
+                        const neg = bp.getAttribute('data-ppos-mes'), clave = bp.getAttribute('data-ppos-clave');
+                        const s = subsDeNeg(neg);
+                        const r = await api('subs_set', { negocio: neg, modulo: 'pos', moduloPagos: { [clave]: !s.modulos.pos.pagos[clave] } });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar el pago del módulo'); return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderPanelControl();
+                        return;
+                    }
                     const bi = e.target.closest('[data-inst-llave]');
                     if (bi) {
                         const tipoSel = document.getElementById('llaveTitularTipo');
@@ -7726,6 +7870,15 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         if (!r.ok) { alert(r.error || 'No se pudo guardar'); co.checked = !co.checked; return; }
                         if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
                         renderPanelControl(); renderSuscripciones(); renderTenedores();
+                        return;
+                    }
+                    const pa = e.target.closest('[data-ppos-activo]');
+                    if (pa) {
+                        const neg = pa.getAttribute('data-ppos-activo');
+                        const r = await api('subs_set', { negocio: neg, modulo: 'pos', moduloActivo: !!pa.checked });
+                        if (!r.ok) { alert(r.error || 'No se pudo guardar'); pa.checked = !pa.checked; return; }
+                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        renderPanelControl();
                         return;
                     }
                     const at = e.target.closest('[data-pten-activo]');
@@ -16013,7 +16166,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                        las operativas del negocio, se ocultan DJ, Contabilidad,
                        Gestión+, Ayuda e Instrucciones (decisión de Leonardo,
                        2026-10-25): esos apartados viven dentro de cada negocio. */
-                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-retiro','tab-utilidades','tab-fiscal','tab-cierrep','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-facturas','tab-contratos','tab-ayuda','tab-instrucciones'].forEach(id=>{
+                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-retiro','tab-utilidades','tab-fiscal','tab-cierrep','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-facturas','tab-contratos','tab-pos','tab-ayuda','tab-instrucciones'].forEach(id=>{
                         const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
                     });
                     document.getElementById('negocioNombreBadge').style.display='none';
@@ -16044,6 +16197,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 
                 renderAll();
                 try { aplicarVisibilidadActor(); } catch (e) {}
+                try { aplicarVisibilidadPos(); } catch (e) {}
                 try { aplicarCuentasActivas(); } catch (e) {}
             } else {
                 alert('Usuario o contraseña incorrectos.');
@@ -18454,7 +18608,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-52';
+        var MANUAL_VERSION = 'v2026.10.29-53';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -18933,10 +19087,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>El resumen de licencia firmado:</b> al registrarse, la copia calcula desde sus propios datos su <b>resumen de licencia</b> — trabajadores en la ficha, socios e ingresos del año (en una copia de tenedor, los negocios que lleva) —, se lo <b>muestra al cliente en su tarjeta antes de enviarlo</b> y lo manda firmado (la firma amarra el resumen a esa PC y a ese pedido). En tu lista de instalaciones verás el resumen junto al botón «Generar llave» con su sello: <b>«✔ Resumen íntegro»</b> si la firma recalculada coincide, o el aviso si no coincide. Verifícalo antes de emitir la llave: es el dato contra el que se cobra la tarifa. Si el cliente cambia sus datos, debe volver a registrar la instalación para refrescarlo. Las copias con servidor local anterior a esta mejora se registran «sin resumen».</li>' +
             '<li>Las instalaciones anteriores a las licencias (sin modo elegido) siguen con la validación de suscripción de siempre; las llaves mandan en las que tienen modo.</li>' +
             '</ul>'},
+        {id:'pos-menu', modulo:'gestion', titulo:'Punto de Venta (POS): el módulo de mostrador', html:
+            '<p>El <b>Punto de Venta</b> es un módulo que se paga <b>aparte de la licencia</b> de Finanzas (5 000 CUP/mes). Mientras no esté contratado y pagado el mes, <b>no aparece en ningún sitio</b>: ni su menú, ni su tarjeta de ajustes, ni su rol de usuario.</p>' +
+            '<ul><li><b>Quién lo ve:</b> lo ve el negocio que lo tiene vigente. Su administrador lo ajusta en <b>Configuración → Punto de Venta (POS)</b>: si las ventas pasan o no a los ingresos de Finanzas y el precio de venta de cada producto del inventario.</li>' +
+            '<li><b>Los vendedores:</b> se crean en <b>Gestión de Usuarios</b> con el rol <b>🛒 Vendedor</b> (la opción solo sale con el módulo activo). Al entrar, el vendedor va <b>directo al Punto de Venta</b> y no ve ningún otro apartado del negocio.</li>' +
+            '<li><b>Los productos</b> son los del inventario de la Contabilidad, con el mismo stock: el precio de venta se pone en la tarjeta de ajustes del POS.</li>' +
+            '<li>En la copia sin conexión, el POS se abre desde cualquier dispositivo de la <b>misma red local</b> (teléfono, tableta u otra PC) contra el servidor del negocio.</li></ul>'},
         {id:'panel-control', modulo:'respaldo', titulo:'Panel de control de licencias (solo la administradora)', html:
             '<p>El menú <b>Panel de control</b> (solo lo ve la cuenta administradora) reúne en un solo sitio el control de las licencias: el dinero del mes y el historial, la tabla maestra de negocios y el menú de tenedores. Marcar un pago, activar, desactivar o dar una cortesía se guarda al momento y el servidor aplica el bloqueo al instante.</p>' +
             '<ul><li><b>Resumen:</b> cuánto deberías cobrar este mes en licencias (las licencias de los negocios activos sin cortesía más el porcentaje de cada tenedor activo), cuánto ya cobraste y cuánto falta, con la lista de pendientes y su botón «Marcar pagado». Abajo, los <b>últimos 6 meses</b> (esperado, cobrado y pendiente), calculados con las tarifas de hoy.</li>' +
-            '<li><b>Negocios:</b> cada negocio con su licencia calculada, si es <b>cliente directo</b> o de qué tenedor es, su estado del mes y su <b>historial de 6 meses</b> (toca un mes para cambiarlo). El interruptor <b>Cortesía</b> marca una licencia regalada: ese negocio <b>nunca se bloquea por falta de pago</b>, no cuenta como deuda y tampoco suma a la base del porcentaje de su tenedor (la desactivación manual sí sigue bloqueándolo). La <b>nota privada</b> es solo tuya: teléfono, cómo paga, lo que quieras recordar.</li>' +
+            '<li><b>Negocios:</b> cada negocio con su licencia calculada, si es <b>cliente directo</b> o de qué tenedor es, su estado del mes y su <b>historial de 6 meses</b> (toca un mes para cambiarlo). El interruptor <b>Cortesía</b> marca una licencia regalada: ese negocio <b>nunca se bloquea por falta de pago</b>, no cuenta como deuda y tampoco suma a la base del porcentaje de su tenedor (la desactivación manual sí sigue bloqueándolo). La <b>nota privada</b> es solo tuya: teléfono, cómo paga, lo que quieras recordar. Bajo el historial va la fila del <b>módulo POS</b> (5 000 CUP/mes, aparte de la licencia): su interruptor «Contratado» y sus propios meses de pago; la cortesía de la licencia base <b>no</b> lo cubre.</li>' +
             '<li><b>Tenedores:</b> cada tenedor con los negocios que atiende, el valor de su cartera, <b>lo que te aporta a ti</b> (su base fija por el uso de la aplicación más su porcentaje sobre las tarifas de sus negocios activos y sin cortesía), si pagó su mes y el historial de su licencia. Activarlo, desactivarlo y marcar sus pagos es <b>solo de la administradora</b>: un tenedor no puede inhabilitar ni borrar negocios ni marcar pagos, ni los suyos ni los de nadie.</li>' +
             '<li><b>Registro:</b> de un vistazo, negocio a negocio: sus <b>nombres de usuario</b> (las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b> — solo su huella — y por eso no hay ninguna lista de contraseñas que guardar ni que perder), si su copia sin conexión ya generó el <b>código de recuperación</b> (lo anuncia ella misma al registrarse, con la fecha de su último anuncio; «Sin anunciar» = su copia aún no lo ha comunicado) y los <b>servicios contratados</b> con su estado: hoy la licencia de <b>Finanzas</b> de este mes y el módulo de <b>Punto de Venta (POS)</b>; cuando lleguen módulos nuevos aparecerán aquí en la misma lista. Los negocios que solo existen como instalación registrada salen con su insignia «solo instalación» y su código de pedido.</li>' +
             '<li>En la vista de <b>Administrador</b> ya no aparece el menú <b>Registro</b>: el Registro de Control es el libro de cada negocio y vive dentro de él; tu panel es Gestor, Panel de control y Configuración.</li>' +
@@ -19092,7 +19252,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
