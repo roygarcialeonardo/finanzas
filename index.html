@@ -1870,7 +1870,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <span class="ms-auto">Total: <b id="facTotalBox">$0.00</b></span>
                     <button type="button" class="btn btn-sm btn-success" onclick="facCrearUI()"><span class="icono-anim me-1" data-icono="factura"></span>Crear factura</button>
                 </div>
-                <p class="small text-secondary mb-0">La factura nace en <b>borrador</b> con su número consecutivo (F-1, F-2…). Al <b>confirmarla</b> se crea la cuenta por cobrar y el asiento de la venta, y si una línea lleva producto, sale del inventario con su costo. La anulada se conserva y su número no se reutiliza.</p>
+                <p class="small text-secondary mb-0">La factura nace con su número consecutivo (F-1, F-2…) y <b>no mueve la contabilidad</b>: es el documento y el control de su pago. Queda <b>Sin pagar</b> hasta que su cobro salga en un estado de cuenta importado (la app lo detecta por la cuenta, la tarjeta o el CI del cliente dentro del concepto del ingreso) o la marques pagada a mano con su botón. La anulada se conserva y su número no se reutiliza.</p>
             </div>
 
             <div class="card p-3 p-md-4 mb-4">
@@ -2850,7 +2850,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <div class="ayuda-sec-tit">El día a día: facturas, patrones y contratos</div>
                     <p class="small mb-1">Indicadores, alertas y flujo de caja proyectado, más las herramientas de operación:</p>
                     <ul class="small mb-0">
-                        <li><b>Facturas</b> — viven en su propio menú <b>Facturas</b>: ficha de clientes, emisión con su consecutivo (F-1, F-2…) y el documento para imprimir. <b>Confirmar</b>: genera la cuenta por cobrar, el asiento y la salida de inventario con el costo a 695-000. <b>Anular</b>: la conserva como anulada y crea el contraasiento.</li>
+                        <li><b>Facturas</b> — viven en su propio menú <b>Facturas</b>: ficha de clientes, emisión con su consecutivo (F-1, F-2…) y el documento para imprimir. La factura <b>no mueve la contabilidad</b>: queda <b>Sin pagar</b> hasta que su cobro sale en un estado de cuenta importado (o la marcas con su botón). <b>Anular</b>: la conserva como anulada.</li>
                         <li><b>Depreciación mensual de AFT (con comprobante)</b>: calcula la depreciación del mes de los activos y crea su comprobante.</li>
                         <li><b>Patrones recurrentes</b> — <b>Crear patrón</b>: guarda una plantilla de asiento periódico (pide la contraparte si una cuenta exige auxiliar). <b>Aplicar</b>: crea el comprobante del período y no duplica si ya se aplicó.</li>
                         <li><b>Presupuesto</b>: añade líneas de presupuesto y compara contra lo real.</li>
@@ -9265,6 +9265,21 @@ function ctaAutoEnlaceDocumento(conta,mov){
   const dias=ctaDiasEntre(d.fecha,mov.fecha);if(dias==null||dias<0||dias>365)continue;
   cands.push(d);}
  return ctaResolverCandidatos(cands,idsNombre,d=>d.contraparteId,'documento abierto');}
+/* ===== IDENTIFICADORES DEL PAGADOR EN EL CONCEPTO (ronda -39) =====
+   BANDEC no trae la cuenta de origen: quien paga viene DENTRO del
+   concepto (una tarjeta, una cuenta, un CI). Esta lectura la usa la
+   pasada de detección de pagos del menú Facturas (facMarcarPagosFacturas)
+   SOLO para marcar la factura como pagada: la factura no afecta en
+   nada a la contabilidad (corrección de Leonardo, 2026-10-28 22:55,
+   que sustituye al devengo D1 y a la conciliación por submayor). */
+function ctaIdentificadoresEnConcepto(conta,mov){
+ const dig=String((mov&&mov.concepto)||'').replace(/\D/g,'');
+ const out=[];
+ if(dig.length<10)return out;
+ for(const cp of (conta.contrapartes||[])){if(!cp)continue;
+  const ids=[cp.cuenta,cp.tarjeta,cp.nit].map(x=>String(x||'').replace(/\D/g,'')).filter(x=>x.length>=10);
+  if(ids.some(id=>dig.indexOf(id)>=0))out.push(cp);}
+ return out;}
 function ctaCreditosDe(conta){const g=conta&&conta.gestion;return (g&&Array.isArray(g.creditos))?g.creditos.filter(c=>c&&c.id):[];}
 function ctaCreditoDe(conta,id){return ctaCreditosDe(conta).find(c=>c.id===id)||null;}
 function ctaAutoEnlaceCredito(conta,mov){
@@ -10180,7 +10195,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             for(const p of periodos){ const n=(rrhh.nominas||{})[p]; if(!n||!Object.keys(n).length) continue; const tot=obtenerNominaParaPeriodo(p).tot; if((Number(tot.bruto)||0)>0) ev.push({tipo:'nomina',periodo:p,fecha:fechaContablePeriodo(p),tot:tot}); }
             return ev; }
         function contaPreview(){ const c=getConta(); const clon=JSON.parse(JSON.stringify(c)); const r=ctaReconstruir(clon, contaEventos(true)); return {creados:r.creados, pendientes:r.pendientes, bandeja:clon.bandeja||[]}; }
-        function contaGenerarSilencioso(){ const c=getConta(); if(!c.activa) return {omitido:true,razon:'inactiva'}; if(modoEdicionActivo) return {omitido:true,razon:'edicion'}; const r=ctaReconstruir(c, contaEventos(false)); saveConta(c); try{ saveMovimientos(movimientos); }catch(e){} return {creados:r.creados, pendientes:r.pendientes.length, ya:r.yaExistian}; }
+        function contaGenerarSilencioso(){ const c=getConta(); if(!c.activa) return {omitido:true,razon:'inactiva'}; if(modoEdicionActivo) return {omitido:true,razon:'edicion'}; const r=ctaReconstruir(c, contaEventos(false)); saveConta(c); try{ if(typeof facMarcarPagosFacturas==='function'&&facMarcarPagosFacturas(c)>0) saveConta(c); }catch(e){} try{ saveMovimientos(movimientos); }catch(e){} return {creados:r.creados, pendientes:r.pendientes.length, ya:r.yaExistian}; }
         window.__contaTrasImportar=function(){ try{ const r=contaGenerarSilencioso(); try{ if(typeof mjPatronesAplicarTodos==='function') mjPatronesAplicarTodos(periodoNominaActual(),true); }catch(e){} return r; }catch(e){ return {omitido:true,razon:'error'}; } };
         window.__contaEvalImport=function(items){ try{ const c=getConta(); if(!c.activa||!Array.isArray(items)) return null;
             /* Para la vista previa, una transferencia sin otra cuenta se
@@ -12847,29 +12862,83 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const cp=mjVal('facClienteSel'); if(!cp){ alert('Selecciona un cliente. Si no hay ninguno, créalo primero en la tarjeta «Clientes».'); return; }
             const lineas=facLineasDatos(); if(!lineas.length){ alert('Añade al menos una línea con cantidad y precio.'); return; }
             const c=getConta(); const r=mjFacturaCrear(c,{fecha:mjVal('facFecha')||hoy(),vencimiento:mjVal('facVenc')||mjVal('facFecha')||hoy(),contraparteId:cp,concepto:(mjVal('facConcepto')||'').trim()||'Factura de venta',lineas:lineas});
-            if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderFacturas(); renderAll(); alert('✅ Factura '+r.factura.numero+' creada en borrador. Confírmala para generar la CxC, el asiento y la salida de inventario.'); }
-        function facConfirmarUI(id){ const c=getConta(); const r=mjFacturaConfirmar(c,id,getCurrentUser()); if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); renderFacturas(); alert('✅ Factura confirmada: CxC + asiento + costo de ventas '+moneda(r.costoVentas||0)+'.'); }
-        function facAnularUI(id){ if(!confirm('Anular conserva la factura marcada ANULADA, revierte sus asientos por contraasiento y devuelve el inventario. ¿Continuar?')) return;
-            const c=getConta(); const r=mjFacturaCancelar(c,id,hoy(),getCurrentUser()); if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); renderFacturas(); alert('✅ Factura anulada (conservada).'); }
-        function facPendiente(c,f){ if(f.estado!=='confirmada') return null; const doc=(c.documentos||[]).find(d=>d.id==='DOCF'+f.id); return doc?ctaPendienteDoc(c,doc):0; }
+            if(!r.ok){ alert('⚠️ '+r.motivo); return; } r.factura.estado='emitida'; r.factura.pagoEstado='sin-pagar'; r.factura.cobros=[]; saveConta(c); renderFacturas(); renderAll(); alert('✅ Factura '+r.factura.numero+' emitida (sin pagar). No mueve la contabilidad: se marcará pagada cuando su cobro salga en un estado de cuenta, o la marcas con su botón.'); }
+        function facConfirmarUI(id){ /* Solo para facturas «borrador» del sistema anterior: pasan a emitidas SIN tocar la contabilidad (corrección de Leonardo, 2026-10-28). */
+            const c=getConta(); const g=mjGestionDe(c); const f=g.facturas.find(x=>x.id===id); if(!f) return;
+            f.estado='emitida'; if(!f.pagoEstado) f.pagoEstado='sin-pagar'; if(!Array.isArray(f.cobros)) f.cobros=[];
+            saveConta(c); renderAll(); renderFacturas(); alert('✅ Factura '+f.numero+' emitida. Las facturas no afectan a la contabilidad: solo se marcan pagadas cuando el cobro sale en el estado de cuenta.'); }
+        function facAnularUI(id){ const c=getConta(); const g=mjGestionDe(c); const f=g.facturas.find(x=>x.id===id); if(!f) return;
+            const legada=!!((f.asientos&&f.asientos.length)||(c.documentos||[]).some(d=>d.id==='DOCF'+f.id));
+            if(!confirm(legada?'Esta factura es del sistema anterior (sí movió la contabilidad): anularla revierte sus asientos por contraasiento, devuelve el inventario y retira su cuenta por cobrar. ¿Continuar?':'Anular conserva la factura marcada ANULADA (no mueve la contabilidad). ¿Continuar?')) return;
+            if(legada){ const r=mjFacturaCancelar(c,id,hoy(),getCurrentUser()); if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); }
+            else { f.estado='anulada'; saveConta(c); }
+            renderAll(); renderFacturas(); alert('✅ Factura anulada (conservada).'); }
+        function facSaldo(f){ const cob=(f.cobros||[]).reduce((s,x)=>s+(Number(x.monto)||0),0); return Math.round(((Number(f.total)||0)-cob)*100)/100; }
+        /* Detección de pagos (corrección de Leonardo, 2026-10-28 22:55):
+           la factura NO afecta en nada a la contabilidad; esta pasada
+           solo la MARCA pagada cuando su cobro sale en los estados de
+           cuenta importados. Lee los ingresos ya guardados (mes actual
+           e historial), busca en su concepto un identificador del
+           cliente (cuenta, tarjeta o CI/NIT de su ficha) y registra el
+           cobro en la propia factura (f.cobros, con la clave del
+           movimiento para no duplicarlo al repetir la pasada). El
+           movimiento NO se toca: se clasifica y se asienta como
+           siempre. Asignación: importe contra el saldo de la factura
+           (admite parciales), fecha no anterior a la factura y ≤ 365
+           días; con varias facturas posibles solo se asigna si una
+           coincide exactamente con el importe; si no, ninguna se marca
+           (la factura se queda «sin pagar», como pide Leonardo). */
+        function facMarcarPagosFacturas(conta){ const g=mjGestionDe(conta); const facts=(g.facturas||[]).filter(f=>f&&f.estado!=='anulada'); if(!facts.length) return 0;
+            let cambios=0; const movs=[]; const per=periodoNominaActual();
+            for(const m of (movimientos||[])) movs.push({mov:m,clave:ctaClaveMov(per,m)});
+            for(const h of getHistorial()) for(const m of (h.movimientos||[])) movs.push({mov:m,clave:ctaClaveMov(h.mes,m)});
+            for(const it of movs){ const mov=it.mov; if(!mov||mov.tipo!=='ingreso'||mov.soloSaldo) continue;
+                const monto=ctaMontoCUP(mov); if(!(monto>0)) continue;
+                if(facts.some(f=>(f.cobros||[]).some(x=>x.clave===it.clave))) continue;
+                const clientes=ctaIdentificadoresEnConcepto(conta,mov); if(!clientes.length) continue;
+                const idsCli=new Set(clientes.map(x=>x.id));
+                const cands=facts.filter(f=>{ if(!idsCli.has(f.contraparteId)) return false; const saldo=facSaldo(f); if(!(saldo>0.009)||monto>saldo+0.01) return false; const dias=ctaDiasEntre(f.fecha,mov.fecha); return dias!=null&&dias>=0&&dias<=365; });
+                if(!cands.length) continue;
+                const exact=cands.filter(f=>Math.abs(facSaldo(f)-monto)<=0.01);
+                const elegida=exact.length===1?exact[0]:(cands.length===1?cands[0]:null);
+                if(!elegida) continue;
+                elegida.cobros=elegida.cobros||[]; elegida.cobros.push({clave:it.clave,fecha:mov.fecha||'',monto:monto,auto:true}); cambios++; }
+            for(const f of facts){ const pagada=facSaldo(f)<=0.009;
+                if(pagada&&f.pagoEstado!=='pagada'){ f.pagoEstado='pagada'; const ult=(f.cobros||[])[(f.cobros||[]).length-1]; f.pagoFecha=ult?ult.fecha:''; f.pagoManual=false; cambios++; }
+                else if(!pagada&&f.pagoEstado==='pagada'&&!f.pagoManual){ f.pagoEstado='sin-pagar'; f.pagoFecha=''; cambios++; } }
+            return cambios; }
+        function facPagoToggleUI(id){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
+            const c=getConta(); const g=mjGestionDe(c); const f=g.facturas.find(x=>x.id===id); if(!f||f.estado==='anulada') return;
+            if(f.pagoEstado==='pagada'){ f.pagoEstado='sin-pagar'; f.pagoManual=false; f.pagoFecha=''; }
+            else { f.pagoEstado='pagada'; f.pagoManual=true; f.pagoFecha=hoy(); }
+            saveConta(c); renderAll(); renderFacturas(); }
+        function facCobroQuitarUI(id, clave){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
+            if(!confirm('Quitar este cobro detectado: si la factura quedaba pagada solo por él, vuelve a «sin pagar». El movimiento del banco no se toca. ¿Continuar?')) return;
+            const c=getConta(); const g=mjGestionDe(c); const f=g.facturas.find(x=>x.id===id); if(!f) return;
+            f.cobros=(f.cobros||[]).filter(x=>x.clave!==clave);
+            if(f.pagoEstado==='pagada'&&!f.pagoManual&&facSaldo(f)>0.009){ f.pagoEstado='sin-pagar'; f.pagoFecha=''; }
+            saveConta(c); renderAll(); renderFacturas(); }
         function renderFacturas(){ const pane=document.getElementById('pane-facturas'); if(!pane) return; const c=getConta(); const cps=c.contrapartes||[];
             const cb=document.getElementById('facClientesBox'); if(cb){ cb.innerHTML=cps.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nombre</th><th>NIT / CI</th><th>Cuenta</th><th>Tarjeta</th><th></th></tr></thead><tbody>${cps.map(x=>`<tr><td>${esc(x.nombre||x.id)}</td><td>${esc(x.nit||'')}</td><td>${esc(x.cuenta||'')}</td><td>${esc(x.tarjeta||'')}</td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" onclick="facClienteEditar('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>`:'<span class="text-secondary">Todavía no hay clientes: crea el primero con el formulario.</span>'; }
             const sel=document.getElementById('facClienteSel'); if(sel){ const act=sel.value; sel.innerHTML=cps.map(x=>`<option value="${esc(x.id)}">${esc(x.nombre||x.id)}</option>`).join('')||'<option value="">(crea primero un cliente)</option>'; if(act&&cps.some(x=>x.id===act)) sel.value=act; }
             const ff=document.getElementById('facFecha'); if(ff&&!ff.value) ff.value=hoy();
             const tb=document.getElementById('facLineasBody'); if(tb&&!tb.children.length) facLineaAdd();
-            const g=mjGestionDe(c); const lb=document.getElementById('facListBox'); if(lb){ lb.innerHTML=g.facturas.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th class="text-end">Total</th><th class="text-end">Pendiente</th><th>Estado</th><th></th></tr></thead><tbody>${g.facturas.map(f=>{ const cp=cps.find(x=>x.id===f.contraparteId); const pend=facPendiente(c,f); return `<tr><td>${esc(f.numero)}</td><td>${esc(f.fecha)}</td><td>${esc(cp?cp.nombre:(f.contraparteId||''))}</td><td>${esc(f.concepto)}</td><td class="text-end">${moneda(f.total)}</td><td class="text-end">${pend==null?'—':moneda(pend)}</td><td>${f.estado==='confirmada'?'<span class="badge bg-success">confirmada</span>':f.estado==='anulada'?'<span class="badge bg-secondary">ANULADA</span>':'<span class="badge bg-warning text-dark">borrador</span>'}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="facImprimirUI('${f.id}')">Imprimir</button> ${f.estado==='borrador'?`<button type="button" class="btn btn-sm btn-success" onclick="facConfirmarUI('${f.id}')">Confirmar</button>`:''} ${f.estado!=='anulada'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="facAnularUI('${f.id}')">Anular</button>`:''}</td></tr>`; }).join('')}</tbody></table></div>`:'<span class="text-secondary">Ninguna factura todavía. La anulada se conserva y su número no se reutiliza.</span>'; } }
+            const g=mjGestionDe(c); const lb=document.getElementById('facListBox'); if(lb){ lb.innerHTML=g.facturas.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th class="text-end">Total</th><th class="text-end">Cobrado</th><th>Pago</th><th></th></tr></thead><tbody>${g.facturas.map(f=>{ const cp=cps.find(x=>x.id===f.contraparteId); const saldo=facSaldo(f); const cobrado=Math.round(((Number(f.total)||0)-saldo)*100)/100;
+                const pagoCell=f.estado==='anulada'?'<span class="badge bg-secondary">ANULADA</span>':(f.pagoEstado==='pagada'?`<span class="badge bg-success">PAGADA</span>${f.pagoManual?' <span class="small text-secondary">(a mano)</span>':''} <button type="button" class="btn btn-sm btn-outline-secondary" onclick="facPagoToggleUI('${f.id}')">Marcar sin pagar</button>`:`<button type="button" class="btn btn-sm btn-warning" title="Se marca sola cuando el cobro sale en un estado de cuenta importado; clic para marcarla pagada a mano" onclick="facPagoToggleUI('${f.id}')">Sin pagar</button>`);
+                let sub=''; const cobros=f.cobros||[]; if(cobros.length&&f.estado!=='anulada'){ sub=`<tr><td colspan="8" class="bg-light"><div class="small">${cobros.map(x=>`<div>💰 Cobro en el estado de cuenta: ${esc(x.fecha||'')} · <b>${moneda(x.monto)}</b> <button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="facCobroQuitarUI('${f.id}','${esc(x.clave)}')">Quitar</button></div>`).join('')}</div></td></tr>`; }
+                return `<tr><td>${esc(f.numero)}</td><td>${esc(f.fecha)}</td><td>${esc(cp?cp.nombre:(f.contraparteId||''))}</td><td>${esc(f.concepto)}</td><td class="text-end">${moneda(f.total)}</td><td class="text-end">${moneda(cobrado)}</td><td>${pagoCell}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="facImprimirUI('${f.id}')">Imprimir</button> ${f.estado!=='anulada'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="facAnularUI('${f.id}')">Anular</button>`:''}</td></tr>`+sub; }).join('')}</tbody></table></div>`:'<span class="text-secondary">Ninguna factura todavía. La anulada se conserva y su número no se reutiliza.</span>'; } }
         function facImprimirUI(id){ const c=getConta(); const g=mjGestionDe(c); const f=g.facturas.find(x=>x.id===id); if(!f) return;
             const cp=(c.contrapartes||[]).find(x=>x.id===f.contraparteId)||{}; const idt=identidadDelNegocio();
             const filas=(f.lineas||[]).map(l=>({c:[esc(l.concepto||''),docOficialNum(l.cantidad),docOficialNum(l.precio),docOficialNum((Number(l.cantidad)||0)*(Number(l.precio)||0))]}));
             const cuerpo=docOficialTabla([{t:'Descripción'},{t:'Cantidad',n:1},{t:'Precio unitario',n:1},{t:'Importe',n:1}],filas,[{c:['','', '<b>TOTAL</b>', '<b>'+docOficialNum(f.total)+'</b>']}]);
             const html=docOficialHTML({titulo:'FACTURA',modelo:'SC-2-012',identidad:true,
-                subtitulo:f.estado==='anulada'?'ANULADA':(f.estado==='borrador'?'BORRADOR — sin confirmar':''),
+                subtitulo:f.estado==='anulada'?'ANULADA':(f.pagoEstado==='pagada'?'PAGADA':''),
                 campos:[['Número',esc(f.numero)],['Fecha',esc(f.fecha)],['Emisor',esc(idt.nombreComercial||docOficialNegocio())],['NIT del emisor',esc(docOficialNIT()||'')],['Dirección del emisor',esc(idt.direccion||'')],['Cliente',esc(cp.nombre||'')],['NIT / CI del cliente',esc(cp.nit||'')],['Dirección del cliente',esc(cp.direccion||'')],['Concepto',esc(f.concepto||'')],['Vencimiento',esc(f.vencimiento||f.fecha)]],
                 cuerpo:cuerpo,
                 firmas:[{rol:'Elaborado por',nombre:idt.repNombre||''},{rol:'Recibí conforme',nombre:cp.nombre||''}],
                 pie:'El cuño no es obligatorio en la factura (consulta oficial del MFP, 2024).'});
             docOficialImprimirEn('facDocBox','Factura '+f.numero,html); }
-        window.__facTest={render:renderFacturas,crear:facCrearUI,imprimir:facImprimirUI,guardarCliente:facClienteGuardar,lineas:facLineasDatos};
+        window.__facTest={render:renderFacturas,crear:facCrearUI,imprimir:facImprimirUI,guardarCliente:facClienteGuardar,lineas:facLineasDatos,detectar:facMarcarPagosFacturas,saldo:facSaldo,clasificar:ctaClasificarMov,movs:function(){return movimientos;},generar:function(){return contaGenerarSilencioso();},pagoToggle:facPagoToggleUI,cobroQuitar:facCobroQuitarUI};
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-facturas') setTimeout(renderFacturas, 60); });
         function mjDepreciacionAFUI(){ const c=getConta(); const aft=getAFT(); const per=periodoNominaActual();
             const r=mjDepreciacionMensualAsiento(c,(aft.activos||[]).map(a=>({id:a.id,nombre:a.nombre,costo:a.costo,valorResidual:0,vidaUtilAnios:Number(a.tasa)>0?100/Number(a.tasa):0,fechaAlta:a.fechaServicio||a.fechaAlta||'',estado:a.estado,metodo:a.metodoDepreciacion||'linea'})),per,fechaContablePeriodo(per),getCurrentUser());
@@ -16828,7 +16897,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-38';
+        var MANUAL_VERSION = 'v2026.10.28-39';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -17198,9 +17267,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'facturas-menu', modulo:'gestion', titulo:'Facturas: clientes, emisión y el documento', html:
             '<p>El menú <b>Facturas</b> reúne todo el ciclo de la factura de venta en tres tarjetas:</p>' +
             '<ul><li><b>Clientes:</b> la ficha de cada cliente (nombre, NIT/CI, dirección, contactos, <b>cuenta bancaria y tarjeta</b>). Es la misma lista de contrapartes de Contabilidad. Guarda la cuenta, la tarjeta y el CI/NIT: son los datos con los que la app reconoce los pagos de ese cliente cuando importas los estados de cuenta.</li>' +
-            '<li><b>Emitir factura:</b> eliges el cliente, la fecha y el vencimiento y añades las líneas (descripción, cantidad y precio; si la línea es un producto del inventario, selecciónalo y al confirmar saldrá del stock con su costo). La factura nace en <b>borrador</b> con su número consecutivo <b>F-1, F-2…</b>, que nunca se reutiliza.</li>' +
-            '<li><b>Facturas del negocio:</b> la lista con el total, lo que queda <b>pendiente de cobro</b> y el estado de cada una. <b>Confirmar</b> crea la cuenta por cobrar y el asiento de la venta en ese momento (devengo) y descuenta el inventario con el costo a la 695-000. <b>Anular</b> la conserva marcada ANULADA, revierte los asientos por contraasiento y devuelve el inventario. <b>Imprimir</b> saca el documento de la factura (modelo SC-2-012) con la identidad de tu negocio: logo, datos del emisor y del cliente, las líneas con precio unitario e importe, el total y las firmas.</li></ul>' +
-            '<p>Solo se factura en CUP por ahora. Lo cobrado se refleja solo en el pendiente cuando el pago se aplica a la cuenta por cobrar desde Contabilidad.</p>'},
+            '<li><b>Emitir factura:</b> eliges el cliente, la fecha y el vencimiento y añades las líneas (descripción, cantidad y precio). La factura nace <b>emitida</b> con su número consecutivo <b>F-1, F-2…</b>, que nunca se reutiliza.</li>' +
+            '<li><b>Facturas del negocio:</b> la lista con el total, lo cobrado y el estado de pago de cada una. <b>Imprimir</b> saca el documento de la factura (modelo SC-2-012) con la identidad de tu negocio: logo, datos del emisor y del cliente, las líneas con precio unitario e importe, el total y las firmas. <b>Anular</b> la conserva marcada ANULADA.</li></ul>' +
+            '<p><b>La factura no afecta en nada a la contabilidad:</b> ni crea cuentas por cobrar, ni asientos, ni mueve el inventario. Es el documento y el control de su pago, nada más. El ingreso del banco se contabiliza como siempre (por ejemplo, la venta por correo a la 801-000), y aparte la app <b>marca la factura como pagada</b> cuando detecta su cobro en un estado de cuenta importado: busca en el concepto del ingreso la cuenta, la tarjeta o el CI/NIT de la ficha del cliente, y lo cobrado se va sumando bajo la factura (admite pagos parciales). Si el cobro no sale en ningún estado, la factura se queda con su botón <b>Sin pagar</b>, con el que también puedes marcarla pagada a mano (y desmarcarla). Si un cobro detectado no era de esa factura, se quita con su botón y vuelve a quedar sin pagar.</p>' +
+            '<p>Solo se factura en CUP por ahora.</p>'},
         {id:'gestion-control', modulo:'gestion', titulo:'Presupuesto, flujo proyectado e indicadores', html:
             '<ul><li><b>Presupuesto vs. real:</b> compara lo planificado con lo ejecutado por cuenta o partida.</li>' +
             '<li><b>Flujo de efectivo proyectado:</b> anticipa entradas y salidas con los vencimientos conocidos.</li>' +
@@ -17431,7 +17501,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',

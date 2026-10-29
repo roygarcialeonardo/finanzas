@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-38",
-  "publicada": "2026-10-29 02:48",
-  "notas": "Ronda -38: menú Facturas. Nuevo menú con ficha de clientes (cuenta, tarjeta y NIT), emisión con varias líneas y consecutivo F-1, F-2… y el documento de la factura (SC-2-012) con la identidad del negocio. La facturación sale de Gestión+: el menú la sustituye.",
+  "version": "v2026.10.28-39",
+  "publicada": "2026-10-29 03:19",
+  "notas": "Ronda -39: la factura no afecta a la contabilidad (corrección de Leonardo). Emitir una factura no crea cuenta por cobrar, ni asientos, ni mueve el inventario: nace emitida y «sin pagar», y solo se marca pagada cuando su cobro sale en un estado de cuenta importado — se detecta por la cuenta, la tarjeta o el CI del cliente dentro del concepto del ingreso, con pagos parciales — o con su botón «Sin pagar», que también la marca a mano.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "603e589e06d022123ad4dcc90bd4e5c49dd305cca32a0705862449129f576ac5",
-      "bytes": 1771587
+      "sha256": "32b577bd719eddbd7aa91b5ceff4b245048bc8668df23bc017b6b38f83177818",
+      "bytes": 1779044
     },
     {
       "ruta": "pdf-import.js",
