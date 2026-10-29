@@ -7923,6 +7923,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function renderAlertaTrimestral(){
             const box=document.getElementById('alertaTrimestral');
             if(!box) return;
+            // La alerta de salud del trimestre SOLO es de la MIPYME: el TCP no
+            // tiene cierre trimestral y el PDL tampoco (Decreto 174/2026: su
+            // ritmo es mensual, semestral —evaluación del CAM— y anual).
+            if(getEntityType()!=='mipyme'){ box.style.display='none'; box.innerHTML=''; return; }
+            box.style.display='';
             const t=resumenTrimestreActual();
             const ingresos=t.ingresos, gastos=t.gastos, onat=t.onat, utilidad=t.utilidad;
             let porcentaje=0, estado='correcto', mensaje='', sugerencia='', icono='', detalle='';
@@ -16613,7 +16618,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-35';
+        var MANUAL_VERSION = 'v2026.10.28-36';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -16699,7 +16704,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>El menú <b>Resumen</b> es la foto del mes: una tarjeta por cuenta con su <b>Saldo</b> en tiempo real (el acumulado cronológico desde el saldo inicial), los totales de ingresos, gastos y ONAT, la utilidad y las alertas del mes.</p>' +
             '<ul><li>Los saldos negativos salen en <b>rojo</b>.</li>' +
             '<li>La tabla <b>Todos los movimientos</b> junta las tres cuentas con su tipo, clasificación y cuenta.</li>' +
-            '<li>Las alertas financieras y trimestrales aparecen arriba cuando algo requiere tu atención.</li></ul>'},
+            '<li>La alerta financiera del mes aparece arriba cuando algo requiere tu atención. La alerta de salud del trimestre (con el objetivo de utilidad) solo se muestra en la <b>MIPYME</b>: el TCP y el PDL no tienen cierre trimestral.</li></ul>'},
         {id:'saldo-encadenado', modulo:'resumen', titulo:'El saldo encadenado entre meses', html:
             '<p>El saldo final de cada cuenta <b>pasa solo</b> a ser el saldo inicial del mes siguiente, en cascada hasta el mes en curso (también de diciembre a enero). No tienes que copiar ningún número a mano.</p>' +
             '<p>El encadenado se dispara al guardar o editar un mes cerrado, al eliminar un mes y al importar un PDF a un mes cerrado. En los meses cerrados, «Saldo Actual» muestra siempre el saldo real, no una foto vieja.</p>'},

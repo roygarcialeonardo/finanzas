@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-35",
-  "publicada": "2026-10-28 23:20",
-  "notas": "Importador reforzado: control de totales con semáforo, cuarentena de importaciones, CSV/Excel con mapeo de columnas e importación sin conexión",
+  "version": "v2026.10.28-36",
+  "publicada": "2026-10-29 00:37",
+  "notas": "Ronda -36: la alerta de salud del trimestre del Resumen solo se muestra en la MIPYME; el TCP y el PDL no tienen cierre trimestral",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "3900d8424b963001c5accafd98c926914bb3d2e79c47f1fd146ee1b032670f1e",
-      "bytes": 1737712
+      "sha256": "af4784ba57e2b04b022a5b73b748a3fa4e40bd8d5c8a07220dd292ffa02eb6e1",
+      "bytes": 1738215
     },
     {
       "ruta": "pdf-import.js",
