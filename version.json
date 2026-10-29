@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-55",
-  "publicada": "2026-10-29 20:26",
+  "version": "v2026.10.29-56",
+  "publicada": "2026-10-29 20:43",
   "notas": "Mejoras de la app",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "94bf8e399b568b85127a93e774313d60edd5c5c4dc08e7b047f87656f0998f2e",
-      "bytes": 2019492
+      "sha256": "ba0d60eae5cb9db858230f27bb77ac4af52c497a1758a1704eff8ab6371d2459",
+      "bytes": 2034497
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "f67YQA7qDtmJCnYv6L0kLHhk5Pd35OSDbHuwR1OYMdpzJ0Fqzpq0z+3jS7ZkliGFqXTLDKm37OV09bm6VI86AQ=="
+  "firma": "XoFxPkpbBYehdVHntCiJXwDH0/l1yQD/Q3EaWYS3obg1ORxevLgWvZDnWFy7W8xe/f+WksZ06n7DrRx0uvloDw=="
 }

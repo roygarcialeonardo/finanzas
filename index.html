@@ -1784,6 +1784,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-bank2 me-2"></i>Conceptos de tesorería <span class="small text-secondary">(catálogo de contrapartidas, editable por ti)</span></h6><p class="small text-secondary">El concepto aporta «el otro elemento de la partida» (partida doble) cuando el banco trae un movimiento con ese texto. <b>El tipo de contrapartida se elige por el ORIGEN de la cuenta</b> (modelo de los manuales del Versat): si la cuenta se teclea directa es <b>Cuenta contable</b> (el único tipo que admite cuenta); si el «gasto» es en realidad un traspaso a otra cuenta tuya es <b>Cuenta bancaria</b>; si liquida una factura es <b>Obligación</b> y si viene de un crédito es <b>Crédito bancario</b> — en esos dos la contrapartida la aporta el documento o el crédito, no una cuenta fija, y el movimiento queda pendiente hasta enlazarlo. <b>Regla de integridad:</b> ningún cobro/pago se asienta sin contrapartida; lo que no la tiene queda en la bandeja, nunca se rellena. Precedencia: manda lo estructural/fiscal (transferencias, ONAT, documentos…), luego tu imputación manual, luego la regla aprendida y este concepto, y por último las genéricas (venta por correo → 801-000) y las plantillas. Ejemplos adaptados a tu plan: «Intereses y comisiones bancarias» → 710-000 (cuenta contable) · «Extraído para nóminas» → traspaso a Caja (tipo «cuenta bancaria»).</p><div class="row g-2 align-items-end mb-2"><div class="col-md-4"><label class="form-label mb-1 small">Texto del concepto (patrón)</label><input id="contaTesPatron" class="form-control form-control-sm" placeholder="Ej.: Pago ETECSA"></div><div class="col-md-2"><label class="form-label mb-1 small">Aplica a</label><select id="contaTesTipo" class="form-select form-select-sm"><option value="ambos">Ingresos y gastos</option><option value="gasto">Solo gastos</option><option value="ingreso">Solo ingresos</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Uso del concepto</label><select id="contaTesUso" class="form-select form-select-sm"><option value="cobro-pago">Al efectuar un Cobro / Pago</option><option value="obligacion">Al crear una Obligación</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Actividad que lo habilita</label><select id="contaTesActividad" class="form-select form-select-sm"><option value="Banco y Caja">Banco y Caja</option><option value="Banco">Banco</option><option value="Caja">Caja</option></select></div></div><div class="row g-2 align-items-end mb-2"><div class="col-md-3"><label class="form-label mb-1 small">Tipo de contrapartida (por el origen)</label><select id="contaTesTipoCp" class="form-select form-select-sm" onchange="contaTesTipoUI()"><option value="cuenta-contable">Cuenta contable (cuenta directa)</option><option value="cuenta-bancaria">Cuenta bancaria (traspaso)</option><option value="obligacion">Obligación (la aporta el documento)</option><option value="credito-bancario">Crédito bancario (lo aporta el crédito)</option></select></div><div class="col-md-3" id="contaTesCuentaWrap"><label class="form-label mb-1 small">Cuenta contrapartida</label><input id="contaTesCuenta" class="form-control form-control-sm" list="contaCuentasList" placeholder="Código (ej. 705-000)"></div><div class="col-md-3" id="contaTesDestinoWrap" style="display:none"><label class="form-label mb-1 small">Cuenta destino del traspaso</label><select id="contaTesDestino" class="form-select form-select-sm"><option value="">— Elige la cuenta —</option><option value="chequera">Chequera CUP</option><option value="tarjeta_cup">Tarjeta CUP</option><option value="tarjeta_usd">Tarjeta USD</option><option value="caja">Caja</option></select></div><div class="col-md-3"><label class="form-label mb-1 small">Tipo de comprobante asociado</label><select id="contaTesTComp" class="form-select form-select-sm"><option value="Operaciones">Operaciones</option><option value="Ajuste">Ajuste</option><option value="Traspaso">Traspaso</option></select></div><div class="col-md-3"><button type="button" class="btn btn-sm btn-success" onclick="contaTesAdd()"><i class="bi bi-plus-lg me-1"></i>Guardar concepto</button></div></div><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Concepto</th><th>Uso</th><th>Tipo de contrapartida</th><th>Contrapartida</th><th>Variación del saldo</th><th>Actividad · Comprobante</th><th>Estado</th><th></th></tr></thead><tbody id="contaTesBody"></tbody></table></div><p class="small text-secondary mt-2 mb-0">El tipo de comprobante asociado cubre las tres operaciones del documento: Confirmación, Ajuste y Cancelación.</p></div>
             <div class="row g-3 mb-3"><div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Situación Financiera</h6><div id="contaSituacionBox"></div></div></div>
             <div class="col-lg-6"><div class="card p-3 p-md-4 h-100"><h6 class="fw-semibold mb-2">Estado de Resultados</h6><div class="mb-2"><select id="contaResCentro" class="form-select form-select-sm" style="width:auto"><option value="">Todos los centros</option></select></div><div id="contaResultadosBox"></div></div></div></div>
+            <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2"><i class="bi bi-file-earmark-text me-2"></i>Estados financieros oficiales · NEC 5 (EFE 5920 y 5921)</h6><p class="small text-secondary">Los dos estados en el formato oficial de la Norma Específica de Contabilidad No. 5 (Resolución 498/2016 del MFP, Gaceta Extraordinaria 1/2017): el <b>Estado de Situación (EFE 5920-04)</b>, con su columna de apertura a 1.º de enero y el real a la fecha de corte, y el <b>Estado de Rendimiento Financiero (EFE 5921-04)</b> acumulado del año. Salen de los mismos asientos del mayor; solo se imprimen las filas con saldo y los totales. El de Situación solo se presenta si cuadra (Activo = Pasivo + Patrimonio): si descuadra, aquí verás la diferencia en rojo y el documento no se genera.</p><div class="row g-2 align-items-end mb-2"><div class="col-md-2"><label class="form-label mb-1 small">Año</label><input id="contaEfeAnio" type="number" class="form-control form-control-sm" min="2020" max="2100"></div><div class="col-md-3"><label class="form-label mb-1 small">Fecha de corte</label><input id="contaEfeCorte" type="date" class="form-control form-control-sm"></div><div class="col-md-7"><button type="button" class="btn btn-sm btn-primary me-2" onclick="contaEfeGenerar('5920')">EFE 5920 · Estado de Situación</button><button type="button" class="btn btn-sm btn-primary me-2" onclick="contaEfeGenerar('5921')">EFE 5921 · Rendimiento Financiero</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('contaEfeDocBox','Estados financieros NEC 5')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div></div><div id="contaEfeAviso"></div><div id="contaEfeDocBox" class="border rounded p-3 mt-2"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Balance de Comprobación</h6><div class="row g-2 align-items-end mb-2"><div class="col-md-2"><label class="form-label mb-1 small">Desde</label><input id="contaBalDesde" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Hasta</label><input id="contaBalHasta" type="date" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label mb-1 small">Vista</label><select id="contaBalVista" class="form-select form-select-sm"><option value="6">6 columnas</option><option value="4">4 columnas</option><option value="2">2 columnas</option></select></div><div class="col-md-6"><span class="small text-secondary">Saldos iniciales (antes del «desde»), movimientos del período y saldos finales, directos del mayor. Sin fechas = todo el histórico como movimientos.</span></div></div><div id="contaBalanceBox"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Libro Diario General</h6><p class="small text-secondary mb-2">Comprobantes en orden cronológico, agrupados por tipo (Apertura · Operaciones · Ajustes · Cierre), con su Nº correlativo por tipo y período. Se genera solo desde los asientos; sale impreso con el resto de la pestaña.</p><div id="contaDiarioBox"></div></div>
             <div class="card p-3 p-md-4 mb-3"><h6 class="fw-semibold mb-2">Libro Mayor</h6><div class="mb-2"><select id="contaMayorSel" class="form-select form-select-sm" style="width:auto"></select></div><div id="contaMayorBox"></div></div>
@@ -7746,6 +7747,65 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const root = document.getElementById('posRoot');
             if (root) root.insertAdjacentHTML('afterbegin', `<div class="alert alert-warning py-2 px-3 small">↩️ Venta ${esc(v.id)} anulada (${moneda(v.total)}). Motivo: ${esc(motivo)}. El stock volvió y el ingreso en Finanzas se revirtió.</div>`);
         }
+        /* ===== Estados financieros oficiales NEC 5 · UI (tarea 17, ronda -56) ===== */
+        function contaEfeGenerar(tipo) {
+            const aviso = document.getElementById('contaEfeAviso');
+            const box = document.getElementById('contaEfeDocBox'); if (!box) return;
+            const anio = Number((document.getElementById('contaEfeAnio') || {}).value) || new Date().getFullYear();
+            const corte = (document.getElementById('contaEfeCorte') || {}).value || hoy();
+            const conta = getConta();
+            const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const informeHasta = MESES[Number(String(corte).slice(5, 7)) - 1] + ' de ' + String(corte).slice(0, 4);
+            const cert = '<p class="docof-txt">Certificamos que los datos contenidos en este estado financiero se corresponden con las anotaciones contables de acuerdo con las regulaciones vigentes.</p>';
+            if (aviso) aviso.innerHTML = '';
+            if (tipo === '5921') {
+                const r = ctaEfe5921(conta, anio, corte);
+                const orden = ['01', '07', '09', '11', '12', '13', '14', '15', '17', '19', '28', '31', '38', '40'];
+                const calc = { '07': 1, '11': 1, '13': 1, '17': 1, '40': 1 };
+                const filas = [];
+                for (const n of orden) {
+                    const imp = r.valores[n];
+                    if (!calc[n] && !imp) continue;
+                    filas.push(calc[n] ? { c: [esc(EFE5921_CONCEPTOS[n]), esc(n), docOficialNum(imp)], cls: n === '40' ? 'docof-total' : 'docof-subtotal' } : [esc(EFE5921_CONCEPTOS[n]), esc(n), docOficialNum(imp)]);
+                }
+                box.innerHTML = docOficialHTML({
+                    sup: 'ESTADOS FINANCIEROS · MINISTERIO DE FINANZAS Y PRECIOS',
+                    titulo: 'ESTADO DE RENDIMIENTO FINANCIERO',
+                    modelo: 'EFE 5921-04',
+                    campos: [['Entidad', esc(docOficialNegocio())], ['Informe acumulado hasta', esc(informeHasta)], ['Unidad de medida', 'Pesos cubanos con dos decimales']],
+                    cuerpo: docOficialTabla(['Conceptos', 'Fila', { t: 'Real hasta la fecha', n: true }], filas) + cert,
+                    firmas: [{ rol: 'Hecho por', nombre: '' }, { rol: 'Aprobado por', nombre: '' }]
+                });
+                return;
+            }
+            const r = ctaEfe5920(conta, anio, corte);
+            if (!r.cuadrado) {
+                const difA = Math.abs(r.apertura.valores['87'] - r.apertura.valores['151']);
+                const difR = Math.abs(r.real.valores['87'] - r.real.valores['151']);
+                if (aviso) aviso.innerHTML = `<div class="alert alert-danger py-2 px-3 small">El Estado de Situación <b>no cuadra</b>${difR ? ' a la fecha de corte por ' + moneda(difR) : ''}${difA ? ' ni en la apertura por ' + moneda(difA) : ''}: el documento oficial no se genera hasta que la contabilidad cuadre. Revisa los asientos del período (un descuadre suele ser un asiento incompleto o un resultado de un año anterior sin cerrar).</div>`;
+                box.innerHTML = '';
+                return;
+            }
+            const filas = [];
+            const seccion = t => ({ c: [esc(t), '', '', ''], cls: 'docof-subtotal' });
+            filas.push(seccion('ACTIVO'));
+            for (const n of EFE5920_ORDEN) {
+                if (n === '88') filas.push(seccion('PASIVO'));
+                if (n === '130') filas.push(seccion('PATRIMONIO NETO'));
+                const a = r.apertura.valores[n], b = r.real.valores[n];
+                if (EFE5920_TOTALES[n]) { filas.push({ c: [esc(EFE5920_CONCEPTOS[n]), esc(n), docOficialNum(a), docOficialNum(b)], cls: 'docof-total' }); continue; }
+                if (EFE5920_BLOQUES[n]) { if (a || b) filas.push({ c: [esc(EFE5920_CONCEPTOS[n]), esc(n), docOficialNum(a), docOficialNum(b)], cls: 'docof-subtotal' }); continue; }
+                if (a || b) filas.push([esc(EFE5920_CONCEPTOS[n]), esc(n), docOficialNum(a), docOficialNum(b)]);
+            }
+            box.innerHTML = docOficialHTML({
+                sup: 'ESTADOS FINANCIEROS · MINISTERIO DE FINANZAS Y PRECIOS',
+                titulo: 'ESTADO DE SITUACIÓN',
+                modelo: 'EFE 5920-04',
+                campos: [['Entidad', esc(docOficialNegocio())], ['Informe acumulado hasta', esc(informeHasta)], ['Unidad de medida', 'Pesos cubanos con dos decimales']],
+                cuerpo: docOficialTabla(['Conceptos', 'Fila', { t: 'Apertura', n: true }, { t: 'Real hasta la fecha', n: true }], filas) + cert,
+                firmas: [{ rol: 'Hecho por', nombre: '' }, { rol: 'Aprobado por', nombre: '' }]
+            });
+        }
         function posEsperado(t, pos) {
             const ventasT = pos.ventas.filter(v => !v.anulada && v.turnoId === t.id);
             /* El efectivo que queda en caja por venta = su total menos
@@ -7839,6 +7899,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const msg = document.getElementById('posCfgMsg'); if (msg) msg.textContent = '✅ Guardado.';
         }
         window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual, turnoAbierto: posTurnoAbierto, addProd: posAddProd, cobrar: posCobrar, esperado: posEsperado, carrito: () => POS_CARRITO, setPagos: p => { POS_PAGOS = p; }, cerrarTurno: posCerrarTurno, abrirTurno: posAbrirTurno, anular: posAnularConfirmar, anularAbrir: posAnularAbrir, reimprimir: posReimprimir, informeZ: posInformeZ, ticketTexto: posTicketTexto };
+        window.__efeTest = { s5920: ctaEfe5920, s5921: ctaEfe5921, generar: contaEfeGenerar };
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-pos') setTimeout(renderPos, 60); });
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-admin') setTimeout(() => { try { renderPosCfg(); } catch (err) {} }, 80); });
 
@@ -9989,6 +10050,88 @@ function ctaSituacion(conta,f){const m=ctaMayor(conta,f);let act=0,pas=0,pat=0,r
  /* resPend = resultado aún no trasladado: tras el cierre anual las cuentas de ingreso/gasto quedan en 0 y el resultado ya vive en patrimonio (510-000/520-000), así que no se duplica. */
  const patrimonio=ctaR2(pat+resPend);
  return {activo:act,pasivo:pas,patrimonioCuentas:pat,resultadoPendiente:resPend,patrimonio:patrimonio,cuadrado:Math.abs(act-ctaR2(pas+patrimonio))<0.005};}
+/* ===== Estados financieros oficiales NEC 5 (tarea 17, ronda -56) =====
+   EFE 5920-04 Estado de Situación y EFE 5921-04 Estado de
+   Rendimiento Financiero (Res. 498/2016 del MFP, Gaceta Ex.
+   1/2017). Los conceptos y números de fila son los de la
+   proforma oficial; las cuentas son las del clasificador de la
+   app (equivalencia documentada en FORMATOS-NEC5-DJ-DISENO.md):
+   el clasificador estatal numera el patrimonio en 6xx y los
+   gastos en 8xx/9xx, y el de la app en 5xx y 6xx/7xx/8xx —
+   cada fila de detalle nombra los principales de la app que la
+   alimentan. Solo se presentan las filas con saldo y los
+   totales; el de Situación exige cuadre (Activo = Pasivo +
+   Patrimonio) calculado de la misma fuente. */
+function ctaEfePrincipal(codigo){ const n=parseInt(String(codigo||''),10); return isNaN(n)?-1:n; }
+function ctaEfeSaldo(m,conta,prins,signo){ let s=0; for(const c of (conta.plan||[])){ if(prins.indexOf(ctaEfePrincipal(c.codigo))<0) continue; const e=m[c.codigo]; if(!e) continue; s=ctaR2(s+(signo==='H'?-e.saldoFirmado:e.saldoFirmado)); } return s; }
+function ctaEfeParte(m,conta,prins,parte){ let s=0; for(const c of (conta.plan||[])){ if(prins.indexOf(ctaEfePrincipal(c.codigo))<0) continue; const e=m[c.codigo]; if(!e) continue; s=ctaR2(s+(parte==='D'?Math.max(0,e.saldoFirmado):Math.max(0,-e.saldoFirmado))); } return s; }
+function ctaEfeCodigos(m,conta,cods,signo){ let s=0; for(const cod of cods){ const e=m[cod]; if(!e) continue; s=ctaR2(s+(signo==='H'?-e.saldoFirmado:e.saldoFirmado)); } return s; }
+const EFE5921_CONCEPTOS={ '01':'Ventas','07':'Ventas Netas','09':'Costo de Ventas de Mercancías','11':'Utilidad o Pérdida Bruta en Ventas','12':'Gastos de Distribución y Ventas','13':'Utilidad o Pérdida Neta en Ventas','14':'Gastos Generales y de Administración','15':'Gastos de Operación','17':'Utilidad o Pérdida en Operaciones','19':'Gastos Financieros','28':'Otros Gastos','31':'Ingresos Financieros','38':'Otros Ingresos','40':'Utilidad o Pérdida antes del Impuesto' };
+function ctaEfe5921(conta,anio,corte){
+ const m=ctaMayor(conta,{desde:String(anio)+'-01-01',hasta:corte,excluirCierre:true});
+ const imp=(prins,grupo)=>{ let s=0; for(const c of (conta.plan||[])){ if(prins.indexOf(ctaEfePrincipal(c.codigo))<0||c.grupo!==grupo) continue; const e=m[c.codigo]; if(!e) continue; s=ctaR2(s+(grupo==='ingreso'?-e.saldoFirmado:e.saldoFirmado)); } return s; };
+ const v={};
+ v['01']=imp([801,802],'ingreso');
+ v['09']=imp([695],'costo');
+ v['12']=imp([701],'gasto');
+ v['14']=imp([705],'gasto');
+ v['15']=imp([611,612,613,614,615,616],'gasto');
+ v['19']=imp([710],'gasto');
+ v['28']=imp([720],'gasto');
+ v['31']=imp([805],'ingreso');
+ v['38']=imp([810],'ingreso');
+ v['07']=v['01'];
+ v['11']=ctaR2(v['07']-v['09']);
+ v['13']=ctaR2(v['11']-v['12']);
+ v['17']=ctaR2(v['13']-v['14']-v['15']);
+ v['40']=ctaR2(v['17']-v['19']-v['28']+v['31']+v['38']);
+ return {valores:v,resultado40:v['40']};
+}
+const EFE5920_CONCEPTOS={ '01':'Activos Circulantes','02':'Efectivo en Caja','03':'Efectivo en Banco y en Otras Instituciones','05':'Efectos por Cobrar a Corto Plazo','08':'Cuentas por Cobrar a Corto Plazo','14':'Pagos Anticipados a Suministradores','17':'Anticipos a Justificar','18':'Adeudos del Presupuesto del Estado','23':'Total de Inventarios','24':'Materias Primas y Materiales','25':'Combustibles y Lubricantes','26':'Partes y Piezas de Repuesto','28':'Útiles, Herramientas y Otros','30':'Producción Terminada','31':'Mercancías para la Venta','45':'Producción en Proceso','56':'Activos Fijos','57':'Activos Fijos Tangibles','58':'Menos: Depreciación de Activos Fijos Tangibles','74':'Otros Activos','77':'Cuentas por Cobrar Diversas – Operaciones Corrientes','87':'TOTAL DEL ACTIVO','88':'Pasivos Circulantes','90':'Efectos por Pagar a Corto Plazo','91':'Cuentas por Pagar a Corto Plazo','93':'Dividendos y Participaciones por Pagar','97':'Cobros Anticipados','100':'Obligaciones con el Presupuesto del Estado','102':'Nóminas por Pagar','103':'Retenciones por Pagar','105':'Gastos Acumulados por Pagar','110':'Pasivos a Largo Plazo','113':'Préstamos Recibidos por Pagar a Largo Plazo','115':'Otras Provisiones a Largo Plazo','118':'Pasivos Diferidos','119':'Ingresos Diferidos','127':'TOTAL DEL PASIVO','130':'Capital Social Suscrito y Pagado','134':'Utilidades Retenidas','136':'Reservas para Contingencias','144':'Pérdida','148':'Ganancia o Pérdida no Realizada','149':'Resultado del Período','150':'TOTAL DE PATRIMONIO NETO','151':'TOTAL DEL PASIVO Y PATRIMONIO NETO' };
+const EFE5920_ORDEN=['01','02','03','05','08','14','17','18','23','24','25','26','28','30','31','45','56','57','58','74','77','87','88','90','91','93','97','100','102','103','105','110','113','115','118','119','127','130','134','136','144','148','149','150','151'];
+const EFE5920_BLOQUES={'01':1,'23':1,'56':1,'74':1,'88':1,'110':1,'118':1};
+const EFE5920_TOTALES={'87':1,'127':1,'150':1,'151':1};
+function ctaEfe5920Columna(conta,anioFecha,corte){
+ const m=ctaMayor(conta,{hasta:corte});
+ const D=(prins)=>ctaEfeSaldo(m,conta,prins,'D');
+ const H=(prins)=>ctaEfeSaldo(m,conta,prins,'H');
+ const v={};
+ v['02']=D([101]); v['03']=D([110]); v['05']=D([132]); v['08']=D([131]); v['14']=D([138]); v['17']=D([139]);
+ v['18']=ctaEfeParte(m,conta,[333,334,341,342,343,345],'D');
+ v['24']=D([181]); v['25']=D([182]); v['26']=D([183]); v['28']=D([184]); v['30']=D([187]); v['31']=D([188]); v['45']=D([186]);
+ v['57']=D([241,242,243,244,245]); v['58']=D([251,252,253]);
+ v['77']=D([135]);
+ v['90']=H([312]); v['91']=H([311,315]); v['93']=H([417]); v['97']=H([318]);
+ v['100']=ctaEfeParte(m,conta,[333,334,341,342,343,345],'H');
+ v['102']=H([331]); v['103']=H([332]); v['105']=H([314]);
+ v['113']=H([410]); v['115']=ctaEfeCodigos(m,conta,['440-030'],'H'); v['119']=ctaEfeCodigos(m,conta,['440-010','440-020'],'H');
+ v['130']=H([501]); v['136']=H([505]);
+ v['134']=ctaEfeParte(m,conta,[510],'H'); v['144']=ctaEfeParte(m,conta,[510],'D');
+ v['148']=H([530]);
+ /* Fila 149: si el ejercicio ya se cerró hasta el corte, el
+    resultado vive en la 520-000; si no, es la fila 40 de la
+    EFE 5921 del año de la fecha de corte. */
+ const anioC=String(corte).slice(0,4);
+ const hayCierre=(conta.asientos||[]).some(a=>a.estado!=='borrador'&&a.tipo==='Cierre'&&String(a.fecha||'').slice(0,4)===anioC&&a.fecha<=corte);
+ v['149']=hayCierre?H([520]):ctaEfe5921(conta,Number(anioC),corte).resultado40;
+ v['23']=ctaR2(v['24']+v['25']+v['26']+v['28']+v['30']+v['31']);
+ v['01']=ctaR2(v['02']+v['03']+v['05']+v['08']+v['14']+v['17']+v['18']+v['23']+v['45']);
+ v['56']=ctaR2(v['57']+v['58']);
+ v['74']=v['77'];
+ v['87']=ctaR2(v['01']+v['56']+v['74']);
+ v['88']=ctaR2(v['90']+v['91']+v['93']+v['97']+v['100']+v['102']+v['103']+v['105']);
+ v['110']=ctaR2(v['113']+v['115']);
+ v['118']=v['119'];
+ v['127']=ctaR2(v['88']+v['110']+v['118']);
+ v['150']=ctaR2(v['130']+v['134']+v['136']-v['144']+v['148']+v['149']);
+ v['151']=ctaR2(v['127']+v['150']);
+ return {valores:v,cuadrado:Math.abs(v['87']-v['151'])<0.005};
+}
+function ctaEfe5920(conta,anio,corte){
+ const real=ctaEfe5920Columna(conta,anio,corte);
+ const apertura=ctaEfe5920Columna(conta,anio,String(Number(anio)-1)+'-12-31');
+ return {real:real,apertura:apertura,cuadrado:real.cuadrado&&apertura.cuadrado};
+}
 function ctaMontoCUP(mov,tasaFallback){const m=Number(mov&&mov.monto)||0;if(mov&&mov.cuenta==='tarjeta_usd'){const t=Number(mov.tasaCambio)>0?Number(mov.tasaCambio):(Number(tasaFallback)>0?Number(tasaFallback):1);return ctaR2(m*t);}return ctaR2(m);}
 function ctaClaveMov(periodo,mov){return 'mov:'+periodo+'|'+mov.id+'|'+(mov.fecha||'')+'|'+(mov.monto||'')+'|'+(mov.tipo||'');}
 function ctaBancoDe(conta,cuentaKey){const p=conta.plantillas||ctaPlantillasDef();return (p.banco||{})[cuentaKey]||(cuentaKey==='caja'?(p.caja||null):null);}
@@ -12180,6 +12323,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function contaRenderCuadres(filasPre){ const body=document.getElementById('contaCuadresBody'); if(!body) return; const c=getConta(); const per=periodoNominaActual();
             const r=filasPre?{hasta:'',filas:filasPre}:ctaCuadres(c,contaDatosCuadres(per)); window.__contaCuadresUltimo=r;
             const tit=document.getElementById('contaCuadresPeriodo'); if(tit) tit.textContent=per;
+            const efeA=document.getElementById('contaEfeAnio'); if(efeA&&!efeA.value) efeA.value=new Date().getFullYear();
+            const efeC=document.getElementById('contaEfeCorte'); if(efeC&&!efeC.value) efeC.value=hoy();
             const sem=f=>f.estado==='cuadra'?'<span class="badge bg-success">✓ Cuadra</span>':f.estado==='descuadre'?'<span class="badge bg-danger">✘ Descuadre</span>':f.estado==='no-aplica'?'<span class="badge bg-light text-dark border">No aplica</span>':'<span class="badge bg-secondary">Sin datos</span>';
             body.innerHTML=r.filas.map(f=>`<tr><td>${esc(f.nombre)}</td><td class="text-end">${f.submayor==null?'—':moneda(f.submayor)}</td><td class="text-end">${f.mayor==null?'—':moneda(f.mayor)}</td><td class="text-end ${f.estado==='descuadre'?'text-danger fw-bold':''}">${f.diferencia==null?'—':moneda(f.diferencia)}</td><td>${sem(f)}</td></tr>`).join(''); }
         function contaRenderTes(){ const body=document.getElementById('contaTesBody'); if(!body) return; const c=getConta();
@@ -18917,7 +19062,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-55';
+        var MANUAL_VERSION = 'v2026.10.29-56';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19104,6 +19249,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'estados-financieros', modulo:'contabilidad', titulo:'Estados financieros', html:
             '<p>Desde los mismos asientos salen el <b>Estado de Situación Financiera</b> y el <b>Estado de Resultados</b>, además de las notas a los estados (políticas contables del clasificador, método indirecto del flujo de efectivo, umbral del Registro Control y hechos posteriores), que se completan al imprimir.</p>' +
             '<p>Si un estado no cuadra con un submayor, el <b>Panel de cuadres</b> te dice exactamente dónde está la diferencia antes de que imprimas nada.</p>' +
+            '<p><b>Formato oficial NEC 5:</b> la tarjeta «Estados financieros oficiales · NEC 5» genera los mismos estados en la proforma de la Norma Específica de Contabilidad No. 5 (Resolución 498/2016 del MFP): el <b>EFE 5920-04 Estado de Situación</b>, con la columna de apertura a 1.º de enero y el real a la fecha de corte que elijas, y el <b>EFE 5921-04 Estado de Rendimiento Financiero</b> acumulado del año. Solo salen las filas con saldo y los totales, con los conceptos y números de fila del modelo. El de Situación <b>solo se genera si cuadra</b>: si hay un descuadre (un asiento incompleto o el resultado de un año anterior sin cerrar), la tarjeta te enseña la diferencia y no se imprime ningún papel con cifras falsas. Son los «Estados Financieros Certificados» que la DJ de Utilidades pide como documento complementario.</p>' +
             '<p><b>Doble moneda (NCC 6):</b> la tarjeta «Doble moneda · CUP/USD» muestra el saldo de la cuenta USD en las dos monedas: la divisa, su valor en libros y su contravalor a la tasa vigente. Al cerrar el mes, «Revalorizar USD del mes» registra la diferencia <b>no realizada</b> contra la cuenta de patrimonio <b>530-000</b> (configurable en las plantillas), <b>nunca contra resultados</b>, y al abrir el mes siguiente se <b>revierte sola</b>; la revalorización de diciembre queda firme. Solo las diferencias <b>realizadas</b> (cuando la divisa se cobra, se paga o se convierte) van a resultados (805-000 / 710-000). La revalorización amplia de Gestión+ (CxC/CxP en divisa) sigue la misma regla.</p>' +
             '<p><b>Compra de divisas (MIPYME, Res. 127/2025 del BCC):</b> en la misma tarjeta puedes registrar la compra mensual de divisas: una vez al mes, con CUP de la cuenta fiscal (chequera), hasta el <b>50 % del promedio de ingresos de los últimos 3 meses</b> dividido entre la tasa del <b>segmento III</b>. La app calcula el tope con tu historial, valida el saldo y deja los dos movimientos y el asiento hechos.</p>'},
         {id:'submayores', modulo:'contabilidad', titulo:'Submayores de Cuentas por Cobrar y por Pagar', html:
@@ -19567,7 +19713,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar','contaEfeGenerar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
