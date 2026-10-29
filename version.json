@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-47",
-  "publicada": "2026-10-29 15:25",
-  "notas": "Ronda -47: menú nuevo «Retiro» (tarea 43). Vigilancia automática de la jubilación: la edad se deriva del carné de identidad de la ficha (60 años las mujeres, 65 los hombres) y los años de servicio salen de la tarjeta SC-4-08 más los años previos que se anoten. Calculadora de la pensión estimada según la Ley 105/2008: base de los 5 mejores años de los últimos 15 escogidos de la tarjeta; por edad, ordinaria (60 % + 2 % por año, tope 90 %) y extraordinaria (40 % + 2 %); por enfermedad, la invalidez total (común o laboral, con el +10 % laboral y el +20 % del gran inválido) y la parcial (provisional y definitiva sobre la diferencia salarial). Expediente del trámite ante la Filial del INASS por trabajador, con la vía de peritaje, avisos en «Qué toca hoy», la certificación SNC-4-09 y la hoja resumen del expediente.",
+  "version": "v2026.10.29-48",
+  "publicada": "2026-10-29 15:34",
+  "notas": "Ronda -48: la lluvia de fondo suena más suave (pedido de Leonardo). La modulación que la hacía «arreciar» queda reducida a un respiro mínimo y baja el nivel general: la lluvia se oye llana, sin crestas de lluvia fuerte. Y suma dos visitas sonoras generadas por la propia app, una sola vez cada una: poco después de encender la lluvia suena un trueno lejano y, 20 segundos después, canta una rana; si se apaga la lluvia antes, no suenan.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "36528c467858103340dbf37378a81b16a5a48ead678e35e4019767f3956d04dc",
-      "bytes": 1950597
+      "sha256": "a3911acd6da03c458989edb13056448db774a3169cf50d4ec61cd1b0f61f1a10",
+      "bytes": 1954277
     },
     {
       "ruta": "pdf-import.js",
