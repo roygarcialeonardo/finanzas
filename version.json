@@ -1,8 +1,8 @@
 {
   "formato": "finanzas-version",
   "version": "v2026.10.29-50",
-  "publicada": "2026-10-29 17:56",
-  "notas": "La tarjeta «Identidad del negocio» ya no aparece en el perfil del administrador general (defecto corregido)",
+  "publicada": "2026-10-29 18:20",
+  "notas": "Servidor 0.14.0: blindaje completo (contraseñas Argon2id, manifiesto firmado y paquete endurecido)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
@@ -21,5 +21,6 @@
       "sha256": "9a2f912e4a635d85ebcce59d2ef4a150518fe1866b9a3dfc6a0348af22af9964",
       "bytes": 37434
     }
-  ]
+  ],
+  "firma": "JmRh3GpWSb9rY8meee7fqwMMKSUdT7wcB9Ck+vd1sXTWwW1Ob3J1WylJBHnz7V7vwDHMx40Bb8HmluCixU31DQ=="
 }
