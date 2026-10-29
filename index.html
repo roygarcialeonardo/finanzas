@@ -14126,7 +14126,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(!confirm('¿Eliminar el contrato '+(x.numero||x.id)+' del registro?'+(nAdjE?' Se borran también sus '+nAdjE+' página(s) adjuntas.':'')+' Esta acción no se deshace.')) return;
             g.contratos=g.contratos.filter(k=>k.id!==id); saveConta(c); if(ctorEditId===id) ctorLimpiarUI(); renderContratos(); if(typeof mjRenderGestion==='function') mjRenderGestion(); }
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-contratos') setTimeout(renderContratos, 60); });
-        window.__ctorTest={estadoEfectivo:ctorEstadoEfectivo, nombre:ctorNombreContraparte, guardar:ctorGuardarUI, editar:ctorEditarUI, lista:ctorRenderLista, asegurar:mjAsegurarGestion, alertas:function(conta,hoyF){ return mjAlertasGestion(conta,{hoy:hoyF}); }, adjBytes:function(conta){ return ctorAdjBytes(conta); }, adjPresupuesto:function(conta,extra){ return ctorAdjPresupuesto(conta,extra); }, adjAbrir:ctorAdjAbrir, adjPintar:ctorAdjPintar, adjPoner:function(id,pags){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(x){ x.adjuntos=pags; saveConta(c); } }, genAbrir:ctorGenAbrir, genGenerar:ctorGenGenerar, genDoc:function(id){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); return x?ctorGenDocumento(c,x):''; }, genLegal:function(cpId){ const c=getConta(); const cp=(c.contrapartes||[]).find(k=>k.id===cpId); return cp?ctorLegalDe(cp):null; }};
+        window.__ctorTest={estadoEfectivo:ctorEstadoEfectivo, nombre:ctorNombreContraparte, guardar:ctorGuardarUI, editar:ctorEditarUI, lista:ctorRenderLista, asegurar:mjAsegurarGestion, alertas:function(conta,hoyF){ return mjAlertasGestion(conta,{hoy:hoyF}); }, adjBytes:function(conta){ return ctorAdjBytes(conta); }, adjPresupuesto:function(conta,extra){ return ctorAdjPresupuesto(conta,extra); }, adjAbrir:ctorAdjAbrir, adjPintar:ctorAdjPintar, adjPoner:function(id,pags){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(x){ x.adjuntos=pags; saveConta(c); } }, bovEsLocal:ctorEsLocal, bovSubir:ctorBovedaSubir, genAbrir:ctorGenAbrir, genGenerar:ctorGenGenerar, genDoc:function(id){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); return x?ctorGenDocumento(c,x):''; }, genLegal:function(cpId){ const c=getConta(); const cp=(c.contrapartes||[]).find(k=>k.id===cpId); return cp?ctorLegalDe(cp):null; }};
         /* ===== Adjuntos de contratos (ronda -42, tarea 35 ronda 2, Vía A) =====
            El documento firmado se guarda DENTRO de la app como páginas
            reducidas (foto o PDF convertido página a página con el mismo
@@ -14144,21 +14144,52 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function ctorAdjBytes(conta){ const g=mjGestionDe(conta); let t=0; (g.contratos||[]).forEach(x=>{ (Array.isArray(x.adjuntos)?x.adjuntos:[]).forEach(p=>{ t+=(p&&p.img?String(p.img).length:0); }); }); return t; }
         function ctorAdjPresupuesto(conta,extra){ const total=ctorAdjBytes(conta)+(extra||0); return { total:total, limite:CTOR_ADJ_LIMITE, ok:total<=CTOR_ADJ_LIMITE, aviso:total>CTOR_ADJ_LIMITE*0.78 }; }
         function ctorAdjMsg(txt,err){ const el=ctorEl('ctorAdjMsg'); if(el){ el.innerHTML=txt||''; el.className='small mb-2 '+(err?'text-danger':'text-secondary'); } }
+        /* ===== BÓVEDA DOCUMENTAL (blindaje B4, SOLO sin conexión) =====
+           Con FINANZAS_LOCAL, el adjunto cambia de ruta: el archivo
+           ORIGINAL (el PDF tal cual, o la foto sin reducir) sube a la
+           bóveda cifrada del servidor local (POST /boveda/subir) y el
+           adjunto guarda solo {boveda: id, nombre, tipo, fecha}: sin
+           el límite de ~900 000 caracteres del doc conta y sin
+           convertir el PDF en fotos. El servidor migra solo los
+           adjuntos heredados con dataURL al arrancar. En línea no
+           existe FINANZAS_LOCAL y todo sigue como en la ronda -42. */
+        var ctorBovedaUrls={};
+        function ctorEsLocal(){ return !!window.FINANZAS_LOCAL; }
+        function ctorBovedaLeerUrl(id){ return '/boveda/leer?id='+encodeURIComponent(id)+'&token='+encodeURIComponent(typeof TOKEN!=='undefined'?TOKEN:''); }
+        async function ctorBovedaSubir(file,contratoId){ const b64=await new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>{ const s=String(fr.result||''); res(s.slice(s.indexOf(',')+1)); }; fr.onerror=()=>rej(new Error('no se pudo leer el archivo')); fr.readAsDataURL(file); });
+            const r=await subsLocalFetch('/boveda/subir',{nombre:file.name||'Documento', tipo:file.type||'', vinculo:'contrato:'+contratoId, datosB64:b64});
+            if(!r||!r.ok) throw new Error((r&&r.error)||'el servidor local no aceptó el documento'); return r.id; }
+        async function ctorBovedaUrl(p){ if(ctorBovedaUrls[p.boveda]) return ctorBovedaUrls[p.boveda];
+            const r=await fetch(ctorBovedaLeerUrl(p.boveda)); if(!r.ok) throw new Error('la bóveda no devolvió el documento ('+r.status+')');
+            const u=URL.createObjectURL(await r.blob()); ctorBovedaUrls[p.boveda]=u; return u; }
+        async function ctorBovedaPintar(p){ const z=ctorEl('ctorBovVisor'); if(!z) return;
+            try{ const u=await ctorBovedaUrl(p); if(!z.isConnected) return;
+                const esPdf=(p.tipo==='application/pdf')||/\.pdf$/i.test(p.nombre||'');
+                z.innerHTML=esPdf?`<iframe src="${u}" title="${esc(p.nombre||'Documento')}" style="width:100%;height:70vh" class="border bg-white"></iframe>`:`<img src="${u}" alt="${esc(p.nombre||'Documento')}" style="max-width:100%;height:auto" class="border bg-white">`; }
+            catch(e){ if(z.isConnected) z.innerHTML='<span class="text-danger small">No se pudo abrir el documento de la bóveda: '+esc((e&&e.message)||String(e))+'</span>'; } }
         function ctorAdjContrato(conta){ const g=mjGestionDe(conta); return (g.contratos||[]).find(k=>k.id===ctorAdjId)||null; }
         function ctorAdjAbrir(id){ ctorAdjId=id; ctorAdjPag=0; const card=ctorEl('ctorAdjCard'); if(card) card.style.display=''; ctorAdjPintar(); if(card&&card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'start'}); }
         function ctorAdjCerrar(){ ctorAdjId=''; const card=ctorEl('ctorAdjCard'); if(card) card.style.display='none'; }
         function ctorAdjPintar(){ const c=getConta(); const x=ctorAdjContrato(c); const tit=ctorEl('ctorAdjTitulo'); const esp=ctorEl('ctorAdjEspacio'); const th=ctorEl('ctorAdjThumbs'); const vis=ctorEl('ctorAdjVisor'); if(!x){ if(tit) tit.textContent=''; if(th) th.innerHTML=''; if(vis) vis.innerHTML=''; return; }
             if(tit) tit.textContent='— Contrato '+(x.numero||x.id)+' · '+ctorNombreContraparte(c,x);
-            const pre=ctorAdjPresupuesto(c,0); if(esp) esp.textContent='Espacio de adjuntos del negocio: '+Math.round(pre.total/1024)+' KB de ~'+Math.round(pre.limite/1024)+' KB.'+(pre.aviso?' Estás cerca del límite: los contratos más viejos se pueden dejar en papel.':'');
+            if(esp){ if(ctorEsLocal()) esp.textContent='Sin conexión: los documentos se guardan CIFRADOS en la bóveda de esta PC, con el archivo original (sin reducir y sin ocupar el espacio de la contabilidad).';
+                else { const pre=ctorAdjPresupuesto(c,0); esp.textContent='Espacio de adjuntos del negocio: '+Math.round(pre.total/1024)+' KB de ~'+Math.round(pre.limite/1024)+' KB.'+(pre.aviso?' Estás cerca del límite: los contratos más viejos se pueden dejar en papel.':''); } }
             const pags=Array.isArray(x.adjuntos)?x.adjuntos:[];
-            if(th) th.innerHTML=pags.length?pags.map((p,i)=>`<button type="button" class="btn btn-sm ${i===ctorAdjPag?'btn-primary':'btn-outline-secondary'}" onclick="ctorAdjVer(${i})">Página ${i+1}</button>`).join(''):'<span class="text-secondary">Este contrato todavía no tiene el documento adjunto.</span>';
+            if(th) th.innerHTML=pags.length?pags.map((p,i)=>`<button type="button" class="btn btn-sm ${i===ctorAdjPag?'btn-primary':'btn-outline-secondary'}" onclick="ctorAdjVer(${i})">${p&&p.boveda?'Doc':'Página'} ${i+1}</button>`).join(''):'<span class="text-secondary">Este contrato todavía no tiene el documento adjunto.</span>';
             ctorAdjPintarVisor(); }
         function ctorAdjVer(i){ ctorAdjPag=i; ctorAdjPintar(); }
         function ctorAdjPintarVisor(){ const vis=ctorEl('ctorAdjVisor'); if(!vis) return; const c=getConta(); const x=ctorAdjContrato(c); const pags=x&&Array.isArray(x.adjuntos)?x.adjuntos:[]; const p=pags[ctorAdjPag];
             if(!p){ vis.innerHTML=''; return; }
+            if(p.boveda){ vis.innerHTML=`<div class="border rounded p-2 bg-light"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><span class="small text-secondary">Documento ${ctorAdjPag+1} de ${pags.length}${p.nombre?' · '+esc(p.nombre):''}${p.fecha?' · adjunto el '+esc(p.fecha):''} · 🔒 en la bóveda cifrada</span><span><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorAdjDescargar()">Descargar</button> <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorAdjQuitar()">Quitar documento</button></span></div><div id="ctorBovVisor"><span class="small text-secondary">Abriendo el documento cifrado…</span></div></div>`; ctorBovedaPintar(p); return; }
             vis.innerHTML=`<div class="border rounded p-2 bg-light"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><span class="small text-secondary">Página ${ctorAdjPag+1} de ${pags.length}${p.nombre?' · '+esc(p.nombre):''}${p.fecha?' · adjunta el '+esc(p.fecha):''}</span><span><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorAdjDescargar()">Descargar</button> <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorAdjQuitar()">Quitar página</button></span></div><img src="${p.img}" alt="Página ${ctorAdjPag+1} del contrato" style="max-width:100%;height:auto" class="border bg-white"></div>`; }
-        function ctorAdjDescargar(){ const c=getConta(); const x=ctorAdjContrato(c); const pags=x&&Array.isArray(x.adjuntos)?x.adjuntos:[]; const p=pags[ctorAdjPag]; if(!p||!x) return; const a=document.createElement('a'); a.href=p.img; a.download='contrato-'+String(x.numero||x.id).replace(/[^\w-]+/g,'_')+'-pag-'+(ctorAdjPag+1)+'.jpg'; document.body.appendChild(a); a.click(); a.remove(); }
-        function ctorAdjQuitar(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; } const c=getConta(); const x=ctorAdjContrato(c); if(!x||!Array.isArray(x.adjuntos)||!x.adjuntos.length) return; if(!confirm('¿Quitar la página '+(ctorAdjPag+1)+' del contrato '+(x.numero||x.id)+'?')) return; x.adjuntos.splice(ctorAdjPag,1); if(ctorAdjPag>=x.adjuntos.length) ctorAdjPag=Math.max(0,x.adjuntos.length-1); saveConta(c); ctorAdjPintar(); ctorRenderLista(); }
+        async function ctorAdjDescargar(){ const c=getConta(); const x=ctorAdjContrato(c); const pags=x&&Array.isArray(x.adjuntos)?x.adjuntos:[]; const p=pags[ctorAdjPag]; if(!p||!x) return; const a=document.createElement('a');
+            if(p.boveda){ try{ a.href=await ctorBovedaUrl(p); a.download=p.nombre||('documento-'+(ctorAdjPag+1)); }catch(e){ alert('No se pudo descargar de la bóveda: '+((e&&e.message)||e)); return; } }
+            else { a.href=p.img; a.download='contrato-'+String(x.numero||x.id).replace(/[^\w-]+/g,'_')+'-pag-'+(ctorAdjPag+1)+'.jpg'; }
+            document.body.appendChild(a); a.click(); a.remove(); }
+        function ctorAdjQuitar(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; } const c=getConta(); const x=ctorAdjContrato(c); if(!x||!Array.isArray(x.adjuntos)||!x.adjuntos.length) return; const p=x.adjuntos[ctorAdjPag];
+            if(!confirm('¿Quitar '+(p&&p.boveda?'el documento':'la página')+' '+(ctorAdjPag+1)+' del contrato '+(x.numero||x.id)+'?')) return;
+            if(p&&p.boveda){ const id=p.boveda; delete ctorBovedaUrls[id]; subsLocalFetch('/boveda/borrar',{id:id}).catch(()=>{}); }
+            x.adjuntos.splice(ctorAdjPag,1); if(ctorAdjPag>=x.adjuntos.length) ctorAdjPag=Math.max(0,x.adjuntos.length-1); saveConta(c); ctorAdjPintar(); ctorRenderLista(); }
         function ctorReducirPagina(canvas){ const maxChars=Math.round(CTOR_ADJ_MAX_KB_PAG*1024*4/3); let lado=Math.max(canvas.width,canvas.height); const minLado=620;
             while(true){ const esc2=Math.min(1,lado/Math.max(canvas.width,canvas.height)); const w=Math.max(1,Math.round(canvas.width*esc2)), h=Math.max(1,Math.round(canvas.height*esc2)); const t=document.createElement('canvas'); t.width=w; t.height=h; const ctx=t.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,w,h); ctx.drawImage(canvas,0,0,w,h);
                 let url=t.toDataURL('image/jpeg',0.82);
@@ -14180,6 +14211,15 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         async function ctorAdjArchivo(input){ const file=input.files&&input.files[0]; input.value=''; if(!file) return; if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
             const c=getConta(); const x=ctorAdjContrato(c); if(!x) return; if(!Array.isArray(x.adjuntos)) x.adjuntos=[];
             if(x.adjuntos.length>=CTOR_ADJ_MAX_PAG){ ctorAdjMsg('Este contrato ya tiene las '+CTOR_ADJ_MAX_PAG+' páginas máximas. Quita alguna para añadir otra.',true); return; }
+            if(ctorEsLocal()){ /* Bóveda (B4): el original, cifrado, sin reducir ni pasar por el doc conta */
+                if(file.size>25*1024*1024){ ctorAdjMsg('Ese archivo pasa de 25 MB: es el tope de la bóveda.',true); return; }
+                ctorAdjMsg('Guardando el documento en la bóveda cifrada…');
+                try{ const id=await ctorBovedaSubir(file,x.id);
+                    x.adjuntos.push({boveda:id, nombre:file.name||'Documento', origen:(/\.pdf$/i.test(file.name||'')||file.type==='application/pdf')?'pdf':'foto', fecha:hoy(), tipo:file.type||''});
+                    ctorAdjPag=x.adjuntos.length-1; saveConta(c); ctorAdjPintar(); ctorRenderLista();
+                    ctorAdjMsg('✅ Documento guardado en la bóveda cifrada de esta PC (el archivo original, sin reducir). Ábrelo cuando quieras con el botón 📎 de su fila.'); }
+                catch(e){ console.error(e); ctorAdjMsg('No se pudo guardar en la bóveda: '+((e&&e.message)||e),true); }
+                return; }
             ctorAdjMsg('Procesando el documento…');
             try{ const r=await ctorAdjProcesar(file); const caben=CTOR_ADJ_MAX_PAG-x.adjuntos.length; const recortadas=r.paginas.slice(0,caben);
                 const extra=recortadas.reduce((s,p)=>s+p.img.length,0); const pre=ctorAdjPresupuesto(c,extra);
@@ -18336,7 +18376,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-50';
+        var MANUAL_VERSION = 'v2026.10.29-51';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -18738,6 +18778,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Avisos:</b> «Qué toca hoy» avisa de los contratos que vencen en 30 días y de los vencidos que siguen sin cerrar.</li>' +
             '<li><b>Enlace con Facturas:</b> al emitir una factura puedes elegir su contrato (solo quedan los de ese cliente): queda como referencia impresa en la factura, sin cambiar nada de la contabilidad.</li>' +
             '<li><b>El documento adjunto:</b> con el botón <b>Adjuntar</b> de cada fila guardas el contrato firmado como <b>foto o PDF</b>: la app lo convierte en páginas reducidas (máximo 6 por contrato) que quedan dentro de la app para verlas en segundos con el botón 📎 de su fila, ampliarlas y descargarlas; también puedes quitar una página. Como las páginas pesan, hay un espacio total de adjuntos por negocio: la tarjeta del documento te dice cuánto llevas y cuánto queda.</li>' +
+            '<li><b>En la edición SIN conexión (la bóveda):</b> los documentos se guardan <b>cifrados</b> en la carpeta segura de la propia PC, con el <b>archivo original</b> (el PDF tal cual, sin convertirlo en fotos ni reducirlo, hasta 25 MB) y sin ocupar el espacio de la contabilidad. En la carpeta solo se ven ficheros con nombres sin sentido: sin entrar a la app con tu usuario no se puede saber qué son ni abrirlos. Los adjuntos que ya tenías como páginas pasan solos a la bóveda la primera vez que arranca el servidor nuevo.</li>' +
             '<li><b>Generar el Contrato de Compraventa:</b> en los contratos donde eres el <b>PRESTADOR</b>, el botón <b>📄 Generar</b> compone el documento con el modelo de tu negocio: tus datos salen de la Identidad (escritura, representante y cuentas; las cuentas se eligen por contrato porque no todas las ventas usan la misma) y los del comprador de su <b>ficha legal</b>, que se completa en el propio diálogo y queda guardada en su ficha para la próxima vez. Eliges la forma de pago que se marca en la cláusula 3.2, la vigencia y el lugar y fecha de firma, y llenas a mano el <b>Anexo 1</b> con los precios: al generar, el contrato completo — con su Anexo y la Ficha del Cliente con el personal autorizado — queda listo para imprimir. Cuando el negocio es el CLIENTE, el modelo lo pone la otra parte: esos contratos solo se registran y se adjuntan.</li>' +
             '<li>En Gestión+ queda un resumen con el total de contratos y el botón para abrir este menú.</li></ul>'},
         {id:'gestion-control', modulo:'gestion', titulo:'Presupuesto, flujo proyectado e indicadores', html:

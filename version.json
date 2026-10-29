@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-50",
-  "publicada": "2026-10-29 18:20",
-  "notas": "Servidor 0.14.0: blindaje completo (contraseñas Argon2id, manifiesto firmado y paquete endurecido)",
+  "version": "v2026.10.29-51",
+  "publicada": "2026-10-29 18:42",
+  "notas": "Ronda -51: bóveda documental en el frontend (adjuntos cifrados sin conexión)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "f0d72358c7b80843515640fa3f497e8aa8af617e6bba1ead1235848191231233",
-      "bytes": 1957933
+      "sha256": "235f75fbcf5a74b48aac5b1473de9db5e984d2291b6c2f59f8bce27291807f6d",
+      "bytes": 1963501
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "JmRh3GpWSb9rY8meee7fqwMMKSUdT7wcB9Ck+vd1sXTWwW1Ob3J1WylJBHnz7V7vwDHMx40Bb8HmluCixU31DQ=="
+  "firma": "Q6mWu+FuCtRSOOtGyNEl1i381w5Ae12PlKRenqMS10+8ZNgUSOqy6wZKqVcIFbBJT97UnRcULcTsje7CokBhBw=="
 }
