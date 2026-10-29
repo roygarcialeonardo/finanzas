@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-48",
-  "publicada": "2026-10-29 15:34",
-  "notas": "Ronda -48: la lluvia de fondo suena más suave (pedido de Leonardo). La modulación que la hacía «arreciar» queda reducida a un respiro mínimo y baja el nivel general: la lluvia se oye llana, sin crestas de lluvia fuerte. Y suma dos visitas sonoras generadas por la propia app, una sola vez cada una: poco después de encender la lluvia suena un trueno lejano y, 20 segundos después, canta una rana; si se apaga la lluvia antes, no suenan.",
+  "version": "v2026.10.29-49",
+  "publicada": "2026-10-29 17:28",
+  "notas": "Ronda -49: la lluvia de fondo se rehace como LLOVIZNA (corrección de Leonardo). El cuerpo grave que la hacía sonar a tormenta queda en un fondo tenue y manda el chisporroteo fino de gotas, a un nivel general menor. El trueno gana cuerpo audible (suena también en las bocinas del teléfono) y la rana canta más clara; y las dos visitas ya no son de una sola vez: se repiten en cada vuelta de la pista de 45 segundos — el trueno y, 20 segundos después, la rana — mientras la lluvia esté encendida.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "a3911acd6da03c458989edb13056448db774a3169cf50d4ec61cd1b0f61f1a10",
-      "bytes": 1954277
+      "sha256": "2891ba54860a757043b8eec8351196b4c62bd37bcd98bd12c876e16231e52dbb",
+      "bytes": 1957405
     },
     {
       "ruta": "pdf-import.js",

@@ -13912,73 +13912,110 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             docOficialImprimirEn('facDocBox','Factura '+f.numero,html); }
         window.__facTest={render:renderFacturas,crear:facCrearUI,imprimir:facImprimirUI,guardarCliente:facClienteGuardar,lineas:facLineasDatos,detectar:facMarcarPagosFacturas,saldo:facSaldo,clasificar:ctaClasificarMov,movs:function(){return movimientos;},generar:function(){return contaGenerarSilencioso();},pagoToggle:facPagoToggleUI,cobroQuitar:facCobroQuitarUI};
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-facturas') setTimeout(renderFacturas, 60); });
-        /* ===== LLUVIA DE FONDO PARA CONCENTRARSE (ronda -40) =====
+        /* ===== LLOVIZNA DE FONDO PARA CONCENTRARSE (ronda -40;
+           receta rehecha en la -49) =====
            Junto al indicador de conexión: una bocina con su volumen.
-           La pista la GENERA la propia app (Web Audio): 45 segundos de
-           ruido filtrado en dos capas (el cuerpo grave de la lluvia y
-           el chisporroteo alto, que «arrecia y afloja» con un LFO) con
-           el final fundido con el principio para que el bucle no se
-           note, y suena en repetición continua. Sin archivos ni
-           descargas: funciona igual en línea y en la versión offline,
-           y la cabecera es la misma en todos los perfiles. La
-           preferencia (encendida/apagada y volumen) vive en el equipo
-           (localStorage «finanzas_lluvia»). El navegador exige un
-           gesto para arrancar el audio: si quedó encendida, empieza
-           con el primer toque o tecla al volver a entrar. */
+           La pista la GENERA la propia app (Web Audio): 45 segundos en
+           bucle continuo, con el final fundido con el principio para
+           que la vuelta no se note. Receta de LLOVIZNA (corrección de
+           Leonardo, 2026-10-29: la de antes sonaba a «tormenta
+           tropical» porque la cargaba el cuerpo grave): el cuerpo
+           grave queda MUY reducido (solo un fondo tenue) y manda el
+           chisporroteo fino de gotas, generado con un ruido claro
+           propio, a un nivel general menor y con un LFO que apenas
+           respira. En cada vuelta del bucle se oyen dos visitas: un
+           trueno con cuerpo audible y, 20 segundos después, una rana;
+           se repiten vuelta tras vuelta mientras la llovizna esté
+           encendida. Sin archivos ni descargas: funciona igual en
+           línea y en la versión offline, y la cabecera es la misma en
+           todos los perfiles. La preferencia (encendida/apagada y
+           volumen) vive en el equipo (localStorage «finanzas_lluvia»).
+           El navegador exige un gesto para arrancar el audio: si
+           quedó encendida, empieza con el primer toque al volver. */
+        var LLUVIA_RECETA={graveFreq:500, graveGan:0.12, altaFreq:3000, altaGan:1.05, master:0.6, lfoHz:0.04, lfoProf:0.025, ciclo:45000, truenoEn:9000, ranaEn:29000};
         var lluvia={ctx:null,master:null,gAlta:null,on:false,vol:40,soportado:!!(window.AudioContext||window.webkitAudioContext),_init:false};
         function lluviaPrefs(){ try{ const p=JSON.parse(localStorage.getItem('finanzas_lluvia')||'{}'); if(typeof p.vol==='number') lluvia.vol=Math.min(100,Math.max(0,p.vol)); if(typeof p.on==='boolean') lluvia.on=p.on; }catch(e){} }
         function lluviaGuardar(){ try{ localStorage.setItem('finanzas_lluvia', JSON.stringify({on:lluvia.on, vol:lluvia.vol})); }catch(e){} }
-        function lluviaGanancia(){ const v=lluvia.vol/100; return v*v*0.75; }
+        function lluviaGanancia(){ const v=lluvia.vol/100; return v*v*LLUVIA_RECETA.master; }
         function lluviaBuffer(ctx){ const dur=45, sr=ctx.sampleRate, len=Math.floor(sr*dur), buf=ctx.createBuffer(2, len, sr);
             for(let ch=0; ch<2; ch++){ const d=buf.getChannelData(ch); let last=0;
                 for(let i=0;i<len;i++){ const white=Math.random()*2-1; last=(last+0.03*white)/1.03; d[i]=last*2.6; }
                 const x=Math.floor(sr*1); for(let i=0;i<x;i++){ const t=i/x; d[i]=d[i]*t+d[len-x+i]*(1-t); } }
             return buf; }
+        /* Ruido CLARO para el chisporroteo de la llovizna: apenas
+           suavizado, con mucha más energía alta que el ruido marrón
+           del cuerpo; el paso-banda de la capa alta saca de aquí el
+           «patter» de gotas finas. Mismo fundido de 1 s para el bucle. */
+        function lluviaBufferClaro(ctx){ const dur=45, sr=ctx.sampleRate, len=Math.floor(sr*dur), buf=ctx.createBuffer(2, len, sr);
+            for(let ch=0; ch<2; ch++){ const d=buf.getChannelData(ch); let last=0;
+                for(let i=0;i<len;i++){ const white=Math.random()*2-1; last=(last+0.45*white)/1.45; d[i]=last*1.4; }
+                const x=Math.floor(sr*1); for(let i=0;i<x;i++){ const t=i/x; d[i]=d[i]*t+d[len-x+i]*(1-t); } }
+            return buf; }
         function lluviaCrear(){ if(lluvia.ctx||!lluvia.soportado) return; const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC(); lluvia.ctx=ctx;
             lluvia.master=ctx.createGain(); lluvia.master.gain.value=0; lluvia.master.connect(ctx.destination);
-            const buf=lluviaBuffer(ctx);
-            const capa=(tipo, freq, gan, rate)=>{ const src=ctx.createBufferSource(); src.buffer=buf; src.loop=true; src.playbackRate.value=rate; const f=ctx.createBiquadFilter(); f.type=tipo; f.frequency.value=freq; const g=ctx.createGain(); g.gain.value=gan; src.connect(f); f.connect(g); g.connect(lluvia.master); src.start(); return g; };
-            capa('lowpass', 750, 0.9, 1);
-            lluvia.gAlta=capa('bandpass', 2600, 0.17, 1.37);
-            /* Ajuste de Leonardo (2026-10-29): la lluvia debe sonar
-               SUAVE y llana — el LFO apenas respira (crestas mínimas)
-               para que nunca parezca que «arrecia» a lluvia fuerte. */
-            const lfo=ctx.createOscillator(); lfo.frequency.value=0.05; const lg=ctx.createGain(); lg.gain.value=0.03; lfo.connect(lg); lg.connect(lluvia.gAlta.gain); lfo.start();
+            const buf=lluviaBuffer(ctx), bufClaro=lluviaBufferClaro(ctx);
+            const capa=(buffer, tipo, freq, gan, rate, q)=>{ const src=ctx.createBufferSource(); src.buffer=buffer; src.loop=true; src.playbackRate.value=rate; const f=ctx.createBiquadFilter(); f.type=tipo; f.frequency.value=freq; if(q) f.Q.value=q; const g=ctx.createGain(); g.gain.value=gan; src.connect(f); f.connect(g); g.connect(lluvia.master); src.start(); return g; };
+            /* LLOVIZNA (ronda -49): el cuerpo grave queda en un fondo
+               tenue (0,12 frente al 0,9 de la «tormenta») y manda el
+               chisporroteo fino del ruido claro. */
+            capa(buf, 'lowpass', LLUVIA_RECETA.graveFreq, LLUVIA_RECETA.graveGan, 1);
+            lluvia.gAlta=capa(bufClaro, 'bandpass', LLUVIA_RECETA.altaFreq, LLUVIA_RECETA.altaGan, 1, 0.9);
+            /* El LFO apenas respira (crestas mínimas): la llovizna
+               suena llana, nunca «arrecia» a lluvia fuerte. */
+            const lfo=ctx.createOscillator(); lfo.frequency.value=LLUVIA_RECETA.lfoHz; const lg=ctx.createGain(); lg.gain.value=LLUVIA_RECETA.lfoProf; lfo.connect(lg); lg.connect(lluvia.gAlta.gain); lfo.start();
             lluvia.master.gain.setTargetAtTime(lluviaGanancia(), ctx.currentTime, 0.4);
             lluviaProgramarEventos(); }
-        /* Dos visitas sonoras, UNA sola vez por sesión de página
-           (pedido de Leonardo, 2026-10-29): un trueno lejano poco
-           después de arrancar la lluvia y, 20 segundos después del
-           trueno, el canto de una rana. Todo generado con Web Audio,
-           sin archivos; si la lluvia se apaga antes, no suenan. */
-        var lluviaEventos={programados:false};
-        function lluviaProgramarEventos(){ if(lluviaEventos.programados||!lluvia.ctx) return; lluviaEventos.programados=true;
-            setTimeout(function(){ if(lluvia.on) lluviaTrueno(); }, 9000);
-            setTimeout(function(){ if(lluvia.on) lluviaRana(); }, 29000); }
+        /* Dos visitas sonoras EN CADA VUELTA del bucle de 45 s
+           (corrección de Leonardo, 2026-10-29: no una sola vez): un
+           trueno a los 9 s de cada vuelta y, 20 segundos después del
+           trueno, el canto de una rana. El ciclo se ancla a la
+           creación del audio — el mismo ancla del que cuelgan las
+           capas en bucle — así los eventos quedan dentro de cada
+           vuelta de la pista. Todo generado con Web Audio, sin
+           archivos; si la llovizna está apagada en ese momento, esa
+           visita se salta y el ciclo sigue. */
+        var lluviaEventos={activo:false, ciclo:LLUVIA_RECETA.ciclo};
+        function lluviaProgramarEventos(){ if(lluviaEventos.activo||!lluvia.ctx) return; lluviaEventos.activo=true;
+            const ciclo=function(){ setTimeout(function(){ if(lluvia.on) lluviaTrueno(); }, LLUVIA_RECETA.truenoEn);
+                setTimeout(function(){ if(lluvia.on) lluviaRana(); }, LLUVIA_RECETA.ranaEn);
+                setTimeout(ciclo, LLUVIA_RECETA.ciclo); };
+            ciclo(); }
         function lluviaTrueno(){ if(!lluvia.ctx||!lluvia.on) return false; try{
-            const ctx=lluvia.ctx, t0=ctx.currentTime+0.05, dur=4.2, sr=ctx.sampleRate, len=Math.floor(sr*dur);
+            const ctx=lluvia.ctx, t0=ctx.currentTime+0.05, dur=5.0, sr=ctx.sampleRate, len=Math.floor(sr*dur);
             const buf=ctx.createBuffer(1, len, sr); const d=buf.getChannelData(0); let last=0;
             for(let i=0;i<len;i++){ const white=Math.random()*2-1; last=(last+0.02*white)/1.02; d[i]=last*3.2; }
             const src=ctx.createBufferSource(); src.buffer=buf;
-            const f=ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=110;
-            const g=ctx.createGain(); const pico=Math.min(0.85, Math.max(0.15, lluviaGanancia()*2.6));
+            /* Cuerpo AUDIBLE (corrección -49): el trueno anterior iba
+               por un paso-bajo a 110 Hz y en las bocinas del teléfono
+               no se oía. Ahora lleva dos componentes: el retumbo grave
+               (paso-bajo 220 Hz) y un cuerpo medio (paso-banda ~420 Hz)
+               que sí suena en bocinas pequeñas. */
+            const g=ctx.createGain(); const pico=Math.min(0.9, Math.max(0.25, lluviaGanancia()*3.2));
             g.gain.setValueAtTime(0.0001, t0);
-            g.gain.exponentialRampToValueAtTime(pico, t0+0.45);
-            g.gain.exponentialRampToValueAtTime(Math.max(0.012, pico*0.42), t0+1.5);
-            g.gain.exponentialRampToValueAtTime(Math.max(0.02, pico*0.66), t0+2.1);
+            g.gain.exponentialRampToValueAtTime(pico, t0+0.35);
+            g.gain.exponentialRampToValueAtTime(Math.max(0.015, pico*0.4), t0+1.4);
+            g.gain.exponentialRampToValueAtTime(Math.max(0.025, pico*0.62), t0+2.0);
             g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
-            src.connect(f); f.connect(g); g.connect(ctx.destination); src.start(t0); src.stop(t0+dur+0.1);
+            const fBajo=ctx.createBiquadFilter(); fBajo.type='lowpass'; fBajo.frequency.value=220;
+            const gBajo=ctx.createGain(); gBajo.gain.value=0.8;
+            const fMedio=ctx.createBiquadFilter(); fMedio.type='bandpass'; fMedio.frequency.value=420; fMedio.Q.value=0.7;
+            src.connect(fBajo); fBajo.connect(gBajo); gBajo.connect(g);
+            src.connect(fMedio); fMedio.connect(g);
+            g.connect(ctx.destination); src.start(t0); src.stop(t0+dur+0.1);
             return true; }catch(e){ return false; } }
         function lluviaRana(){ if(!lluvia.ctx||!lluvia.on) return false; try{
             const ctx=lluvia.ctx, t0=ctx.currentTime+0.05;
-            const g=ctx.createGain(); const pico=Math.min(0.30, Math.max(0.08, lluviaGanancia()*0.9));
-            g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(pico, t0+0.05); g.gain.setValueAtTime(pico, t0+0.6); g.gain.exponentialRampToValueAtTime(0.0001, t0+0.8);
-            const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=620; f.Q.value=2.5; f.connect(g); g.connect(ctx.destination);
-            const o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(105, t0);
-            const lfo=ctx.createOscillator(); lfo.frequency.value=24; const lg=ctx.createGain(); lg.gain.value=26; lfo.connect(lg); lg.connect(o.frequency);
+            /* Rana MÁS CLARA (corrección -49): tono algo más alto y
+               paso-banda en la zona que mejor reproducen las bocinas
+               (750 Hz), cuatro pulsos de croac y más presencia. */
+            const g=ctx.createGain(); const pico=Math.min(0.4, Math.max(0.12, lluviaGanancia()*1.6));
+            g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(pico, t0+0.04); g.gain.setValueAtTime(pico, t0+1.05); g.gain.exponentialRampToValueAtTime(0.0001, t0+1.22);
+            const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=750; f.Q.value=1.8; f.connect(g); g.connect(ctx.destination);
+            const o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(140, t0);
+            const lfo=ctx.createOscillator(); lfo.frequency.value=28; const lg=ctx.createGain(); lg.gain.value=34; lfo.connect(lg); lg.connect(o.frequency);
             const am=ctx.createGain(); am.gain.setValueAtTime(0, t0); o.connect(am); am.connect(f);
-            [[0,0.17],[0.26,0.43],[0.52,0.66]].forEach(function(pr){ am.gain.linearRampToValueAtTime(0.9, t0+pr[0]+0.03); am.gain.linearRampToValueAtTime(0, t0+pr[1]); });
-            o.start(t0); lfo.start(t0); o.stop(t0+0.85); lfo.stop(t0+0.85);
+            [[0,0.20],[0.29,0.49],[0.58,0.78],[0.87,1.07]].forEach(function(pr){ am.gain.linearRampToValueAtTime(0.9, t0+pr[0]+0.03); am.gain.linearRampToValueAtTime(0, t0+pr[1]); });
+            o.start(t0); lfo.start(t0); o.stop(t0+1.3); lfo.stop(t0+1.3);
             return true; }catch(e){ return false; } }
         function lluviaPintar(){ const b=document.getElementById('lluviaBtn'); if(b){ b.textContent=lluvia.on?'🔊':'🔇'; b.classList.toggle('active', lluvia.on); } const s=document.getElementById('lluviaVol'); if(s&&Number(s.value)!==lluvia.vol) s.value=lluvia.vol; }
         function lluviaToggle(){ if(!lluvia.soportado){ alert('Este navegador no soporta el audio de fondo.'); return; }
@@ -13991,7 +14028,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(lluvia.on&&lluvia.soportado){ const arrancar=function(){ lluviaCrear(); if(lluvia.ctx&&lluvia.ctx.state==='suspended') lluvia.ctx.resume(); document.removeEventListener('pointerdown', arrancar); document.removeEventListener('keydown', arrancar); };
                 document.addEventListener('pointerdown', arrancar); document.addEventListener('keydown', arrancar); } }
         lluviaInit();
-        window.__lluviaTest={estado:function(){ return {on:lluvia.on, vol:lluvia.vol, soportado:lluvia.soportado, ctx:lluvia.ctx?lluvia.ctx.state:'sin-crear'}; }, toggle:lluviaToggle, volumen:lluviaVolumen, trueno:lluviaTrueno, rana:lluviaRana, eventos:function(){ return lluviaEventos.programados; }};
+        window.__lluviaTest={estado:function(){ return {on:lluvia.on, vol:lluvia.vol, soportado:lluvia.soportado, ctx:lluvia.ctx?lluvia.ctx.state:'sin-crear'}; }, toggle:lluviaToggle, volumen:lluviaVolumen, trueno:lluviaTrueno, rana:lluviaRana, eventos:function(){ return {activo:lluviaEventos.activo, ciclo:lluviaEventos.ciclo}; }, receta:function(){ return LLUVIA_RECETA; }};
         /* ===== MENÚ CONTRATOS (ronda -41, tarea 35 ronda 1) =====
            Registro ampliado de los contratos del negocio en su menú
            propio (diseño aprobado por Leonardo el 2026-10-29:
@@ -18292,7 +18329,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-48';
+        var MANUAL_VERSION = 'v2026.10.29-49';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -18684,7 +18721,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>Junto al indicador de conexión de la cabecera hay una <b>bocina</b> con un deslizador de volumen: es la <b>lluvia de fondo</b>, un sonido de lluvia pensado para concentrarte mientras trabajas.</p>' +
             '<ul><li><b>Encender y apagar:</b> toca la bocina. Suena una pista de lluvia de menos de un minuto que se repite en bucle continuo, sin cortes.</li>' +
             '<li><b>Volumen:</b> el deslizador lo sube y lo baja al momento; en 0 no se oye nada.</li>' +
-            '<li><b>Suave, con dos visitas:</b> la lluvia suena llana, sin arreones. Poco después de encenderla se oye <b>un trueno</b> lejano, una sola vez, y 20 segundos después canta <b>una rana</b>, también una vez (si apagas la lluvia antes, no suenan).</li>' +
+            '<li><b>Llovizna suave, con dos visitas que vuelven:</b> suena una llovizna fina y llana, sin arreones ni cuerpo de tormenta. En cada vuelta de la pista se oye <b>un trueno</b> con cuerpo y, 20 segundos después, canta <b>una rana</b>; las dos visitas se repiten vuelta tras vuelta mientras la llovizna esté encendida (si la apagas, no suenan).</li>' +
             '<li><b>Tu preferencia se guarda</b> en el equipo: si la dejas encendida, al volver a entrar empezará a sonar con el primer toque en la pantalla (el navegador no permite que suene antes de ese primer toque).</li>' +
             '<li>La pista la genera la propia app, sin descargar música: funciona <b>igual en línea y en la versión sin conexión</b>, y está en todos los perfiles.</li></ul>'},
         {id:'contratos-menu', modulo:'gestion', titulo:'Contratos: el registro del negocio', html:
