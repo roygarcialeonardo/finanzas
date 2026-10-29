@@ -1060,6 +1060,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link conta" id="tab-conta" data-bs-toggle="tab" data-bs-target="#pane-conta"><span class="icono-anim me-1" data-icono="libro"></span> Contabilidad <span id="tabContaPend" class="badge bg-danger" style="display:none"></span></button></li>
         <li class="nav-item"><button class="nav-link gestion" id="tab-gestion" data-bs-toggle="tab" data-bs-target="#pane-gestion"><span class="icono-anim me-1" data-icono="cuadricula"></span> Gestión+</button></li>
         <li class="nav-item"><button class="nav-link facturas" id="tab-facturas" data-bs-toggle="tab" data-bs-target="#pane-facturas"><span class="icono-anim me-1" data-icono="factura"></span> Facturas</button></li>
+        <li class="nav-item"><button class="nav-link contratos" id="tab-contratos" data-bs-toggle="tab" data-bs-target="#pane-contratos"><span class="icono-anim me-1" data-icono="firma"></span> Contratos</button></li>
         <li class="nav-item"><button class="nav-link cierre" id="tab-cierre" data-bs-toggle="tab" data-bs-target="#pane-cierre"><span class="icono-anim me-1" data-icono="archivo"></span> Historial</button></li>
         <li class="nav-item" id="gestorTabNav" style="display:none"><button class="nav-link gestor" id="tab-gestor" data-bs-toggle="tab" data-bs-target="#pane-gestor"><span class="icono-anim me-1" data-icono="maletin"></span> Gestor</button></li>
         <li class="nav-item" id="panelTabNav" style="display:none"><button class="nav-link" id="tab-panel" data-bs-toggle="tab" data-bs-target="#pane-panel"><span class="icono-anim me-1" data-icono="velocimetro"></span> Panel de control</button></li>
@@ -1866,10 +1867,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="card p-3 p-md-4 mb-4">
                 <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="factura"></span>Emitir factura</h6>
                 <div class="row g-2 align-items-end mb-2">
-                    <div class="col-md-3"><label class="form-label small mb-0">Cliente</label><select id="facClienteSel" class="form-select form-select-sm"></select></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">Cliente</label><select id="facClienteSel" class="form-select form-select-sm" onchange="facContratoRefrescar()"></select></div>
                     <div class="col-md-2"><label class="form-label small mb-0">Fecha</label><input type="date" id="facFecha" class="form-control form-control-sm"></div>
                     <div class="col-md-2"><label class="form-label small mb-0">Vencimiento</label><input type="date" id="facVenc" class="form-control form-control-sm"></div>
                     <div class="col-md-5"><label class="form-label small mb-0">Concepto</label><input id="facConcepto" class="form-control form-control-sm" placeholder="Venta / servicio"></div>
+                </div>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-4"><label class="form-label small mb-0">Contrato (opcional)</label><select id="facContratoSel" class="form-select form-select-sm"></select></div>
+                    <div class="col-md-8"><span class="small text-secondary">Si la venta es contra un contrato del menú Contratos, elígelo: queda como referencia en la factura. No cambia nada de la contabilidad.</span></div>
                 </div>
                 <div class="table-responsive"><table class="table table-sm align-middle mb-2"><thead><tr><th>Descripción</th><th style="width:22%">Producto (inventario, opcional)</th><th style="width:10%">Cant.</th><th style="width:13%">Precio</th><th class="text-end" style="width:13%">Importe</th><th style="width:5%"></th></tr></thead><tbody id="facLineasBody"></tbody></table></div>
                 <div class="d-flex gap-2 flex-wrap align-items-center mb-2">
@@ -1885,6 +1890,42 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div id="facListBox" class="small"></div>
             </div>
             <div id="facDocBox" class="d-none"></div>
+        </div>
+
+        <div class="tab-pane fade" id="pane-contratos">
+            <div class="card p-3 p-md-4 mb-4" id="ctorFormCard">
+                <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="firma"></span><span id="ctorFormTitulo">Registrar contrato</span></h6>
+                <p class="small text-secondary mb-2">El registro de los contratos del negocio: con quién, su tipo, si el negocio es el <b>CLIENTE</b> que recibe o el <b>PRESTADOR</b> que vende o presta el servicio, su vigencia y su monto. Al emitir una factura puedes enlazarla a su contrato. El aviso de vencimiento sale solo en «Qué toca hoy».</p>
+                <input type="hidden" id="ctorId">
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-2"><label class="form-label small mb-0">Número *</label><input id="ctorNumero" class="form-control form-control-sm" placeholder="Ej.: 12/2026"></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">Nombre (opcional)</label><input id="ctorNombre" class="form-control form-control-sm" placeholder="Título corto"></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">Contraparte (ficha)</label><select id="ctorContraparteSel" class="form-select form-select-sm"></select></div>
+                    <div class="col-md-4"><label class="form-label small mb-0">Contraparte nueva (si no está en la ficha)</label><input id="ctorContraparteTxt" class="form-control form-control-sm" placeholder="Nombre de la contraparte"></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">Tipo</label><select id="ctorTipo" class="form-select form-select-sm"><option value="">— Tipo —</option><option>Compraventa</option><option>Prestación de servicios</option><option>Suministro</option><option>Arrendamiento</option><option>Distribución / representación</option><option>Préstamo / crédito</option><option>Otro</option></select></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">El negocio es</label><select id="ctorRol" class="form-select form-select-sm"><option value="prestador">PRESTADOR (vende / presta el servicio)</option><option value="cliente">CLIENTE (recibe / compra)</option></select></div>
+                    <div class="col-md-6"><label class="form-label small mb-0">Objeto</label><input id="ctorObjeto" class="form-control form-control-sm" placeholder="Qué se contrata"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Firma</label><input type="date" id="ctorFirma" class="form-control form-control-sm"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Vigencia desde</label><input type="date" id="ctorDesde" class="form-control form-control-sm"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Vigencia hasta</label><input type="date" id="ctorHasta" class="form-control form-control-sm"></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Monto</label><input type="number" id="ctorMonto" class="form-control form-control-sm" min="0" step="0.01"></div>
+                    <div class="col-md-1"><label class="form-label small mb-0">Moneda</label><select id="ctorMoneda" class="form-select form-select-sm"><option>CUP</option><option>USD</option></select></div>
+                    <div class="col-md-2"><label class="form-label small mb-0">Estado</label><select id="ctorEstado" class="form-select form-select-sm"><option value="vigente">Vigente</option><option value="terminado">Terminado</option><option value="cancelado">Cancelado</option></select></div>
+                    <div class="col-md-1"><div class="form-check mt-3"><input type="checkbox" id="ctorRenov" class="form-check-input"><label class="form-check-label small" for="ctorRenov">Renov. auto</label></div></div>
+                    <div class="col-md-6"><label class="form-label small mb-0">Notas</label><input id="ctorNotas" class="form-control form-control-sm"></div>
+                    <div class="col-md-6 d-flex gap-2"><button type="button" class="btn btn-sm btn-success" id="ctorGuardarBtn" onclick="ctorGuardarUI()"><span class="icono-anim me-1" data-icono="mas"></span>Guardar contrato</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorLimpiarUI()">Limpiar</button></div>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4">
+                <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="libro"></span>Contratos del negocio</h6>
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-5"><label class="form-label small mb-0">Buscar</label><input id="ctorBuscar" class="form-control form-control-sm" placeholder="Número, contraparte u objeto…" oninput="ctorRenderLista()"></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">Rol</label><select id="ctorFiltroRol" class="form-select form-select-sm" onchange="ctorRenderLista()"><option value="">Todos</option><option value="prestador">Como PRESTADOR</option><option value="cliente">Como CLIENTE</option></select></div>
+                    <div class="col-md-3"><label class="form-label small mb-0">Estado</label><select id="ctorFiltroEstado" class="form-select form-select-sm" onchange="ctorRenderLista()"><option value="">Todos</option><option value="vigente">Vigentes</option><option value="vencido">Vencidos</option><option value="terminado">Terminados</option><option value="cancelado">Cancelados</option></select></div>
+                </div>
+                <div id="ctorListBox" class="small"></div>
+            </div>
         </div>
 
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
@@ -2862,7 +2903,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Patrones recurrentes</b> — <b>Crear patrón</b>: guarda una plantilla de asiento periódico (pide la contraparte si una cuenta exige auxiliar). <b>Aplicar</b>: crea el comprobante del período y no duplica si ya se aplicó.</li>
                         <li><b>Presupuesto</b>: añade líneas de presupuesto y compara contra lo real.</li>
                         <li><b>Instrumentos (talonario)</b>: crea talonarios de instrumentos de pago y registra su uso.</li>
-                        <li><b>Contratos</b>: registra contratos con su contraparte y fechas.</li>
+                        <li><b>Contratos</b>: el registro completo vive en el menú <b>Contratos</b> (tipo, si eres CLIENTE o PRESTADOR, vigencia, monto y estado); aquí queda el resumen con el botón para abrirlo.</li>
                         <li><b>Útiles y herramientas</b>: entrega un útil a un custodio y queda registrado.</li>
                         <li><b>Ficha de costos 148/2023</b>: calcula la ficha de costo por producto desde materiales, mano de obra directa, otros directos e indirectos, con su margen.</li>
                     </ul>
@@ -9786,7 +9827,7 @@ function mjFacturaCrear(conta,datos){ datos=datos||{}; const g=mjAsegurarGestion
   if(!datos.contraparteId) return {ok:false,motivo:'Falta el cliente (auxiliar de la CxC)'};
   g.seqFactura=(Number(g.seqFactura)||0)+1;
   const f={id:'FAC'+g.seqFactura,numero:'F-'+g.seqFactura,fecha:datos.fecha||'',vencimiento:datos.vencimiento||datos.fecha||'',
-    contraparteId:datos.contraparteId,concepto:datos.concepto||'Factura de venta',lineas:datos.lineas||[],total:total,estado:'borrador',asientos:[]};
+    contraparteId:datos.contraparteId,contratoId:datos.contratoId||'',concepto:datos.concepto||'Factura de venta',lineas:datos.lineas||[],total:total,estado:'borrador',asientos:[]};
   g.facturas.push(f);
   return {ok:true,factura:f}; }
 function mjFacturaConfirmar(conta,id,usuario){ const g=mjAsegurarGestion(conta);
@@ -9982,7 +10023,8 @@ function mjAlertasGestion(conta,datos){ datos=datos||{}; const g=mjAsegurarGesti
     if(min>0&&(Number(p.stock)||0)<=min) out.push({tipo:'stock_minimo',nivel:'media',descripcion:'Stock mínimo: '+(p.nombre||p.id)+' ('+(p.stock||0)+' ≤ '+min+')'}); }
   for(const f of g.facturas){ if(f.estado==='confirmada'&&Number(f.costoVentas)>Number(f.total)) out.push({tipo:'bajo_costo',nivel:'alta',descripcion:'Venta por debajo del costo: '+f.numero+' (costo '+f.costoVentas+' > total '+f.total+')'}); }
   for(const a of (conta.arqueos||[])){ if(Math.abs(Number(a.diferencia)||0)>=0.005&&!a.asientoId) out.push({tipo:'caja_descuadrada',nivel:'media',descripcion:'Arqueo con diferencia sin asiento: '+(a.fecha||'')+' ('+a.diferencia+')'}); }
-  mjContratosPorVencer(g.contratos,hoyF,30).forEach(c=>out.push({tipo:'contrato_vence',nivel:'media',descripcion:'Contrato por vencer: '+(c.numero||c.id)+' ('+(c.contraparte||'')+') el '+c.vigenciaHasta}));
+  mjContratosPorVencer(g.contratos,hoyF,30).filter(c=>c.estado!=='terminado'&&c.estado!=='cancelado').forEach(c=>out.push({tipo:'contrato_vence',nivel:'media',descripcion:'Contrato por vencer: '+(c.numero||c.id)+' ('+(c.contraparte||'')+') el '+c.vigenciaHasta}));
+  (g.contratos||[]).filter(c=>c&&c.vigenciaHasta&&c.vigenciaHasta<hoyF&&c.estado!=='terminado'&&c.estado!=='cancelado').forEach(c=>out.push({tipo:'contrato_vencido',nivel:'media',descripcion:'Contrato vencido sin cerrar: '+(c.numero||c.id)+' ('+(c.contraparte||'')+') venció el '+c.vigenciaHasta}));
   return out; }
 function moneda0_(n){ return '$'+(Number(n)||0).toFixed(2); }
 /* ---------- RONDA 13 · PROFUNDIDAD (forma ligera) ---------- */
@@ -12868,7 +12910,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function facCrearUI(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
             const cp=mjVal('facClienteSel'); if(!cp){ alert('Selecciona un cliente. Si no hay ninguno, créalo primero en la tarjeta «Clientes».'); return; }
             const lineas=facLineasDatos(); if(!lineas.length){ alert('Añade al menos una línea con cantidad y precio.'); return; }
-            const c=getConta(); const r=mjFacturaCrear(c,{fecha:mjVal('facFecha')||hoy(),vencimiento:mjVal('facVenc')||mjVal('facFecha')||hoy(),contraparteId:cp,concepto:(mjVal('facConcepto')||'').trim()||'Factura de venta',lineas:lineas});
+            const c=getConta(); const r=mjFacturaCrear(c,{fecha:mjVal('facFecha')||hoy(),vencimiento:mjVal('facVenc')||mjVal('facFecha')||hoy(),contraparteId:cp,concepto:(mjVal('facConcepto')||'').trim()||'Factura de venta',lineas:lineas,contratoId:mjVal('facContratoSel')||''});
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } r.factura.estado='emitida'; r.factura.pagoEstado='sin-pagar'; r.factura.cobros=[]; saveConta(c); renderFacturas(); renderAll(); alert('✅ Factura '+r.factura.numero+' emitida (sin pagar). No mueve la contabilidad: se marcará pagada cuando su cobro salga en un estado de cuenta, o la marcas con su botón.'); }
         function facConfirmarUI(id){ /* Solo para facturas «borrador» del sistema anterior: pasan a emitidas SIN tocar la contabilidad (corrección de Leonardo, 2026-10-28). */
             const c=getConta(); const g=mjGestionDe(c); const f=g.facturas.find(x=>x.id===id); if(!f) return;
@@ -12925,22 +12967,28 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             f.cobros=(f.cobros||[]).filter(x=>x.clave!==clave);
             if(f.pagoEstado==='pagada'&&!f.pagoManual&&facSaldo(f)>0.009){ f.pagoEstado='sin-pagar'; f.pagoFecha=''; }
             saveConta(c); renderAll(); renderFacturas(); }
+        function facContratoRefrescar(){ const sel=document.getElementById('facContratoSel'); if(!sel) return; const c=getConta(); const g=mjGestionDe(c);
+            const cpId=mjVal('facClienteSel'); const cp=(c.contrapartes||[]).find(x=>x.id===cpId); const cpNom=cp?(cp.nombre||cp.razonSocial||''):''; const act=sel.value;
+            const lista=(g.contratos||[]).filter(x=>x&&x.estado!=='terminado'&&x.estado!=='cancelado'&&((cpId&&x.contraparteId===cpId)||(!x.contraparteId&&cpNom&&x.contraparte===cpNom)));
+            sel.innerHTML='<option value="">Sin contrato</option>'+lista.map(x=>`<option value="${esc(x.id)}">${esc(x.numero||x.id)}${x.objeto?' · '+esc(x.objeto):''}</option>`).join('');
+            if(act&&lista.some(x=>x.id===act)) sel.value=act; }
         function renderFacturas(){ const pane=document.getElementById('pane-facturas'); if(!pane) return; const c=getConta(); const cps=c.contrapartes||[];
             const cb=document.getElementById('facClientesBox'); if(cb){ cb.innerHTML=cps.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nombre</th><th>NIT / CI</th><th>Cuenta</th><th>Tarjeta</th><th></th></tr></thead><tbody>${cps.map(x=>`<tr><td>${esc(x.nombre||x.id)}</td><td>${esc(x.nit||'')}</td><td>${esc(x.cuenta||'')}</td><td>${esc(x.tarjeta||'')}</td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" onclick="facClienteEditar('${x.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div>`:'<span class="text-secondary">Todavía no hay clientes: crea el primero con el formulario.</span>'; }
             const sel=document.getElementById('facClienteSel'); if(sel){ const act=sel.value; sel.innerHTML=cps.map(x=>`<option value="${esc(x.id)}">${esc(x.nombre||x.id)}</option>`).join('')||'<option value="">(crea primero un cliente)</option>'; if(act&&cps.some(x=>x.id===act)) sel.value=act; }
+            facContratoRefrescar();
             const ff=document.getElementById('facFecha'); if(ff&&!ff.value) ff.value=hoy();
             const tb=document.getElementById('facLineasBody'); if(tb&&!tb.children.length) facLineaAdd();
-            const g=mjGestionDe(c); const lb=document.getElementById('facListBox'); if(lb){ lb.innerHTML=g.facturas.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th class="text-end">Total</th><th class="text-end">Cobrado</th><th>Pago</th><th></th></tr></thead><tbody>${g.facturas.map(f=>{ const cp=cps.find(x=>x.id===f.contraparteId); const saldo=facSaldo(f); const cobrado=Math.round(((Number(f.total)||0)-saldo)*100)/100;
+            const g=mjGestionDe(c); const lb=document.getElementById('facListBox'); if(lb){ lb.innerHTML=g.facturas.length?`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th class="text-end">Total</th><th class="text-end">Cobrado</th><th>Pago</th><th></th></tr></thead><tbody>${g.facturas.map(f=>{ const cp=cps.find(x=>x.id===f.contraparteId); const ct=f.contratoId?(g.contratos||[]).find(x=>x.id===f.contratoId):null; const saldo=facSaldo(f); const cobrado=Math.round(((Number(f.total)||0)-saldo)*100)/100;
                 const pagoCell=f.estado==='anulada'?'<span class="badge bg-secondary">ANULADA</span>':(f.pagoEstado==='pagada'?`<span class="badge bg-success">PAGADA</span>${f.pagoManual?' <span class="small text-secondary">(a mano)</span>':''} <button type="button" class="btn btn-sm btn-outline-secondary" onclick="facPagoToggleUI('${f.id}')">Marcar sin pagar</button>`:`<button type="button" class="btn btn-sm btn-warning" title="Se marca sola cuando el cobro sale en un estado de cuenta importado; clic para marcarla pagada a mano" onclick="facPagoToggleUI('${f.id}')">Sin pagar</button>`);
                 let sub=''; const cobros=f.cobros||[]; if(cobros.length&&f.estado!=='anulada'){ sub=`<tr><td colspan="8" class="bg-light"><div class="small">${cobros.map(x=>`<div>💰 Cobro en el estado de cuenta: ${esc(x.fecha||'')} · <b>${moneda(x.monto)}</b> <button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="facCobroQuitarUI('${f.id}','${esc(x.clave)}')">Quitar</button></div>`).join('')}</div></td></tr>`; }
-                return `<tr><td>${esc(f.numero)}</td><td>${esc(f.fecha)}</td><td>${esc(cp?cp.nombre:(f.contraparteId||''))}</td><td>${esc(f.concepto)}</td><td class="text-end">${moneda(f.total)}</td><td class="text-end">${moneda(cobrado)}</td><td>${pagoCell}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="facImprimirUI('${f.id}')">Imprimir</button> ${f.estado!=='anulada'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="facAnularUI('${f.id}')">Anular</button>`:''}</td></tr>`+sub; }).join('')}</tbody></table></div>`:'<span class="text-secondary">Ninguna factura todavía. La anulada se conserva y su número no se reutiliza.</span>'; } }
+                return `<tr><td>${esc(f.numero)}</td><td>${esc(f.fecha)}</td><td>${esc(cp?cp.nombre:(f.contraparteId||''))}</td><td>${esc(f.concepto)}${ct?`<div class="text-secondary">Contrato ${esc(ct.numero||ct.id)}</div>`:''}</td><td class="text-end">${moneda(f.total)}</td><td class="text-end">${moneda(cobrado)}</td><td>${pagoCell}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="facImprimirUI('${f.id}')">Imprimir</button> ${f.estado!=='anulada'?`<button type="button" class="btn btn-sm btn-outline-danger" onclick="facAnularUI('${f.id}')">Anular</button>`:''}</td></tr>`+sub; }).join('')}</tbody></table></div>`:'<span class="text-secondary">Ninguna factura todavía. La anulada se conserva y su número no se reutiliza.</span>'; } }
         function facImprimirUI(id){ const c=getConta(); const g=mjGestionDe(c); const f=g.facturas.find(x=>x.id===id); if(!f) return;
-            const cp=(c.contrapartes||[]).find(x=>x.id===f.contraparteId)||{}; const idt=identidadDelNegocio();
+            const cp=(c.contrapartes||[]).find(x=>x.id===f.contraparteId)||{}; const ct=f.contratoId?(mjGestionDe(c).contratos||[]).find(x=>x.id===f.contratoId):null; const idt=identidadDelNegocio();
             const filas=(f.lineas||[]).map(l=>({c:[esc(l.concepto||''),docOficialNum(l.cantidad),docOficialNum(l.precio),docOficialNum((Number(l.cantidad)||0)*(Number(l.precio)||0))]}));
             const cuerpo=docOficialTabla([{t:'Descripción'},{t:'Cantidad',n:1},{t:'Precio unitario',n:1},{t:'Importe',n:1}],filas,[{c:['','', '<b>TOTAL</b>', '<b>'+docOficialNum(f.total)+'</b>']}]);
             const html=docOficialHTML({titulo:'FACTURA',modelo:'SC-2-012',identidad:true,
                 subtitulo:f.estado==='anulada'?'ANULADA':(f.pagoEstado==='pagada'?'PAGADA':''),
-                campos:[['Número',esc(f.numero)],['Fecha',esc(f.fecha)],['Emisor',esc(idt.nombreComercial||docOficialNegocio())],['NIT del emisor',esc(docOficialNIT()||'')],['Dirección del emisor',esc(idt.direccion||'')],['Cliente',esc(cp.nombre||'')],['NIT / CI del cliente',esc(cp.nit||'')],['Dirección del cliente',esc(cp.direccion||'')],['Concepto',esc(f.concepto||'')],['Vencimiento',esc(f.vencimiento||f.fecha)]],
+                campos:[['Número',esc(f.numero)],['Fecha',esc(f.fecha)],['Emisor',esc(idt.nombreComercial||docOficialNegocio())],['NIT del emisor',esc(docOficialNIT()||'')],['Dirección del emisor',esc(idt.direccion||'')],['Cliente',esc(cp.nombre||'')],['NIT / CI del cliente',esc(cp.nit||'')],['Dirección del cliente',esc(cp.direccion||'')],['Concepto',esc(f.concepto||'')],...(ct?[['Contrato',esc(ct.numero||ct.id)]]:[]),['Vencimiento',esc(f.vencimiento||f.fecha)]],
                 cuerpo:cuerpo,
                 firmas:[{rol:'Elaborado por',nombre:idt.repNombre||''},{rol:'Recibí conforme',nombre:cp.nombre||''}],
                 pie:'El cuño no es obligatorio en la factura (consulta oficial del MFP, 2024).'});
@@ -12989,6 +13037,96 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 document.addEventListener('pointerdown', arrancar); document.addEventListener('keydown', arrancar); } }
         lluviaInit();
         window.__lluviaTest={estado:function(){ return {on:lluvia.on, vol:lluvia.vol, soportado:lluvia.soportado, ctx:lluvia.ctx?lluvia.ctx.state:'sin-crear'}; }, toggle:lluviaToggle, volumen:lluviaVolumen};
+        /* ===== MENÚ CONTRATOS (ronda -41, tarea 35 ronda 1) =====
+           Registro ampliado de los contratos del negocio en su menú
+           propio (diseño aprobado por Leonardo el 2026-10-29:
+           CONTRATOS-DISENO.md). Los contratos viven donde siempre:
+           gestion.contratos[] del documento conta; esta ronda añade
+           tipo, ROL del negocio (CLIENTE que recibe o PRESTADOR que
+           vende/presta), contraparte de la ficha (contraparteId, con
+           el nombre en texto como hasta ahora), fechas de firma e
+           inicio, monto y moneda, estado y notas. Los contratos
+           viejos (solo número/contraparte/objeto/vigencia) se ven y
+           se editan igual: los campos nuevos son opcionales. El
+           estado «vencido» se calcula de la vigencia (no se guarda);
+           terminado/cancelado sí se guardan. Al emitir una factura se
+           puede enlazar su contrato (solo referencia, sin efectos
+           contables, doctrina de la -39). El mini-registro de Gestión+
+           queda como resumen con puente a este menú. Los adjuntos
+           del documento llegan en la ronda 2 (Vía A). */
+        var ctorEditId='';
+        function ctorEl(id){ return document.getElementById(id); }
+        function ctorVal(id){ const el=ctorEl(id); return el?String(el.value||'').trim():''; }
+        function ctorNombreContraparte(conta,c){ if(c.contraparteId){ const cp=(conta.contrapartes||[]).find(x=>x.id===c.contraparteId); if(cp) return cp.nombre||cp.razonSocial||cp.id; } return c.contraparte||''; }
+        function ctorEstadoEfectivo(c,fecha){ const est=c.estado||'vigente'; if(est==='terminado'||est==='cancelado') return est; if(c.vigenciaHasta&&fecha&&c.vigenciaHasta<fecha) return 'vencido'; return 'vigente'; }
+        function ctorAbrirMenu(){ const t=ctorEl('tab-contratos'); if(t) t.click(); }
+        function renderContratos(){ const pane=ctorEl('pane-contratos'); if(!pane) return; const c=getConta();
+            const sel=ctorEl('ctorContraparteSel'); if(sel){ const cur=sel.value; sel.innerHTML='<option value="">— Contraparte (ficha) —</option>'+(c.contrapartes||[]).map(cp=>`<option value="${esc(cp.id)}">${esc(cp.nombre||cp.razonSocial||cp.id)}</option>`).join(''); if(cur&&(c.contrapartes||[]).some(x=>x.id===cur)) sel.value=cur; }
+            ctorRenderLista(); }
+        function ctorRenderLista(){ const box=ctorEl('ctorListBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c); const hoyF=hoy();
+            const q=ctorVal('ctorBuscar').toLowerCase(); const fRol=ctorVal('ctorFiltroRol'); const fEst=ctorVal('ctorFiltroEstado');
+            const lista=(g.contratos||[]).filter(x=>{ if(!x) return false; const ef=ctorEstadoEfectivo(x,hoyF);
+                if(fRol&&(x.rol||'')!==fRol) return false;
+                if(fEst&&ef!==fEst) return false;
+                if(q){ const txt=((x.numero||'')+' '+(x.nombre||'')+' '+ctorNombreContraparte(c,x)+' '+(x.objeto||'')).toLowerCase(); if(!txt.includes(q)) return false; }
+                return true; }).slice().reverse();
+            if(!(g.contratos||[]).length){ box.innerHTML='<span class="text-secondary">Todavía no hay contratos: registra el primero con el formulario.</span>'; return; }
+            if(!lista.length){ box.innerHTML='<span class="text-secondary">Ningún contrato coincide con la búsqueda o los filtros.</span>'; return; }
+            box.innerHTML=`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nº</th><th>Contraparte</th><th>Tipo</th><th>Rol</th><th>Vigencia</th><th class="text-end">Monto</th><th>Estado</th><th></th></tr></thead><tbody>${lista.map(x=>{ const ef=ctorEstadoEfectivo(x,hoyF); const porVencer=ef==='vigente'&&mjContratosPorVencer([x],hoyF,30).length>0;
+                const badge=ef==='vencido'?'<span class="badge bg-danger">VENCIDO</span>':ef==='terminado'?'<span class="badge bg-secondary">TERMINADO</span>':ef==='cancelado'?'<span class="badge bg-dark">CANCELADO</span>':(porVencer?'<span class="badge bg-warning text-dark">POR VENCER</span>':'<span class="badge bg-success">VIGENTE</span>');
+                const rol=x.rol==='cliente'?'<span class="badge bg-info text-dark">CLIENTE</span>':x.rol==='prestador'?'<span class="badge bg-primary">PRESTADOR</span>':'<span class="text-secondary">—</span>';
+                const vig=(x.vigenciaDesde||'')||(x.vigenciaHasta||'')?esc((x.vigenciaDesde||'…')+' → '+(x.vigenciaHasta||'…')):'—';
+                const monto=Number(x.monto)>0?moneda(Number(x.monto))+' '+(x.moneda||'CUP'):'—';
+                return `<tr><td>${esc(x.numero||x.id)}${x.nombre?`<div class="text-secondary">${esc(x.nombre)}</div>`:''}</td><td>${esc(ctorNombreContraparte(c,x))}</td><td>${esc(x.tipo||'')}</td><td>${rol}</td><td>${vig}</td><td class="text-end">${monto}</td><td>${badge}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorEditarUI('${x.id}')">Editar</button> ${ef!=='terminado'&&ef!=='cancelado'?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorEstadoUI('${x.id}','terminado')">Terminar</button>`:''} <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorEliminarUI('${x.id}')">Eliminar</button></td></tr>`; }).join('')}</tbody></table></div>`; }
+        function ctorGuardarUI(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
+            const numero=ctorVal('ctorNumero'); if(!numero){ alert('Escribe el número del contrato.'); return; }
+            const c=getConta(); const g=mjGestionDe(c);
+            const datos={numero:numero, nombre:ctorVal('ctorNombre'), tipo:ctorVal('ctorTipo'), rol:ctorVal('ctorRol')||'prestador', objeto:ctorVal('ctorObjeto'),
+                fechaFirma:ctorVal('ctorFirma'), vigenciaDesde:ctorVal('ctorDesde'), vigenciaHasta:ctorVal('ctorHasta'),
+                monto:Number(ctorVal('ctorMonto'))||0, moneda:ctorVal('ctorMoneda')||'CUP', renovacionAuto:!!(ctorEl('ctorRenov')&&ctorEl('ctorRenov').checked),
+                estado:ctorVal('ctorEstado')||'vigente', notas:ctorVal('ctorNotas')};
+            const selId=ctorVal('ctorContraparteSel');
+            if(selId){ datos.contraparteId=selId; const cp=(c.contrapartes||[]).find(x=>x.id===selId); datos.contraparte=cp?(cp.nombre||cp.razonSocial||''):''; }
+            else { datos.contraparteId=''; datos.contraparte=ctorVal('ctorContraparteTxt'); }
+            const editando=ctorEditId;
+            if(editando){ const x=(g.contratos||[]).find(k=>k.id===editando); if(!x){ alert('Ese contrato ya no existe.'); return; } Object.assign(x,datos); }
+            else { g.seqContrato=(Number(g.seqContrato)||0)+1; g.contratos.push(Object.assign({id:'CT'+g.seqContrato, adjuntos:[]},datos)); }
+            saveConta(c); ctorLimpiarUI(); renderContratos(); if(typeof mjRenderGestion==='function') mjRenderGestion();
+            alert(editando?'✅ Contrato '+numero+' actualizado.':'✅ Contrato '+numero+' registrado.'); }
+        function ctorEditarUI(id){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(!x) return; ctorEditId=id;
+            renderContratos();
+            const pon=(idV,v)=>{ const el=ctorEl(idV); if(el) el.value=v==null?'':v; };
+            pon('ctorId',x.id); pon('ctorNumero',x.numero||''); pon('ctorNombre',x.nombre||''); pon('ctorContraparteTxt',x.contraparteId?'':(x.contraparte||''));
+            pon('ctorObjeto',x.objeto||''); pon('ctorFirma',x.fechaFirma||''); pon('ctorDesde',x.vigenciaDesde||''); pon('ctorHasta',x.vigenciaHasta||'');
+            pon('ctorMonto',x.monto||''); pon('ctorNotas',x.notas||'');
+            const sel=ctorEl('ctorContraparteSel'); if(sel) sel.value=x.contraparteId||'';
+            const tipo=ctorEl('ctorTipo'); if(tipo) tipo.value=x.tipo||'';
+            const rol=ctorEl('ctorRol'); if(rol) rol.value=x.rol||'prestador';
+            const mon=ctorEl('ctorMoneda'); if(mon) mon.value=x.moneda||'CUP';
+            const est=ctorEl('ctorEstado'); if(est) est.value=(x.estado==='terminado'||x.estado==='cancelado')?x.estado:'vigente';
+            const ren=ctorEl('ctorRenov'); if(ren) ren.checked=!!x.renovacionAuto;
+            const t=ctorEl('ctorFormTitulo'); if(t) t.textContent='Editando el contrato '+(x.numero||x.id);
+            const b=ctorEl('ctorGuardarBtn'); if(b) b.innerHTML='Guardar cambios';
+            const card=ctorEl('ctorFormCard'); if(card&&card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'start'}); }
+        function ctorLimpiarUI(){ ctorEditId='';
+            ['ctorId','ctorNumero','ctorNombre','ctorContraparteTxt','ctorObjeto','ctorFirma','ctorDesde','ctorHasta','ctorMonto','ctorNotas','ctorBuscar'].forEach(id=>{ const el=ctorEl(id); if(el) el.value=''; });
+            const sel=ctorEl('ctorContraparteSel'); if(sel) sel.value='';
+            const tipo=ctorEl('ctorTipo'); if(tipo) tipo.value='';
+            const rol=ctorEl('ctorRol'); if(rol) rol.value='prestador';
+            const mon=ctorEl('ctorMoneda'); if(mon) mon.value='CUP';
+            const est=ctorEl('ctorEstado'); if(est) est.value='vigente';
+            const ren=ctorEl('ctorRenov'); if(ren) ren.checked=false;
+            const t=ctorEl('ctorFormTitulo'); if(t) t.textContent='Registrar contrato';
+            const b=ctorEl('ctorGuardarBtn'); if(b) b.innerHTML='<span class="icono-anim me-1" data-icono="mas"></span>Guardar contrato'; }
+        function ctorEstadoUI(id,estado){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
+            const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(!x) return;
+            x.estado=estado; saveConta(c); renderContratos(); }
+        function ctorEliminarUI(id){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
+            const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(!x) return;
+            if(!confirm('¿Eliminar el contrato '+(x.numero||x.id)+' del registro? Esta acción no se deshace.')) return;
+            g.contratos=g.contratos.filter(k=>k.id!==id); saveConta(c); if(ctorEditId===id) ctorLimpiarUI(); renderContratos(); if(typeof mjRenderGestion==='function') mjRenderGestion(); }
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-contratos') setTimeout(renderContratos, 60); });
+        window.__ctorTest={estadoEfectivo:ctorEstadoEfectivo, nombre:ctorNombreContraparte, guardar:ctorGuardarUI, editar:ctorEditarUI, lista:ctorRenderLista, asegurar:mjAsegurarGestion, alertas:function(conta,hoyF){ return mjAlertasGestion(conta,{hoy:hoyF}); }};
         function mjDepreciacionAFUI(){ const c=getConta(); const aft=getAFT(); const per=periodoNominaActual();
             const r=mjDepreciacionMensualAsiento(c,(aft.activos||[]).map(a=>({id:a.id,nombre:a.nombre,costo:a.costo,valorResidual:0,vidaUtilAnios:Number(a.tasa)>0?100/Number(a.tasa):0,fechaAlta:a.fechaServicio||a.fechaAlta||'',estado:a.estado,metodo:a.metodoDepreciacion||'linea'})),per,fechaContablePeriodo(per),getCurrentUser());
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'La depreciación de '+per+' ya estaba asentada.':('✅ Depreciación de '+per+' asentada: '+moneda(r.total)+' (Dr 613-000 / Cr 253-000).')); }
@@ -13078,15 +13216,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function mjInstrumentoAnularUI(i){ const n=Number(prompt('Número a anular (queda conservado como anulado):','0'))||0; if(!n) return;
             const c=getConta(); const g=mjGestionDe(c); const t=g.instrumentos[i]; t.anulados=t.anulados||[]; if(!t.anulados.includes(n)) t.anulados.push(n); saveConta(c); mjRenderGestion(); }
         function mjRenderContratos(){ const box=document.getElementById('mjContratosBox'); if(!box) return; const c=getConta(); const g=mjGestionDe(c);
-            const cps=(c.contrapartes||[]).map(cp=>cp.nombre||cp.razonSocial||cp.id).filter(Boolean);
-            box.innerHTML='<b>Contratos:</b>'+(g.contratos.length?g.contratos.map(x=>`<div>· ${esc(x.numero||x.id)} · ${esc(x.contraparte||'')} · ${esc(x.objeto||'')} · vence ${esc(x.vigenciaHasta||'—')}${mjContratosPorVencer([x],hoy(),30).length?' <span class="badge bg-warning text-dark">por vencer</span>':''}</div>`).join(''):' <span class="text-secondary">ninguno.</span>')
-            +`<div class="border rounded p-2 mt-2"><div class="fw-semibold mb-1">Registrar contrato (formulario):</div><div class="row g-1">
-              <div class="col-4"><input id="mjCtNumero" class="form-control form-control-sm" placeholder="Número"></div>
-              <div class="col-8"><select id="mjCtContraparteSel" class="form-select form-select-sm"><option value="">— Contraparte (elige o escribe abajo) —</option>${cps.map(n=>`<option>${esc(n)}</option>`).join('')}</select></div>
-              <div class="col-12"><input id="mjCtContraparteTxt" class="form-control form-control-sm" placeholder="Contraparte nueva (si no está en la lista)"></div>
-              <div class="col-8"><input id="mjCtObjeto" class="form-control form-control-sm" placeholder="Objeto del contrato"></div>
-              <div class="col-4"><input id="mjCtHasta" type="date" class="form-control form-control-sm" title="Vigencia hasta"></div>
-              <div class="col-12"><button type="button" class="btn btn-sm btn-success" onclick="mjContratoGuardarForm()">Guardar contrato</button></div></div></div>`;
+            const pv=mjContratosPorVencer(g.contratos,hoy(),30).filter(x=>x.estado!=='terminado'&&x.estado!=='cancelado').length;
+            box.innerHTML='<b>Contratos:</b> '+(g.contratos.length? g.contratos.length+' registrado(s)'+(pv?' · <span class="badge bg-warning text-dark">'+pv+' por vencer</span>':'') : '<span class="text-secondary">ninguno registrado.</span>')
+            +' <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="ctorAbrirMenu()">Abrir el menú Contratos</button>'
+            +'<div class="text-secondary mt-1">El registro completo (tipo, si eres CLIENTE o PRESTADOR, vigencia, monto, estado y el enlace con las facturas) vive ahora en el menú <b>Contratos</b>.</div>';
         }
         function mjContratoCrearUI(){ const numero=prompt('Número del contrato:'); if(!numero) return; const cp=prompt('Contraparte:','')||''; const objeto=prompt('Objeto:','')||''; const hasta=prompt('Vigencia hasta (AAAA-MM-DD):','')||'';
             const c=getConta(); const g=mjGestionDe(c); g.seqContrato=(Number(g.seqContrato)||0)+1; g.contratos.push({id:'CT'+g.seqContrato,numero:numero,contraparte:cp,objeto:objeto,vigenciaHasta:hasta}); saveConta(c); mjRenderGestion(); }
@@ -14505,7 +14638,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                        las operativas del negocio, se ocultan DJ, Contabilidad,
                        Gestión+, Ayuda e Instrucciones (decisión de Leonardo,
                        2026-10-25): esos apartados viven dentro de cada negocio. */
-                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-cierrep','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-facturas','tab-ayuda','tab-instrucciones'].forEach(id=>{
+                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-cierrep','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-facturas','tab-contratos','tab-ayuda','tab-instrucciones'].forEach(id=>{
                         const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
                     });
                     document.getElementById('negocioNombreBadge').style.display='none';
@@ -16946,7 +17079,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-40';
+        var MANUAL_VERSION = 'v2026.10.29-41';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -17310,7 +17443,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'gestion-herramientas', modulo:'gestion', titulo:'Instrumentos, contratos y órdenes', html:
             '<ul><li><b>Facturas:</b> tienen su propio menú <b>Facturas</b> (ficha de clientes, emisión y documento), con su sección en este manual.</li>' +
             '<li><b>Instrumentos de pago:</b> registro y uso de cheques y otros instrumentos con su anulación.</li>' +
-            '<li><b>Contratos:</b> registro de contratos del negocio y su expediente.</li>' +
+            '<li><b>Contratos:</b> el registro completo está en el menú Contratos (tipo, rol CLIENTE/PRESTADOR, vigencia, monto y estado); aquí queda el resumen y su expediente.</li>' +
             '<li><b>Órdenes de producción:</b> con sus materiales, mano de obra y producción terminada; estados en edición → en ejecución → terminada → cerrada.</li>' +
             '<li><b>Activos fijos y depreciación:</b> altas de AFT, su depreciación (también desde el menú Activos) y la revalorización cuando la pides.</li></ul>'},
         {id:'facturas-menu', modulo:'gestion', titulo:'Facturas: clientes, emisión y el documento', html:
@@ -17326,6 +17459,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Volumen:</b> el deslizador lo sube y lo baja al momento; en 0 no se oye nada.</li>' +
             '<li><b>Tu preferencia se guarda</b> en el equipo: si la dejas encendida, al volver a entrar empezará a sonar con el primer toque en la pantalla (el navegador no permite que suene antes de ese primer toque).</li>' +
             '<li>La pista la genera la propia app, sin descargar música: funciona <b>igual en línea y en la versión sin conexión</b>, y está en todos los perfiles.</li></ul>'},
+        {id:'contratos-menu', modulo:'gestion', titulo:'Contratos: el registro del negocio', html:
+            '<p>El menú <b>Contratos</b> guarda el registro de los contratos del negocio, para no depender del papel: con quién, su vigencia y su estado, siempre a mano.</p>' +
+            '<ul><li><b>Registrar contrato:</b> número (obligatorio), contraparte — elige una de la ficha o escribe una nueva —, <b>tipo</b> (compraventa, servicios, suministro, arrendamiento…) y <b>tu rol</b>: si el negocio es el <b>CLIENTE</b> que recibe o el <b>PRESTADOR</b> que vende o presta el servicio. Puedes añadir objeto, fechas de firma e inicio, vigencia hasta, monto y moneda, renovación automática, estado y notas.</li>' +
+            '<li><b>La lista</b> se busca por número, contraparte u objeto y se filtra por rol y por estado. El estado <b>VENCIDO</b> se calcula solo al pasar la vigencia; <b>Terminado</b> y <b>Cancelar/Eliminar</b> están en cada fila, y con <b>Editar</b> corriges lo que sea.</li>' +
+            '<li><b>Avisos:</b> «Qué toca hoy» avisa de los contratos que vencen en 30 días y de los vencidos que siguen sin cerrar.</li>' +
+            '<li><b>Enlace con Facturas:</b> al emitir una factura puedes elegir su contrato (solo quedan los de ese cliente): queda como referencia impresa en la factura, sin cambiar nada de la contabilidad.</li>' +
+            '<li>En Gestión+ queda un resumen con el total de contratos y el botón para abrir este menú.</li></ul>'},
         {id:'gestion-control', modulo:'gestion', titulo:'Presupuesto, flujo proyectado e indicadores', html:
             '<ul><li><b>Presupuesto vs. real:</b> compara lo planificado con lo ejecutado por cuenta o partida.</li>' +
             '<li><b>Flujo de efectivo proyectado:</b> anticipa entradas y salidas con los vencimientos conocidos.</li>' +
@@ -17556,7 +17696,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
