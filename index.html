@@ -443,6 +443,9 @@ body{background:#f2f6f5;color:var(--ink);font-variant-numeric:tabular-nums;-webk
 .app-hero h4{color:#fff!important;font-weight:800;letter-spacing:-.02em}
 .app-hero .bi-graph-up-arrow{color:#5eead4!important}
 .conn-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;padding:.28rem .65rem;border-radius:999px;background:rgba(255,255,255,.12);vertical-align:middle;margin-left:.4rem;color:#fff}
+.lluvia-control{display:inline-flex;align-items:center;gap:.35rem;margin-left:.5rem;vertical-align:middle}
+.lluvia-control .btn{padding:.15rem .5rem;font-size:.85rem;line-height:1.25}
+.lluvia-control input[type="range"]{width:92px;accent-color:#38bdf8}
 .conn-dot{width:.65rem;height:.65rem;border-radius:50%;display:inline-block;flex:none}
 .conn-dot.conn-green{background:#22c55e;box-shadow:0 0 8px #22c55e}
 .conn-dot.conn-red{background:#ef4444;box-shadow:0 0 8px #ef4444}
@@ -980,6 +983,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <h4 class="fw-bold d-flex align-items-center gap-2" style="color: #0b1e3a;">
                 <span class="icono-anim bucle" data-icono="tendencia" style="color: #1f3a6b;"></span> Panel Financiero
                 <span id="connBadge" class="conn-badge" title="Estado de la conexión con Google Sheets"><span id="connDot" class="conn-dot conn-red"></span><span id="connText">Sin conexión</span></span>
+                <span id="lluviaControl" class="lluvia-control" title="Lluvia de fondo para concentrarte">
+                    <button type="button" id="lluviaBtn" class="btn btn-sm btn-outline-custom" onclick="lluviaToggle()" aria-label="Encender o apagar la lluvia de fondo" title="Lluvia de fondo: clic para encender o apagar">🔇</button>
+                    <input type="range" id="lluviaVol" min="0" max="100" step="1" value="40" oninput="lluviaVolumen(this.value)" aria-label="Volumen de la lluvia" title="Volumen de la lluvia">
+                </span>
             </h4>
             <span id="negocioNombreBadge" class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill">
                 <span class="icono-anim me-1" data-icono="edificio"></span> <span id="negocioNombreDisplay">Mi Negocio</span>
@@ -12940,6 +12947,48 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             docOficialImprimirEn('facDocBox','Factura '+f.numero,html); }
         window.__facTest={render:renderFacturas,crear:facCrearUI,imprimir:facImprimirUI,guardarCliente:facClienteGuardar,lineas:facLineasDatos,detectar:facMarcarPagosFacturas,saldo:facSaldo,clasificar:ctaClasificarMov,movs:function(){return movimientos;},generar:function(){return contaGenerarSilencioso();},pagoToggle:facPagoToggleUI,cobroQuitar:facCobroQuitarUI};
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-facturas') setTimeout(renderFacturas, 60); });
+        /* ===== LLUVIA DE FONDO PARA CONCENTRARSE (ronda -40) =====
+           Junto al indicador de conexión: una bocina con su volumen.
+           La pista la GENERA la propia app (Web Audio): 45 segundos de
+           ruido filtrado en dos capas (el cuerpo grave de la lluvia y
+           el chisporroteo alto, que «arrecia y afloja» con un LFO) con
+           el final fundido con el principio para que el bucle no se
+           note, y suena en repetición continua. Sin archivos ni
+           descargas: funciona igual en línea y en la versión offline,
+           y la cabecera es la misma en todos los perfiles. La
+           preferencia (encendida/apagada y volumen) vive en el equipo
+           (localStorage «finanzas_lluvia»). El navegador exige un
+           gesto para arrancar el audio: si quedó encendida, empieza
+           con el primer toque o tecla al volver a entrar. */
+        var lluvia={ctx:null,master:null,gAlta:null,on:false,vol:40,soportado:!!(window.AudioContext||window.webkitAudioContext),_init:false};
+        function lluviaPrefs(){ try{ const p=JSON.parse(localStorage.getItem('finanzas_lluvia')||'{}'); if(typeof p.vol==='number') lluvia.vol=Math.min(100,Math.max(0,p.vol)); if(typeof p.on==='boolean') lluvia.on=p.on; }catch(e){} }
+        function lluviaGuardar(){ try{ localStorage.setItem('finanzas_lluvia', JSON.stringify({on:lluvia.on, vol:lluvia.vol})); }catch(e){} }
+        function lluviaGanancia(){ const v=lluvia.vol/100; return v*v*0.9; }
+        function lluviaBuffer(ctx){ const dur=45, sr=ctx.sampleRate, len=Math.floor(sr*dur), buf=ctx.createBuffer(2, len, sr);
+            for(let ch=0; ch<2; ch++){ const d=buf.getChannelData(ch); let last=0;
+                for(let i=0;i<len;i++){ const white=Math.random()*2-1; last=(last+0.03*white)/1.03; d[i]=last*2.6; }
+                const x=Math.floor(sr*1); for(let i=0;i<x;i++){ const t=i/x; d[i]=d[i]*t+d[len-x+i]*(1-t); } }
+            return buf; }
+        function lluviaCrear(){ if(lluvia.ctx||!lluvia.soportado) return; const AC=window.AudioContext||window.webkitAudioContext; const ctx=new AC(); lluvia.ctx=ctx;
+            lluvia.master=ctx.createGain(); lluvia.master.gain.value=0; lluvia.master.connect(ctx.destination);
+            const buf=lluviaBuffer(ctx);
+            const capa=(tipo, freq, gan, rate)=>{ const src=ctx.createBufferSource(); src.buffer=buf; src.loop=true; src.playbackRate.value=rate; const f=ctx.createBiquadFilter(); f.type=tipo; f.frequency.value=freq; const g=ctx.createGain(); g.gain.value=gan; src.connect(f); f.connect(g); g.connect(lluvia.master); src.start(); return g; };
+            capa('lowpass', 750, 0.9, 1);
+            lluvia.gAlta=capa('bandpass', 2600, 0.25, 1.37);
+            const lfo=ctx.createOscillator(); lfo.frequency.value=0.07; const lg=ctx.createGain(); lg.gain.value=0.08; lfo.connect(lg); lg.connect(lluvia.gAlta.gain); lfo.start();
+            lluvia.master.gain.setTargetAtTime(lluviaGanancia(), ctx.currentTime, 0.4); }
+        function lluviaPintar(){ const b=document.getElementById('lluviaBtn'); if(b){ b.textContent=lluvia.on?'🔊':'🔇'; b.classList.toggle('active', lluvia.on); } const s=document.getElementById('lluviaVol'); if(s&&Number(s.value)!==lluvia.vol) s.value=lluvia.vol; }
+        function lluviaToggle(){ if(!lluvia.soportado){ alert('Este navegador no soporta el audio de fondo.'); return; }
+            lluvia.on=!lluvia.on;
+            if(lluvia.on){ lluviaCrear(); if(lluvia.ctx&&lluvia.ctx.state==='suspended') lluvia.ctx.resume(); if(lluvia.ctx&&lluvia.master) lluvia.master.gain.setTargetAtTime(lluviaGanancia(), lluvia.ctx.currentTime, 0.25); }
+            else if(lluvia.ctx&&lluvia.master){ lluvia.master.gain.setTargetAtTime(0, lluvia.ctx.currentTime, 0.15); }
+            lluviaGuardar(); lluviaPintar(); }
+        function lluviaVolumen(v){ lluvia.vol=Math.min(100,Math.max(0,Number(v)||0)); if(lluvia.on&&lluvia.ctx&&lluvia.master) lluvia.master.gain.setTargetAtTime(lluviaGanancia(), lluvia.ctx.currentTime, 0.1); lluviaGuardar(); lluviaPintar(); }
+        function lluviaInit(){ if(lluvia._init) return; lluvia._init=true; lluviaPrefs(); lluviaPintar();
+            if(lluvia.on&&lluvia.soportado){ const arrancar=function(){ lluviaCrear(); if(lluvia.ctx&&lluvia.ctx.state==='suspended') lluvia.ctx.resume(); document.removeEventListener('pointerdown', arrancar); document.removeEventListener('keydown', arrancar); };
+                document.addEventListener('pointerdown', arrancar); document.addEventListener('keydown', arrancar); } }
+        lluviaInit();
+        window.__lluviaTest={estado:function(){ return {on:lluvia.on, vol:lluvia.vol, soportado:lluvia.soportado, ctx:lluvia.ctx?lluvia.ctx.state:'sin-crear'}; }, toggle:lluviaToggle, volumen:lluviaVolumen};
         function mjDepreciacionAFUI(){ const c=getConta(); const aft=getAFT(); const per=periodoNominaActual();
             const r=mjDepreciacionMensualAsiento(c,(aft.activos||[]).map(a=>({id:a.id,nombre:a.nombre,costo:a.costo,valorResidual:0,vidaUtilAnios:Number(a.tasa)>0?100/Number(a.tasa):0,fechaAlta:a.fechaServicio||a.fechaAlta||'',estado:a.estado,metodo:a.metodoDepreciacion||'linea'})),per,fechaContablePeriodo(per),getCurrentUser());
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'La depreciación de '+per+' ya estaba asentada.':('✅ Depreciación de '+per+' asentada: '+moneda(r.total)+' (Dr 613-000 / Cr 253-000).')); }
@@ -16897,7 +16946,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.28-39';
+        var MANUAL_VERSION = 'v2026.10.28-40';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -17271,6 +17320,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Facturas del negocio:</b> la lista con el total, lo cobrado y el estado de pago de cada una. <b>Imprimir</b> saca el documento de la factura (modelo SC-2-012) con la identidad de tu negocio: logo, datos del emisor y del cliente, las líneas con precio unitario e importe, el total y las firmas. <b>Anular</b> la conserva marcada ANULADA.</li></ul>' +
             '<p><b>La factura no afecta en nada a la contabilidad:</b> ni crea cuentas por cobrar, ni asientos, ni mueve el inventario. Es el documento y el control de su pago, nada más. El ingreso del banco se contabiliza como siempre (por ejemplo, la venta por correo a la 801-000), y aparte la app <b>marca la factura como pagada</b> cuando detecta su cobro en un estado de cuenta importado: busca en el concepto del ingreso la cuenta, la tarjeta o el CI/NIT de la ficha del cliente, y lo cobrado se va sumando bajo la factura (admite pagos parciales). Si el cobro no sale en ningún estado, la factura se queda con su botón <b>Sin pagar</b>, con el que también puedes marcarla pagada a mano (y desmarcarla). Si un cobro detectado no era de esa factura, se quita con su botón y vuelve a quedar sin pagar.</p>' +
             '<p>Solo se factura en CUP por ahora.</p>'},
+        {id:'lluvia-fondo', modulo:'respaldo', titulo:'Lluvia de fondo para concentrarte', html:
+            '<p>Junto al indicador de conexión de la cabecera hay una <b>bocina</b> con un deslizador de volumen: es la <b>lluvia de fondo</b>, un sonido de lluvia pensado para concentrarte mientras trabajas.</p>' +
+            '<ul><li><b>Encender y apagar:</b> toca la bocina. Suena una pista de lluvia de menos de un minuto que se repite en bucle continuo, sin cortes.</li>' +
+            '<li><b>Volumen:</b> el deslizador lo sube y lo baja al momento; en 0 no se oye nada.</li>' +
+            '<li><b>Tu preferencia se guarda</b> en el equipo: si la dejas encendida, al volver a entrar empezará a sonar con el primer toque en la pantalla (el navegador no permite que suene antes de ese primer toque).</li>' +
+            '<li>La pista la genera la propia app, sin descargar música: funciona <b>igual en línea y en la versión sin conexión</b>, y está en todos los perfiles.</li></ul>'},
         {id:'gestion-control', modulo:'gestion', titulo:'Presupuesto, flujo proyectado e indicadores', html:
             '<ul><li><b>Presupuesto vs. real:</b> compara lo planificado con lo ejecutado por cuenta o partida.</li>' +
             '<li><b>Flujo de efectivo proyectado:</b> anticipa entradas y salidas con los vencimientos conocidos.</li>' +
@@ -17501,7 +17556,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
