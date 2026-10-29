@@ -1938,6 +1938,81 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div id="ctorAdjThumbs" class="d-flex gap-2 flex-wrap mb-2"></div>
                 <div id="ctorAdjVisor"></div>
             </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ctorGenCard" style="display:none">
+                <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="doc"></span>Generar el Contrato de Compraventa <span id="ctorGenTitulo" class="text-secondary"></span></h6>
+                <p class="small text-secondary mb-2">Se compone con el modelo de tu negocio (el VENDEDOR eres tú; el COMPRADOR es el cliente). Revisa y completa lo que falte: la ficha legal del cliente se guarda en su ficha para la próxima vez, y lo elegido aquí queda guardado en este contrato.</p>
+                <input type="hidden" id="cgContratoId">
+                <div class="row g-2 mb-1">
+                    <div class="col-12"><div class="fw-semibold small">Forma de pago (cláusula 3.2)</div></div>
+                    <div class="col-md-4"><label class="form-check"><input class="form-check-input" type="radio" name="cgPago" value="anticipado"> <span class="form-check-label">Pago anticipado</span></label></div>
+                    <div class="col-md-4"><label class="form-check"><input class="form-check-input" type="radio" name="cgPago" value="dias15"> <span class="form-check-label">En término de 15 días</span></label></div>
+                    <div class="col-md-4"><label class="form-check"><input class="form-check-input" type="radio" name="cgPago" value="dias30"> <span class="form-check-label">En término de 30 días (salud y educación)</span></label></div>
+                    <div class="col-md-3"><label class="form-label">Vigencia (años)</label><input type="number" class="form-control" id="cgVigencia" min="1" max="20"></div>
+                    <div class="col-md-3"><label class="form-label">Prórroga (años)</label><input type="number" class="form-control" id="cgProrroga" min="0" max="20"></div>
+                    <div class="col-md-3"><label class="form-label">Lugar de firma</label><input type="text" class="form-control" id="cgLugar"></div>
+                    <div class="col-md-3"><label class="form-label">Fecha de firma</label><input type="date" class="form-control" id="cgFecha"></div>
+                    <div class="col-12"><div class="fw-semibold small mt-1">Cuentas del VENDEDOR que salen en el contrato <span class="text-secondary fw-normal">(propuestas desde tu Identidad y tus datos bancarios; ajústalas para este cliente si vende por otra cuenta)</span></div></div>
+                    <div class="col-md-6"><label class="form-check"><input class="form-check-input" type="checkbox" id="cgCtaCUPon"> <span class="form-check-label">Cuenta en CUP</span></label><input type="text" class="form-control mt-1" id="cgCtaCUP"></div>
+                    <div class="col-md-6"><label class="form-check"><input class="form-check-input" type="checkbox" id="cgCtaMLCon"> <span class="form-check-label">Cuenta en MLC / USD</span></label><input type="text" class="form-control mt-1" id="cgCtaMLC"></div>
+                </div>
+                <div class="row g-2 mb-1">
+                    <div class="col-12"><hr class="my-1"><div class="fw-semibold small">Ficha legal del COMPRADOR <span class="text-secondary fw-normal">(nace vacía por cliente; lo que escribas se guarda en su ficha)</span></div></div>
+                    <div class="col-md-6"><label class="form-label">Nombre de la entidad (si difiere de la ficha)</label><input type="text" class="form-control" id="cgl-entidad"></div>
+                    <div class="col-md-3"><label class="form-label">Organismo</label><input type="text" class="form-control" id="cgl-organismo"></div>
+                    <div class="col-md-3"><label class="form-label">Subordinación (Nac./Prov./Mcpal.)</label><input type="text" class="form-control" id="cgl-subordinacion"></div>
+                    <div class="col-md-6"><label class="form-label">Domicilio legal</label><input type="text" class="form-control" id="cgl-domicilioLegal"></div>
+                    <div class="col-md-3"><label class="form-label">Municipio</label><input type="text" class="form-control" id="cgl-municipio"></div>
+                    <div class="col-md-3"><label class="form-label">Provincia</label><input type="text" class="form-control" id="cgl-provincia"></div>
+                    <div class="col-md-3"><label class="form-label">Código REEUP</label><input type="text" class="form-control" id="cgl-reeup"></div>
+                    <div class="col-md-3"><label class="form-label">Inscripción Registro Comercial</label><input type="text" class="form-control" id="cgl-registroComercial"></div>
+                    <div class="col-md-6"><label class="form-label">Resolución de creación</label><input type="text" class="form-control" id="cgl-resolucionCreacion" placeholder="Ej.: Resolución No. 228/11, de fecha 22/04/2011"></div>
+                    <div class="col-md-3"><label class="form-label">Reg. Mercantil: Libro</label><input type="text" class="form-control" id="cgl-rmLibro"></div>
+                    <div class="col-md-3"><label class="form-label">Tomo</label><input type="text" class="form-control" id="cgl-rmTomo"></div>
+                    <div class="col-md-3"><label class="form-label">Folio</label><input type="text" class="form-control" id="cgl-rmFolio"></div>
+                    <div class="col-md-3"><label class="form-label">Hoja</label><input type="text" class="form-control" id="cgl-rmHoja"></div>
+                    <div class="col-md-4"><label class="form-label">Representante del comprador</label><input type="text" class="form-control" id="cgl-representante"></div>
+                    <div class="col-md-4"><label class="form-label">Cargo del representante</label><input type="text" class="form-control" id="cgl-cargoRep"></div>
+                    <div class="col-md-4"><label class="form-label">Resolución que lo faculta</label><input type="text" class="form-control" id="cgl-resolucionRep"></div>
+                    <div class="col-md-4"><label class="form-label">Cuenta bancaria MN (CUP)</label><input type="text" class="form-control" id="cgl-cuentaCUP"></div>
+                    <div class="col-md-4"><label class="form-label">Agencia bancaria (MN)</label><input type="text" class="form-control" id="cgl-agenciaCUP"></div>
+                    <div class="col-md-4"><label class="form-label">Sucursal (MN)</label><input type="text" class="form-control" id="cgl-sucursalCUP"></div>
+                    <div class="col-md-4"><label class="form-label">Titular de la cuenta MN</label><input type="text" class="form-control" id="cgl-titularCUP"></div>
+                    <div class="col-md-4"><label class="form-label">Cuenta bancaria USD</label><input type="text" class="form-control" id="cgl-cuentaUSD"></div>
+                    <div class="col-md-4"><label class="form-label">Agencia bancaria (USD)</label><input type="text" class="form-control" id="cgl-agenciaUSD"></div>
+                    <div class="col-md-4"><label class="form-label">Sucursal (USD)</label><input type="text" class="form-control" id="cgl-sucursalUSD"></div>
+                    <div class="col-md-4"><label class="form-label">Titular de la cuenta USD</label><input type="text" class="form-control" id="cgl-titularUSD"></div>
+                </div>
+                <div class="mb-1">
+                    <hr class="my-1"><div class="fw-semibold small mb-1">Personal autorizado del cliente <span class="text-secondary fw-normal">(sale en la Ficha del Cliente; la columna de firma se firma a mano)</span></div>
+                    <div class="small fw-semibold mt-2">Firmas autorizadas</div><div id="cgAut-firmas"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="ctorAutAdd('firmas')">+ Persona</button>
+                    <div class="small fw-semibold mt-2">Autorizados para realizar compras y firmar facturas</div><div id="cgAut-compras"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="ctorAutAdd('compras')">+ Persona</button>
+                    <div class="small fw-semibold mt-2">Autorizados a recoger boletas</div><div id="cgAut-boletas"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="ctorAutAdd('boletas')">+ Persona</button>
+                    <div class="small fw-semibold mt-2">Autorizados para realizar las conciliaciones</div><div id="cgAut-conciliaciones"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="ctorAutAdd('conciliaciones')">+ Persona</button>
+                    <div class="small fw-semibold mt-2">Autorizados a firmar autorizos de carga</div><div id="cgAut-autorizos"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="ctorAutAdd('autorizos')">+ Persona</button>
+                </div>
+                <div class="mb-2">
+                    <hr class="my-1"><div class="fw-semibold small mb-1">Anexo 1 · Listado de precios <span class="text-secondary fw-normal">(se llena a mano para este contrato)</span></div>
+                    <div class="table-responsive"><table class="table table-sm align-middle mb-1"><thead><tr><th style="width:14%">Código</th><th>Descripción del producto</th><th style="width:18%">Precio Empresa</th><th style="width:22%">Precio Mayorista</th><th style="width:5%"></th></tr></thead><tbody id="cgAnexoBody"></tbody></table></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorGenFilaAdd()">+ Producto</button>
+                </div>
+                <div id="cgMsg" class="small mb-2"></div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-primary-custom text-white" onclick="ctorGenGenerar()"><span class="icono-anim me-1" data-icono="doc-check"></span> Generar el documento</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="ctorGenCerrar()">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="card p-3 p-md-4 mb-4" id="ctorDocCard" style="display:none">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="doc"></span><span id="ctorDocTitulo">Contrato de Compraventa</span></h6>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-primary-custom text-white" onclick="ctorDocImprimir()">🖨 Imprimir</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorDocCerrar()">Cerrar</button>
+                    </div>
+                </div>
+                <div id="ctorDocBox"></div>
+            </div>
         </div>
 
         <!-- GESTOR / TENEDOR DE LIBROS (varios negocios) -->
@@ -2067,6 +2142,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             <div class="col-md-3"><label class="form-label">Teléfono</label><input type="text" class="form-control" id="idt-repTelefono"></div>
                             <div class="col-md-4"><label class="form-label">Correo</label><input type="text" class="form-control" id="idt-repCorreo"></div>
                             <div class="col-md-8"><label class="form-label">Quién firma «Elaborado por» por defecto</label><input type="text" class="form-control" id="idt-firmaNombreDefecto" placeholder="Por defecto, el representante"></div>
+                            <div class="col-12"><hr class="my-1"><div class="fw-semibold small">Datos para contratos <span class="text-secondary fw-normal">(salen solos en la comparecencia del VENDEDOR al generar el Contrato de Compraventa, y la resolución en el contrato de trabajo)</span></div></div>
+                            <div class="col-md-6"><label class="form-label">Escritura notarial de constitución</label><input type="text" class="form-control" id="idt-escNotarial" placeholder="Ej.: No. 143, de fecha 7 de febrero"></div>
+                            <div class="col-md-6"><label class="form-label">Con qué acredita el representante su representación</label><input type="text" class="form-control" id="idt-escPublica" placeholder="Ej.: Escritura Pública de fecha 2 de febrero de 2022"></div>
+                            <div class="col-md-6"><label class="form-label">Cuenta bancaria en MLC / USD</label><input type="text" class="form-control" id="idt-cuentaMLC" placeholder="Ej.: 0699 9500 0003 1631"></div>
+                            <div class="col-md-6"><label class="form-label">Resolución que faculta al representante</label><input type="text" class="form-control" id="idt-resolucionRep" placeholder="Ej.: Resolución No. 55"></div>
                             <div class="col-12"><hr class="my-1"><div class="fw-semibold small">Imágenes <span class="text-secondary fw-normal">(se reducen solas al subirlas: logo hasta 60 KB; firma y cuño en PNG transparente, hasta 40 KB)</span></div></div>
                             <div class="col-md-4">
                                 <label class="form-label d-block">Logo</label>
@@ -2915,7 +2995,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Patrones recurrentes</b> — <b>Crear patrón</b>: guarda una plantilla de asiento periódico (pide la contraparte si una cuenta exige auxiliar). <b>Aplicar</b>: crea el comprobante del período y no duplica si ya se aplicó.</li>
                         <li><b>Presupuesto</b>: añade líneas de presupuesto y compara contra lo real.</li>
                         <li><b>Instrumentos (talonario)</b>: crea talonarios de instrumentos de pago y registra su uso.</li>
-                        <li><b>Contratos</b>: el registro completo vive en el menú <b>Contratos</b> (tipo, si eres CLIENTE o PRESTADOR, vigencia, monto y estado); aquí queda el resumen con el botón para abrirlo.</li>
+                        <li><b>Contratos</b>: el registro completo vive en el menú <b>Contratos</b> (tipo, si eres CLIENTE o PRESTADOR, vigencia, monto y estado, el documento firmado adjunto y, si eres el PRESTADOR, la generación del Contrato de Compraventa con su Anexo 1 y la Ficha del Cliente); aquí queda el resumen con el botón para abrirlo.</li>
                         <li><b>Útiles y herramientas</b>: entrega un útil a un custodio y queda registrado.</li>
                         <li><b>Ficha de costos 148/2023</b>: calcula la ficha de costo por producto desde materiales, mano de obra directa, otros directos e indirectos, con su margen.</li>
                     </ul>
@@ -4749,7 +4829,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
            fiscal completo supera 900 000 caracteres (avisa a los 600 000),
            porque en línea el documento entero del negocio tiene un tope
            duro de ~1 920 000 caracteres. */
-        const IDT_CAMPOS=['nombreComercial','direccion','municipio','provincia','telefonos','correo','repNombre','repCI','repCargo','repTelefono','repCorreo','firmaNombreDefecto'];
+        const IDT_CAMPOS=['nombreComercial','direccion','municipio','provincia','telefonos','correo','repNombre','repCI','repCargo','repTelefono','repCorreo','firmaNombreDefecto','escNotarial','escPublica','cuentaMLC','resolucionRep'];
         const IDT_LIMITES={logo:{kb:60,px:800},firma:{kb:40,px:600},cuno:{kb:40,px:600}};
         let IDT_PENDING={logo:null,firma:null,cuno:null};
         function identidadDelNegocio(){ const f=getFiscal(); const d=(f&&f.identidad&&typeof f.identidad==='object'&&!Array.isArray(f.identidad))?f.identidad:{}; const o={}; IDT_CAMPOS.forEach(k=>{ o[k]=d[k]||''; }); ['logo','firma','cuno'].forEach(k=>{ o[k]=d[k]||''; }); return o; }
@@ -13089,7 +13169,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 const rol=x.rol==='cliente'?'<span class="badge bg-info text-dark">CLIENTE</span>':x.rol==='prestador'?'<span class="badge bg-primary">PRESTADOR</span>':'<span class="text-secondary">—</span>';
                 const vig=(x.vigenciaDesde||'')||(x.vigenciaHasta||'')?esc((x.vigenciaDesde||'…')+' → '+(x.vigenciaHasta||'…')):'—';
                 const monto=Number(x.monto)>0?moneda(Number(x.monto))+' '+(x.moneda||'CUP'):'—';
-                return `<tr><td>${esc(x.numero||x.id)}${x.nombre?`<div class="text-secondary">${esc(x.nombre)}</div>`:''}</td><td>${esc(ctorNombreContraparte(c,x))}</td><td>${esc(x.tipo||'')}</td><td>${rol}</td><td>${vig}</td><td class="text-end">${monto}</td><td>${badge}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorEditarUI('${x.id}')">Editar</button> <button type="button" class="btn btn-sm btn-outline-info" onclick="ctorAdjAbrir('${x.id}')">${nAdj?('📎 '+nAdj+' pág.'):'Adjuntar'}</button> ${ef!=='terminado'&&ef!=='cancelado'?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorEstadoUI('${x.id}','terminado')">Terminar</button>`:''} <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorEliminarUI('${x.id}')">Eliminar</button></td></tr>`; }).join('')}</tbody></table></div>`; }
+                return `<tr><td>${esc(x.numero||x.id)}${x.nombre?`<div class="text-secondary">${esc(x.nombre)}</div>`:''}</td><td>${esc(ctorNombreContraparte(c,x))}</td><td>${esc(x.tipo||'')}</td><td>${rol}</td><td>${vig}</td><td class="text-end">${monto}</td><td>${badge}</td><td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-outline-primary" onclick="ctorEditarUI('${x.id}')">Editar</button> <button type="button" class="btn btn-sm btn-outline-info" onclick="ctorAdjAbrir('${x.id}')">${nAdj?('📎 '+nAdj+' pág.'):'Adjuntar'}</button>${x.rol==='prestador'?' <button type="button" class="btn btn-sm btn-outline-success" onclick="ctorGenAbrir(\'${x.id}\')">📄 Generar</button>':''} ${ef!=='terminado'&&ef!=='cancelado'?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="ctorEstadoUI('${x.id}','terminado')">Terminar</button>`:''} <button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorEliminarUI('${x.id}')">Eliminar</button></td></tr>`; }).join('')}</tbody></table></div>`; }
         function ctorGuardarUI(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; }
             const numero=ctorVal('ctorNumero'); if(!numero){ alert('Escribe el número del contrato.'); return; }
             const c=getConta(); const g=mjGestionDe(c);
@@ -13139,7 +13219,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if(!confirm('¿Eliminar el contrato '+(x.numero||x.id)+' del registro?'+(nAdjE?' Se borran también sus '+nAdjE+' página(s) adjuntas.':'')+' Esta acción no se deshace.')) return;
             g.contratos=g.contratos.filter(k=>k.id!==id); saveConta(c); if(ctorEditId===id) ctorLimpiarUI(); renderContratos(); if(typeof mjRenderGestion==='function') mjRenderGestion(); }
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-contratos') setTimeout(renderContratos, 60); });
-        window.__ctorTest={estadoEfectivo:ctorEstadoEfectivo, nombre:ctorNombreContraparte, guardar:ctorGuardarUI, editar:ctorEditarUI, lista:ctorRenderLista, asegurar:mjAsegurarGestion, alertas:function(conta,hoyF){ return mjAlertasGestion(conta,{hoy:hoyF}); }, adjBytes:function(conta){ return ctorAdjBytes(conta); }, adjPresupuesto:function(conta,extra){ return ctorAdjPresupuesto(conta,extra); }, adjAbrir:ctorAdjAbrir, adjPintar:ctorAdjPintar, adjPoner:function(id,pags){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(x){ x.adjuntos=pags; saveConta(c); } }};
+        window.__ctorTest={estadoEfectivo:ctorEstadoEfectivo, nombre:ctorNombreContraparte, guardar:ctorGuardarUI, editar:ctorEditarUI, lista:ctorRenderLista, asegurar:mjAsegurarGestion, alertas:function(conta,hoyF){ return mjAlertasGestion(conta,{hoy:hoyF}); }, adjBytes:function(conta){ return ctorAdjBytes(conta); }, adjPresupuesto:function(conta,extra){ return ctorAdjPresupuesto(conta,extra); }, adjAbrir:ctorAdjAbrir, adjPintar:ctorAdjPintar, adjPoner:function(id,pags){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(x){ x.adjuntos=pags; saveConta(c); } }, genAbrir:ctorGenAbrir, genGenerar:ctorGenGenerar, genDoc:function(id){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); return x?ctorGenDocumento(c,x):''; }, genLegal:function(cpId){ const c=getConta(); const cp=(c.contrapartes||[]).find(k=>k.id===cpId); return cp?ctorLegalDe(cp):null; }};
         /* ===== Adjuntos de contratos (ronda -42, tarea 35 ronda 2, Vía A) =====
            El documento firmado se guarda DENTRO de la app como páginas
            reducidas (foto o PDF convertido página a página con el mismo
@@ -13199,6 +13279,204 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 if(!pre.ok){ ctorAdjMsg('No cabe: el negocio ya usa '+Math.round(ctorAdjBytes(c)/1024)+' KB de adjuntos y el límite es ~'+Math.round(pre.limite/1024)+' KB. Quita páginas de otros contratos o deja este en papel.',true); return; }
                 x.adjuntos=x.adjuntos.concat(recortadas); ctorAdjPag=x.adjuntos.length-recortadas.length; saveConta(c); ctorAdjPintar(); ctorRenderLista(); ctorAdjMsg('✅ Documento guardado: '+recortadas.length+' página(s). Ábrelo cuando quieras con el botón 📎 de su fila.'+r.aviso); }
             catch(e){ console.error(e); ctorAdjMsg('No se pudo procesar ese archivo: '+((e&&e.message)||e),true); } }
+        /* ===== GENERAR EL CONTRATO DE COMPRAVENTA (tarea 35 ronda 3) =====
+           Solo para contratos donde el negocio es el PRESTADOR (el
+           VENDEDOR): el documento sigue el modelo real del negocio
+           (cláusulas 1 a 13 íntegras) con las comparecencias rellenadas
+           solas — el VENDEDOR desde la Identidad y los datos bancarios;
+           el COMPRADOR desde su ficha legal (contrapartes[].legal, que
+           nace vacía por cliente y se completa en este diálogo, donde
+           queda guardada). Las cuentas del VENDEDOR que salen en el
+           contrato se eligen por contrato (no todas las ventas usan la
+           misma cuenta: unas son en CUP y otras en USD) y el Anexo 1 de
+           precios se llena a mano al generar; ambas cosas quedan en
+           contrato.gen para regenerar el mismo documento. Cuando el
+           negocio compra (rol CLIENTE), cada empresa pone su modelo:
+           esos contratos solo se registran y se adjuntan (ronda -42).
+           Sin efectos contables, como todo el menú. */
+        const CGL_CAMPOS=['entidad','organismo','subordinacion','domicilioLegal','municipio','provincia','reeup','registroComercial','rmLibro','rmTomo','rmFolio','rmHoja','resolucionCreacion','representante','cargoRep','resolucionRep','cuentaCUP','agenciaCUP','sucursalCUP','titularCUP','cuentaUSD','agenciaUSD','sucursalUSD','titularUSD'];
+        const CG_AUT_GRUPOS=['firmas','compras','boletas','conciliaciones','autorizos'];
+        const CG_AUT_TITULOS={firmas:'Firmas autorizadas',compras:'Personal autorizado para realizar compras y firmas facturas',boletas:'Personal autorizado a recoger boletas',conciliaciones:'Personal autorizado para realizar las conciliaciones',autorizos:'Personal autorizado a firmar autorizos de carga'};
+        var ctorGenId=null;
+        function ctorGenEl(id){ return document.getElementById(id); }
+        function ctorLegalVacio(){ const o={}; CGL_CAMPOS.forEach(k=>o[k]=''); o.autorizados={}; CG_AUT_GRUPOS.forEach(g=>o.autorizados[g]=[]); return o; }
+        function ctorLegalDe(cp){ const base=ctorLegalVacio(); const l=(cp&&cp.legal&&typeof cp.legal==='object'&&!Array.isArray(cp.legal))?cp.legal:{}; CGL_CAMPOS.forEach(k=>{ if(typeof l[k]==='string') base[k]=l[k]; }); if(l.autorizados&&typeof l.autorizados==='object') CG_AUT_GRUPOS.forEach(g=>{ if(Array.isArray(l.autorizados[g])) base.autorizados[g]=l.autorizados[g].filter(p=>p&&typeof p==='object').map(p=>({nombre:String(p.nombre||''),cargo:String(p.cargo||''),ci:String(p.ci||'')})); }); return base; }
+        function ctorGenAbrir(id){ const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(!x) return; if(x.rol!=='prestador'){ alert('El documento solo se genera en los contratos donde el negocio es el PRESTADOR (vendedor): cuando compras, el modelo lo pone la otra parte y aquí lo registras y adjuntas.'); return; }
+            ctorGenId=id; const gen=(x.gen&&typeof x.gen==='object')?x.gen:{};
+            const card=ctorGenEl('ctorGenCard'); if(card) card.style.display='';
+            const tit=ctorGenEl('ctorGenTitulo'); if(tit) tit.textContent='· Contrato '+(x.numero||x.id)+(x.nombre?(' — '+x.nombre):'');
+            ctorGenEl('cgContratoId').value=id;
+            const pago=gen.pago||'anticipado'; document.querySelectorAll('input[name="cgPago"]').forEach(r=>{ r.checked=(r.value===pago); });
+            let vig=Number(gen.vigenciaA)||0; if(!vig){ if(x.vigenciaDesde&&x.vigenciaHasta){ const d=(new Date(x.vigenciaHasta)-new Date(x.vigenciaDesde))/31557600000; if(d>0) vig=Math.max(1,Math.round(d)); } if(!vig) vig=2; }
+            ctorGenEl('cgVigencia').value=vig; ctorGenEl('cgProrroga').value=(gen.prorrogaA==null?1:gen.prorrogaA);
+            ctorGenEl('cgLugar').value=gen.lugar||''; ctorGenEl('cgFecha').value=gen.fecha||x.firma||new Date().toISOString().slice(0,10);
+            const idt=identidadDelNegocio();
+            const cupDef=(gen.ctaCUP!=null?gen.ctaCUP:((getDatosBancoCuenta('chequera').numeroCuenta)||(getDatosBancoCuenta('tarjeta_cup').numeroCuenta)||''));
+            const mlcDef=(gen.ctaMLC!=null?gen.ctaMLC:(idt.cuentaMLC||(getDatosBancoCuenta('tarjeta_usd').numeroCuenta)||''));
+            ctorGenEl('cgCtaCUP').value=cupDef; ctorGenEl('cgCtaMLC').value=mlcDef;
+            ctorGenEl('cgCtaCUPon').checked=(gen.ctaCUPon!=null?!!gen.ctaCUPon:!!cupDef);
+            ctorGenEl('cgCtaMLCon').checked=(gen.ctaMLCon!=null?!!gen.ctaMLCon:!!mlcDef);
+            const cp=(c.contrapartes||[]).find(k=>k.id===x.contraparteId);
+            const legal=ctorLegalDe(cp);
+            CGL_CAMPOS.forEach(k=>{ const el=ctorGenEl('cgl-'+k); if(el) el.value=legal[k]||''; });
+            CG_AUT_GRUPOS.forEach(gr=>{ const box=ctorGenEl('cgAut-'+gr); if(box){ box.innerHTML=''; const filas=legal.autorizados[gr]||[]; filas.forEach(p=>ctorAutAdd(gr,p)); if(!filas.length) ctorAutAdd(gr); } });
+            const tb=ctorGenEl('cgAnexoBody'); if(tb){ tb.innerHTML=''; const filas=Array.isArray(gen.anexo)?gen.anexo:[]; filas.forEach(f=>ctorGenFilaAdd(f)); if(!filas.length) ctorGenFilaAdd(); }
+            const msg=ctorGenEl('cgMsg'); if(msg) msg.innerHTML='';
+            if(card&&card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'start'}); }
+        function ctorGenCerrar(){ const card=ctorGenEl('ctorGenCard'); if(card) card.style.display='none'; ctorGenId=null; }
+        function ctorAutAdd(grupo, datos){ const box=ctorGenEl('cgAut-'+grupo); if(!box) return; if(box.children.length>=4){ alert('Máximo 4 personas por grupo en la ficha impresa.'); return; } const d=datos||{}; const row=document.createElement('div'); row.className='d-flex gap-2 mt-1 cg-aut-row'; row.setAttribute('data-grupo',grupo);
+            row.innerHTML='<input type="text" class="form-control cg-aut-n" placeholder="Nombre y apellidos" value="'+esc(d.nombre||'')+'"><input type="text" class="form-control cg-aut-c" placeholder="Cargo" style="max-width:220px" value="'+esc(d.cargo||'')+'"><input type="text" class="form-control cg-aut-i" placeholder="No. Identidad" style="max-width:170px" value="'+esc(d.ci||'')+'"><button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorAutDel(this)">✕</button>'; box.appendChild(row); }
+        function ctorAutDel(btn){ const r=btn&&btn.closest?btn.closest('.cg-aut-row'):null; if(r) r.remove(); }
+        function ctorGenFilaAdd(datos){ const tb=ctorGenEl('cgAnexoBody'); if(!tb) return; const d=datos||{}; const tr=document.createElement('tr'); tr.className='cg-ax-row';
+            tr.innerHTML='<td><input type="text" class="form-control cg-ax-codigo" value="'+esc(d.codigo||'')+'"></td><td><input type="text" class="form-control cg-ax-desc" value="'+esc(d.descripcion||'')+'"></td><td><input type="text" class="form-control cg-ax-emp" value="'+esc(d.empresa||'')+'"></td><td><input type="text" class="form-control cg-ax-may" value="'+esc(d.mayorista||'')+'"></td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="ctorGenFilaDel(this)">✕</button></td>'; tb.appendChild(tr); }
+        function ctorGenFilaDel(btn){ const r=btn&&btn.closest?btn.closest('tr'):null; if(r) r.remove(); }
+        function ctorGenLeerDialogo(){ const legal=ctorLegalVacio(); CGL_CAMPOS.forEach(k=>{ const el=ctorGenEl('cgl-'+k); legal[k]=el?el.value.trim():''; });
+            CG_AUT_GRUPOS.forEach(gr=>{ const box=ctorGenEl('cgAut-'+gr); legal.autorizados[gr]=box?[...box.querySelectorAll('.cg-aut-row')].map(r=>({nombre:r.querySelector('.cg-aut-n').value.trim(),cargo:r.querySelector('.cg-aut-c').value.trim(),ci:r.querySelector('.cg-aut-i').value.trim()})).filter(p=>p.nombre||p.cargo||p.ci):[]; });
+            const anexo=[...document.querySelectorAll('#cgAnexoBody .cg-ax-row')].map(r=>({codigo:r.querySelector('.cg-ax-codigo').value.trim(),descripcion:r.querySelector('.cg-ax-desc').value.trim(),empresa:r.querySelector('.cg-ax-emp').value.trim(),mayorista:r.querySelector('.cg-ax-may').value.trim()})).filter(f=>f.codigo||f.descripcion||f.empresa||f.mayorista);
+            const pagoEl=document.querySelector('input[name="cgPago"]:checked');
+            return { legal:legal, gen:{ pago:pagoEl?pagoEl.value:'anticipado', vigenciaA:Number(ctorGenEl('cgVigencia').value)||2, prorrogaA:Number(ctorGenEl('cgProrroga').value)||0, lugar:ctorGenEl('cgLugar').value.trim(), fecha:ctorGenEl('cgFecha').value||'', ctaCUPon:!!ctorGenEl('cgCtaCUPon').checked, ctaCUP:ctorGenEl('cgCtaCUP').value.trim(), ctaMLCon:!!ctorGenEl('cgCtaMLCon').checked, ctaMLC:ctorGenEl('cgCtaMLC').value.trim(), anexo:anexo } }; }
+        function ctorGenGenerar(){ if(!puedeEditar()){ alert('Tu usuario no puede editar.'); return; } const id=ctorGenId||(ctorGenEl('cgContratoId')||{}).value; const c=getConta(); const g=mjGestionDe(c); const x=(g.contratos||[]).find(k=>k.id===id); if(!x) return; const leido=ctorGenLeerDialogo();
+            const cp=(c.contrapartes||[]).find(k=>k.id===x.contraparteId); if(cp) cp.legal=leido.legal;
+            x.gen=leido.gen; saveConta(c);
+            const html=ctorGenDocumento(c,x);
+            const card=ctorGenEl('ctorDocCard'); if(card) card.style.display=''; const tit=ctorGenEl('ctorDocTitulo'); if(tit) tit.textContent='Contrato de Compraventa '+(x.numero||x.id);
+            const box=ctorGenEl('ctorDocBox'); if(box) box.innerHTML=html;
+            const msg=ctorGenEl('cgMsg'); if(msg) msg.innerHTML='<span class="text-success">✅ Documento generado abajo, listo para imprimir. La ficha del cliente quedó guardada en su ficha.</span>';
+            if(card&&card.scrollIntoView) card.scrollIntoView({behavior:'smooth',block:'start'}); }
+        function ctorDocCerrar(){ const card=ctorGenEl('ctorDocCard'); if(card) card.style.display='none'; }
+        function ctorDocImprimir(){ printPane('ctorDocBox','Contrato de Compraventa'); }
+        function ctorGenComas(partes){ return partes.filter(s=>s&&String(s).trim()).join(', '); }
+        function ctorGenDocumento(conta, x){ const cp=(conta.contrapartes||[]).find(k=>k.id===x.contraparteId)||{}; const L=ctorLegalDe(cp); const gen=(x.gen&&typeof x.gen==='object')?x.gen:{}; const idt=identidadDelNegocio();
+            const razon=(typeof docOficialNegocio==='function'&&docOficialNegocio())||idt.nombreComercial||''; const nit=(typeof docOficialNIT==='function'&&docOficialNIT())||'';
+            const domV=ctorGenComas([idt.direccion, idt.municipio, idt.provincia]);
+            const vend=['La entidad, <b>'+esc(razon||'________________')+'</b> quien en lo sucesivo y a los efectos de este Contrato se denominará EL VENDEDOR'];
+            if(idt.escNotarial) vend.push('constituida por Escritura Notarial '+esc(idt.escNotarial));
+            if(domV) vend.push('con domicilio legal en '+esc(domV)+', Cuba');
+            if(nit) vend.push('registrada con el Código (ONE) '+esc(nit)+', Código NIT '+esc(nit));
+            if(gen.ctaMLCon&&gen.ctaMLC) vend.push('Cuenta Bancaria en Moneda Libremente Convertible (MLC) No. '+esc(gen.ctaMLC));
+            if(gen.ctaCUPon&&gen.ctaCUP) vend.push('Cuenta Bancaria en Moneda Nacional (CUP) '+esc(gen.ctaCUP));
+            if(idt.repNombre) vend.push('representada en este acto por '+esc(idt.repNombre)+(idt.repCargo?', en su carácter de '+esc(idt.repCargo):'')+(idt.escPublica?', lo que acredita mediante '+esc(idt.escPublica):''));
+            const nombreC=L.entidad||cp.nombre||x.contraparte||'EL COMPRADOR';
+            const comp=['<b>'+esc(nombreC)+'</b>, de nacionalidad cubana'];
+            if(L.organismo) comp.push('organismo '+esc(L.organismo));
+            if(L.subordinacion) comp.push('subordinación '+esc(L.subordinacion));
+            const domC=ctorGenComas([L.domicilioLegal, L.municipio?('municipio '+L.municipio):'', L.provincia?('provincia '+L.provincia):'']); if(domC) comp.push('con domicilio legal en: '+esc(domC));
+            const rm=ctorGenComas([L.rmLibro?('Libro '+L.rmLibro):'', L.rmTomo?('Tomo '+L.rmTomo):'', L.rmFolio?('Folio '+L.rmFolio):'', L.rmHoja?('Hoja '+L.rmHoja):'']); if(rm) comp.push('Inscripta en el Registro Mercantil en el '+esc(rm));
+            if(L.resolucionCreacion) comp.push('creada por '+esc(L.resolucionCreacion));
+            if(L.cuentaCUP) comp.push('con cuenta bancaria en No: '+esc(L.cuentaCUP)+(L.agenciaCUP?', radicada en la Agencia bancaria '+esc(L.agenciaCUP):'')+(L.sucursalCUP?', Sucursal '+esc(L.sucursalCUP):''));
+            if(L.cuentaUSD) comp.push('cuenta bancaria en USD No: '+esc(L.cuentaUSD)+(L.agenciaUSD?', radicada en la Agencia bancaria '+esc(L.agenciaUSD):''));
+            if(L.reeup) comp.push('con Código REEUP '+esc(L.reeup));
+            if(cp.nit) comp.push('número de identidad tributaria (NIT): '+esc(cp.nit));
+            if(cp.telefono) comp.push('Teléfono: '+esc(cp.telefono));
+            if(L.representante) comp.push('representada en este acto por '+esc(L.representante)+(L.cargoRep?', en su carácter de '+esc(L.cargoRep):'')+(L.resolucionRep?', facultades que acredita mediante la '+esc(L.resolucionRep):''));
+            comp.push('quien en lo sucesivo y a los efectos legales de este Contrato se denominará EL COMPRADOR');
+            const marca=k=>'________'+(gen.pago===k?'X':'')+'__ ';
+            const vigA=Number(gen.vigenciaA)||2, proA=Number(gen.prorrogaA)||0;
+            const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+            let fDia='_____', fMes='_______________', fAnio='_____'; if(gen.fecha){ const p=String(gen.fecha).split('-'); if(p.length===3){ fDia=p[2].replace(/^0/,'')||p[2]; fMes=meses[Math.min(11,Math.max(0,Number(p[1])-1))]; fAnio=p[0]; } }
+            const P=t=>'<p style="margin:0 0 8px">'+t+'</p>';
+            const H=t=>'<p style="margin:14px 0 6px"><b>'+t+'</b></p>';
+            let h='<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:13.5px;line-height:1.55;color:#111;text-align:justify">';
+            h+='<p style="text-align:center;margin:0 0 12px"><b>CONTRATO DE COMPRAVENTA No '+esc(x.numero||x.id)+'</b></p>';
+            h+=P('DE UNA PARTE: '+vend.join(', ')+'.');
+            h+=P('DE OTRA PARTE: '+comp.join(', ')+'.');
+            h+=P('Ambas partes reconociéndose la personalidad y representación con que comparecen, convienen en suscribir el presente contrato en los términos y condiciones siguientes:');
+            h+=H('OBJETO DEL CONTRATO');
+            h+=P('1.1- El presente contrato tiene como objeto establecer y regular las relaciones entre EL VENDEDOR y EL CLIENTE, según posibilidad real en cada momento, lo que se facturará, entregará y cobrará al 100% en el momento de la presentación de la factura.');
+            h+=H('OBLIGACIONES DE LAS PARTES');
+            h+=P('<b>EL VENDEDOR</b>');
+            h+=P('2.1- Entregar los productos con la calidad requerida y con los precios reflejados en el Anexo No.1');
+            h+=P('2.2- Velar por la adecuada calidad de los productos objetos de este contrato, así como su conservación y cuidado hasta su entrega al Cliente.');
+            h+=P('2.3- El vendedor se obliga a comunicarle al Comprador con 7 días de adelanto por las vías telefónicas o de correos electrónicos las causas por las cuales no podrá cumplir con las obligaciones que corresponden, correspondientes al comprador en igual plazo comunicar las causas por las cuales no pueda recibir el producto o sus modificaciones en la solicitud.');
+            h+=P('2.4- El Vendedor no se responsabiliza con los cambios que no se comuniquen en el tiempo y forma por lo que pueden suspenderse las entregas hasta la correspondiente actualización.');
+            h+=P('<b>EL COMPRADOR</b>');
+            h+=P('2.5- El Comprador pagará el precio reflejado en el anexo 1 de los productos en el domicilio del VENDEDOR.');
+            h+=P('2.6- Presentar la ficha de cliente, debidamente actualizada con todos los datos.');
+            h+=P('2.7- Revisar los productos comprados en el momento en que los reciba del VENDEDOR. Ya que una vez firmadas las facturas el Cliente no podrá establecer reclamación por concepto de faltantes o averías visibles por no realizar una simple inspección en dichas materias primas al momento de recibirlos.');
+            h+=P('2.8- El Cliente se obliga a comunicar inmediatamente por escrito los posibles cambios que puedan originarse en cuanto a la relación de personas autorizadas a cumplir lo suscrito en el presente contrato.');
+            h+=P('2.9- El Cliente una vez reciba los productos se hará responsable de su conservación y cuidado.');
+            h+=H('VALOR Y FORMA DE PAGO');
+            h+=P('3.1- El valor de este contrato asciende a la sumatoria de todas las facturas o Suplemento oficialmente firmado por las partes.');
+            h+=P('3.2- Los pagos se efectuarán con previo convenio entre las partes, la entrega de los Productos debidamente facturada. Estos podrán ser:<br>'+marca('anticipado')+'Pago anticipado.<br>'+marca('dias15')+'Pago en término de 15 días, para las demás bebidas y productos, posteriormente a la entrega del producto.<br>'+marca('dias30')+'Pago en un término de 30 días (Solo en el caso de salud y educación.)');
+            h+=P('3.3- La forma de pago se regirá por las variantes que establece la legislación bancaria para los Cobros y Pagos dentro del territorio nacional: transferencia o cheque.');
+            h+=P('3.4- Todos los pagos derivados del presente contrato se realizarán en Pesos Cubanos (CUP).');
+            h+=P('3.5- La formas de pago se regirán según la resolución 209/24 y 148/23 del Ministerio de finanzas y precio.');
+            h+=H('LUGAR, CONDICIONES DE ENTREGA Y MEDIOS DE TRANSPORTACION');
+            h+=P('4.1- El VENDEDOR realizara la entrega de los Productos objetos del contrato en sus almacenes.');
+            h+=P('4.2- El VENDEDOR después de efectuar la carga en su almacén no se hace responsable de los daños que puedan ocurrir en la transportación y descargue de las materias primas por el Cliente.');
+            h+=P('4.3- Cuando el COMPRADOR realice la recogida de los productos lo ara a través de las personas autorizadas para ello en la ficha de cliente, de producirse cambios debe ser comunicado al Vendedor en un plazo de 5 días hábiles, por escrito, de incumplirse responderá por las');
+            h+=P('4.4- La Transportación será a cargo del Cliente.');
+            h+=H('5. RESPONSABILIDADES POR INCUMPLIMIENTO o PENALIDADES');
+            h+=P('5.1- La parte que incumpla total o parcialmente cualquiera de sus obligaciones contractuales será responsable del incumplimiento, resarciendo a la otra parte de los daños y perjuicios en lo que no esté cubierto las correspondientes sanciones pecuniarias; la cual comenzará a contarse a partir del primer día del retraso en las siguientes cuantías:<br>Durante los primeros 30 días 0.05% por cada día.<br>Durante los siguientes 30 días 0.08% por cada día.<br>Más de 60 días 0.12% por cada día.');
+            h+=H('6. CAUSAS EXIMENTES DE LA RESPONSABILIDAD CONTRACTUAL');
+            h+=P('6.1- Las partes quedaran eximidas del cumplimiento de sus obligaciones por causa de fuerza mayor o caso fortuito, entendiéndose por estos aquellos hechos imprevisibles o inevitables ajenos a la voluntad de las mismas, que ocurrieren con posterioridad a la firma del contrato. La parte que alegue la fuerza mayor o caso fortuito, deberá comunicárselo a la otra dentro de las 72 horas posteriores a la ocurrencia de esta acompañando el documento acreditativo emitido por la autoridad competente.');
+            h+=P('6.2- Las partes podrán prorrogar el término de cumplimiento de sus obligaciones y en caso de que la causa persista podrán resolver o rescindir el contrato.');
+            h+=H('7- RECLAMACIONES Y SOLUCIÓN DE CONFLICTOS');
+            h+=P('7.1- Las partes acuerdan cumplir este contrato de buena fe y prestarse la debida cooperación, resolviendo cualquier discrepancia mediante negociaciones amigables. Una vez agotadas todas las posibilidades sin resolver el diferendo, someterán el asunto a la decisión de la Sección de lo Mercantil del Tribunal correspondiente, según la legislación que resulte aplicable.');
+            h+=P('7.2- Las reclamaciones comerciales serán presentadas por escrito en el domicilio del reclamado, por correo certificado, por correo electrónico, dentro del término de 1 año posterior a la fecha del incumplimiento, expresando en la referida reclamación los motivos que la fundamentan y la correspondiente pretensión.');
+            h+=P('7.3- Las partes se obligan a responder todas las reclamaciones que le sean formuladas en un plazo de 15 días naturales, a partir de que reciba la reclamación formulada por la otra parte.');
+            h+=P('7.4- Para presentar reclamación por faltantes y averías, deben avalarse las mismas con un acta que se levantara en el lugar de destino, en el que se haga constar todos los aspectos de interés que sobre esto se señalen y su correspondiente afectación económica, debiendo estar presente una representación de ambas partes y firmado por estas.');
+            h+=P('7.5- Cualquier discrepancia que surja en la interpretación o ejecución de este contrato, o de los acuerdos que se deriven del mismo, deberán ser resueltos entre ambas partes mediante negociaciones amigables, teniendo las partes derecho a reclamarse por cualquier incumplimiento de lo estipulado en el mismo.');
+            h+=H('8. CONFIDENCIALIDAD');
+            h+=P('8.1- Las partes se obligan a preservar la confidencialidad de la información que recíprocamente se suministren, cuya violación será objeto de reclamación de la forma y manera que se consigna en los apartados precedentes.');
+            h+=H('9. VIGENCIA');
+            h+=P('9.1- El Vendedor y el Cliente una vez puestos de común acuerdo en relación con las condiciones que regirán en el presente contrato, muestran su conformidad de firmarlo de inmediato.');
+            h+=P('9.2- El presente contrato surtirá efectos legales a partir de su firma por las partes y estará vigente por el término de '+vigA+(vigA===1?' año':' años')+(proA>0?', prorrogable por '+proA+(proA===1?' año':' años'):'')+', mediante Suplementos oficialmente firmado por las partes de igual periodo.');
+            h+=P('9.3- El presente contrato y sus anexos se conservarán debidamente archivados por las partes por un término mínimo de 5 años.');
+            h+=H('10.- CALIDAD');
+            h+=P('10.1.- La calidad de los productos contratados estará de acuerdo a lo establecido en las Normas de Especificaciones de Calidad vigente para cada producto y aparece detallada en el Anexo No. 2 del presente Contrato.');
+            h+=P('10.2.- En el caso en que los productos entregados por El VENDEDOR no reúnan los requisitos de calidad establecidos, el CLIENTE deberá notificarlo por escrito en el plazo de quince (15) días naturales siguientes a la entrega, y en caso de que se compruebe la certeza del defecto, El VENDEDOR deberá a su costo sustituirlo por otros en perfectas condiciones, los cuales serán entregados en un plazo máximo de quince (15) días a partir de la notificación por escrito de la inconformidad. Los productos confirmados con defectos se remitirán a los almacenes del VENDEDOR.');
+            h+=P('10.3.- Si en el proceso de verificación de los defectos se comprueba que los mismos han sido originados por mala manipulación o almacenamiento, los daños producidos serán asumidos por el CLIENTE.');
+            h+=P('10.4.- Las reclamaciones por concepto de calidad que presente el CLIENTE deberán ser acompañadas por un análisis técnico emitido por una tercera entidad competente, en este caso la ONIE, haciendo uso de los métodos de ensayo y muestreo vigentes. Correrá a cuenta de El CLIENTE los gastos por el servicio de contratación por dicha entidad.');
+            h+=P('10.5- El VENDEDOR emitirá Certifico de Conformidad de los productos que se elaboren en la Empresa con las especificidades de calidad de los mismos de conformidad con las Normas vigentes al realizarse la venta.');
+            h+=H('11. LEGISLACIÓN APLICABLE');
+            h+=P('11.1- El presente contrato en su implementación y ejecución se rige por el Decreto Ley No. 304 De la Contratación Económica y el Decreto No. 310 De los Tipos de Contratos, Código Civil y se regirá con la legislación civil comercial y económica de la República de Cuba y toda aquella que resulte aplicable, Resolución 209/24 y 148/23 del Ministerio de finanzas y precio.');
+            h+=H('12: AVISO');
+            h+=P('12.1- Ante un Eventual incumplimiento de sus obligaciones contractuales y a los efectos de evitar consecuencias las partes acuerdan comunicarse mutuamente tal suceso tanto en el domicilio legal como por las vías de comunicación que aparecen descrito en identificación de las partes en el contrato.');
+            h+=H('13.- OTRAS CONDICIONES');
+            h+=P('13.1- La modificación del CONTRATO debe estar aprobado por las partes de mutuo acuerdo la que puede hacerse constar en suplemento el cual tendrá validez si consta por escrito y está firmada por los representantes autorizados por las partes, formando parte del mismo.');
+            h+=P('13.3- El contrato puede ser modificado por acuerdo de las partes; disposición legal o declaración judicial y puede terminar por las causas siguientes:<br>a) Acuerdo de las partes;<br>b) declaración judicial; o<br>c) cualquier otra de las causas de extinción de las obligaciones, establecidas en el presente CONTRATO.');
+            h+=P('13.4- La parte causante de la terminación del CONTRATO responde, en su caso, de los daños y perjuicios que se deriven de esta, para la otra parte, excepto por causa de fuerza mayor o caso fortuito.');
+            h+=P('13.5- Los Anexos y Suplementos, que se firmen durante la etapa de concertación y ejecución formarán parte indisoluble del mismo y entran en vigor desde el día de su firma.');
+            h+=P('13.6.- Las partes reconocen la firma de 1 anexos al presente contrato.');
+            h+=P('Y para que así conste se firma el presente contrato en tres ejemplares a un solo tenor y de un mismo efecto, en '+esc(gen.lugar||'____________________')+', a los '+fDia+' días del mes de '+fMes+' del año '+fAnio+'.');
+            h+='<table style="width:100%;margin-top:26px"><tr><td style="width:50%;text-align:center">______________________________<br><b>VENDEDOR</b></td><td style="width:50%;text-align:center">______________________________<br><b>CLIENTE</b></td></tr></table>';
+            /* ANEXO 1 */
+            h+='<div style="page-break-before:always"></div>';
+            h+='<p style="text-align:center;margin:0 0 4px"><b>ANEXO 1</b></p><p style="text-align:center;margin:0 0 10px"><b>Listado de Precios</b></p>';
+            const filasAx=(Array.isArray(gen.anexo)&&gen.anexo.length)?gen.anexo:[{},{},{}];
+            h+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="border:1px solid #333;padding:4px">Código</th><th style="border:1px solid #333;padding:4px">Descripción del producto<br>(destino a comercio y otras entidades)</th><th style="border:1px solid #333;padding:4px">Precio Empresa</th><th style="border:1px solid #333;padding:4px">Precio Mayorista con margen comercial</th></tr></thead><tbody>';
+            filasAx.forEach(f=>{ h+='<tr><td style="border:1px solid #333;padding:4px">'+esc(f.codigo||'')+'</td><td style="border:1px solid #333;padding:4px">'+esc(f.descripcion||'')+'</td><td style="border:1px solid #333;padding:4px">'+esc(f.empresa||'')+'</td><td style="border:1px solid #333;padding:4px">'+esc(f.mayorista||'')+'</td></tr>'; });
+            h+='</tbody></table>';
+            h+='<table style="width:100%;margin-top:26px"><tr><td style="width:50%;text-align:center">______________________________<br><b>VENDEDOR</b></td><td style="width:50%;text-align:center">______________________________<br><b>CLIENTE</b></td></tr></table>';
+            /* FICHA DEL CLIENTE */
+            const fv=v=>v?esc(v):'____________________';
+            const fl=(etq,v)=>'<tr><td style="padding:3px 6px;width:32%"><b>'+etq+'</b></td><td style="padding:3px 6px;border-bottom:1px dotted #999">'+fv(v)+'</td></tr>';
+            h+='<div style="page-break-before:always"></div>';
+            h+='<p style="text-align:center;margin:0 0 4px"><b>FICHA DEL CLIENTE</b></p>';
+            h+='<p style="margin:0 0 8px">Fecha: '+fv(gen.fecha||'')+' &nbsp;&nbsp; CONTRATO No. '+esc(x.numero||x.id)+'</p>';
+            h+=P('Estimado cliente, para la perfección resulta imprescindible la siguiente información:');
+            h+='<table style="width:100%;border-collapse:collapse;font-size:13px">';
+            h+=fl('Nombre de la Entidad:', nombreC);
+            h+=fl('Organismo:', L.organismo); h+=fl('Subordinación:', L.subordinacion);
+            h+=fl('Domicilio legal:', L.domicilioLegal); h+=fl('Municipio:', L.municipio); h+=fl('Provincia:', L.provincia);
+            h+=fl('Código REEUP:', L.reeup); h+=fl('NIT:', cp.nit||'');
+            h+=fl('Inscripción Registro Comercial:', L.registroComercial);
+            h+=fl('Inscripción Registro Mercantil:', rm||'');
+            h+=fl('Teléfono:', cp.telefono||''); h+=fl('Correo Electrónico:', cp.correo||'');
+            h+=fl('Cuenta Bancaria MN:', L.cuentaCUP); h+=fl('Agencia Bancaria:', L.agenciaCUP); h+=fl('Sucursal:', L.sucursalCUP);
+            h+=fl('Cuenta Bancaria USD:', L.cuentaUSD); h+=fl('Agencia Bancaria:', L.agenciaUSD); h+=fl('Sucursal:', L.sucursalUSD);
+            h+=fl('Titular de Cuenta MN:', L.titularCUP); h+=fl('Titular de Cuenta USD:', L.titularUSD);
+            h+='</table>';
+            CG_AUT_GRUPOS.forEach(gr=>{ const filas=(L.autorizados[gr]||[]); const mostrar=filas.length?filas:[{},{}];
+                h+='<p style="margin:12px 0 4px"><b>'+CG_AUT_TITULOS[gr]+'</b></p>';
+                h+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="border:1px solid #333;padding:4px">Nombre y Apellidos</th><th style="border:1px solid #333;padding:4px">Cargo</th><th style="border:1px solid #333;padding:4px">No. Identidad</th><th style="border:1px solid #333;padding:4px">Firma</th></tr></thead><tbody>';
+                mostrar.forEach(p=>{ h+='<tr><td style="border:1px solid #333;padding:4px">'+esc(p.nombre||'')+'</td><td style="border:1px solid #333;padding:4px">'+esc(p.cargo||'')+'</td><td style="border:1px solid #333;padding:4px">'+esc(p.ci||'')+'</td><td style="border:1px solid #333;padding:4px"></td></tr>'; });
+                h+='</tbody></table>'; });
+            h+=P('En correspondencia con lo establecido en la legislación vigencia resulta imprescindible, como requisito previo a la perfección de este negocio jurídico, que se exhiban los documentos de creación o constitución, así como de inscripción en los registros públicos correspondientes.');
+            h+='<p style="margin-top:22px">________________________<br><b>EL CLIENTE</b></p>';
+            h+='</div>';
+            return h; }
         function mjDepreciacionAFUI(){ const c=getConta(); const aft=getAFT(); const per=periodoNominaActual();
             const r=mjDepreciacionMensualAsiento(c,(aft.activos||[]).map(a=>({id:a.id,nombre:a.nombre,costo:a.costo,valorResidual:0,vidaUtilAnios:Number(a.tasa)>0?100/Number(a.tasa):0,fechaAlta:a.fechaServicio||a.fechaAlta||'',estado:a.estado,metodo:a.metodoDepreciacion||'linea'})),per,fechaContablePeriodo(per),getCurrentUser());
             if(!r.ok){ alert('⚠️ '+r.motivo); return; } saveConta(c); renderAll(); mjRenderGestion(); alert(r.ya?'La depreciación de '+per+' ya estaba asentada.':('✅ Depreciación de '+per+' asentada: '+moneda(r.total)+' (Dr 613-000 / Cr 253-000).')); }
@@ -17151,7 +17429,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-42';
+        var MANUAL_VERSION = 'v2026.10.29-43';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -17538,6 +17816,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Avisos:</b> «Qué toca hoy» avisa de los contratos que vencen en 30 días y de los vencidos que siguen sin cerrar.</li>' +
             '<li><b>Enlace con Facturas:</b> al emitir una factura puedes elegir su contrato (solo quedan los de ese cliente): queda como referencia impresa en la factura, sin cambiar nada de la contabilidad.</li>' +
             '<li><b>El documento adjunto:</b> con el botón <b>Adjuntar</b> de cada fila guardas el contrato firmado como <b>foto o PDF</b>: la app lo convierte en páginas reducidas (máximo 6 por contrato) que quedan dentro de la app para verlas en segundos con el botón 📎 de su fila, ampliarlas y descargarlas; también puedes quitar una página. Como las páginas pesan, hay un espacio total de adjuntos por negocio: la tarjeta del documento te dice cuánto llevas y cuánto queda.</li>' +
+            '<li><b>Generar el Contrato de Compraventa:</b> en los contratos donde eres el <b>PRESTADOR</b>, el botón <b>📄 Generar</b> compone el documento con el modelo de tu negocio: tus datos salen de la Identidad (escritura, representante y cuentas; las cuentas se eligen por contrato porque no todas las ventas usan la misma) y los del comprador de su <b>ficha legal</b>, que se completa en el propio diálogo y queda guardada en su ficha para la próxima vez. Eliges la forma de pago que se marca en la cláusula 3.2, la vigencia y el lugar y fecha de firma, y llenas a mano el <b>Anexo 1</b> con los precios: al generar, el contrato completo — con su Anexo y la Ficha del Cliente con el personal autorizado — queda listo para imprimir. Cuando el negocio es el CLIENTE, el modelo lo pone la otra parte: esos contratos solo se registran y se adjuntan.</li>' +
             '<li>En Gestión+ queda un resumen con el total de contratos y el botón para abrir este menú.</li></ul>'},
         {id:'gestion-control', modulo:'gestion', titulo:'Presupuesto, flujo proyectado e indicadores', html:
             '<ul><li><b>Presupuesto vs. real:</b> compara lo planificado con lo ejecutado por cuenta o partida.</li>' +
@@ -17769,7 +18048,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
