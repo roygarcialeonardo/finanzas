@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-49",
-  "publicada": "2026-10-29 17:28",
-  "notas": "Ronda -49: la lluvia de fondo se rehace como LLOVIZNA (corrección de Leonardo). El cuerpo grave que la hacía sonar a tormenta queda en un fondo tenue y manda el chisporroteo fino de gotas, a un nivel general menor. El trueno gana cuerpo audible (suena también en las bocinas del teléfono) y la rana canta más clara; y las dos visitas ya no son de una sola vez: se repiten en cada vuelta de la pista de 45 segundos — el trueno y, 20 segundos después, la rana — mientras la lluvia esté encendida.",
+  "version": "v2026.10.29-50",
+  "publicada": "2026-10-29 17:56",
+  "notas": "La tarjeta «Identidad del negocio» ya no aparece en el perfil del administrador general (defecto corregido)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "2891ba54860a757043b8eec8351196b4c62bd37bcd98bd12c876e16231e52dbb",
-      "bytes": 1957405
+      "sha256": "f0d72358c7b80843515640fa3f497e8aa8af617e6bba1ead1235848191231233",
+      "bytes": 1957933
     },
     {
       "ruta": "pdf-import.js",

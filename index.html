@@ -5592,7 +5592,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                lleva «Identidad del negocio» (decisión de Leonardo,
                2026-10-29); esa identidad solo existe dentro de cada
                negocio concreto. */
-            let esAG=false; try{ const un=getCurrentUser(); const uu=(getUsuarios()||{})[un]; esAG=!!(uu&&uu.role==='admin'&&(uu.negocio||'')==='Administrador'); }catch(e){}
+            /* OJO: en producción el campo negocio del administrador
+               general va VACÍO en la hoja (así quedó el 2026-10-03);
+               «Administrador» es solo el valor de la semilla local. La
+               -46 comparaba solo contra «Administrador» y la tarjeta
+               nunca se ocultaba en vivo (reporte de Leonardo,
+               2026-10-29). Admin de un negocio concreto SÍ la ve: su
+               negocio es el nombre real de su negocio. */
+            let esAG=false; try{ const un=getCurrentUser(); const uu=(getUsuarios()||{})[un]; const neg=String((uu&&uu.negocio)||'').trim(); esAG=!!(uu&&uu.role==='admin'&&(neg===''||neg==='Administrador')); }catch(e){}
             if(esAG){ card.style.display='none'; return; }
             card.style.display=''; if(card.contains(document.activeElement)&&document.activeElement.tagName!=='BODY') return; const id=identidadDelNegocio(); const f=getFiscal(); IDT_CAMPOS.forEach(k=>{ const el=document.getElementById('idt-'+k); if(!el) return; let v=id[k]||''; if(!v&&k==='municipio') v=(f.meta&&f.meta.dpa)||''; el.value=v; }); identidadPintarPrevias(); }
         function identidadCargarImagen(file){ return new Promise((res,rej)=>{ const url=URL.createObjectURL(file); const img=new Image(); img.onload=()=>{ try{URL.revokeObjectURL(url);}catch(e){} res(img); }; img.onerror=()=>{ try{URL.revokeObjectURL(url);}catch(e){} rej(new Error('No se pudo leer esa imagen')); }; img.src=url; }); }
@@ -18329,7 +18336,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-49';
+        var MANUAL_VERSION = 'v2026.10.29-50';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
