@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.28-37",
-  "publicada": "2026-10-29 02:28",
-  "notas": "Ronda -37: Identidad del negocio. Nueva tarjeta en Configuración con los datos del negocio y del representante, logo, firma y cuño; el logo aparece en la cabecera y la firma en el pie de los documentos de diseño propio (estados de cuenta). Los modelos oficiales no cambian.",
+  "version": "v2026.10.28-38",
+  "publicada": "2026-10-29 02:48",
+  "notas": "Ronda -38: menú Facturas. Nuevo menú con ficha de clientes (cuenta, tarjeta y NIT), emisión con varias líneas y consecutivo F-1, F-2… y el documento de la factura (SC-2-012) con la identidad del negocio. La facturación sale de Gestión+: el menú la sustituye.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "11b2123ae6fcfc3b4d245da31c8eeb91983a4d4d6ed4019b7925ee022e7cf89c",
-      "bytes": 1754674
+      "sha256": "603e589e06d022123ad4dcc90bd4e5c49dd305cca32a0705862449129f576ac5",
+      "bytes": 1771587
     },
     {
       "ruta": "pdf-import.js",
