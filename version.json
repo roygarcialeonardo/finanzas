@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-44",
-  "publicada": "2026-10-29 12:54",
-  "notas": "v2026.10.29-44: Nómina — botón «Contrato» en la fila de cada trabajador: genera al momento su contrato de trabajo POR TIEMPO DETERMINADO con los datos de su ficha (cargo, salario escala, CI, dirección), en el formato del modelo del negocio; el término se escribe al generarlo; horario, jornada, régimen, seguridad y día de pago son valores del negocio que se guardan y salen solos; el empleador sale de la Identidad con la resolución de su representante; si el cargo es Trabajador Integral, lleva su ANEXO con el contenido de trabajo. El contrato se genera al verlo, no se guarda copia.",
+  "version": "v2026.10.29-45",
+  "publicada": "2026-10-29 13:37",
+  "notas": "v2026.10.29-45: Llaves — resumen de licencia firmado en el pedido de llave: la copia sin conexión calcula su resumen desde sus datos (trabajadores en la ficha, socios e ingresos del año; en una copia de tenedor, los negocios que lleva), lo muestra en su tarjeta de llave antes de enviarlo y lo manda firmado al registrarse; la administradora lo ve en su Panel → Llaves junto a cada instalación, con el sello «✔ Resumen íntegro» si la firma coincide, y lo verifica antes de generar la llave. Requiere el servidor local 0.12.0 o superior para enviar el resumen (las copias anteriores se siguen registrando, sin resumen).",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "423f14cb697fe9bcb49be7b9e1ecfe626d2fe73065bf1314ab832b1c34c756e7",
-      "bytes": 1881785
+      "sha256": "aa8dcf796ec291adeef4d60db4c64e8c2ba08f7b43238211d926926b83ef518e",
+      "bytes": 1888756
     },
     {
       "ruta": "pdf-import.js",
