@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-45",
-  "publicada": "2026-10-29 13:37",
-  "notas": "v2026.10.29-45: Llaves — resumen de licencia firmado en el pedido de llave: la copia sin conexión calcula su resumen desde sus datos (trabajadores en la ficha, socios e ingresos del año; en una copia de tenedor, los negocios que lleva), lo muestra en su tarjeta de llave antes de enviarlo y lo manda firmado al registrarse; la administradora lo ve en su Panel → Llaves junto a cada instalación, con el sello «✔ Resumen íntegro» si la firma coincide, y lo verifica antes de generar la llave. Requiere el servidor local 0.12.0 o superior para enviar el resumen (las copias anteriores se siguen registrando, sin resumen).",
+  "version": "v2026.10.29-46",
+  "publicada": "2026-10-29 15:00",
+  "notas": "Ronda -46: Nómina gana la tarjeta de salario SC-4-08 y el expediente laboral (tarea 42). Cada trabajador tiene botones «Tarjeta» y «Expediente» en su fila: la tarjeta se llena sola desde las nóminas pagadas (días del control de días y salario devengado del cálculo real, con las incidencias en la clave) y cada celda se puede corregir a mano; de la tarjeta sale impresa la SC-4-08 y la Certificación de Años de Servicio y Salarios SNC-4-09. El expediente separa los documentos de entrada (los que formalizan el contrato) del expediente completo, obligatorio cuando la relación supera los 6 meses, con la relación oficial de documentos, su estado, fecha y nota, y aviso según la antigüedad. Además, la tarjeta «Identidad del negocio» ya no aparece en el perfil del administrador general, que no es un negocio.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "aa8dcf796ec291adeef4d60db4c64e8c2ba08f7b43238211d926926b83ef518e",
-      "bytes": 1888756
+      "sha256": "de8fa273e021f3d538956061d86957775d0c2fc9b8a330774bbe3bb371dfc431",
+      "bytes": 1917522
     },
     {
       "ruta": "pdf-import.js",
