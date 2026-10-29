@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-51",
-  "publicada": "2026-10-29 18:42",
-  "notas": "Ronda -51: bóveda documental en el frontend (adjuntos cifrados sin conexión)",
+  "version": "v2026.10.29-52",
+  "publicada": "2026-10-29 18:55",
+  "notas": "Ronda -52: registro de negocios del administrador (tarea 44)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "235f75fbcf5a74b48aac5b1473de9db5e984d2291b6c2f59f8bce27291807f6d",
-      "bytes": 1963501
+      "sha256": "602d1f6ec646f05ee0ef520d5df1ef420cb8e82d0295d4735fa3f17e235f4eb8",
+      "bytes": 1970889
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "Q6mWu+FuCtRSOOtGyNEl1i381w5Ae12PlKRenqMS10+8ZNgUSOqy6wZKqVcIFbBJT97UnRcULcTsje7CokBhBw=="
+  "firma": "7OQ+hiygYTRXNTXs99i/hvJ2kqfBstVp9TTmjimQKrkG1bfm++K2m56p+VkOAc3XYVk7Xm221T2RdNjFmM9wDg=="
 }

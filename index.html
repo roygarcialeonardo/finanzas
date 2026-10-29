@@ -2182,11 +2182,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="negocios">🏢 Negocios</button>
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="tenedores">📚 Tenedores</button>
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="llaves">🔑 Llaves</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="registro">📋 Registro</button>
                 </div>
                 <div id="panelVistaResumen"></div>
                 <div id="panelVistaNegocios" style="display:none"></div>
                 <div id="panelVistaTenedores" style="display:none"></div>
                 <div id="panelVistaLlaves" style="display:none"></div>
+                <div id="panelVistaRegistro" style="display:none"></div>
                 <p class="small text-muted mt-3 mb-0">Reglas del panel: la <b>cortesía</b> es una licencia regalada por ti — ese negocio nunca se bloquea por falta de pago ni cuenta como deuda, y tampoco suma a la base del 10 % de su tenedor. Cada tenedor paga su <b>base fija mensual</b> por el uso de la aplicación (2 000 si su cartera computable tiene menos de 5 negocios; 1 000 si tiene 5 o más) más su porcentaje, calculado sobre las tarifas de los negocios <b>activos y sin cortesía</b> de su cartera. El historial se calcula con las tarifas de hoy.</p>
             </div></div>
         </div>
@@ -7410,7 +7412,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         let PANEL_LLAVES = null; let PANEL_INSTALACIONES = null; let LLAVE_NUEVA = '';
         async function cargarLlavesPanel() {
             const r = await api('llaves_list', {});
-            if (r && r.ok) { PANEL_LLAVES = r.llaves || []; PANEL_INSTALACIONES = r.instalaciones || []; pintarLlavesVista(); }
+            if (r && r.ok) { PANEL_LLAVES = r.llaves || []; PANEL_INSTALACIONES = r.instalaciones || []; pintarLlavesVista(); pintarRegistroVista(); }
         }
         // Instalaciones registradas (ronda -31) cuyo negocio aún no
         // existe en línea: también son titulares elegibles de llave.
@@ -7443,6 +7445,80 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     const s = document.getElementById('llaveTitularSel'); if (s && PANEL_LOCAL.negocioRegistrado) s.value = PANEL_LOCAL.negocioRegistrado;
                 }
             }
+        }
+        // ===== REGISTRO DE NEGOCIOS (tarea 44, ronda -52) =====
+        // Lo que la administradora pidió ver de un vistazo por cada
+        // negocio: sus NOMBRES DE USUARIO (las contraseñas no existen
+        // en claro en ningún sitio — solo huellas con sal — y por eso
+        // no hay nada que registrar de ellas), si ya generó su CÓDIGO
+        // DE RECUPERACIÓN (lo anuncia su copia sin conexión al
+        // registrarse: campo «rescate» de la instalación, con la fecha
+        // de su último anuncio) y los SERVICIOS CONTRATADOS como una
+        // lista extensible: cada servicio del catálogo sabe decir su
+        // estado desde los datos que el panel ya carga, sin tocar los
+        // servidores. El POS (tarea 38) enchufará aquí su fuente
+        // cuando exista su licencia de módulo.
+        const PANEL_SERVICIOS = [
+            { id: 'finanzas', nombre: 'Finanzas', estadoDe: function (x) {
+                const s = x.s; if (!s) return { estado: 'Sin negocio en línea', cls: 'bg-secondary' };
+                if (s.cortesia) return { estado: 'Cortesía', cls: 'bg-info text-dark' };
+                if (!s.activo) return { estado: 'Inactivo', cls: 'bg-secondary' };
+                return s.pagos[subsMesActual()] ? { estado: 'Activo · pagado este mes', cls: 'bg-success' } : { estado: 'Activo · pendiente de pago', cls: 'bg-warning text-dark' };
+            } },
+            { id: 'pos', nombre: 'Punto de Venta (POS)', estadoDe: function () { return { estado: 'No contratado', cls: 'bg-light text-dark border' }; } }
+        ];
+        function panelRegistroFilas(m) {
+            const usuarios = getUsuarios();
+            const porNegocio = {};
+            Object.keys(usuarios).forEach(u => {
+                const usr = usuarios[u] || {};
+                const neg = String(usr.negocio || '').trim();
+                if (!neg || usr.role === 'admin') return;
+                (porNegocio[neg] = porNegocio[neg] || []).push({ usuario: u, role: usr.role || '' });
+            });
+            const norm = s => String(s || '').trim().toLowerCase();
+            const instPorNegocio = {};
+            (PANEL_INSTALACIONES || []).forEach(i => {
+                if (!i || !i.negocio) return;
+                const k = norm(i.negocio);
+                if (!instPorNegocio[k] || String(i.actualizadaEn || '') > String(instPorNegocio[k].actualizadaEn || '')) instPorNegocio[k] = i;
+            });
+            const filas = (m.negocios || []).map(x => ({
+                nombre: x.nombre, tipo: x.tipo, s: x.s, tenedor: x.tenedor || '',
+                usuarios: porNegocio[x.nombre] || [],
+                inst: instPorNegocio[norm(x.nombre)] || null, soloInstalacion: false
+            }));
+            const enLinea = new Set(filas.map(f => norm(f.nombre)));
+            (PANEL_INSTALACIONES || []).forEach(i => {
+                if (!i || !i.negocio || enLinea.has(norm(i.negocio))) return;
+                enLinea.add(norm(i.negocio));
+                filas.push({ nombre: i.negocio, tipo: i.tipo || 'tcp', s: null, tenedor: '', usuarios: porNegocio[i.negocio] || [], inst: i, soloInstalacion: true });
+            });
+            return filas;
+        }
+        function panelRegistroRescate(inst) {
+            if (!inst) return '<span class="text-secondary">—</span>';
+            const f = String(inst.actualizadaEn || inst.registradaEn || '').slice(0, 10);
+            if (inst.rescate === true) return '<span class="badge bg-success">✅ Generado</span>' + (f ? `<div class="small text-secondary">anunciado el ${esc(f)}</div>` : '');
+            if (inst.rescate === false) return '<span class="badge bg-warning text-dark">⚠ Sin generar</span>' + (f ? `<div class="small text-secondary">anunciado el ${esc(f)}</div>` : '');
+            return '<span class="text-secondary">Sin anunciar</span>';
+        }
+        function panelHtmlRegistro(m) {
+            if (PANEL_INSTALACIONES === null) return '<p class="text-secondary small mb-0">Cargando el registro de instalaciones…</p>';
+            const filas = panelRegistroFilas(m);
+            if (!filas.length) return '<p class="text-secondary small mb-0">Todavía no hay negocios ni instalaciones registradas.</p>';
+            const cuerpo = filas.map(f => {
+                const us = f.usuarios.length ? f.usuarios.map(u => `<span class="badge bg-light text-dark border me-1 mb-1">${esc(u.usuario)}${u.role ? ' · ' + esc(u.role) : ''}</span>`).join('') : '<span class="text-secondary">—</span>';
+                const serv = PANEL_SERVICIOS.map(sv => { const e = sv.estadoDe(f); return `<div class="mb-1"><span class="small fw-semibold">${esc(sv.nombre)}:</span> <span class="badge ${e.cls}">${esc(e.estado)}</span></div>`; }).join('');
+                return `<tr><td><b>${esc(f.nombre)}</b>${f.soloInstalacion ? ' <span class="badge bg-info text-dark">solo instalación</span>' : ''}${f.inst && f.inst.pedido ? `<div class="small text-secondary">Pedido ${esc(f.inst.pedido)}</div>` : ''}</td><td>${esc(String(f.tipo || '').toUpperCase())}</td><td>${us}</td><td>${panelRegistroRescate(f.inst)}</td><td>${serv}</td></tr>`;
+            }).join('');
+            return `<h6 class="fw-semibold">📋 Registro de negocios</h6>
+            <p class="small text-secondary">Quién entra en cada negocio, si ya tiene su red de seguridad (el código de recuperación) y qué servicios tiene contratados. Las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b>: cada copia guarda solo su huella, y la pérdida se resuelve con el código de recuperación, no con una lista de contraseñas.</p>
+            <div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Negocio</th><th>Tipo</th><th>Usuarios</th><th>Código de recuperación</th><th>Servicios contratados</th></tr></thead><tbody>${cuerpo}</tbody></table></div>`;
+        }
+        function pintarRegistroVista() {
+            const el = document.getElementById('panelVistaRegistro');
+            if (el && PANEL_VISTA === 'registro') el.innerHTML = panelHtmlRegistro(panelModelo());
         }
         function llaveEstadoChip(rec) {
             if (rec.revocada) return '<span class="badge bg-danger">Revocada</span>';
@@ -7662,7 +7738,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     }
                 });
             }
-            if (PANEL_VISTA === 'llaves' && PANEL_LLAVES === null) cargarLlavesPanel();
+            if ((PANEL_VISTA === 'llaves' || PANEL_VISTA === 'registro') && PANEL_LLAVES === null) cargarLlavesPanel();
             const m = panelModelo();
             pane.querySelectorAll('[data-panel-vista]').forEach(b => {
                 const on = b.getAttribute('data-panel-vista') === PANEL_VISTA;
@@ -7672,7 +7748,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('panelVistaNegocios').style.display = PANEL_VISTA === 'negocios' ? '' : 'none';
             document.getElementById('panelVistaTenedores').style.display = PANEL_VISTA === 'tenedores' ? '' : 'none';
             document.getElementById('panelVistaLlaves').style.display = PANEL_VISTA === 'llaves' ? '' : 'none';
+            document.getElementById('panelVistaRegistro').style.display = PANEL_VISTA === 'registro' ? '' : 'none';
             if (PANEL_VISTA === 'llaves') pintarLlavesVista();
+            if (PANEL_VISTA === 'registro') pintarRegistroVista();
             if (PANEL_VISTA === 'resumen') document.getElementById('panelVistaResumen').innerHTML = esPanelLocalNegocio() ? panelHtmlResumenLocalNegocio(m) : panelHtmlResumen(m);
             if (PANEL_VISTA === 'negocios') {
                 let mNeg = m;
@@ -18376,7 +18454,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-51';
+        var MANUAL_VERSION = 'v2026.10.29-52';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -18860,6 +18938,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li><b>Resumen:</b> cuánto deberías cobrar este mes en licencias (las licencias de los negocios activos sin cortesía más el porcentaje de cada tenedor activo), cuánto ya cobraste y cuánto falta, con la lista de pendientes y su botón «Marcar pagado». Abajo, los <b>últimos 6 meses</b> (esperado, cobrado y pendiente), calculados con las tarifas de hoy.</li>' +
             '<li><b>Negocios:</b> cada negocio con su licencia calculada, si es <b>cliente directo</b> o de qué tenedor es, su estado del mes y su <b>historial de 6 meses</b> (toca un mes para cambiarlo). El interruptor <b>Cortesía</b> marca una licencia regalada: ese negocio <b>nunca se bloquea por falta de pago</b>, no cuenta como deuda y tampoco suma a la base del porcentaje de su tenedor (la desactivación manual sí sigue bloqueándolo). La <b>nota privada</b> es solo tuya: teléfono, cómo paga, lo que quieras recordar.</li>' +
             '<li><b>Tenedores:</b> cada tenedor con los negocios que atiende, el valor de su cartera, <b>lo que te aporta a ti</b> (su base fija por el uso de la aplicación más su porcentaje sobre las tarifas de sus negocios activos y sin cortesía), si pagó su mes y el historial de su licencia. Activarlo, desactivarlo y marcar sus pagos es <b>solo de la administradora</b>: un tenedor no puede inhabilitar ni borrar negocios ni marcar pagos, ni los suyos ni los de nadie.</li>' +
+            '<li><b>Registro:</b> de un vistazo, negocio a negocio: sus <b>nombres de usuario</b> (las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b> — solo su huella — y por eso no hay ninguna lista de contraseñas que guardar ni que perder), si su copia sin conexión ya generó el <b>código de recuperación</b> (lo anuncia ella misma al registrarse, con la fecha de su último anuncio; «Sin anunciar» = su copia aún no lo ha comunicado) y los <b>servicios contratados</b> con su estado: hoy la licencia de <b>Finanzas</b> de este mes y el módulo de <b>Punto de Venta (POS)</b>; cuando lleguen módulos nuevos aparecerán aquí en la misma lista. Los negocios que solo existen como instalación registrada salen con su insignia «solo instalación» y su código de pedido.</li>' +
             '<li>En la vista de <b>Administrador</b> ya no aparece el menú <b>Registro</b>: el Registro de Control es el libro de cada negocio y vive dentro de él; tu panel es Gestor, Panel de control y Configuración.</li>' +
             '<li><b>En la copia sin conexión de un negocio</b> el Panel viene recortado a su medida: no sale la vista de <b>Tenedores</b>, la de Negocios se llama <b>Negocio</b> y muestra solo el negocio registrado en la instalación, el <b>Resumen</b> solo pone lo que ese negocio ha pagado a su tenedor de libros (queda en blanco si no tiene tenedor) y la vista de <b>Llaves</b> se rellena sola con el código de pedido y el negocio de la instalación. En esa copia tampoco aparece el menú <b>Gestor</b>: el Gestor es solo de los perfiles de tenedor (y de la administradora en línea).</li></ul>'},
         {id:'actualizacion-offline', modulo:'respaldo', titulo:'Actualización de la versión sin conexión', html:
