@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-46",
-  "publicada": "2026-10-29 15:00",
-  "notas": "Ronda -46: Nómina gana la tarjeta de salario SC-4-08 y el expediente laboral (tarea 42). Cada trabajador tiene botones «Tarjeta» y «Expediente» en su fila: la tarjeta se llena sola desde las nóminas pagadas (días del control de días y salario devengado del cálculo real, con las incidencias en la clave) y cada celda se puede corregir a mano; de la tarjeta sale impresa la SC-4-08 y la Certificación de Años de Servicio y Salarios SNC-4-09. El expediente separa los documentos de entrada (los que formalizan el contrato) del expediente completo, obligatorio cuando la relación supera los 6 meses, con la relación oficial de documentos, su estado, fecha y nota, y aviso según la antigüedad. Además, la tarjeta «Identidad del negocio» ya no aparece en el perfil del administrador general, que no es un negocio.",
+  "version": "v2026.10.29-47",
+  "publicada": "2026-10-29 15:25",
+  "notas": "Ronda -47: menú nuevo «Retiro» (tarea 43). Vigilancia automática de la jubilación: la edad se deriva del carné de identidad de la ficha (60 años las mujeres, 65 los hombres) y los años de servicio salen de la tarjeta SC-4-08 más los años previos que se anoten. Calculadora de la pensión estimada según la Ley 105/2008: base de los 5 mejores años de los últimos 15 escogidos de la tarjeta; por edad, ordinaria (60 % + 2 % por año, tope 90 %) y extraordinaria (40 % + 2 %); por enfermedad, la invalidez total (común o laboral, con el +10 % laboral y el +20 % del gran inválido) y la parcial (provisional y definitiva sobre la diferencia salarial). Expediente del trámite ante la Filial del INASS por trabajador, con la vía de peritaje, avisos en «Qué toca hoy», la certificación SNC-4-09 y la hoja resumen del expediente.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "de8fa273e021f3d538956061d86957775d0c2fc9b8a330774bbe3bb371dfc431",
-      "bytes": 1917522
+      "sha256": "36528c467858103340dbf37378a81b16a5a48ead678e35e4019767f3956d04dc",
+      "bytes": 1950597
     },
     {
       "ruta": "pdf-import.js",

@@ -1049,6 +1049,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <li class="nav-item"><button class="nav-link tarjeta_cup" id="tab-tarjeta_cup" data-bs-toggle="tab" data-bs-target="#pane-tarjeta_cup"><span class="icono-anim me-1" data-icono="tarjeta"></span> CUP</button></li>
         <li class="nav-item"><button class="nav-link tarjeta_usd" id="tab-tarjeta_usd" data-bs-toggle="tab" data-bs-target="#pane-tarjeta_usd"><span class="icono-anim me-1" data-icono="dolar"></span> USD</button></li>
         <li class="nav-item"><button class="nav-link nomina" id="tab-nomina" data-bs-toggle="tab" data-bs-target="#pane-nomina"><span class="icono-anim me-1" data-icono="usuarios"></span> Nómina</button></li>
+        <li class="nav-item"><button class="nav-link retiro" id="tab-retiro" data-bs-toggle="tab" data-bs-target="#pane-retiro"><span class="icono-anim me-1" data-icono="doc-check"></span> Retiro</button></li>
         <li class="nav-item"><button class="nav-link utilidades" id="tab-utilidades" data-bs-toggle="tab" data-bs-target="#pane-utilidades"><span class="icono-anim me-1" data-icono="grafico"></span> Trimestres</button></li>
         <li class="nav-item"><button class="nav-link fiscal" id="tab-fiscal" data-bs-toggle="tab" data-bs-target="#pane-fiscal"><span class="icono-anim me-1" data-icono="doc-check"></span> Fiscal</button></li>
         <li class="nav-item"><button class="nav-link cierrep" id="tab-cierrep" data-bs-toggle="tab" data-bs-target="#pane-cierrep">🧾 Cierre</button></li>
@@ -1431,6 +1432,78 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
 
         <!-- TRIMESTRES Y UTILIDADES -->
+        <div class="tab-pane fade" id="pane-retiro">
+            <div class="card">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <span><span class="icono-anim me-1" data-icono="doc-check"></span> Retiro — jubilación e invalidez</span>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="retRender()">Actualizar</button>
+                </div>
+                <div class="card-body">
+                    <p class="small text-secondary">La app vigila quién se acerca a la edad de jubilación (60 años las mujeres, 65 los hombres, según el CI de su ficha) y cuántos años de servicio acumula en su tarjeta SC-4-08, estima la pensión y lleva el expediente del trámite ante la Filial del INASS (la cuantía oficial la fija siempre el INASS). También cubre el retiro por enfermedad: la pensión por invalidez que dictamina la Comisión de Peritaje Médico Laboral.</p>
+                    <div id="retVigilancia"></div>
+                    <div class="card mt-3" id="retDetalle" style="display:none;">
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <h5 class="mb-0" id="retNombre">Expediente de retiro</h5>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="retCerrar()">Cerrar</button>
+                            </div>
+                            <div class="alert alert-light border mt-2 mb-2" id="retCalcBox"></div>
+                            <div class="row g-2">
+                                <div class="col-md-3"><label class="form-label small mb-0">Tipo de retiro</label><select id="ret-tipo" class="form-select form-select-sm" onchange="retTipoCambio()"><option value="edad">Pensión por edad</option><option value="invalidez">Pensión por invalidez (enfermedad)</option></select></div>
+                                <div class="col-md-3"><label class="form-label small mb-0">Estado del trámite</label><select id="ret-estado" class="form-select form-select-sm"><option value="preparacion">En preparación</option><option value="presentado">Presentado en la filial</option><option value="concedida">Pensión concedida</option><option value="denegada">Denegada</option><option value="cerrado">Cerrado (baja hecha)</option></select></div>
+                                <div class="col-md-3"><label class="form-label small mb-0">Años acreditados fuera de la app</label><input id="ret-aniosPrevios" type="number" min="0" step="0.1" class="form-control form-control-sm" placeholder="0"></div>
+                                <div class="col-md-3"><label class="form-label small mb-0">Base mensual manual (si no usas la de la tarjeta)</label><input id="ret-baseManual" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="automática"></div>
+                            </div>
+                            <h6 class="fw-semibold mt-3">Pasos del trámite ante la Filial del INASS</h6>
+                            <div class="row g-2">
+                                <div class="col-md-2"><label class="form-label small mb-0">Solicitud del trabajador</label><input id="ret-p-solicitud" type="date" class="form-control form-control-sm"></div>
+                                <div class="col-md-2"><label class="form-label small mb-0">Certificación SNC-4-09 emitida</label><input id="ret-p-certificacion" type="date" class="form-control form-control-sm"></div>
+                                <div class="col-md-2"><label class="form-label small mb-0">Presentación en la filial</label><input id="ret-p-presentacion" type="date" class="form-control form-control-sm"></div>
+                                <div class="col-md-2"><label class="form-label small mb-0">Resolución</label><input id="ret-p-resolucion" type="date" class="form-control form-control-sm"></div>
+                                <div class="col-md-2"><label class="form-label small mb-0">N.º de resolución</label><input id="ret-p-resolucionNum" type="text" class="form-control form-control-sm"></div>
+                                <div class="col-md-2"><label class="form-label small mb-0">Baja efectuada</label><input id="ret-p-baja" type="date" class="form-control form-control-sm"></div>
+                            </div>
+                            <div id="retPeritajeBox" style="display:none;">
+                                <h6 class="fw-semibold mt-3">Vía de enfermedad — Comisión de Peritaje Médico Laboral</h6>
+                                <div class="row g-2">
+                                    <div class="col-md-2"><label class="form-label small mb-0">Remisión a la Comisión</label><input id="ret-x-remision" type="date" class="form-control form-control-sm"></div>
+                                    <div class="col-md-2"><label class="form-label small mb-0">Dictamen</label><input id="ret-x-dictamen" type="date" class="form-control form-control-sm"></div>
+                                    <div class="col-md-2"><label class="form-label small mb-0">Clase de invalidez</label><select id="ret-x-clase" class="form-select form-select-sm" onchange="retTipoCambio()"><option value="total">Total (no puede seguir trabajando)</option><option value="parcial">Parcial (puesto adecuado)</option></select></div>
+                                    <div class="col-md-2"><label class="form-label small mb-0">Origen</label><select id="ret-x-origen" class="form-select form-select-sm" onchange="retTipoCambio()"><option value="comun">Enfermedad común</option><option value="laboral">Accidente de trabajo / enfermedad profesional</option></select></div>
+                                    <div class="col-md-2"><label class="form-label small mb-0">Fase (si es parcial)</label><select id="ret-x-fase" class="form-select form-select-sm" onchange="retTipoCambio()"><option value="provisional">Provisional</option><option value="definitiva">Definitiva</option></select></div>
+                                    <div class="col-md-2"><label class="form-label small mb-0">Nuevo salario (parcial definitiva)</label><input id="ret-x-salarioNuevo" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="salario del nuevo puesto"></div>
+                                    <div class="col-md-2"><label class="form-label small mb-0">Próximo reexamen</label><input id="ret-x-reexamen" type="date" class="form-control form-control-sm"></div>
+                                    <div class="col-md-3 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" id="ret-x-gran" onchange="retTipoCambio()"><label class="form-check-label small" for="ret-x-gran">Gran inválido (necesita asistencia constante: +20 %)</label></div></div>
+                                </div>
+                            </div>
+                            <h6 class="fw-semibold mt-3">Reincorporación (si vuelve a trabajar cobrando la pensión)</h6>
+                            <div class="row g-2">
+                                <div class="col-md-3"><label class="form-label small mb-0">Fecha de reincorporación</label><input id="ret-r-fecha" type="date" class="form-control form-control-sm"></div>
+                                <div class="col-md-4"><label class="form-label small mb-0">Puesto al que se reincorpora</label><input id="ret-r-puesto" type="text" class="form-control form-control-sm"></div>
+                                <div class="col-md-5"><label class="form-label small mb-0">Notas del trámite</label><input id="ret-notas" type="text" class="form-control form-control-sm"></div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                <button type="button" class="btn btn-sm btn-primary" onclick="retGuardar()">Guardar el trámite</button>
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="retCertImprimir()">Imprimir certificación SNC-4-09</button>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="retResumenImprimir()">Hoja resumen del expediente</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="retDarBaja()">Dar la baja por retiro</button>
+                            </div>
+                            <div class="form-text" id="retMsg"></div>
+                        </div>
+                    </div>
+                    <div class="card mt-3" id="retDocCard" style="display:none;">
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <h5 class="mb-0" id="retDocTitulo">Documento</h5>
+                                <span><button type="button" class="btn btn-sm btn-primary" onclick="retDocImprimir()">🖨 Imprimir</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="retDocCerrar()">Cerrar</button></span>
+                            </div>
+                            <div id="retDocBox" class="mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="tab-pane fade" id="pane-utilidades">
             <div class="tri-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                 <div>
@@ -4840,6 +4913,253 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             tarjMostrarDoc('Índice del expediente · '+t.nombre, html);
         }
         window.__tarjTest={mes:tarjMes, anio:tarjAnio, cert:tarjCertDatos, docTarjeta:tarjDocTarjeta, docCert:tarjDocCert, expdDe:expdDe, items:EXPD_ITEMS, entrada:EXPD_ENTRADA, mesesRelacion:expdMesesRelacion};
+        /* ============================================================
+           TAREA 43 · MENÚ «RETIRO» — jubilación e invalidez
+           Vigilancia de edad y años (desde el CI y la tarjeta
+           SC-4-08), calculadora de la pensión ESTIMADA según la
+           Ley 105/2008 y expediente del trámite ante la Filial del
+           INASS. La cuantía oficial la fija siempre el INASS.
+           Diseño: RETIRO-DISENO.md · Investigación: RETIRO-NOTA.md.
+           ============================================================ */
+        let retId=null, retDocTituloActual='';
+        function retEl(id){ return document.getElementById(id); }
+        function retTrabajador(){ const rr=getRRHH(); return (rr.trabajadores||[]).find(x=>String(x.id)===String(retId))||null; }
+        function retNacDeCI(ci){
+            const d=String(ci||'').replace(/\D/g,''); if(d.length<6) return '';
+            const yy=+d.slice(0,2), mm=+d.slice(2,4), dd=+d.slice(4,6);
+            if(!(mm>=1&&mm<=12&&dd>=1&&dd<=31)) return '';
+            const aa=new Date().getFullYear()%100;
+            const anio=(yy>aa?1900+yy:2000+yy);
+            return anio+'-'+String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+        }
+        function retEdadInfo(t){
+            const nac=retNacDeCI(t&&t.ci); if(!nac) return null;
+            const req=(String(t.sexo||'').toUpperCase()==='F')?60:65;
+            const hoyS=hoy(); const [hy,hm,hd]=hoyS.split('-').map(Number);
+            const [ny,nm,nd]=nac.split('-').map(Number);
+            let edad=hy-ny; if(hm<nm||(hm===nm&&hd<nd)) edad--;
+            const cumple=(ny+req)+'-'+String(nm).padStart(2,'0')+'-'+String(nd).padStart(2,'0');
+            let meses=(+cumple.slice(0,4)-hy)*12+(+cumple.slice(5,7)-hm); if(+cumple.slice(8,10)<hd) meses--;
+            return {nac:nac, edad:edad, req:req, cumple:cumple, mesesPara:meses};
+        }
+        function retDe(rr, wid){
+            const r=((rr.retiros||{})[String(wid)])||{};
+            return { tipo:r.tipo||'edad', estado:r.estado||'preparacion',
+                aniosPrevios:Number(r.aniosPrevios)||0, baseManual:(r.baseManual==null||r.baseManual==='')?null:Number(r.baseManual),
+                pasos:Object.assign({solicitud:'',certificacion:'',presentacion:'',resolucion:'',resolucionNum:'',baja:''}, r.pasos||{}),
+                peritaje:Object.assign({remision:'',dictamen:'',clase:'total',origen:'comun',fase:'provisional',salarioNuevo:null,granInvalido:false,reexamen:''}, r.peritaje||{}),
+                reincorporacion:Object.assign({fecha:'',puesto:''}, r.reincorporacion||{}),
+                notas:r.notas||'' };
+        }
+        function retAnios(rr, t, rec){
+            const cert=tarjCertDatos(rr, t);
+            const deTarjeta=cert.totDias/365;
+            return { dias:cert.totDias, deTarjeta:deTarjeta, previos:rec?rec.aniosPrevios:0, total:deTarjeta+(rec?rec.aniosPrevios:0), cert:cert };
+        }
+        function retFilasAnio(rr, t){
+            return tarjAniosDe(rr, t).map(a=>{ const x=tarjAnio(rr, t, a); return {anio:a, totDias:x.totDias, totSal:x.totSal}; }).filter(f=>f.totSal>0||f.totDias>0);
+        }
+        function retBaseAuto(rr, t){
+            const filas=retFilasAnio(rr, t);
+            const anioActual=new Date().getFullYear();
+            const ult15=filas.filter(f=>f.anio>=anioActual-14&&f.totSal>0);
+            const mejores=ult15.slice().sort((a,b)=>b.totSal-a.totSal).slice(0,5);
+            const suma=mejores.reduce((a,f)=>a+f.totSal,0);
+            let ultimo=null; filas.forEach(f=>{ if(f.totSal>0&&(!ultimo||f.anio>ultimo.anio)) ultimo=f; });
+            return { base:mejores.length?Math.round(suma/60*100)/100:0, usados:mejores.map(f=>f.anio).sort(), completa:mejores.length>=5,
+                promUltimoAnio:ultimo?Math.round(ultimo.totSal/12*100)/100:0, ultimoAnio:ultimo?ultimo.anio:null };
+        }
+        function retCalc(rr, t, rec){
+            const A=retAnios(rr, t, rec); const Aent=Math.floor(A.total);
+            const bA=retBaseAuto(rr, t);
+            const base=(rec.baseManual!=null&&rec.baseManual>0)?rec.baseManual:bA.base;
+            const L=[]; let monto=null, titulo='';
+            L.push('Años acreditados: '+A.total.toFixed(1)+' (tarjeta SC-4-08: '+A.deTarjeta.toFixed(1)+(rec.aniosPrevios?' + fuera de la app: '+rec.aniosPrevios:'')+').');
+            if(rec.tipo==='edad'){
+                titulo='Pensión por edad';
+                L.push('Base: promedio de los 5 mejores años de los últimos 15 = '+moneda(base)+(rec.baseManual!=null&&rec.baseManual>0?' (manual)':' (años usados: '+(bA.usados.join(', ')||'sin datos')+(bA.completa?'':' — faltan años en la tarjeta')+')')+'.');
+                if(Aent>=30){ const pct=Math.min(90, 60+2*(Aent-30)); monto=Math.round(base*pct/100*100)/100; L.push('Ordinaria: 60 % + 2 % por cada año sobre 30 → '+pct+' % (tope 90 %).'); }
+                else if(Aent>=20){ const pct=40+2*(Aent-20); monto=Math.round(base*pct/100*100)/100; L.push('Extraordinaria: 40 % + 2 % por cada año sobre 20 → '+pct+' %.'); }
+                else L.push('Todavía no alcanza los 20 años mínimos de la pensión extraordinaria.');
+            } else if(rec.peritaje.clase==='parcial'){
+                titulo='Pensión por invalidez parcial';
+                const prom=bA.promUltimoAnio;
+                if(rec.peritaje.fase==='provisional'){
+                    const pct=rec.peritaje.origen==='laboral'?80:60;
+                    monto=prom?Math.round(prom*pct/100*100)/100:null;
+                    L.push('Provisional: '+pct+' % del salario promedio del último año ('+moneda(prom)+(bA.ultimoAnio?', '+bA.ultimoAnio:'')+').');
+                } else {
+                    const pct=rec.peritaje.origen==='laboral'?60:50;
+                    const nuevo=Number(rec.peritaje.salarioNuevo)||0;
+                    const dif=Math.max(0, prom-nuevo);
+                    monto=prom?Math.round(dif*pct/100*100)/100:null;
+                    L.push('Definitiva: '+pct+' % de la diferencia entre el salario anterior ('+moneda(prom)+') y el nuevo ('+moneda(nuevo)+') = '+moneda(dif)+'.');
+                }
+                L.push('⚠ Verifica el tiempo mínimo de servicios exigido según la edad (tabla del Reglamento de la Ley 105/2008): la app no lo calcula.');
+            } else {
+                titulo='Pensión por invalidez total';
+                L.push('Base: la misma de la pensión por edad = '+moneda(base)+(rec.baseManual!=null&&rec.baseManual>0?' (manual)':' (años usados: '+(bA.usados.join(', ')||'sin datos')+')')+'.');
+                let pct;
+                if(rec.peritaje.origen==='laboral'){ pct=Aent<=30?60:60+2*(Aent-30); }
+                else { pct=Aent<=20?50:(Aent<=30?50+(Aent-20):60+2*(Aent-30)); }
+                monto=Math.round(base*pct/100*100)/100;
+                L.push((rec.peritaje.origen==='laboral'?'Accidente de trabajo / enfermedad profesional':'Enfermedad común')+': '+pct+' % según los años de servicio.');
+                if(rec.peritaje.origen==='laboral'){ monto=Math.round(monto*1.10*100)/100; L.push('Incremento del 10 % por su origen laboral.'); }
+                if(rec.peritaje.granInvalido){ monto=Math.round(monto*1.20*100)/100; L.push('Gran inválido: incremento del 20 % (requiere asistencia constante de otra persona).'); }
+                L.push('⚠ Verifica el tiempo mínimo de servicios exigido según la edad (tabla del Reglamento de la Ley 105/2008): la app no lo calcula.');
+            }
+            return {titulo:titulo, base:base, monto:monto, lineas:L, anios:A};
+        }
+        function retSituacion(rr, t, rec){
+            if(rec.estado==='presentado') return '<span class="badge bg-info text-dark">En trámite · presentado '+(esc(rec.pasos.presentacion||''))+'</span>';
+            if(rec.estado==='concedida') return '<span class="badge bg-success">Pensión concedida</span>';
+            if(rec.estado==='denegada') return '<span class="badge bg-danger">Denegada</span>';
+            if(rec.estado==='cerrado') return '<span class="badge bg-secondary">Baja por retiro</span>';
+            if(t.fechaBaja) return '<span class="badge bg-secondary">De baja</span>';
+            const info=retEdadInfo(t); if(!info) return '<span class="badge bg-warning text-dark">Sin CI válido en su ficha</span>';
+            const A=retAnios(rr, t, rec); const Aent=Math.floor(A.total);
+            if(info.edad>=info.req&&Aent>=30) return '<span class="badge bg-success">Puede jubilarse (ordinaria)</span>';
+            if(info.edad>=info.req&&Aent>=20) return '<span class="badge bg-success">Puede jubilarse (extraordinaria)</span>';
+            if(info.edad>=info.req) return '<span class="badge bg-warning text-dark">Edad cumplida; años insuficientes ('+Aent+'/20)</span>';
+            if(info.mesesPara<=12) return '<span class="badge bg-warning text-dark">Cumple los '+info.req+' en '+info.mesesPara+' meses</span>';
+            return '<span class="badge bg-light text-dark border">—</span>';
+        }
+        function retRender(){
+            const box=retEl('retVigilancia'); if(!box) return;
+            const rr=getRRHH(); const trabs=(rr.trabajadores||[]).slice();
+            trabs.sort((a,b)=>{ const ia=retEdadInfo(a), ib=retEdadInfo(b); const ma=ia?ia.mesesPara:9999, mb=ib?ib.mesesPara:9999; return ma-mb; });
+            if(!trabs.length){ box.innerHTML='<p class="text-secondary mb-0">Sin trabajadores en la ficha todavía.</p>'; return; }
+            box.innerHTML='<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Trabajador</th><th>Edad hoy</th><th>Cumple la edad</th><th>Años acreditados</th><th>Situación</th><th></th></tr></thead><tbody>'
+                +trabs.map(t=>{ const info=retEdadInfo(t); const rec=retDe(rr, t.id); const A=retAnios(rr, t, rec);
+                    return '<tr><td><b>'+esc(t.nombre||'')+'</b><div class="small text-secondary">'+esc(t.cargo||'')+'</div></td>'
+                    +'<td>'+(info?info.edad+' años':'—')+'</td>'
+                    +'<td>'+(info?('los '+info.req+' el '+info.cumple):'revisar su CI')+'</td>'
+                    +'<td>'+A.total.toFixed(1)+' <span class="text-secondary">(tarjeta '+A.deTarjeta.toFixed(1)+(rec.aniosPrevios?' + '+rec.aniosPrevios+' previos':'')+')</span></td>'
+                    +'<td>'+retSituacion(rr, t, rec)+'</td>'
+                    +'<td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" onclick="retAbrir(\''+t.id+'\')">Expediente</button></td></tr>'; }).join('')
+                +'</tbody></table></div>';
+        }
+        function retAbrir(id){
+            retId=id; const t=retTrabajador(); if(!t) return;
+            retEl('retDetalle').style.display='block'; retPintarDetalle();
+            retEl('retDetalle').scrollIntoView({behavior:'smooth', block:'start'});
+        }
+        function retCerrar(){ retId=null; retEl('retDetalle').style.display='none'; retDocCerrar(); }
+        function retPintarDetalle(){
+            const t=retTrabajador(); if(!t) return;
+            const rr=getRRHH(); const rec=retDe(rr, t.id);
+            retEl('retNombre').textContent='Expediente de retiro · '+t.nombre;
+            retEl('ret-tipo').value=rec.tipo; retEl('ret-estado').value=rec.estado;
+            retEl('ret-aniosPrevios').value=rec.aniosPrevios||''; retEl('ret-baseManual').value=rec.baseManual==null?'':rec.baseManual;
+            retEl('ret-p-solicitud').value=rec.pasos.solicitud||''; retEl('ret-p-certificacion').value=rec.pasos.certificacion||'';
+            retEl('ret-p-presentacion').value=rec.pasos.presentacion||''; retEl('ret-p-resolucion').value=rec.pasos.resolucion||'';
+            retEl('ret-p-resolucionNum').value=rec.pasos.resolucionNum||''; retEl('ret-p-baja').value=rec.pasos.baja||'';
+            retEl('ret-x-remision').value=rec.peritaje.remision||''; retEl('ret-x-dictamen').value=rec.peritaje.dictamen||'';
+            retEl('ret-x-clase').value=rec.peritaje.clase; retEl('ret-x-origen').value=rec.peritaje.origen; retEl('ret-x-fase').value=rec.peritaje.fase;
+            retEl('ret-x-salarioNuevo').value=rec.peritaje.salarioNuevo==null?'':rec.peritaje.salarioNuevo;
+            retEl('ret-x-reexamen').value=rec.peritaje.reexamen||''; retEl('ret-x-gran').checked=!!rec.peritaje.granInvalido;
+            retEl('ret-r-fecha').value=rec.reincorporacion.fecha||''; retEl('ret-r-puesto').value=rec.reincorporacion.puesto||'';
+            retEl('ret-notas').value=rec.notas||'';
+            retEl('retPeritajeBox').style.display=rec.tipo==='invalidez'?'block':'none';
+            retPintarCalc(rec);
+            retEl('retMsg').textContent='';
+        }
+        function retPintarCalc(rec){
+            const t=retTrabajador(); if(!t) return;
+            const rr=getRRHH(); const c=retCalc(rr, t, rec); const info=retEdadInfo(t);
+            retEl('retCalcBox').innerHTML='<b>'+esc(c.titulo)+' — estimación</b>'
+                +(info?' · tiene '+info.edad+' años y cumple los '+info.req+' el '+info.cumple:' · <span class="text-danger">sin fecha de nacimiento derivable de su CI</span>')
+                +'<br>'+c.lineas.map(l=>'· '+esc(l)).join('<br>')
+                +'<br>'+(c.monto!=null?'<b>Pensión estimada: '+moneda(c.monto)+' / mes</b> <span class="text-secondary">(la cuantía oficial la fija el INASS con los registros reales)</span>':'<b>Sin estimación todavía</b> <span class="text-secondary">(faltan años acreditados o datos en la tarjeta)</span>');
+        }
+        function retLeerForm(){
+            const v=id=>{ const el=retEl(id); return el?el.value:''; };
+            const n=id=>{ const x=parseFloat(v(id)); return isFinite(x)?x:null; };
+            return { tipo:v('ret-tipo')||'edad', estado:v('ret-estado')||'preparacion',
+                aniosPrevios:n('ret-aniosPrevios')||0, baseManual:n('ret-baseManual'),
+                pasos:{solicitud:v('ret-p-solicitud'), certificacion:v('ret-p-certificacion'), presentacion:v('ret-p-presentacion'), resolucion:v('ret-p-resolucion'), resolucionNum:v('ret-p-resolucionNum'), baja:v('ret-p-baja')},
+                peritaje:{remision:v('ret-x-remision'), dictamen:v('ret-x-dictamen'), clase:v('ret-x-clase')||'total', origen:v('ret-x-origen')||'comun', fase:v('ret-x-fase')||'provisional', salarioNuevo:n('ret-x-salarioNuevo'), granInvalido:!!(retEl('ret-x-gran')&&retEl('ret-x-gran').checked), reexamen:v('ret-x-reexamen')},
+                reincorporacion:{fecha:v('ret-r-fecha'), puesto:v('ret-r-puesto')},
+                notas:v('ret-notas') };
+        }
+        function retTipoCambio(){
+            if(!retTrabajador()) return;
+            const rec=retLeerForm();
+            retEl('retPeritajeBox').style.display=rec.tipo==='invalidez'?'block':'none';
+            retPintarCalc(rec);
+        }
+        function retGuardar(){
+            const t=retTrabajador(); if(!t) return;
+            const rr=getRRHH(); rr.retiros=rr.retiros||{};
+            rr.retiros[String(t.id)]=retLeerForm();
+            saveRRHH(rr); retRender();
+            retEl('retMsg').textContent='✔ Trámite guardado.';
+            retPintarCalc(retDe(rr, t.id));
+        }
+        function retDarBaja(){
+            const t=retTrabajador(); if(!t) return;
+            if(!confirm('¿Dar la baja a '+t.nombre+' por retiro con fecha de hoy? Su finiquito (salario del mes y vacaciones) se calcula en la Nómina como cualquier baja.')) return;
+            const rr=getRRHH(); const w=(rr.trabajadores||[]).find(x=>String(x.id)===String(t.id));
+            if(w) w.fechaBaja=hoy();
+            rr.retiros=rr.retiros||{}; const rec=retDe(rr, t.id); const form=retLeerForm();
+            form.pasos.baja=hoy(); form.estado='cerrado'; rr.retiros[String(t.id)]=form;
+            saveRRHH(rr); retRender(); retPintarDetalle();
+            retEl('retMsg').textContent='✔ Baja registrada con fecha de hoy. Revisa su finiquito en la Nómina.';
+        }
+        function retMostrarDoc(titulo, html){
+            retDocTituloActual=titulo; retEl('retDocTitulo').textContent=titulo;
+            retEl('retDocBox').innerHTML=html; retEl('retDocCard').style.display='block';
+            retEl('retDocCard').scrollIntoView({behavior:'smooth', block:'start'});
+        }
+        function retDocCerrar(){ const c=retEl('retDocCard'); if(c) c.style.display='none'; }
+        function retDocImprimir(){ printPane('retDocBox', retDocTituloActual); }
+        function retCertImprimir(){
+            const t=retTrabajador(); if(!t) return;
+            retMostrarDoc('Certificación SNC-4-09 · '+t.nombre, tarjDocCert(t));
+        }
+        function retDocResumen(t){
+            const rr=getRRHH(); const rec=retDe(rr, t.id); const cert=tarjCertDatos(rr, t); const ex=expdDe(rr, t.id);
+            const filasAn=retFilasAnio(rr, t).map(f=>[String(f.anio), f.totDias+' días', docOficialNum(f.totSal)]);
+            const cuerpoA=docOficialTabla(['Año','Tiempo','Salarios devengados'], filasAn, [{c:['Total', cert.totDias+' días', docOficialNum(cert.totSal)], cls:'docof-total'}]);
+            const filasEx=EXPD_ENTRADA.concat(EXPD_ITEMS).map(([k,txt],i)=>{ const it=ex.items[k]||{}; return [String(i+1), txt, it.tiene===undefined?'Sin revisar':(it.tiene?'En el expediente':'No consta')]; });
+            const cuerpoB=docOficialTabla(['N.º','Documento del expediente','Estado'], filasEx);
+            const motivo=rec.tipo==='invalidez'?'Baja por invalidez (pensión por invalidez, Ley 105/2008)':'Terminación del contrato por jubilación (pensión por edad, Ley 105/2008)';
+            return docOficialHTML({ titulo:'HOJA RESUMEN DEL EXPEDIENTE LABORAL', modelo:'Ley 116/2013 · Decreto 326/2014', identidad:true,
+                subtitulo:motivo+'. Resumen que acompaña al expediente al cerrarse la relación laboral; se archiva en la entidad y se entrega copia al trabajador.',
+                campos: tarjCamposTrab(t).concat([['Motivo de la baja', motivo],['Resolución del INASS', (rec.pasos.resolucionNum||'—')+(rec.pasos.resolucion?' · '+rec.pasos.resolucion:'')],['Fecha de la baja', rec.pasos.baja||t.fechaBaja||'—']]),
+                cuerpo:'<div class="docof-sec">Años de servicio y salarios (tarjeta SC-4-08)</div>'+cuerpoA+'<div class="docof-sec">Relación de documentos del expediente</div>'+cuerpoB,
+                firmas:[{rol:'Responsable del expediente'},{rol:'Trabajador'}] });
+        }
+        function retResumenImprimir(){
+            const t=retTrabajador(); if(!t) return;
+            retMostrarDoc('Hoja resumen del expediente · '+t.nombre, retDocResumen(t));
+        }
+        function retAlertas(rr){
+            const out=[]; const hoyS=hoy();
+            (rr.trabajadores||[]).forEach(t=>{
+                const rec=retDe(rr, t.id);
+                if(!t.fechaBaja){
+                    const info=retEdadInfo(t);
+                    if(info&&info.mesesPara<=12){
+                        const A=retAnios(rr, t, rec); const Aent=Math.floor(A.total);
+                        if(Aent>=20) out.push({t:'warning', icono:'🧓', txt:`<b>${esc(t.nombre)}</b> cumple los ${info.req} años el ${info.cumple} y acumula <b>${Aent} años</b> acreditados: puede iniciar su retiro.`, tab:'tab-retiro', btn:'Ver en Retiro'});
+                    }
+                }
+                if(rec.estado==='presentado'&&rec.pasos.presentacion){
+                    const dias=Math.floor((Date.parse(hoyS)-Date.parse(rec.pasos.presentacion))/86400000);
+                    if(dias>25) out.push({t:'warning', icono:'⏳', txt:`El retiro de <b>${esc(t.nombre)}</b> se presentó el ${rec.pasos.presentacion} (hace ${dias} días) y la filial tiene <b>30 días hábiles</b> para dictar la resolución.`, tab:'tab-retiro', btn:'Ver el trámite'});
+                }
+                if(rec.peritaje&&rec.peritaje.reexamen){
+                    const dias=Math.floor((Date.parse(rec.peritaje.reexamen)-Date.parse(hoyS))/86400000);
+                    if(dias>=0&&dias<=60) out.push({t:'warning', icono:'🩺', txt:`Reexamen de la invalidez de <b>${esc(t.nombre)}</b> el ${rec.peritaje.reexamen} (en ${dias} días): la Comisión de Peritaje puede revisar su pensión.`, tab:'tab-retiro', btn:'Ver el trámite'});
+                }
+            });
+            return out;
+        }
+        window.__retTest={nac:retNacDeCI, edadInfo:retEdadInfo, calc:retCalc, base:retBaseAuto, de:retDe, resumen:retDocResumen, alertas:retAlertas, anios:retAnios};
+        ['ret-aniosPrevios','ret-baseManual'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', ()=>{ if(retId) retTipoCambio(); }); });
+        document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-retiro') setTimeout(retRender, 60); });
+
         function leerNominaDOM() {
             const filas = [];
             const periodo = periodoNominaActual(), rrhh = getRRHH(), n = rrhh.nominas[periodo]||{};
@@ -11526,6 +11846,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             try{ if(retDivisaEsPDL()){ const f=getFiscal(); const hoyT=hoy(); const viejos=(f.retDivisa||[]).filter(r=>(r.estado==='pendiente'||r.estado==='bandeja')&&r.fecha&&isFinite(Date.parse(r.fecha))&&(Date.parse(hoyT)-Date.parse(r.fecha))>5*86400000); if(viejos.length) filas.push({t:'warning', icono:'💱', txt:`<b>${viejos.length} aporte(s) del 20 % por retención de divisa</b> llevan más de 5 días sin acreditarse en tu cuenta CUP (Res. 103/2026 del MEP).`, tab:'tab-tarjeta_usd', btn:'Ver retención'}); } }catch(e){}
             try{ const cc=getConta(); const retC=(cc.cuarentena||[]).filter(x=>x.estado==='retenida'); if(retC.length) filas.push({t:'danger', icono:'🛡️', txt:`<b>${retC.length} lote(s) en la cuarentena de importaciones</b> esperan tu decisión: el control de totales los retuvo y no son movimientos todavía.`, tab:'tab-conta', btn:'Decidir en Contabilidad'}); }catch(e){}
             try{ const cc2=getConta(); const aMedias=(cc2.importaciones||[]).filter(x=>x.estado==='aplicando'); if(aMedias.length) filas.push({t:'warning', icono:'🧩', txt:`<b>${aMedias.length} importación(es) quedó(aron) a medias</b>: vuelve a importar el mismo estado de cuenta y la app la completa sin duplicar nada.`, tab:'tab-chequera', btn:'Reimportar el estado'}); }catch(e){}
+            try{ retAlertas(getRRHH()).forEach(f=>filas.push(f)); }catch(e){}
             const simple=modoSimpleActivo();
             const cuerpo = filas.length
                 ? filas.map(f=>`<div class="alert alert-${f.t} py-2 px-2 mb-2 d-flex flex-wrap align-items-center gap-2"><span class="flex-grow-1 small">${f.icono} ${f.txt}</span><button type="button" class="btn btn-sm btn-dark" onclick="irAPestana('${f.tab}')">${f.btn} →</button></div>`).join('')
@@ -15492,7 +15813,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                        las operativas del negocio, se ocultan DJ, Contabilidad,
                        Gestión+, Ayuda e Instrucciones (decisión de Leonardo,
                        2026-10-25): esos apartados viven dentro de cada negocio. */
-                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-utilidades','tab-fiscal','tab-cierrep','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-facturas','tab-contratos','tab-ayuda','tab-instrucciones'].forEach(id=>{
+                    ['tab-resumen','tab-registro','tab-chequera','tab-tarjeta_cup','tab-tarjeta_usd','tab-nomina','tab-retiro','tab-utilidades','tab-fiscal','tab-cierrep','tab-tasas','tab-aft','tab-cierre','tab-dj','tab-conta','tab-gestion','tab-facturas','tab-contratos','tab-ayuda','tab-instrucciones'].forEach(id=>{
                         const t=document.getElementById(id); if(t) t.closest('.nav-item').style.display='none';
                     });
                     document.getElementById('negocioNombreBadge').style.display='none';
@@ -17933,7 +18254,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-46';
+        var MANUAL_VERSION = 'v2026.10.29-47';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -18207,6 +18528,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>Toda celda se puede <b>corregir a mano</b> y lo escrito manda sobre lo calculado (botón ↺ para volver a lo calculado): así se anotan los meses anteriores a la app y lo que no sale de la nómina. Si el trabajador cobró garantía salarial del 60 %, anota el <b>100 %</b> que le hubiera correspondido, como pide el INASS.</li>' +
             '<li>De la tarjeta se imprime también la <b>Certificación de Años de Servicio y Salarios Devengados (SNC-4-09)</b>, que suma todos los años con datos: es el documento que se presenta al INASS.</li>' +
             '<li><b>El expediente laboral</b> se lleva en dos bloques: <b>A · Documentos de entrada</b> (identidad y domicilio, calificación formal si el cargo la exige, registro profesional si aplica, asignación del recién graduado si procede y nombramiento si corresponde), con los que se formaliza el contrato; y <b>B · Expediente completo</b>, con la relación oficial de documentos (Ley 116/2013 y Decreto 326/2014), que se crea y es obligatorio cuando la relación <b>supera los 6 meses</b> — la tarjeta te avisa según la fecha de ingreso del trabajador. Marca lo que ya está, con su fecha y una nota; el contrato y la tarjeta quedan enlazados en su renglón, y el <b>índice</b> se imprime.</li></ul>'},
+        {id:'retiro', modulo:'nomina', titulo:'El menú Retiro: jubilación e invalidez', html:
+            '<p>La pestaña <b>Retiro</b> lleva la jubilación de cada trabajador de principio a fin, según la Ley 105/2008 de Seguridad Social. Toda cifra que calcula es una <b>estimación</b>: la cuantía oficial la fija el INASS con los registros reales.</p>' +
+            '<ul><li><b>Vigilancia automática:</b> la edad se deriva del carné de identidad de la ficha (60 años las mujeres, 65 los hombres) y los años de servicio salen de la <b>tarjeta SC-4-08</b>, más los años acreditados fuera de la app que anotes. En «Qué toca hoy» avisa cuando alguien cumple la edad en los próximos 12 meses con 20 años o más.</li>' +
+            '<li><b>Pensión por edad:</b> la base es el promedio de los <b>5 mejores años de los últimos 15</b>, escogidos solos de la tarjeta (puedes teclear otra base). Ordinaria, con 30 años o más: <b>60 % + 2 % por año extra</b>, con tope del 90 %. Extraordinaria, de 20 a 29 años: <b>40 % + 2 % por año</b>.</li>' +
+            '<li><b>Retiro por enfermedad (invalidez):</b> lo dictamina la Comisión de Peritaje Médico Laboral. Si es <b>total</b>: enfermedad común, 50 % hasta 20 años, +1 % por año hasta 30 y +2 % después; accidente de trabajo o enfermedad profesional, 60 % hasta 30 años, +2 % después y un 10 % más; el gran inválido suma otro 20 %. Si es <b>parcial</b>: provisional, el 60 % (u 80 % si es laboral) del salario del último año; definitiva, el 50 % (o 60 %) de la diferencia con el salario del nuevo puesto. La app <b>no</b> calcula el tiempo mínimo de servicios según la edad: te avisa que lo verifiques en el Reglamento.</li>' +
+            '<li><b>El trámite:</b> en el expediente de cada trabajador anotas las fechas (solicitud, certificación, presentación en la filial, resolución) y su estado; si pasan 25 días de presentado sin resolución, «Qué toca hoy» te recuerda el plazo de 30 días hábiles. Desde ahí imprimes la <b>certificación SNC-4-09</b> y, al cerrar, la <b>hoja resumen del expediente</b>.</li>' +
+            '<li><b>La baja:</b> con la pensión concedida, el botón «Dar la baja por retiro» pone la fecha de baja de hoy; su finiquito se calcula en la Nómina como cualquier baja. Si el pensionado vuelve a trabajar, anota su reincorporación en el mismo expediente.</li></ul>'},
         {id:'vector', modulo:'fiscal', titulo:'El Vector Fiscal (RC-04A)', html:
             '<ol><li>En el menú <b>Fiscal</b>, pulsa importar y sube el PDF del <b>Vector Fiscal RC-04A</b> de la ONAT.</li>' +
             '<li>La app lee las obligaciones con sus códigos y vencimientos y las deja registradas en la ficha fiscal del negocio.</li>' +
@@ -18561,7 +18889,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',
