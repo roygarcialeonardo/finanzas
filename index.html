@@ -2495,7 +2495,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <div id="suscripcionesList">
                             <!-- Se llena con JS -->
                         </div>
-                        <details class="mt-3">
+                        <details class="mt-3" id="bloqueoGlobalDet">
                             <summary class="small fw-semibold text-secondary" style="cursor:pointer">Bloqueo global de meses (legado)</summary>
                             <p class="small text-muted mt-2">Marca los meses que no han pagado (bloqueo global de guardado, para todos los negocios).</p>
                             <div id="bloqueoMesesList">
@@ -7093,6 +7093,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const sel = document.getElementById(id);
                 if (sel) { const op = sel.querySelector('option[value="tenedor"]'); if (op) op.remove(); }
             });
+            /* Ronda -63: el bloqueo global de meses es una palanca
+               para TODOS los negocios a la vez: solo corresponde al
+               tenedor de libros o a la administradora general. En una
+               copia de negocio ese apartado ni aparece. */
+            const bd63 = document.getElementById('bloqueoGlobalDet');
+            if (bd63) bd63.classList.add('d-none');
         }
         window.__negTipo60Test = { fijo: tipoFijoLocal60, aplicarForm: aplicarTipoFijoForm60, aplicarModo: aplicarModoLocal62, abrirNegocio: function(n){ return abrirEditorNegocio(n); }, abrirUsuario: function(u){ return abrirEditorUsuario(u); } };
         async function abrirEditorNegocio(nombre){
@@ -9363,6 +9369,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         window.toggleBloqueoMes = function(mesStr) {
             if (!isAdmin()) {
                 alert('Solo el administrador puede bloquear meses.');
+                return;
+            }
+            if (typeof esPanelLocalNegocio === 'function' && esPanelLocalNegocio()) {
+                alert('El bloqueo global de meses es del tenedor de libros o de la administradora general: en una copia de negocio no se usa.');
                 return;
             }
             const bloqueos = getBloqueoMeses();
@@ -19480,7 +19490,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-62';
+        var MANUAL_VERSION = 'v2026.10.29-63';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19938,7 +19948,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Sin pago del mes en curso, el bloqueo es automático</b> también en la versión en línea: el servidor no entrega los datos (las acciones de datos responden el aviso de suscripción); entrar, ver el aviso y salir sí funciona.</li>' +
             '<li>La <b>cuenta administradora nunca se bloquea</b>: siempre puede entrar a marcar el pago, y al marcarlo el negocio se desbloquea al instante.</li>' +
             '<li>En la <b>versión sin conexión</b>, la instalación queda registrada a nombre de un negocio (tarjeta «Suscripción de esta instalación», solo visible sin conexión): el <b>día 1 de cada mes</b> el programa queda bloqueado hasta conectarse y validar contra el servidor en línea que la suscripción está pagada; sin conexión o sin pago, sigue bloqueado. El botón <b>Validar ahora</b> fuerza la comprobación.</li>' +
-            '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio.</li>' +
+            '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio. Es una palanca global: solo la ven el <b>tenedor de libros</b> y la <b>administradora general</b>; en una copia de negocio no aparece.</li>' +
             '<li><b>La tarifa de cada negocio se calcula sola</b> y se muestra en su fila: TCP básico o pleno (si supera los 500 000 CUP de ingresos del año), MIPYME y PDL por tramos de plantilla (hasta 10, de 11 a 35, de 36 a 100 empleados) más el recargo por cada socio después del primero. Los precios viven en la tarjeta <b>Licencias: precios y tenedores</b>.</li>' +
             '<li><b>Doble puerta con tenedor:</b> si un negocio tiene tenedor asignado, además de su propio pago manda el del tenedor: tenedor desactivado o sin pagar su mes = negocio bloqueado, aunque el negocio haya pagado lo suyo (y al revés). La cuenta de gestión del tenedor, como la administradora, nunca se bloquea: es su llave para entrar a resolver.</li></ul>'},
         {id:'licencias-precios', modulo:'respaldo', titulo:'Licencias diferenciadas: precios y tenedores de libros', html:

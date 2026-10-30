@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-62",
-  "publicada": "2026-10-30 02:45",
-  "notas": "Ronda -62: en las copias de negocio, el rol «Tenedor de libros» no aparece al crear ni editar usuarios (el tenedor es otra instalación)",
+  "version": "v2026.10.29-63",
+  "publicada": "2026-10-30 02:54",
+  "notas": "Ronda -63: el bloqueo global de meses (legado) no aparece en las copias de negocio; es solo del tenedor y de la administradora general",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "83133454f123bdf558a5c99024be073e90f4734b049a9053cd1e3799c331c4c3",
-      "bytes": 2072766
+      "sha256": "a4a4388e8cf0954b68611717df956cde932fadd5b25859f9dc97b23ab3bcd93a",
+      "bytes": 2073582
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "NTbGOunCo6A8eFj2anInyur6uhMjVt81+ItFelqHl/fVSlVC+wwGTVPZr7JD4k5QoFmhJRftcCjS6Obpi0pVAg=="
+  "firma": "Az+oEPTwMY6Qzb7XRl401lzUkftRQpVHCYlZyf4jZ38gSFECm1s7u0exMsE/IwBYwIiZhyON0LFVunq/uDx7Bg=="
 }
