@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-69",
-  "publicada": "2026-10-30 12:06",
-  "notas": "Panel de la copia de un negocio: solo su Registro (ronda -69)",
+  "version": "v2026.10.30-70",
+  "publicada": "2026-10-30 13:41",
+  "notas": "Aviso del cierre de la versión en línea para los negocios (ronda -70)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "1aa9bfdcb65d2cf3d26a18b2efba15dc9ee7cec63872307089e5ff8bb1b7fb6b",
-      "bytes": 2107311
+      "sha256": "c25171805db36e234aaf37021f4fc7b208d5bb2c0ed747c6fcd1f49683dab42a",
+      "bytes": 2108484
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "Kp9wm5u+5tTcsP+1QRx/sdCIZvBZ4+eqVcBHoZ+skggKqmlxb6DvaFTX6Df/V6AfbeHO6hw4Q4/yOdWaAWYPBg=="
+  "firma": "8bBGV4Rsjygrf6rbcea3x6MShPvnsTp5p5XmAA9A1JqpbCMqkSnpP/yWeqhB5YQDx/TRmOx7B9iZ5Au5QC5EDw=="
 }

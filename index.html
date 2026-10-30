@@ -935,6 +935,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <span class="icono-anim" data-icono="info"></span> Acceso solo para usuarios registrados
             </div>
         </form>
+        <div id="loginAvisoCierre70" class="alert alert-warning py-2 small mt-3 text-start" style="display:none">📢 <b>La versión en línea cerró para los negocios</b> (30 de octubre de 2026). La versión oficial de Finanzas es tu <b>copia sin conexión</b>, instalada en tu computadora: entra por ella. Tus datos de aquí quedan guardados, y tu proveedor puede migrarlos a tu copia con el puente cuando lo necesites. <span class="text-secondary">Si eres la administradora general, entra como siempre: tu panel sigue aquí.</span></div>
         <!-- Instalación inicial (solo versión sin conexión, primera vez) -->
         <div id="instalacionBox" class="d-none text-start">
             <div class="alert alert-info py-2 small">👋 <b>Primera vez en esta máquina.</b> Vamos a instalar tu copia: dime cómo la vas a usar y crea tu contraseña. Solo se hace una vez.</div>
@@ -19330,6 +19331,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                     `<div class="d-flex justify-content-end mb-2 no-print"><button type="button" class="btn btn-sm btn-outline-secondary" data-doc-c1="resumen" onclick="docResumenPrint()"><i class="bi bi-printer me-1"></i>PDF</button></div>`);
             }
         }
+        (function avisoCierre70() { var av = document.getElementById('loginAvisoCierre70'); if (av && !window.FINANZAS_LOCAL) av.style.display = ''; })();
         initRecuperaLogin();
         try { initInstalacion(); } catch (e) {}
         loginForm.addEventListener('submit', async function(e){
@@ -19792,7 +19794,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-69';
+        var MANUAL_VERSION = 'v2026.10.30-70';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19817,6 +19819,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         var MANUAL_SECCIONES = [
         {id:'acceso-sesion', modulo:'empezar', titulo:'Entrar a la app y la sesión de 30 días', html:
             '<p>Abre la app y entra con tu usuario y contraseña. La sesión queda guardada en este equipo durante <b>30 días</b>: cerrar la pestaña o la app <b>no</b> te desconecta.</p>' +
+            '<p><b>Desde el 30 de octubre de 2026 la versión en línea está cerrada para los negocios:</b> la versión oficial es la <b>copia sin conexión</b> instalada en tu computadora. La página en línea queda solo para el panel de la administradora general y para las pruebas internas; si tu usuario es de un negocio, la propia pantalla de entrada te lo avisa y el servidor no te deja entrar (tus datos en línea quedan guardados para el respaldo y el puente).</p>' +
             '<ol><li>Escribe tu usuario y tu contraseña y pulsa <b>Ingresar</b>.</li>' +
             '<li>Arriba verás el indicador de conexión: en verde, la app está hablando con el servidor; si sale en rojo, trabaja igualmente y sincroniza al volver la conexión.</li>' +
             '<li>Tras publicar una actualización de la app, <b>cierra la pestaña por completo y vuelve a abrirla con conexión</b>: si solo recargas, el teléfono puede seguir mostrándote la versión anterior.</li></ol>'},
