@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-64",
-  "publicada": "2026-10-30 03:06",
-  "notas": "Ronda -64: los negocios creados en las copias sin conexión aparecen en Suscripciones de la administradora (insignia «Copia sin conexión») y se les marcan los pagos igual que a los demás",
+  "version": "v2026.10.29-65",
+  "publicada": "2026-10-30 03:42",
+  "notas": "Ronda -65: los negocios sin conexión se muestran en todas partes (Panel con su tarifa desde el resumen firmado, Gestor, Configuración) y cada negocio muestra sus usuarios",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "0487adacd12fd1a507f9aecfe661761ef08a425bf02c167b1f78f0539f067612",
-      "bytes": 2076337
+      "sha256": "7944bae97658bb7ea9bd502b8ccbd12a83ee667487527fcabca441320995330e",
+      "bytes": 2086819
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "EUARfpRY6OVg39TrTVClUoaDI9of1isSew43bfCcMOtU+ifmejC23UI3xC0Nay1jS/UYlIp3KQIPISyo2Nq9Dg=="
+  "firma": "LnSv9a73IdtPCPB8lAzeWbwjsU/QxktdYX2ZwK07UCNif+xGaN7b6TsrDWg1hkPL/+TLsFEC64jDqX0IjDwvAA=="
 }

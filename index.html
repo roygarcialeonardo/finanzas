@@ -7025,7 +7025,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if(!box) return;
             const meta=getNegociosMeta(), users=getUsuarios();
             const nombres=Object.keys(meta).sort();
-            if(!nombres.length){ box.innerHTML='<p class="text-muted text-center py-3">No hay negocios registrados.</p>'; return; }
+            /* Ronda -65: también se listan los negocios que viven en
+               una copia sin conexión, como filas de solo lectura (se
+               gestionan dentro de su copia; su licencia se marca en
+               Suscripciones y en el Panel de control). */
+            if (!window.FINANZAS_LOCAL && isAdmin() && !SUBS_INST64_CARGADO) { cargarInstOffline64().then(() => renderNegociosAdmin()); }
+            const off65 = (!window.FINANZAS_LOCAL && Array.isArray(SUBS_INST64)) ? instNegocios65(SUBS_INST64).filter(o => !meta[o.nombre]) : [];
+            if(!nombres.length && !off65.length){ box.innerHTML='<p class="text-muted text-center py-3">No hay negocios registrados.</p>'; return; }
             let html='';
             nombres.forEach(function(n){
                 const t=({mipyme:'MIPYME',pdl:'PDL'})[(meta[n]||{}).tipo]||'TCP';
@@ -7035,6 +7041,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                    botón de eliminar en su lista. */
                 const btnBorrar = isAdmin() ? '<button class="btn btn-sm btn-outline-danger" data-negocio="'+esc(n)+'" title="Eliminar negocio" onclick="eliminarNegocio(this.dataset.negocio)"><i class="bi bi-trash3"></i></button>' : '';
                 html+='<div class="usuario-item"><div class="usuario-info"><div class="avatar" style="background:#0f766e;">'+esc(n.substring(0,2).toUpperCase())+'</div><div><div class="fw-semibold">🏢 '+esc(n)+'</div><small class="text-muted">'+t+' · Usuarios: '+(cuantos.length?cuantos.map(esc).join(', '):'ninguno')+'</small></div></div><div class="d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-negocio="'+esc(n)+'" title="Editar negocio" onclick="abrirEditorNegocio(this.dataset.negocio)"><i class="bi bi-pencil"></i></button>'+btnBorrar+'</div></div>';
+            });
+            off65.forEach(function(o){
+                const t=({mipyme:'MIPYME',pdl:'PDL'})[o.tipo]||'TCP';
+                const usI=usuariosInst65(o.inst);
+                const usTxt = usI===null ? 'viven en su copia (aún no se reportan)' : (usI.length ? usI.map(function(u){ return u.usuario; }).join(', ') : 'ninguno reportado aún');
+                html+='<div class="usuario-item"><div class="usuario-info"><div class="avatar" style="background:#0f766e;">'+esc(o.nombre.substring(0,2).toUpperCase())+'</div><div><div class="fw-semibold">🏢 '+esc(o.nombre)+' <span class="badge bg-info text-dark">Copia sin conexión</span></div><small class="text-muted">'+t+' · Usuarios: '+esc(usTxt)+'</small></div></div><small class="text-muted">Se gestiona en su copia</small></div>';
             });
             box.innerHTML=html;
         }
@@ -7251,6 +7263,76 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         let SUBS_ABIERTO = '';
         let SUBS_INST64 = null; // ronda -64: instalaciones en línea (negocios de copias sin conexión)
         let SUBS_INST64_TIPOS = {};
+        let SUBS_INST64_PROM = null;
+        let SUBS_INST64_CARGADO = false;
+        /* Carga (una sola vez) la lista de instalaciones registradas
+           en el servidor: de ahí salen los negocios que viven en una
+           copia sin conexión, para mostrarlos donde mismo que los
+           negocios en línea (rondas -64 y -65). */
+        function cargarInstOffline64() {
+            if (Array.isArray(SUBS_INST64) && SUBS_INST64.length) return Promise.resolve(SUBS_INST64);
+            if (!SUBS_INST64_PROM) {
+                SUBS_INST64_PROM = api('llaves_list', {}).then(r => {
+                    if (r && r.ok) SUBS_INST64 = r.instalaciones || [];
+                    SUBS_INST64_CARGADO = true;
+                    return SUBS_INST64 || [];
+                }).catch(() => { SUBS_INST64_CARGADO = true; return SUBS_INST64 || []; });
+            }
+            return SUBS_INST64_PROM;
+        }
+        /* Negocios anunciados por las instalaciones (modo negocio),
+           uno por nombre (el anuncio más reciente), con su resumen. */
+        function instNegocios65(lista) {
+            const porNombre = {};
+            (lista || []).forEach(i => {
+                if (!i || i.modo !== 'negocio' || !i.negocio) return;
+                const prev = porNombre[i.negocio];
+                if (!prev || String(i.actualizadaEn || '') >= String(prev.actualizadaEn || '')) porNombre[i.negocio] = i;
+            });
+            return Object.keys(porNombre).sort((a, b) => a.localeCompare(b, 'es')).map(n => {
+                const i = porNombre[n];
+                return { nombre: n, tipo: i.tipo || 'tcp', pedido: i.pedido || '', resumen: (i.resumen && typeof i.resumen === 'object') ? i.resumen : null, inst: i };
+            });
+        }
+        /* Usuarios que la copia de un negocio reporta en su resumen
+           (ronda -66): [{usuario, role}] o null si aún no los reporta.
+           Solo nombres y roles: las contraseñas no existen en claro. */
+        function usuariosInst65(inst) {
+            const r = inst && inst.resumen;
+            if (!r || !Array.isArray(r.usuarios)) return null;
+            return r.usuarios.filter(u => u && u.u).map(u => ({ usuario: String(u.u), role: String(u.r || '') }));
+        }
+        /* Tarifa de un negocio sin conexión desde el resumen firmado
+           que su copia reporta: las mismas reglas que licTarifaNegocio
+           aplica a los datos en línea (ronda -65). */
+        function licTarifaResumen65(tipo, r) {
+            const P = licPrecios();
+            if (!r || typeof r !== 'object') return { tarifa: 0, detalle: 'Su copia aún no ha reportado su resumen: tarifa sin calcular' };
+            if (tipo === 'tcp') {
+                const pleno = (+r.ingresosAnio || 0) > 500000;
+                return { tarifa: pleno ? P.tcpPleno : P.tcp, detalle: (pleno ? 'TCP pleno (superó 500 000 CUP en el año)' : 'TCP básico') + ' · según el resumen de su copia' };
+            }
+            const g = tipo === 'pdl' ? P.pdl : P.mipyme;
+            const trab = +r.plantilla || 0, socios = Math.max(1, +r.socios || 1);
+            const tramo = trab <= 10 ? 'micro' : (trab <= 35 ? 'pequena' : 'mediana');
+            const tarifa = (+g[tramo] || 0) + (+g.porSocio || 0) * Math.max(0, socios - 1);
+            const tramoTxt = (tipo === 'pdl' ? ({ micro: '≤10 empleados', pequena: '11-35 empleados', mediana: '36-100 empleados' })[tramo] : ({ micro: 'micro · ≤10 empleados', pequena: 'pequeña · 11-35 empleados', mediana: 'mediana · 36-100 empleados' })[tramo]);
+            return { tarifa, detalle: (tipo === 'pdl' ? 'PDL ' : 'MIPYME ') + tramoTxt + ' · ' + socios + ' socio(s) · según el resumen de su copia' };
+        }
+        /* Usuarios EN LÍNEA de un negocio (sin la administradora
+           general), como en el Registro (ronda -52). */
+        function panelUsuariosDe65(neg) {
+            const us = getUsuarios(), out = [];
+            Object.keys(us).forEach(u => { const x = us[u] || {}; if (String(x.negocio || '').trim() === neg && x.role !== 'admin') out.push({ usuario: u, role: x.role || '' }); });
+            return out;
+        }
+        function panelUsuariosHtml65(x) {
+            let inner;
+            if (x.usuarios65 === null || x.usuarios65 === undefined) inner = '<span class="text-secondary">viven en su copia; aún no se reportan en línea</span>';
+            else if (x.usuarios65.length) inner = x.usuarios65.map(u => `<span class="badge bg-light text-dark border me-1">${esc(u.usuario)}${u.role ? ' · ' + esc(u.role) : ''}</span>`).join('');
+            else inner = '<span class="text-secondary">—</span>';
+            return `<div class="small mt-1"><span class="text-muted">Usuarios:</span> ${inner}</div>`;
+        }
         function subsDeNeg(neg) {
             const m = getNegociosMeta()[neg] || {};
             const s = (m.subs && typeof m.subs === 'object') ? m.subs : {};
@@ -7325,11 +7407,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                y se fusionan: entran en la lista con su tipo y con la
                insignia «Copia sin conexión» mientras no tengan
                usuarios en línea. */
-            if (!window.FINANZAS_LOCAL && isAdmin() && SUBS_INST64 === null) {
-                SUBS_INST64 = [];
-                api('llaves_list', {}).then(r => {
-                    if (r && r.ok) { SUBS_INST64 = (r.instalaciones || []).filter(i => i && i.modo === 'negocio' && i.negocio); renderSuscripciones(); }
-                }).catch(() => {});
+            if (!window.FINANZAS_LOCAL && isAdmin() && !SUBS_INST64_CARGADO) {
+                cargarInstOffline64().then(() => renderSuscripciones());
             }
             const meta = getNegociosMeta();
             const metaEf = Object.assign({}, meta);
@@ -7337,7 +7416,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const us64 = getUsuarios();
                 SUBS_INST64.forEach(i64 => {
                     const nm = i64.negocio;
-                    if (!nm) return;
+                    if (!nm || i64.modo !== 'negocio') return;
                     SUBS_INST64_TIPOS[nm] = i64.tipo || 'tcp';
                     const tieneOnline = Object.keys(us64).some(u => us64[u] && us64[u].negocio === nm);
                     const base = metaEf[nm] || {};
@@ -7596,8 +7675,23 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const meta = getNegociosMeta(), mes = subsMesActual(), P = licPrecios();
             const negocios = Object.keys(meta).sort((a, b) => a.localeCompare(b, 'es')).map(n => {
                 const tl = (typeof GDOCS !== 'undefined' && GDOCS && GDOCS[n]) ? licTarifaNegocio(n, GDOCS[n]) : null;
-                return { nombre: n, tipo: meta[n].tipo || 'tcp', tenedor: meta[n].tenedor || '', propio: meta[n].propio || '', tarifa: tl ? tl.tarifa : 0, detalle: tl ? tl.detalle : '', s: subsDeNeg(n) };
+                return { nombre: n, tipo: meta[n].tipo || 'tcp', tenedor: meta[n].tenedor || '', propio: meta[n].propio || '', tarifa: tl ? tl.tarifa : 0, detalle: tl ? tl.detalle : '', s: subsDeNeg(n), usuarios65: panelUsuariosDe65(n) };
             });
+            /* Ronda -65 (pedido de Leonardo: «sin omitir ningún
+               lugar»): los negocios que viven en una copia sin
+               conexión entran también en el modelo del Panel, con su
+               tarifa calculada desde el resumen firmado que su copia
+               reporta y sus usuarios cuando la copia los reporta. */
+            if (!window.FINANZAS_LOCAL && Array.isArray(PANEL_INSTALACIONES)) {
+                const ya65 = new Set(negocios.map(x => x.nombre));
+                instNegocios65(PANEL_INSTALACIONES).forEach(o => {
+                    if (ya65.has(o.nombre)) return;
+                    ya65.add(o.nombre);
+                    const tl = licTarifaResumen65(o.tipo, o.resumen);
+                    negocios.push({ nombre: o.nombre, tipo: o.tipo, tenedor: '', propio: '', tarifa: tl.tarifa, detalle: tl.detalle, s: subsDeNeg(o.nombre), offline65: true, usuarios65: usuariosInst65(o.inst) });
+                });
+                negocios.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+            }
             const usuarios = getUsuarios(), set = new Set();
             Object.keys(usuarios).forEach(u => { if (usuarios[u].role === 'tenedor') set.add(u); });
             negocios.forEach(x => { if (x.tenedor) set.add(x.tenedor); });
@@ -7653,10 +7747,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const chipEstado = x => !x.s.activo ? '<span class="badge bg-dark">Desactivado</span>' : x.s.cortesia ? '<span class="badge bg-info text-dark">Cortesía</span>' : x.s.pagos[m.mes] ? '<span class="badge bg-success">Pagado</span>' : '<span class="badge bg-danger">Sin pagar</span>';
             return m.negocios.map(x => `<div class="border rounded p-2 mb-2" data-panel-neg="${esc(x.nombre)}">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span class="fw-semibold">🏢 ${esc(x.nombre)} <span class="badge bg-secondary">${esc(({ mipyme: 'MIPYME', pdl: 'PDL' })[x.tipo] || 'TCP')}</span></span>
+                    <span class="fw-semibold">🏢 ${esc(x.nombre)} <span class="badge bg-secondary">${esc(({ mipyme: 'MIPYME', pdl: 'PDL' })[x.tipo] || 'TCP')}</span>${x.offline65 ? '<span class="badge bg-info text-dark ms-1">Copia sin conexión</span>' : ''}</span>
                     ${chipEstado(x)}
                 </div>
                 <div class="small text-muted">Licencia: <b>${moneda(x.tarifa)}/mes</b>${x.detalle ? ' · ' + esc(x.detalle) : ''} · ${x.tenedor ? 'Tenedor: <b>' + esc(x.tenedor) + '</b>' : '<b>Cliente directo</b>'}</div>
+                ${panelUsuariosHtml65(x)}
                 <div class="d-flex flex-wrap align-items-center gap-3 mt-1">
                     <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-pneg-activo="${esc(x.nombre)}" ${x.s.activo ? 'checked' : ''}> <span class="form-check-label small fw-semibold">Negocio activo</span></label>
                     <label class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" data-pneg-cortesia="${esc(x.nombre)}" ${x.s.cortesia ? 'checked' : ''}> <span class="form-check-label small">Cortesía (no paga ni se bloquea)</span></label>
@@ -8161,7 +8256,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         let PANEL_LLAVES = null; let PANEL_INSTALACIONES = null; let LLAVE_NUEVA = '';
         async function cargarLlavesPanel() {
             const r = await api('llaves_list', {});
-            if (r && r.ok) { PANEL_LLAVES = r.llaves || []; PANEL_INSTALACIONES = r.instalaciones || []; pintarLlavesVista(); pintarRegistroVista(); }
+            if (r && r.ok) { PANEL_LLAVES = r.llaves || []; PANEL_INSTALACIONES = r.instalaciones || []; pintarLlavesVista(); pintarRegistroVista(); if (PANEL_VISTA === 'resumen' || PANEL_VISTA === 'negocios' || PANEL_VISTA === 'tenedores') renderPanelControl(); }
         }
         // Instalaciones registradas (ronda -31) cuyo negocio aún no
         // existe en línea: también son titulares elegibles de llave.
@@ -8240,8 +8335,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             });
             const filas = (m.negocios || []).map(x => ({
                 nombre: x.nombre, tipo: x.tipo, s: x.s, tenedor: x.tenedor || '',
-                usuarios: porNegocio[x.nombre] || [],
-                inst: instPorNegocio[norm(x.nombre)] || null, soloInstalacion: false
+                usuarios: (porNegocio[x.nombre] && porNegocio[x.nombre].length) ? porNegocio[x.nombre] : (x.usuarios65 || []),
+                inst: instPorNegocio[norm(x.nombre)] || null, soloInstalacion: !!x.offline65
             }));
             const enLinea = new Set(filas.map(f => norm(f.nombre)));
             (PANEL_INSTALACIONES || []).forEach(i => {
@@ -8265,7 +8360,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const cuerpo = filas.map(f => {
                 const us = f.usuarios.length ? f.usuarios.map(u => `<span class="badge bg-light text-dark border me-1 mb-1">${esc(u.usuario)}${u.role ? ' · ' + esc(u.role) : ''}</span>`).join('') : '<span class="text-secondary">—</span>';
                 const serv = PANEL_SERVICIOS.map(sv => { const e = sv.estadoDe(f); return `<div class="mb-1"><span class="small fw-semibold">${esc(sv.nombre)}:</span> <span class="badge ${e.cls}">${esc(e.estado)}</span></div>`; }).join('');
-                return `<tr><td><b>${esc(f.nombre)}</b>${f.soloInstalacion ? ' <span class="badge bg-info text-dark">solo instalación</span>' : ''}${f.inst && f.inst.pedido ? `<div class="small text-secondary">Pedido ${esc(f.inst.pedido)}</div>` : ''}</td><td>${esc(String(f.tipo || '').toUpperCase())}</td><td>${us}</td><td>${panelRegistroRescate(f.inst)}</td><td>${serv}</td></tr>`;
+                return `<tr><td><b>${esc(f.nombre)}</b>${f.soloInstalacion ? ' <span class="badge bg-info text-dark">Copia sin conexión</span>' : ''}${f.inst && f.inst.pedido ? `<div class="small text-secondary">Pedido ${esc(f.inst.pedido)}</div>` : ''}</td><td>${esc(String(f.tipo || '').toUpperCase())}</td><td>${us}</td><td>${panelRegistroRescate(f.inst)}</td><td>${serv}</td></tr>`;
             }).join('');
             return `<h6 class="fw-semibold">📋 Registro de negocios</h6>
             <p class="small text-secondary">Quién entra en cada negocio, si ya tiene su red de seguridad (el código de recuperación) y qué servicios tiene contratados. Las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b>: cada copia guarda solo su huella, y la pérdida se resuelve con el código de recuperación, no con una lista de contraseñas.</p>
@@ -8513,7 +8608,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     }
                 });
             }
-            if ((PANEL_VISTA === 'llaves' || PANEL_VISTA === 'registro') && PANEL_LLAVES === null) cargarLlavesPanel();
+            if (PANEL_LLAVES === null) cargarLlavesPanel();
             const m = panelModelo();
             pane.querySelectorAll('[data-panel-vista]').forEach(b => {
                 const on = b.getAttribute('data-panel-vista') === PANEL_VISTA;
@@ -16505,6 +16600,10 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const pane=document.getElementById('pane-gestor'); if(!pane) return;
             if(!esGestor()) return;
             if(!GDOCS){ if(!gestorCargando) cargarGestorDatos(); return; }
+            /* Ronda -65: el Gestor también muestra los negocios que
+               viven en una copia sin conexión (tarjetas al final). */
+            if (!window.FINANZAS_LOCAL && !SUBS_INST64_CARGADO) { cargarInstOffline64().then(() => { if (GDOCS) renderGestor(); }); }
+            const offG = (!window.FINANZAS_LOCAL && Array.isArray(SUBS_INST64)) ? instNegocios65(SUBS_INST64).filter(o => !GDOCS[o.nombre]) : [];
             const hoy=gHoyISOFecha(), cfg=gestorOnatCfg();
             const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
             const pdlOverlays=(getCobrosGestor().pdlFichas)||{};
@@ -16534,6 +16633,21 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                   <div class="mt-2"><button class="btn btn-sm btn-outline-primary" data-gestor-ver="${esc(n)}"><i class="bi bi-eye me-1"></i>Ver detalle</button></div>
                 </div></div>`;
             }).join('') : '<div class="col-12 text-secondary small">Todavía no hay negocios creados. Usa «Alta rápida de cliente» para crear el primero.</div>';
+            if(boxC && offG.length){
+                const extraG = offG.map(o=>{
+                    const tlG=licTarifaResumen65(o.tipo, o.resumen), sG=subsDeNeg(o.nombre), usIG=usuariosInst65(o.inst);
+                    const tipoTxtG=o.tipo==='pdl'?'PDL':o.tipo==='mipyme'?'MIPYME':'TCP';
+                    const usTxtG = usIG===null ? 'viven en su copia (aún no se reportan)' : (usIG.length ? usIG.map(u=>esc(u.usuario)).join(', ') : 'ninguno reportado aún');
+                    return `<div class="col-md-6 col-xl-4"><div class="card gestor-card p-3 h-100">
+                      <div class="d-flex justify-content-between align-items-start"><div class="fw-bold">⚪ ${esc(o.nombre)}</div><span class="badge bg-soft-secondary">${tipoTxtG}</span></div>
+                      <div class="small mt-1"><span class="badge bg-info text-dark">Copia sin conexión</span></div>
+                      <div class="small text-secondary mt-1">Sus datos viven en su copia instalada: cierres, vencimientos y justificación se consultan allí.</div>
+                      <div class="small mt-2">Licencia: <b>${moneda(tlG.tarifa)}/mes</b> · ${sG.pagos[subsMesActual()] ? '<span class="badge bg-success">Pagado este mes</span>' : '<span class="badge bg-danger">Sin pagar este mes</span>'}</div>
+                      <div class="small">Usuarios: ${usTxtG}</div>
+                    </div></div>`;
+                }).join('');
+                if(nombres.length) boxC.insertAdjacentHTML('beforeend', extraG); else boxC.innerHTML = extraG;
+            }
             document.querySelectorAll('[data-gestor-ver]').forEach(b=>b.onclick=()=>{ gestorNegSel=b.getAttribute('data-gestor-ver'); gestorInformePeriodo=''; pdlDraft=null; renderGestorDetalle(); const d=document.getElementById('gestorDetalle'); if(d) d.scrollIntoView({behavior:'smooth',block:'start'}); });
             renderGestorCalendario(items);
             renderGestorCobros();
@@ -16542,7 +16656,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function renderGestorCalendario(items){
             const box=document.getElementById('gestorCalendario'); if(!box) return;
             const mesInp=document.getElementById('gestorCalMes'), negSel=document.getElementById('gestorCalNeg'), estSel=document.getElementById('gestorCalEstado');
-            if(negSel&&GDOCS&&negSel.getAttribute('data-filled')!=='1'){ Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es')).forEach(n=>{ const op=document.createElement('option'); op.value=n; op.textContent=n; negSel.appendChild(op); }); negSel.setAttribute('data-filled','1'); }
+            if(negSel&&GDOCS){ const dispG=Object.keys(GDOCS); if(Array.isArray(SUBS_INST64)) instNegocios65(SUBS_INST64).forEach(o=>{ if(!dispG.includes(o.nombre)) dispG.push(o.nombre); }); dispG.sort((a,b)=>a.localeCompare(b,'es')); const firmaG=dispG.join('|'); if(negSel.getAttribute('data-filled')!==firmaG){ const prevG=negSel.value; negSel.innerHTML='<option value="">Todos los negocios</option>'; dispG.forEach(n=>{ const op=document.createElement('option'); op.value=n; op.textContent=n; negSel.appendChild(op); }); negSel.value=prevG; negSel.setAttribute('data-filled',firmaG); } }
             const mes=mesInp?mesInp.value:'', neg=negSel?negSel.value:'', est=estSel?estSel.value:'';
             let rows=(items||[]).slice();
             if(mes) rows=rows.filter(x=>String(x.obligacion.vence||'').slice(0,7)===mes);
@@ -16791,7 +16905,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function renderGestorCobros(){
             const box=document.getElementById('gestorCobros'); if(!box||!GDOCS) return;
             const data=getCobrosGestor(), hoyYM=gestorHoyYM();
-            const nombres=Object.keys(GDOCS).sort((a,b)=>a.localeCompare(b,'es'));
+            const nombres=Object.keys(GDOCS); if(Array.isArray(SUBS_INST64)) instNegocios65(SUBS_INST64).forEach(o=>{ if(!nombres.includes(o.nombre)) nombres.push(o.nombre); }); nombres.sort((a,b)=>a.localeCompare(b,'es'));
             let totPend=0;
             const rows=nombres.map(n=>{ const c=(data.cobros||{})[n]||{}; const e=gCobroEstado(c,hoyYM); totPend+=e.pendiente;
                 return `<tr class="${e.alerta?'table-danger':''}"><td class="fw-semibold">${esc(n)}${e.alerta?' <span class="badge bg-danger">2+ meses</span>':''}</td>
@@ -19519,7 +19633,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-64';
+        var MANUAL_VERSION = 'v2026.10.29-65';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -20022,8 +20136,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>El menú <b>Panel de control</b> (solo lo ve la cuenta administradora) reúne en un solo sitio el control de las licencias: el dinero del mes y el historial, la tabla maestra de negocios y el menú de tenedores. Marcar un pago, activar, desactivar o dar una cortesía se guarda al momento y el servidor aplica el bloqueo al instante.</p>' +
             '<ul><li><b>Resumen:</b> cuánto deberías cobrar este mes en licencias (las licencias de los negocios activos sin cortesía más el porcentaje de cada tenedor activo), cuánto ya cobraste y cuánto falta, con la lista de pendientes y su botón «Marcar pagado». Abajo, los <b>últimos 6 meses</b> (esperado, cobrado y pendiente), calculados con las tarifas de hoy.</li>' +
             '<li><b>Negocios:</b> cada negocio con su licencia calculada, si es <b>cliente directo</b> o de qué tenedor es, su estado del mes y su <b>historial de 6 meses</b> (toca un mes para cambiarlo). El interruptor <b>Cortesía</b> marca una licencia regalada: ese negocio <b>nunca se bloquea por falta de pago</b>, no cuenta como deuda y tampoco suma a la base del porcentaje de su tenedor (la desactivación manual sí sigue bloqueándolo). La <b>nota privada</b> es solo tuya: teléfono, cómo paga, lo que quieras recordar. Bajo el historial va la fila del <b>módulo POS</b> (5 000 CUP/mes, aparte de la licencia): su interruptor «Contratado» y sus propios meses de pago; la cortesía de la licencia base <b>no</b> lo cubre.</li>' +
+            '<li><b>Negocios sin conexión, el mismo trato:</b> los negocios que viven en una copia instalada aparecen también en este Panel (Resumen, Negocios y Registro), en Suscripciones, en el Gestor y en la lista de negocios de Configuración, con la insignia <b>«Copia sin conexión»</b>. Su tarifa se calcula con el <b>resumen firmado</b> que su copia reporta al registrarse (plantilla, socios e ingresos del año), con las mismas reglas que los negocios en línea, y sus pagos se marcan igual que los demás. En Negocios y en el Registro ves además los <b>usuarios</b> de cada negocio; los de una copia sin conexión se muestran en cuanto su copia los reporta (solo nombres y roles: las contraseñas no existen en claro en ningún sitio).</li>' +
             '<li><b>Tenedores:</b> cada tenedor con los negocios que atiende, el valor de su cartera, <b>lo que te aporta a ti</b> (su base fija por el uso de la aplicación más su porcentaje sobre las tarifas de sus negocios activos y sin cortesía), si pagó su mes y el historial de su licencia. Activarlo, desactivarlo y marcar sus pagos es <b>solo de la administradora</b>: un tenedor no puede inhabilitar ni borrar negocios ni marcar pagos, ni los suyos ni los de nadie.</li>' +
-            '<li><b>Registro:</b> de un vistazo, negocio a negocio: sus <b>nombres de usuario</b> (las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b> — solo su huella — y por eso no hay ninguna lista de contraseñas que guardar ni que perder), si su copia sin conexión ya generó el <b>código de recuperación</b> (lo anuncia ella misma al registrarse, con la fecha de su último anuncio; «Sin anunciar» = su copia aún no lo ha comunicado) y los <b>servicios contratados</b> con su estado: hoy la licencia de <b>Finanzas</b> de este mes y el módulo de <b>Punto de Venta (POS)</b>; cuando lleguen módulos nuevos aparecerán aquí en la misma lista. Los negocios que solo existen como instalación registrada salen con su insignia «solo instalación» y su código de pedido.</li>' +
+            '<li><b>Registro:</b> de un vistazo, negocio a negocio: sus <b>nombres de usuario</b> (las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b> — solo su huella — y por eso no hay ninguna lista de contraseñas que guardar ni que perder), si su copia sin conexión ya generó el <b>código de recuperación</b> (lo anuncia ella misma al registrarse, con la fecha de su último anuncio; «Sin anunciar» = su copia aún no lo ha comunicado) y los <b>servicios contratados</b> con su estado: hoy la licencia de <b>Finanzas</b> de este mes y el módulo de <b>Punto de Venta (POS)</b>; cuando lleguen módulos nuevos aparecerán aquí en la misma lista. Los negocios que solo existen como instalación registrada salen con su insignia «Copia sin conexión» y su código de pedido.</li>' +
             '<li>En la vista de <b>Administrador</b> ya no aparece el menú <b>Registro</b>: el Registro de Control es el libro de cada negocio y vive dentro de él; tu panel es Gestor, Panel de control y Configuración.</li>' +
             '<li><b>En la copia sin conexión de un negocio</b> el Panel viene recortado a su medida: no sale la vista de <b>Tenedores</b>, la de Negocios se llama <b>Negocio</b> y muestra solo el negocio registrado en la instalación, el <b>Resumen</b> solo pone lo que ese negocio ha pagado a su tenedor de libros (queda en blanco si no tiene tenedor) y la vista de <b>Llaves</b> se rellena sola con el código de pedido y el negocio de la instalación. En esa copia tampoco aparece el menú <b>Gestor</b>: el Gestor es solo de los perfiles de tenedor (y de la administradora en línea).</li></ul>'},
         {id:'actualizacion-offline', modulo:'respaldo', titulo:'Actualización de la versión sin conexión', html:
