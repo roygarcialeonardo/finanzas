@@ -1325,7 +1325,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="carpeta"></span>Expediente laboral — <span id="expdNombre"></span></h6>
                     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="expdCerrar()">Cerrar</button>
                 </div>
-                <p class="small text-secondary mb-2">Primero van los <b>documentos de entrada</b>, los que formalizan el contrato; el <b>expediente laboral completo</b> (relación oficial: Ley 116/2013, arts. 33-35; Decreto 326/2014, arts. 17-21) se crea y es obligatorio cuando la relación supera los 6 meses. Marca lo que ya está y anota su fecha o referencia. Lo que la app genera (contrato y tarjeta de salario) queda enlazado en su propio renglón.</p>
+                <p class="small text-secondary mb-2">Primero van los <b>documentos de entrada</b>, los que formalizan el contrato; el <b>expediente laboral completo</b> lleva la relación oficial de la <b>Ley 189/2026, Capítulo V, artículo 77</b>: se confecciona en <b>papel y digital</b> (art. 76) en los <b>15 días siguientes al período de prueba</b> cuando la relación supera los 6 meses, y el trabajador puede <b>revisarlo cuando quiera</b> (art. 78). Marca lo que ya está y anota su fecha o referencia. Lo que la app genera (contrato y tarjeta de salario) queda enlazado en su propio renglón.</p>
                 <div id="expdBody" class="small"></div>
                 <div id="expdMsg" class="small mb-2"></div>
                 <div class="d-flex flex-wrap gap-2">
@@ -4843,8 +4843,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
            Lo tecleado a mano manda: se guarda como override en
            rrhh.tarjetas[wid][anio][mes] = {d, s, c}. De las tarjetas
            nace la Certificación SNC-4-09. El expediente laboral guarda
-           el estado de la relación oficial de documentos (Ley 116/2013
-           arts. 33-35; Decreto 326/2014 arts. 17-21) en
+           el estado de la relación oficial de documentos (Ley 189/2026,
+           Capítulo V, art. 77; antes Ley 116/2013 y Decreto 326/2014) en
            rrhh.expedientes[wid] = {items:{clave:{tiene, fecha, nota}}}.
            Diseño: TARJETA-EXPEDIENTE-DISENO.md. */
         let tarjId=null, expdId=null, tarjDocTituloActual='';
@@ -5000,17 +5000,25 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             ['e_graduado','Documento oficial de asignación del recién graduado, si procede'],
             ['e_nombramiento','Nombramiento o designación, si corresponde']
         ];
+        /* Relación del expediente según la Ley 189/2026 (Código de
+           Trabajo), Capítulo V, artículo 77 — lista aportada por
+           Leonardo desde la Gaceta el 2026-10-29. La clave
+           'segsocial' conserva lo ya guardado (antes incluía también
+           los dictámenes; desde esta ronda el peritaje lleva su
+           propio renglón, como manda el art. 77). */
         const EXPD_ITEMS=[
-            ['datos','Datos personales: nombres y apellidos, carné de identidad y domicilio'],
+            ['datos','Nombres y apellidos, número de identidad permanente y domicilio'],
             ['contratos','Contratos de trabajo y sus suplementos'],
-            ['nombramiento','Nombramiento o designación, cuando corresponda'],
-            ['inscripcion','Constancia del Registro de Inscripción Profesional, cuando se requiera'],
-            ['graduado','Documento oficial de asignación del recién graduado, cuando proceda'],
-            ['calificacion','Documento que acredite la calificación formal'],
-            ['segsocial','Documentos de seguridad social: tiempo de trabajo y salarios devengados (tarjetas SC-4-08, certificaciones) y dictámenes de peritaje médico laboral'],
-            ['disciplina','Copia de medidas disciplinarias y sanciones judiciales firmes con implicación laboral'],
-            ['indice','Índice de relación de documentos del expediente'],
-            ['acta','Copia del acta de entrega del expediente laboral']
+            ['nombramiento','Nombramiento o designación y sus modificaciones, cuando corresponda'],
+            ['eleccion','Acuerdo de elección y acta de toma de posesión, cuando corresponda'],
+            ['inscripcion','Certificación de actualización del Registro de Inscripción Profesional, cuando se requiera'],
+            ['graduado','Documento de asignación del recién graduado, cuando proceda'],
+            ['calificacion','Copia del título o calificación formal (previa presentación del original)'],
+            ['segsocial','Documentos que acrediten el tiempo de servicio y las remuneraciones devengadas (para la seguridad social)'],
+            ['peritaje','Dictámenes de la Comisión de Peritaje Médico Laboral'],
+            ['disciplina','Copia de medidas disciplinarias impuestas y sentencias con trascendencia laboral (se mantienen hasta la rehabilitación o el cumplimiento)'],
+            ['indice','Índice de relación de documentos'],
+            ['acta','Copia del acta de entrega del expediente']
         ];
         function expdTrabajador(){ const rr=getRRHH(); return (rr.trabajadores||[]).find(x=>String(x.id)===String(expdId))||null; }
         function expdDe(rr, wid){ const e=((rr.expedientes||{})[String(wid)]||{}); const items=(e.items&&typeof e.items==='object'&&!Array.isArray(e.items))?e.items:{}; return {items:items}; }
@@ -5048,8 +5056,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             };
             const meses=expdMesesRelacion(t);
             const aviso=meses===null?'':(meses>=6
-                ? '<div class="alert alert-info py-2 px-3 small">Relación laboral desde '+esc(t.fechaAlta)+': <b>'+meses+' meses</b> — el expediente completo ya es obligatorio; los documentos posteriores (suplementos, tarjeta, dictámenes, sanciones) se van incorporando según ocurran.</div>'
-                : '<div class="alert alert-secondary py-2 px-3 small">Relación laboral desde '+esc(t.fechaAlta)+': <b>'+meses+' meses</b> — al superar los 6 meses se crea el expediente completo; por ahora bastan los documentos de entrada.</div>');
+                ? '<div class="alert alert-info py-2 px-3 small">Relación laboral desde '+esc(t.fechaAlta)+': <b>'+meses+' meses</b> — el expediente completo ya es obligatorio (la Ley 189 manda conformarlo en papel y digital en los 15 días siguientes al período de prueba); los documentos posteriores (suplementos, tarjeta, dictámenes, sanciones) se van incorporando según ocurran, y el trabajador puede revisarlo cuando quiera.</div>'
+                : '<div class="alert alert-secondary py-2 px-3 small">Relación laboral desde '+esc(t.fechaAlta)+': <b>'+meses+' meses</b> — si la relación supera los 6 meses, el expediente completo se conforma en los 15 días siguientes al período de prueba; por ahora bastan los documentos de entrada.</div>');
             tarjEl('expdBody').innerHTML=aviso
                 +'<h6 class="fw-semibold mt-1">A · Documentos de entrada (para formalizar el contrato)</h6>'
                 +EXPD_ENTRADA.map((it,i)=>fila(it, i+1)).join('')
@@ -5080,7 +5088,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const filasDe=lista=>lista.map(([k,txt],i)=>{ const it=ex.items[k]||{}; return [String(i+1), txt, it.tiene===undefined?'Sin revisar':(it.tiene?'En el expediente':'No consta'), it.fecha||'—', it.nota||'—']; });
             const cuerpo='<div class="docof-sec">A · Documentos de entrada</div>'+docOficialTabla(['N.º','Documento','Estado','Fecha','Nota'], filasDe(EXPD_ENTRADA))
                 +'<div class="docof-sec">B · Expediente laboral completo</div>'+docOficialTabla(['N.º','Documento','Estado','Fecha','Nota'], filasDe(EXPD_ITEMS));
-            const html=docOficialHTML({ titulo:'EXPEDIENTE LABORAL · ÍNDICE DE DOCUMENTOS', modelo:'Ley 116/2013 · Decreto 326/2014', identidad:true,
+            const html=docOficialHTML({ titulo:'EXPEDIENTE LABORAL · ÍNDICE DE DOCUMENTOS', modelo:'Ley 189/2026 · Cap. V, art. 77', identidad:true,
                 subtitulo:'Relación de los documentos que integran el expediente laboral del trabajador.',
                 campos: tarjCamposTrab(t),
                 cuerpo: cuerpo,
@@ -5299,7 +5307,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const filasEx=EXPD_ENTRADA.concat(EXPD_ITEMS).map(([k,txt],i)=>{ const it=ex.items[k]||{}; return [String(i+1), txt, it.tiene===undefined?'Sin revisar':(it.tiene?'En el expediente':'No consta')]; });
             const cuerpoB=docOficialTabla(['N.º','Documento del expediente','Estado'], filasEx);
             const motivo=rec.tipo==='invalidez'?'Baja por invalidez (pensión por invalidez, Ley 105/2008)':'Terminación del contrato por jubilación (pensión por edad, Ley 105/2008)';
-            return docOficialHTML({ titulo:'HOJA RESUMEN DEL EXPEDIENTE LABORAL', modelo:'Ley 116/2013 · Decreto 326/2014', identidad:true,
+            return docOficialHTML({ titulo:'HOJA RESUMEN DEL EXPEDIENTE LABORAL', modelo:'Ley 189/2026 · Cap. V, art. 77', identidad:true,
                 subtitulo:motivo+'. Resumen que acompaña al expediente al cerrarse la relación laboral; se archiva en la entidad y se entrega copia al trabajador.',
                 campos: tarjCamposTrab(t).concat([['Motivo de la baja', motivo],['Resolución del INASS', (rec.pasos.resolucionNum||'—')+(rec.pasos.resolucion?' · '+rec.pasos.resolucion:'')],['Fecha de la baja', rec.pasos.baja||t.fechaBaja||'—']]),
                 cuerpo:'<div class="docof-sec">Años de servicio y salarios (tarjeta SC-4-08)</div>'+cuerpoA+'<div class="docof-sec">Relación de documentos del expediente</div>'+cuerpoB,
@@ -19456,7 +19464,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-60';
+        var MANUAL_VERSION = 'v2026.10.29-61';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19731,7 +19739,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li><b>La tarjeta de salario</b> es el modelo oficial <b>SC-4-08</b> «Registro de Salario y Tiempo de Servicio», el documento base de la jubilación: una fila por mes con los <b>días</b>, el <b>salario devengado</b> y la <b>clave</b> de las incidencias. Se llena <b>sola</b> desde las nóminas pagadas: los días salen del control de días del mes y el devengado es el bruto del mismo cálculo que pagó la nómina (los subsidios son prestaciones de la seguridad social: constan en la clave, no en la cifra).</li>' +
             '<li>Toda celda se puede <b>corregir a mano</b> y lo escrito manda sobre lo calculado (botón ↺ para volver a lo calculado): así se anotan los meses anteriores a la app y lo que no sale de la nómina. Si el trabajador cobró garantía salarial del 60 %, anota el <b>100 %</b> que le hubiera correspondido, como pide el INASS.</li>' +
             '<li>De la tarjeta se imprime también la <b>Certificación de Años de Servicio y Salarios Devengados (SNC-4-09)</b>, que suma todos los años con datos: es el documento que se presenta al INASS.</li>' +
-            '<li><b>El expediente laboral</b> se lleva en dos bloques: <b>A · Documentos de entrada</b> (identidad y domicilio, calificación formal si el cargo la exige, registro profesional si aplica, asignación del recién graduado si procede y nombramiento si corresponde), con los que se formaliza el contrato; y <b>B · Expediente completo</b>, con la relación oficial de documentos (Ley 116/2013 y Decreto 326/2014), que se crea y es obligatorio cuando la relación <b>supera los 6 meses</b> — la tarjeta te avisa según la fecha de ingreso del trabajador. Marca lo que ya está, con su fecha y una nota; el contrato y la tarjeta quedan enlazados en su renglón, y el <b>índice</b> se imprime.</li></ul>'},
+            '<li><b>El expediente laboral</b> se lleva en dos bloques: <b>A · Documentos de entrada</b> (identidad y domicilio, calificación formal si el cargo la exige, registro profesional si aplica, asignación del recién graduado si procede y nombramiento si corresponde), con los que se formaliza el contrato; y <b>B · Expediente completo</b>, con la relación oficial de la <b>Ley 189/2026 (Capítulo V, art. 77)</b>: los <b>12 documentos</b> —datos personales, contratos y suplementos, nombramiento y sus modificaciones, acuerdo de elección y toma de posesión, certificación del Registro de Inscripción Profesional, asignación del recién graduado, copia del título o calificación formal, documentos de tiempo de servicio y remuneraciones, dictámenes de la Comisión de Peritaje Médico Laboral, medidas disciplinarias y sentencias, índice y acta de entrega—. Se confecciona en <b>papel y digital</b> (art. 76) en los <b>15 días siguientes al período de prueba</b> cuando la relación <b>supera los 6 meses</b>, y el trabajador puede <b>revisarlo cuando quiera</b> (art. 78) — la tarjeta te avisa según la fecha de ingreso del trabajador. Marca lo que ya está, con su fecha y una nota; el contrato y la tarjeta quedan enlazados en su renglón, y el <b>índice</b> se imprime.</li></ul>'},
         {id:'retiro', modulo:'nomina', titulo:'El menú Retiro: jubilación e invalidez', html:
             '<p>La pestaña <b>Retiro</b> lleva la jubilación de cada trabajador de principio a fin, según la Ley 105/2008 de Seguridad Social. Toda cifra que calcula es una <b>estimación</b>: la cuantía oficial la fija el INASS con los registros reales.</p>' +
             '<ul><li><b>Vigilancia automática:</b> la edad se deriva del carné de identidad de la ficha (60 años las mujeres, 65 los hombres) y los años de servicio salen de la <b>tarjeta SC-4-08</b>, más los años acreditados fuera de la app que anotes. En «Qué toca hoy» avisa cuando alguien cumple la edad en los próximos 12 meses con 20 años o más.</li>' +

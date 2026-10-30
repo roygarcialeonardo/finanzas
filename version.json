@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-60",
-  "publicada": "2026-10-30 02:28",
-  "notas": "Ronda -60: en las copias de negocio, el tipo (TCP/MIPYME/PDL) queda fijado al elegido en la instalación en todos los selectores (negocio y usuarios)",
+  "version": "v2026.10.29-61",
+  "publicada": "2026-10-30 02:34",
+  "notas": "Ronda -61: el expediente laboral de la Nómina pasa a la relación de la Ley 189/2026 (art. 77): 12 documentos, papel y digital, plazo de 15 días tras el período de prueba",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "e4e47ed08e0e128b90b41b93f3558c85d73d08114a8bd68a3d162534e76c5e21",
-      "bytes": 2069964
+      "sha256": "ea4cbe7c6c4c114cb71b8e4c928fa689c3a684a5338d09f03d06754a30dec4b6",
+      "bytes": 2071560
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "jrFEjdDsS0Oq6xm8pWhLOKbcgG5JIxounl3lf6RjC+xuBwQS998OSpilfAgh0A6S9B/K0cZ3L0Qgm1QAQ9C/CQ=="
+  "firma": "LKddPn387F9h0MXr/HklWTwKMRqB8cDKDZalSruVFXqfKZ3uQgJKulYL/ker9yZvkP2xHol1T9Jb1dBQtKrOBA=="
 }
