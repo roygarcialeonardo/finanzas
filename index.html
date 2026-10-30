@@ -7249,6 +7249,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         // aplica el SERVIDOR en data/data_set: aquí solo se marca el pago.
         let SUBS_ANIO = new Date().getFullYear();
         let SUBS_ABIERTO = '';
+        let SUBS_INST64 = null; // ronda -64: instalaciones en línea (negocios de copias sin conexión)
+        let SUBS_INST64_TIPOS = {};
         function subsDeNeg(neg) {
             const m = getNegociosMeta()[neg] || {};
             const s = (m.subs && typeof m.subs === 'object') ? m.subs : {};
@@ -7290,7 +7292,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         const s = subsDeNeg(neg);
                         const r = await api('subs_set', { negocio: neg, pagos: { [clave]: !s.pagos[clave] } });
                         if (!r.ok) { alert(r.error || 'No se pudo guardar el pago'); return; }
-                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        if (CFG.negocios) { CFG.negocios[neg] = CFG.negocios[neg] || {}; if (SUBS_INST64_TIPOS[neg] && !CFG.negocios[neg].tipo) CFG.negocios[neg].tipo = SUBS_INST64_TIPOS[neg]; CFG.negocios[neg].subs = r.subs; }
                         renderSuscripciones();
                         return;
                     }
@@ -7302,7 +7304,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         const neg = ac.getAttribute('data-subs-activo');
                         const r = await api('subs_set', { negocio: neg, activo: !!ac.checked });
                         if (!r.ok) { alert(r.error || 'No se pudo guardar'); ac.checked = !ac.checked; return; }
-                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        if (CFG.negocios) { CFG.negocios[neg] = CFG.negocios[neg] || {}; if (SUBS_INST64_TIPOS[neg] && !CFG.negocios[neg].tipo) CFG.negocios[neg].tipo = SUBS_INST64_TIPOS[neg]; CFG.negocios[neg].subs = r.subs; }
                         renderSuscripciones();
                     }
                     const ex = e.target.closest('[data-extras]');
@@ -7314,13 +7316,40 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     }
                 });
             }
+            /* Ronda -64: los negocios que nacieron dentro de una copia
+               sin conexión se anuncian como INSTALACIÓN, no como
+               negocio en línea, y esta lista solo leía los negocios:
+               la administradora no los veía ni podía marcarles el pago
+               (el servidor sí acepta los pagos por nombre y la copia
+               valida contra eso). Se piden las instalaciones una vez
+               y se fusionan: entran en la lista con su tipo y con la
+               insignia «Copia sin conexión» mientras no tengan
+               usuarios en línea. */
+            if (!window.FINANZAS_LOCAL && isAdmin() && SUBS_INST64 === null) {
+                SUBS_INST64 = [];
+                api('llaves_list', {}).then(r => {
+                    if (r && r.ok) { SUBS_INST64 = (r.instalaciones || []).filter(i => i && i.modo === 'negocio' && i.negocio); renderSuscripciones(); }
+                }).catch(() => {});
+            }
             const meta = getNegociosMeta();
-            const negs = Object.keys(meta).sort((a, b) => a.localeCompare(b, 'es'));
+            const metaEf = Object.assign({}, meta);
+            if (Array.isArray(SUBS_INST64) && SUBS_INST64.length) {
+                const us64 = getUsuarios();
+                SUBS_INST64.forEach(i64 => {
+                    const nm = i64.negocio;
+                    if (!nm) return;
+                    SUBS_INST64_TIPOS[nm] = i64.tipo || 'tcp';
+                    const tieneOnline = Object.keys(us64).some(u => us64[u] && us64[u].negocio === nm);
+                    const base = metaEf[nm] || {};
+                    metaEf[nm] = Object.assign({}, base, { tipo: base.tipo || i64.tipo || 'tcp', offline64: !tieneOnline });
+                });
+            }
+            const negs = Object.keys(metaEf).sort((a, b) => a.localeCompare(b, 'es'));
             if (!negs.length) { box.innerHTML = '<p class="text-muted small mb-0">Aún no hay negocios registrados.</p>'; return; }
             const insignia = st => st === 'pagado' ? '<span class="badge bg-success">Pagado</span>' : st === 'desactivado' ? '<span class="badge bg-dark">Desactivado</span>' : st === 'cortesia' ? '<span class="badge bg-info text-dark">Cortesía</span>' : '<span class="badge bg-danger">Sin pagar</span>';
             const anio = new Date().getFullYear();
             box.innerHTML = negs.map(neg => {
-                const m = meta[neg], s = subsDeNeg(neg), st = subsEstadoMes(neg);
+                const m = metaEf[neg], s = subsDeNeg(neg), st = subsEstadoMes(neg);
                 const abierto = SUBS_ABIERTO === neg;
                 let cuerpo = '';
                 if (abierto) {
@@ -7354,7 +7383,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const tarifaHtml = `<div class="small text-muted ps-1 pt-1">${tLic ? `Licencia: <b>${moneda(tLic.tarifa)}/mes</b> · ${esc(tLic.detalle)}` : 'Licencia: (abre el Gestor para calcularla con los datos del negocio)'}${m.tenedor ? ` · Tenedor: <b>${esc(m.tenedor)}</b>` : ' · Cliente directo'}</div>`;
                 return `<div class="border rounded p-2 mb-2">
                     <button type="button" class="btn btn-link text-decoration-none p-0 w-100 d-flex justify-content-between align-items-center" data-subs-cab="${esc(neg)}">
-                        <span class="fw-semibold text-start">${abierto ? '▾' : '▸'} ${esc(neg)} <span class="badge bg-secondary ms-1">${esc(({ mipyme: 'MIPYME', pdl: 'PDL' })[m.tipo] || 'TCP')}</span></span>
+                        <span class="fw-semibold text-start">${abierto ? '▾' : '▸'} ${esc(neg)} <span class="badge bg-secondary ms-1">${esc(({ mipyme: 'MIPYME', pdl: 'PDL' })[m.tipo] || 'TCP')}</span>${m.offline64 ? '<span class="badge bg-info text-dark ms-1">Copia sin conexión</span>' : ''}</span>
                         ${insignia(st)}
                     </button>
                     ${tarifaHtml}
@@ -8372,7 +8401,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         const s = subsDeNeg(neg);
                         const r = await api('subs_set', { negocio: neg, pagos: { [clave]: !s.pagos[clave] } });
                         if (!r.ok) { alert(r.error || 'No se pudo guardar el pago'); return; }
-                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        if (CFG.negocios) { CFG.negocios[neg] = CFG.negocios[neg] || {}; if (SUBS_INST64_TIPOS[neg] && !CFG.negocios[neg].tipo) CFG.negocios[neg].tipo = SUBS_INST64_TIPOS[neg]; CFG.negocios[neg].subs = r.subs; }
                         renderPanelControl(); renderSuscripciones();
                         return;
                     }
@@ -8452,7 +8481,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         const neg = ac.getAttribute('data-pneg-activo');
                         const r = await api('subs_set', { negocio: neg, activo: !!ac.checked });
                         if (!r.ok) { alert(r.error || 'No se pudo guardar'); ac.checked = !ac.checked; return; }
-                        if (CFG.negocios && CFG.negocios[neg]) CFG.negocios[neg].subs = r.subs;
+                        if (CFG.negocios) { CFG.negocios[neg] = CFG.negocios[neg] || {}; if (SUBS_INST64_TIPOS[neg] && !CFG.negocios[neg].tipo) CFG.negocios[neg].tipo = SUBS_INST64_TIPOS[neg]; CFG.negocios[neg].subs = r.subs; }
                         renderPanelControl(); renderSuscripciones();
                         return;
                     }
@@ -19490,7 +19519,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-63';
+        var MANUAL_VERSION = 'v2026.10.29-64';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19949,6 +19978,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>La <b>cuenta administradora nunca se bloquea</b>: siempre puede entrar a marcar el pago, y al marcarlo el negocio se desbloquea al instante.</li>' +
             '<li>En la <b>versión sin conexión</b>, la instalación queda registrada a nombre de un negocio (tarjeta «Suscripción de esta instalación», solo visible sin conexión): el <b>día 1 de cada mes</b> el programa queda bloqueado hasta conectarse y validar contra el servidor en línea que la suscripción está pagada; sin conexión o sin pago, sigue bloqueado. El botón <b>Validar ahora</b> fuerza la comprobación.</li>' +
             '<li>Debajo de la lista, plegado, queda el <b>bloqueo global de meses (legado)</b>: bloquea el guardado de un mes para todos los negocios; es un cierre operativo, distinto del pago por negocio. Es una palanca global: solo la ven el <b>tenedor de libros</b> y la <b>administradora general</b>; en una copia de negocio no aparece.</li>' +
+            '<li><b>Negocios de copias sin conexión:</b> cuando un cliente crea su negocio dentro de su copia instalada, ese negocio aparece también en esta lista con la insignia <b>«Copia sin conexión»</b>, aunque todavía no exista como negocio en línea: sus meses se le marcan aquí igual que a los demás y su copia valida contra eso.</li>' +
             '<li><b>La tarifa de cada negocio se calcula sola</b> y se muestra en su fila: TCP básico o pleno (si supera los 500 000 CUP de ingresos del año), MIPYME y PDL por tramos de plantilla (hasta 10, de 11 a 35, de 36 a 100 empleados) más el recargo por cada socio después del primero. Los precios viven en la tarjeta <b>Licencias: precios y tenedores</b>.</li>' +
             '<li><b>Doble puerta con tenedor:</b> si un negocio tiene tenedor asignado, además de su propio pago manda el del tenedor: tenedor desactivado o sin pagar su mes = negocio bloqueado, aunque el negocio haya pagado lo suyo (y al revés). La cuenta de gestión del tenedor, como la administradora, nunca se bloquea: es su llave para entrar a resolver.</li></ul>'},
         {id:'licencias-precios', modulo:'respaldo', titulo:'Licencias diferenciadas: precios y tenedores de libros', html:

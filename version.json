@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-63",
-  "publicada": "2026-10-30 02:54",
-  "notas": "Ronda -63: el bloqueo global de meses (legado) no aparece en las copias de negocio; es solo del tenedor y de la administradora general",
+  "version": "v2026.10.29-64",
+  "publicada": "2026-10-30 03:06",
+  "notas": "Ronda -64: los negocios creados en las copias sin conexión aparecen en Suscripciones de la administradora (insignia «Copia sin conexión») y se les marcan los pagos igual que a los demás",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "a4a4388e8cf0954b68611717df956cde932fadd5b25859f9dc97b23ab3bcd93a",
-      "bytes": 2073582
+      "sha256": "0487adacd12fd1a507f9aecfe661761ef08a425bf02c167b1f78f0539f067612",
+      "bytes": 2076337
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "Az+oEPTwMY6Qzb7XRl401lzUkftRQpVHCYlZyf4jZ38gSFECm1s7u0exMsE/IwBYwIiZhyON0LFVunq/uDx7Bg=="
+  "firma": "EUARfpRY6OVg39TrTVClUoaDI9of1isSew43bfCcMOtU+ifmejC23UI3xC0Nay1jS/UYlIp3KQIPISyo2Nq9Dg=="
 }
