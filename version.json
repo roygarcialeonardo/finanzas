@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-67",
-  "publicada": "2026-10-30 04:55",
-  "notas": "Ronda -66: las copias reportan también sus usuarios (resumen firmado v2, solo nombres y roles) y el vendedor ya ve su pantalla del POS",
+  "version": "v2026.10.30-68",
+  "publicada": "2026-10-30 05:45",
+  "notas": "Puente F4: importar el respaldo de la hoja y exportar el espejo XLSX (consola y tarjeta en Configuración)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "d519d107543602fe3295072b6b95d92397e55f6d35c5a708b77dcf5915d517d7",
-      "bytes": 2096305
+      "sha256": "ef86f8bcfea05831d5cb04b6603a21ca7bca3e0374d2fa3ec41331fa2c6a275d",
+      "bytes": 2103441
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "kcUxrM9BHj21TP1qMgB8lMdkQ1V1/BGN48c7YgLY3yYGTLefVbupF51hh80baLc6Y3pi1BSdmzZFU0P7qc/4Cw=="
+  "firma": "xMCjJlqeNtvUmnbOI3FIGWPTz8b7KmT6ZBAKBjWNOVz9jEzh6WElInSjM4g6YKQcAnQf/gijXZgmxnibB+pMBA=="
 }

@@ -2566,6 +2566,25 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     </div>
                 </div>
 
+
+                <!-- Puente con la versión en línea (solo versión sin conexión) -->
+                <div class="col-12 d-none" id="cardPuente">
+                    <div class="card p-3 p-md-4">
+                        <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="descargar"></span>Puente con la versión en línea</h6>
+                        <p class="small text-muted mb-2">Traslada los datos entre la versión en línea y esta copia. <b>Importar</b>: elige el archivo del respaldo semanal (el ZIP que llega por Telegram, o su XLSX) y los negocios, usuarios y ajustes de la hoja pasan a esta copia — cada quien conserva su contraseña de siempre. Si un negocio ya existe aquí, la importación se niega salvo que marques reemplazar (antes de reemplazar, el programa guarda una copia de tu base). <b>Exportar</b>: descarga una hoja XLSX espejo de esta copia, con el mismo formato de la hoja en línea, para archivarla o restaurarla allí.</p>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-6"><input type="file" id="puenteFile" class="form-control form-control-sm" accept=".zip,.xlsx"></div>
+                            <div class="col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="puenteReemplazar"><label class="form-check-label small" for="puenteReemplazar">Reemplazar si ya existe</label></div></div>
+                            <div class="col-md-3"><button type="button" class="btn btn-sm btn-primary w-100" onclick="puenteImportarUI()">Importar respaldo</button></div>
+                        </div>
+                        <div class="row g-2 align-items-center mt-1">
+                            <div class="col-md-9"><p class="small text-muted mb-0">Ojo al exportar: los usuarios cuya contraseña ya se blindó en esta copia (Argon2) no podrán usarla en la versión en línea; los demás viajan intactos.</p></div>
+                            <div class="col-md-3"><button type="button" class="btn btn-sm btn-outline-primary w-100" onclick="puenteExportarUI()">Descargar espejo XLSX</button></div>
+                        </div>
+                        <div id="puenteResultado" class="small mt-2"></div>
+                    </div>
+                </div>
+
                 <!-- Cuentas que usa este negocio (solo versión sin conexión) -->
                 <div class="col-12 d-none" id="cardCuentasNegocio">
                     <div class="card p-3 p-md-4">
@@ -6990,6 +7009,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             renderRecuperaLocal();
             renderCuentasNegocio();
             renderBaseDatos();
+            try{ renderPuente(); }catch(e){}
         }
 
         // ===== NEGOCIOS: helpers =====
@@ -9439,6 +9459,57 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const el = document.getElementById('baseDatosRuta');
             if (el) el.textContent = window.FINANZAS_RUTA_DATOS || '—';
         }
+
+
+        // ===== PUENTE CON LA VERSIÓN EN LÍNEA (tarjeta en Configuración) =====
+        // Solo en la copia local y solo para su administrador: importa
+        // el respaldo de la hoja y exporta el espejo XLSX por los
+        // endpoints locales /puente/* (servidor 0.15.0).
+        function renderPuente() {
+            const card = document.getElementById('cardPuente');
+            if (!card) return;
+            if (!window.FINANZAS_LOCAL || !isAdmin()) { card.classList.add('d-none'); return; }
+            card.classList.remove('d-none');
+        }
+        function puenteArchivoB64(file) {
+            return new Promise((res, rej) => {
+                const fr = new FileReader();
+                fr.onload = () => { const s = String(fr.result || ''); res(s.slice(s.indexOf(',') + 1)); };
+                fr.onerror = rej;
+                fr.readAsDataURL(file);
+            });
+        }
+        async function puenteImportarUI() {
+            const inp = document.getElementById('puenteFile');
+            const out = document.getElementById('puenteResultado');
+            const file = inp && inp.files && inp.files[0];
+            if (!file) { if (out) out.innerHTML = '<span class="text-danger">Elige primero el archivo del respaldo (ZIP o XLSX).</span>'; return; }
+            if (out) out.textContent = 'Importando…';
+            try {
+                const b64 = await puenteArchivoB64(file);
+                const reemplazar = !!document.getElementById('puenteReemplazar').checked;
+                const r = await subsLocalFetch('/puente/importar', { zipB64: b64, reemplazar: reemplazar });
+                if (!r || !r.ok) { if (out) out.innerHTML = '<span class="text-danger">' + esc((r && r.error) || 'No se pudo importar (¿el servidor local es el 0.15.0 o uno más nuevo?)') + '</span>'; return; }
+                const z = r.resumen || {};
+                if (out) out.innerHTML = '<span class="text-success">✅ Importación completa: <b>' + (z.negocios || []).length + ' negocio(s)</b> (' + esc((z.negocios || []).join(', ')) + '), ' + (z.slots || 0) + ' documentos, ' + (z.usuarios || 0) + ' usuarios, ' + (z.config || 0) + ' ajustes, ' + (z.bloqueos || 0) + ' bloqueos. Recarga la página para ver los datos.</span>';
+            } catch (e) { if (out) out.innerHTML = '<span class="text-danger">No se pudo importar: ' + esc(String(e && e.message || e)) + '</span>'; }
+        }
+        async function puenteExportarUI() {
+            const out = document.getElementById('puenteResultado');
+            if (out) out.textContent = 'Generando el espejo…';
+            try {
+                const r = await subsLocalFetch('/puente/exportar');
+                if (!r || !r.ok || !r.xlsxB64) { if (out) out.innerHTML = '<span class="text-danger">' + esc((r && r.error) || 'No se pudo exportar (¿el servidor local es el 0.15.0 o uno más nuevo?)') + '</span>'; return; }
+                const bin = atob(r.xlsxB64); const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+                a.download = r.nombre || 'finanzas-espejo.xlsx';
+                document.body.appendChild(a); a.click(); a.remove();
+                if (out) out.innerHTML = '<span class="text-success">✅ Espejo descargado: ' + esc(r.nombre || '') + ' — guárdalo como respaldo de esta copia.</span>';
+            } catch (e) { if (out) out.innerHTML = '<span class="text-danger">No se pudo exportar: ' + esc(String(e && e.message || e)) + '</span>'; }
+        }
+        window.__puenteTest = { render: renderPuente, importar: puenteImportarUI, exportar: puenteExportarUI };
 
         // ===== CUENTAS QUE USA ESTE NEGOCIO (tarjeta en Configuración) =====
         // Visible solo en la versión sin conexión (window.FINANZAS_LOCAL):
@@ -19681,7 +19752,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-67';
+        var MANUAL_VERSION = 'v2026.10.30-68';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -20164,6 +20235,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Revocar:</b> corta el acceso en la próxima verificación de esa copia (al arrancar con conexión o al cambiar de mes). <b>Desvincular PC:</b> libera la llave para que pueda activarse en otra computadora — solo para cambios legítimos de equipo.</li>' +
             '<li><b>Copia de un tenedor (F3):</b> si la instalación es de un tenedor, lleva varios negocios: la llave abre la copia y, además, <b>cada negocio se comprueba contra tu servidor con la misma doble puerta</b> (negocio desactivado o sin pagar, o el tenedor sin pagar → los usuarios de ese negocio no entran a sus datos). En su Configuración, la tarjeta «Negocios de esta copia de tenedor» muestra el estado de cada uno y el botón «Validar ahora». Los nombres de sus negocios deben coincidir con los de la versión en línea.</li>' +
             '<li><b>Registrar la instalación:</b> la copia puede anunciarse sola en tu servidor: en su tarjeta de llave, el botón <b>«Registrar esta instalación en el servidor»</b> manda su código de pedido, el nombre de su negocio, su tipo y la huella de su PC (y también lo intenta sola una vez, al abrir la tarjeta, si aún no tiene llave ni consta registrada). Registrarse <b>no crea el negocio en línea ni desbloquea nada</b>: solo te deja la petición visible.</li>' +
+            '<li><b>Puente con la versión en línea (servidor 0.15.0):</b> en la copia, Configuración → tarjeta «Puente con la versión en línea» (solo su administrador): <b>importa</b> el respaldo semanal (el ZIP de Telegram o su XLSX) y los negocios, usuarios y ajustes de la hoja pasan a la copia, cada quien con su contraseña de siempre; si un negocio ya existe en la copia, la importación se niega salvo que marques «Reemplazar si ya existe» (y antes el programa guarda una copia de la base). Con «Descargar espejo XLSX» la copia genera la hoja espejo de sí misma, lista para archivarla o restaurarla en la versión en línea. Ojo: un usuario cuya contraseña ya se blindó dentro de la copia (Argon2) no podrá usarla en la versión en línea; los demás viajan intactos. También va por consola: <b>finanzas-offline importar-respaldo &lt;respaldo.zip&gt;</b> y <b>exportar-respaldo &lt;salida.xlsx&gt;</b>.</li>' +
             '<li><b>Instalaciones registradas:</b> en la misma vista 🔑 Llaves verás su lista — negocio, tipo, pedido, huella y fecha —, cada una con su botón <b>«Generar llave»</b>, que rellena el formulario con su pedido y su nombre. Así puedes dar la llave a un negocio que <b>todavía no existe en línea</b>: su nombre aparece también en el selector de titulares con la marca «(instalación offline)».</li>' +
             '<li><b>El resumen de licencia firmado:</b> al registrarse, la copia calcula desde sus propios datos su <b>resumen de licencia</b> — trabajadores en la ficha, socios e ingresos del año (en una copia de tenedor, los negocios que lleva) —, se lo <b>muestra al cliente en su tarjeta antes de enviarlo</b> y lo manda firmado (la firma amarra el resumen a esa PC y a ese pedido). En tu lista de instalaciones verás el resumen junto al botón «Generar llave» con su sello: <b>«✔ Resumen íntegro»</b> si la firma recalculada coincide, o el aviso si no coincide. Verifícalo antes de emitir la llave: es el dato contra el que se cobra la tarifa. Si el cliente cambia sus datos, debe volver a registrar la instalación para refrescarlo. Las copias con servidor local anterior a esta mejora se registran «sin resumen».</li>' +
             '<li>Las instalaciones anteriores a las licencias (sin modo elegido) siguen con la validación de suscripción de siempre; las llaves mandan en las que tienen modo.</li>' +
