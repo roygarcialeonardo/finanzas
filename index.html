@@ -940,18 +940,16 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="alert alert-info py-2 small">👋 <b>Primera vez en esta máquina.</b> Vamos a instalar tu copia: dime cómo la vas a usar y crea tu contraseña. Solo se hace una vez.</div>
             <div class="mb-2"><label class="form-label small" for="instModo">¿Qué vas a llevar con esta copia?</label><select class="form-select" id="instModo"><option value="negocio">Un negocio (TCP, MIPYME o PDL)</option><option value="tenedor">Soy tenedor de libros: llevaré varios negocios</option></select><div class="form-text" id="instModoAyuda">Esta copia queda fijada a tu único negocio.</div></div>
             <div id="instNegocioWrap">
-            <div class="mb-2"><label class="form-label small" for="instNegocio">Nombre de tu negocio</label><input type="text" class="form-control" id="instNegocio" placeholder="Ej.: Mi Negocio" autocomplete="off"></div>
             <div class="row g-2 mb-2">
                 <div class="col-7"><label class="form-label small" for="instTipo">Tipo de negocio</label><select class="form-select" id="instTipo"><option value="tcp">TCP (trabajador por cuenta propia)</option><option value="mipyme">MIPYME</option><option value="pdl">PDL (proyecto de desarrollo local)</option></select></div>
                 <div class="col-5"><label class="form-label small" for="instSocios">Socios (MIPYME)</label><input type="number" class="form-control" id="instSocios" min="0" max="99" value="1"></div>
             </div>
+            <div class="form-text mb-2">El nombre de tu negocio lo pondrás dentro, al crearlo: aquí solo queda elegido el tipo (y los socios), y la app no te los volverá a preguntar.</div>
             </div>
             <div class="mb-2"><label class="form-label small" for="instRuta">Carpeta donde se guardan tus datos</label><input type="text" class="form-control" id="instRuta" autocomplete="off" spellcheck="false"><div class="form-text">Elige una carpeta segura y que vaya a estar siempre en esta computadora (por ejemplo, dentro de Documentos). Ahí vivirá tu base de datos <b>finanzas.db</b> con todo tu negocio.</div></div>
             <div class="alert alert-warning py-2 small">⚠️ <b>Tu base de datos es tu responsabilidad.</b> Todo tu negocio — cuentas, movimientos, nómina — queda en un solo archivo (<b>finanzas.db</b>) dentro de la carpeta que elijas. <b>Hazle copias de seguridad con frecuencia</b> en otro lugar (una memoria USB, otra carpeta, la nube): si el archivo se pierde o se daña y no tienes copia, <b>nadie podrá recuperar tu información</b>, ni siquiera tu proveedor.</div>
             <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="instAceptoDatos"><label class="form-check-label small" for="instAceptoDatos">Entiendo que guardar copias de mi base de datos es mi responsabilidad</label></div>
-            <div class="mb-2"><label class="form-label small" for="instAdminUser">Usuario administrador</label><input type="text" class="form-control" id="instAdminUser" value="admin" autocomplete="off"><div class="form-text">Es la cuenta dueña de la copia: gestiona usuarios y configuración. Casi nunca se usa para el trabajo diario.</div></div>
-            <div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="instCrearTrabajo" checked><label class="form-check-label small" for="instCrearTrabajo">Crear también mi usuario de trabajo (con la misma contraseña)</label></div>
-            <div class="mb-2" id="instTrabajoWrap"><label class="form-label small" for="instTrabajoUser">Usuario de trabajo</label><input type="text" class="form-control" id="instTrabajoUser" placeholder="Ej.: miusuario" autocomplete="off"><div class="form-text">Con este entrarás a diario a llevar tu negocio.</div></div>
+            <div class="mb-2"><label class="form-label small" for="instAdminUser">Usuario administrador</label><input type="text" class="form-control" id="instAdminUser" value="admin" autocomplete="off"><div class="form-text">Es la cuenta dueña de la copia: crea el negocio, gestiona usuarios y configuración. Tu usuario de trabajo lo crearás después, desde esta cuenta (el modelo es 1 administrador + 1 trabajador + 1 consultor por negocio).</div></div>
             <div class="row g-2 mb-3">
                 <div class="col-6"><label class="form-label small" for="instPass">Contraseña</label><input type="password" class="form-control" id="instPass" autocomplete="new-password"></div>
                 <div class="col-6"><label class="form-label small" for="instPass2">Repítela</label><input type="password" class="form-control" id="instPass2" autocomplete="new-password"></div>
@@ -1085,6 +1083,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
         <!-- RESUMEN -->
         <div class="tab-pane fade show active" id="pane-resumen">
+            <!-- Crear tu negocio (ronda -59): solo en la copia sin conexión en modo «negocio» cuyo administrador aún no tiene negocio. La instalación ya no lo pide: aquí se pone SOLO el nombre; el tipo y los socios se heredan de la instalación. -->
+            <div id="cardCrearNegocio" class="card p-3 p-md-4 mb-3 d-none">
+                <h5 class="fw-semibold mb-1">🏪 Crea tu negocio</h5>
+                <p class="small text-secondary mb-2">Tu copia ya está instalada. Solo falta el nombre de tu negocio: el tipo y los socios quedaron elegidos en la instalación y no se vuelven a preguntar. Después podrás crear tu usuario de trabajo y tu consultor desde Configuración → Usuarios (1 de cada uno).</p>
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-6"><label class="form-label small" for="cnlNombre">Nombre de tu negocio</label><input type="text" class="form-control" id="cnlNombre" placeholder="Ej.: Mi Negocio" autocomplete="off"></div>
+                    <div class="col-md-3"><label class="form-label small">Tipo (de la instalación)</label><input type="text" class="form-control" id="cnlTipoTxt" disabled></div>
+                    <div class="col-md-3"><button type="button" class="btn btn-primary-custom w-100 text-white" id="btnCrearNegocioLocal">Crear mi negocio</button></div>
+                </div>
+                <div id="cnlMsg" class="small mt-2"></div>
+            </div>
             <div id="alertaFinanciera" class="alerta-financiera"></div>
             <div id="alertaTrimestral" class="alerta-financiera mt-3"></div>
             <div id="alertaSalarioNomina" class="mt-3"></div>
@@ -3881,6 +3890,60 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
         }
         window.__bloqueoTest = { mostrar: mostrarBloqueoSuscripcion, preparar: prepararBloqueoLlave };
+        // ===== CREA TU NEGOCIO (ronda -59) =====
+        // En la copia sin conexión en modo «negocio», el administrador
+        // nace SIN negocio (la instalación ya no lo pide). Esta tarjeta
+        // —visible solo en ese caso, en el Resumen— lo crea pidiendo
+        // SOLO el nombre: el tipo y los socios se heredan de su cuenta
+        // administradora (los fijó la instalación). El servidor lo
+        // vincula a él en el mismo acto y la copia anuncia el
+        // registro ya con nombre, como hacía la instalación antes.
+        async function pintarCrearNegocioLocal() {
+            const card = document.getElementById('cardCrearNegocio');
+            if (!card) return;
+            const mostrar = (v) => { card.classList.toggle('d-none', !v); };
+            // Ojo: getNegocioNombre() nunca devuelve '' (cae a «Mi
+            // Negocio»): el «sin negocio» se lee del usuario crudo.
+            const u0 = (typeof USERS !== 'undefined' && USERS && USERS[getCurrentUser()]) || {};
+            if (!window.FINANZAS_LOCAL || !isAdmin() || u0.negocio) { mostrar(false); return; }
+            let st = null;
+            try { st = await panelLocalEstado(); } catch (e) {}
+            if (!st || st.modo !== 'negocio') { mostrar(false); return; }
+            const u = (typeof USERS !== 'undefined' && USERS && USERS[getCurrentUser()]) || {};
+            const tipo = u.entityType || 'tcp';
+            const txt = document.getElementById('cnlTipoTxt');
+            if (txt) txt.value = (tipo === 'mipyme' ? 'MIPYME' : tipo === 'pdl' ? 'PDL' : 'TCP') + ((parseInt(u.socios, 10) || 0) > 0 ? ' · ' + (parseInt(u.socios, 10) || 0) + ' socios' : '');
+            mostrar(true);
+            const btn = document.getElementById('btnCrearNegocioLocal');
+            if (btn && !btn.dataset.listo) {
+                btn.dataset.listo = '1';
+                btn.addEventListener('click', crearNegocioLocal);
+                const inp = document.getElementById('cnlNombre');
+                if (inp) inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); crearNegocioLocal(); } });
+            }
+        }
+        async function crearNegocioLocal() {
+            const inp = document.getElementById('cnlNombre'), msg = document.getElementById('cnlMsg'), btn = document.getElementById('btnCrearNegocioLocal');
+            const nombre = (inp && inp.value || '').trim();
+            const falla = t => { if (msg) msg.innerHTML = '<span class="text-danger">' + esc(t) + '</span>'; };
+            if (!nombre) return falla('Escribe el nombre de tu negocio.');
+            const u = (typeof USERS !== 'undefined' && USERS && USERS[getCurrentUser()]) || {};
+            const tipo = u.entityType || 'tcp';
+            const payload = { nombre, tipo };
+            if (tipo === 'pdl') {
+                payload.semilla = { ficha: { regimen: 'tcp_general', nit: '', nombre: nombre, municipio: '' },
+                    fiscal: gPdlPlantillaFiscal({ razon: nombre, municipio: '', provincia: '', entidadEjecutora: '', organo: 'CAM', acuerdo: '', estrategia: 'EDM', fechaAprobacion: '', cuentaCup: '', contratados: 0 }, gHoyISOFecha()) };
+            }
+            if (btn) btn.disabled = true;
+            if (msg) msg.innerHTML = '<span class="text-secondary">Creando tu negocio…</span>';
+            const r = await api('negocio_save', payload);
+            if (!r || !r.ok) { if (btn) btn.disabled = false; return falla((r && r.error) || 'No se pudo crear el negocio.'); }
+            try { const st = await panelLocalEstado(); await subsLocalFetch('/llave/registrar', { tipo, resumen: await llaveResumenLocal(st) }); } catch (e) {}
+            if (msg) msg.innerHTML = '<span class="text-success fw-semibold">✅ Negocio «' + esc(nombre) + '» creado. Entrando…</span>';
+            setTimeout(() => location.reload(), 900);
+        }
+        window.__crearNegocioTest = { pintar: pintarCrearNegocioLocal, crear: crearNegocioLocal };
+        window.pintarCrearNegocioLocal = pintarCrearNegocioLocal;
         document.getElementById('btnSubsBloqueoSalir').addEventListener('click', () => {
             api('logout').finally(() => { try { localStorage.removeItem('finanzas_token'); sessionStorage.removeItem('finanzas_token'); } catch (e) {} location.reload(); });
         });
@@ -3890,7 +3953,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (r.user && (r.user.theme === 'dark' || r.user.theme === 'light')) aplicarTema(r.user.theme, true);
             const d = await api('data');
             if (d && d.suscripcion) return mostrarBloqueoSuscripcion(d);
-            CACHE = d.data || {}; BLOQ = d.bloq || {}; applyCfg(d.config); USERS = d.users || {}; USERS[r.username] = r.user;
+            CACHE = d.data || {}; BLOQ = d.bloq || {}; applyCfg(d.config); USERS = d.users || {}; USERS[r.username] = r.user; USERS_SNAPSHOT = JSON.parse(JSON.stringify(USERS));
             SLOT_VER = (d && d.vers) || {};
             /* Ronda 10: si quedaron cambios sin guardar de una sesión
                anterior (o el servidor no trajo un slot que sí existe en
@@ -8179,6 +8242,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         async function aplicarRecorteLocal() {
             PANEL_LOCAL = await panelLocalEstado();
+            pintarCrearNegocioLocal();
             if (!esPanelLocalNegocio()) return;
             const g = document.getElementById('gestorTabNav'); if (g) g.style.display = 'none';
             aplicarRecortePanelLocal();
@@ -9071,14 +9135,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (form) form.classList.add('d-none');
             const rec = document.getElementById('recuperaBox');
             if (rec) rec.classList.add('d-none');
-            const chk = document.getElementById('instCrearTrabajo');
-            const wrap = document.getElementById('instTrabajoWrap');
-            if (chk && wrap) chk.addEventListener('change', () => { wrap.style.display = chk.checked ? '' : 'none'; });
             /* Modo de instalación (licencias): un negocio o tenedor de
-               libros. El tenedor no nace con negocio: los crea dentro
-               de la app; su cuenta administradora es su cuenta de
-               trabajo, así que se ocultan el negocio y el usuario
-               de trabajo. */
+               libros. Desde la ronda -59 la instalación NO pide el
+               nombre del negocio ni usuario de trabajo: nace solo la
+               cuenta administradora; en modo negocio aquí fuera solo
+               se elige el tipo (y los socios), que la creación del
+               negocio dentro HEREDA sin volver a preguntarlos. El
+               tenedor no elige tipo aquí: crea dentro negocios de
+               varios tipos. */
             const modoSel = document.getElementById('instModo');
             const negWrap = document.getElementById('instNegocioWrap');
             const modoAyuda = document.getElementById('instModoAyuda');
@@ -9086,11 +9150,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const esTenedor = !!(modoSel && modoSel.value === 'tenedor');
                 if (negWrap) negWrap.style.display = esTenedor ? 'none' : '';
                 if (modoAyuda) modoAyuda.textContent = esTenedor
-                    ? 'Podrás crear varios negocios dentro de la app. Cada negocio paga su propia licencia, y tu licencia de tenedor suma el 10 % de la tarifa fijada de cada cliente (la calcula la app sola con el tipo, la plantilla y los socios de cada negocio). Los negocios nacen bloqueados hasta que su mes esté pagado y validado por tu proveedor.'
-                    : 'Esta copia queda fijada a tu único negocio.';
-                const chkDiv = chk ? chk.closest('.form-check') : null;
-                if (chkDiv) chkDiv.style.display = esTenedor ? 'none' : '';
-                if (wrap) wrap.style.display = esTenedor ? 'none' : (chk && chk.checked ? '' : 'none');
+                    ? 'Podrás crear varios negocios dentro de la app, cada uno con su tipo. Cada negocio paga su propia licencia, y tu licencia de tenedor suma el 10 % de la tarifa fijada de cada cliente (la calcula la app sola con el tipo, la plantilla y los socios de cada negocio). Los negocios nacen bloqueados hasta que su mes esté pagado y validado por tu proveedor.'
+                    : 'Esta copia queda fijada a tu único negocio: lo crearás dentro con su nombre, con el tipo que elijas aquí.';
             };
             if (modoSel) { modoSel.addEventListener('change', aplicarModo); aplicarModo(); }
             /* Socios según el tipo (corrección de Leonardo, ronda -31):
@@ -9113,19 +9174,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             btn.addEventListener('click', async () => {
                 const msg = document.getElementById('instMsg');
                 const esTenedor = (document.getElementById('instModo') || {}).value === 'tenedor';
-                const negocio = esTenedor ? '' : document.getElementById('instNegocio').value.trim();
-                const tipo = document.getElementById('instTipo').value;
-                const socios = parseInt(document.getElementById('instSocios').value, 10) || 0;
+                const tipo = esTenedor ? 'tcp' : document.getElementById('instTipo').value;
+                const socios = esTenedor ? 0 : (parseInt(document.getElementById('instSocios').value, 10) || 0);
                 const adminUser = document.getElementById('instAdminUser').value.trim();
-                const crearTrabajo = !esTenedor && document.getElementById('instCrearTrabajo').checked;
-                const trabajoUser = document.getElementById('instTrabajoUser').value.trim();
                 const pw = document.getElementById('instPass').value;
                 const pw2 = document.getElementById('instPass2').value;
                 const falla = t => { msg.innerHTML = '<span class="text-danger">' + esc(t) + '</span>'; };
-                if (!esTenedor && !negocio) return falla('Escribe el nombre de tu negocio.');
                 if (!adminUser) return falla('Escribe el usuario administrador.');
-                if (crearTrabajo && !trabajoUser) return falla('Escribe tu usuario de trabajo (o desmarca la casilla).');
-                if (crearTrabajo && trabajoUser.toLowerCase() === adminUser.toLowerCase()) return falla('El usuario de trabajo debe ser distinto del administrador.');
                 if (!pw || pw.length < 6) return falla('La contraseña debe tener al menos 6 caracteres.');
                 if (pw !== pw2) return falla('Las contraseñas no coinciden.');
                 const acepto = document.getElementById('instAceptoDatos');
@@ -9152,9 +9207,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                             if (!volvio) { btn.disabled = false; return falla('La app no volvió tras preparar la carpeta. Cierra el programa, ábrelo de nuevo y repite la instalación.'); }
                         }
                     }
-                    const users = [{ username: adminUser, hash: await hashPwLocal(pw), role: 'admin', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio }];
-                    if (crearTrabajo) users.push({ username: trabajoUser, hash: await hashPwLocal(pw), role: 'editor', entityType: tipo, socios: tipo === 'mipyme' ? socios : 0, negocio });
-                    const r = await api('setup', { users, config: {}, bloqueos: {}, modo: esTenedor ? 'tenedor' : 'negocio', negocios: esTenedor ? [] : [{ negocio, doc: { _info: { tipo, creado: new Date().toISOString() } } }] });
+                    /* Ronda -59: nace SOLO la cuenta administradora,
+                       sin negocio: el negocio se crea dentro, solo con
+                       su nombre, heredando el tipo y los socios que la
+                       administradora lleva de esta instalación. */
+                    const users = [{ username: adminUser, hash: await hashPwLocal(pw), role: 'admin', entityType: tipo, socios: tipo === 'tcp' ? 0 : socios, negocio: '' }];
+                    const r = await api('setup', { users, config: {}, bloqueos: {}, modo: esTenedor ? 'tenedor' : 'negocio', negocios: [] });
                     if (!r || !r.ok) { btn.disabled = false; return falla((r && r.error) || 'No se pudo instalar.'); }
                     msg.innerHTML = '<span class="text-success fw-semibold">✅ Instalación completa. Entrando a tu pantalla de acceso…</span>';
                     setTimeout(() => location.reload(), 900);
@@ -12610,7 +12668,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function gestionAlternarModulo(id){ const st=gestionModulosEstado(); gestionFijarModulo(id, st[id]!==true); }
         function gestionAbrirModulo(id){ gestionAplicarPlegado(); gestionFijarModulo(id, true); }
         (function(){ const st=document.createElement('style'); st.textContent='body.modo-simple #tab-conta,body.modo-simple #tab-gestion,body.modo-simple #tab-aft,body.modo-simple #tab-tasas,body.modo-simple #tab-utilidades,body.modo-simple #tab-ideas{display:none!important}'; document.head.appendChild(st); })();
-        function renderAvisosInicio(){ const box=document.getElementById('avisosInicioBox'); if(!box) return; const filas=[];
+        function renderAvisosInicio(){ if (window.pintarCrearNegocioLocal) window.pintarCrearNegocioLocal(); const box=document.getElementById('avisosInicioBox'); if(!box) return; const filas=[];
             try{ const c=getConta(); if(c&&c.activa&&(c.bandeja||[]).length) filas.push({t:'danger', icono:'🧾', txt:`Tienes <b>${(c.bandeja||[]).length} movimiento(s) sin clasificar</b> en la bandeja de Contabilidad: no se contabilizan hasta que digas de qué son.`, tab:'tab-conta', btn:'Clasificarlos'}); }catch(e){}
             try{ const d=getFiscal(); const hoyT=hoy(); const limite=new Date(Date.parse(hoyT)+7*86400000).toISOString().slice(0,10);
                 const venc=(d.obligaciones||[]).filter(o=>{ if(!o.vence||o.vence>limite) return false; const cc=calcImporteObligacion(o); const est=estadoObligacion(o,cc.importe); return est.key!=='paid'; }).sort((a,b)=>String(a.vence).localeCompare(String(b.vence)));
@@ -18999,9 +19057,41 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         function setCurrentUser() {}
         function authenticate() { return ME ? ME.user : null; }
         function getUsuarios() { return USERS; }
+        let USERS_SNAPSHOT = null;
+        // Límites por negocio (ronda -59), espejo del servidor: 1
+        // trabajador + 1 consultor por negocio; el vendedor solo con
+        // el módulo POS vigente y uno solo. Se compara contra la
+        // foto del servidor (lo preexistente por encima del tope se
+        // respeta, igual que en el servidor, que es quien manda).
+        function usuariosLimiteError59(nuevos) {
+            if (!USERS_SNAPSHOT) return '';
+            const bucket = r => r === 'editor' ? 'editor' : (r === 'consultor' || r === 'viewer') ? 'consultor' : r === 'vendedor' ? 'vendedor' : '';
+            const cnt = (map) => { const c = {}; Object.values(map || {}).forEach(u => { const b = bucket(u.role); if (b) { const k = (u.negocio || '') + '|' + b; c[k] = (c[k] || 0) + 1; } }); return c; };
+            const oldC = cnt(USERS_SNAPSHOT), newC = cnt(nuevos);
+            for (const k of Object.keys(newC)) {
+                const neg = k.slice(0, k.lastIndexOf('|')), b = k.slice(k.lastIndexOf('|') + 1);
+                if (b === 'editor' && typeof getRolUsuario === 'function' && getRolUsuario() === 'tenedor') continue; // su editor de acceso no consume el cupo del negocio
+                let lim = 1;
+                if (b === 'vendedor') {
+                    try {
+                        if (window.FINANZAS_LOCAL && typeof PANEL_LOCAL !== 'undefined' && PANEL_LOCAL && PANEL_LOCAL.modo === 'negocio') { const m = (PANEL_LOCAL.modulos || {}).pos || {}; lim = m.vigente ? 1 : 0; }
+                        else if (typeof CFG !== 'undefined' && CFG && CFG.negocios && CFG.negocios[neg]) { lim = posVigenteEn(subsDeNeg(CFG.negocios[neg])) ? 1 : 0; }
+                    } catch (e) {}
+                }
+                if (newC[k] > lim && newC[k] > (oldC[k] || 0)) {
+                    if (b === 'editor') return '«' + neg + '» ya tiene su usuario de trabajo: el modelo es 1 administrador + 1 trabajador + 1 consultor por negocio.';
+                    if (b === 'consultor') return '«' + neg + '» ya tiene su usuario consultor: el modelo es 1 administrador + 1 trabajador + 1 consultor por negocio.';
+                    if (lim === 0) return 'El módulo POS no está activo y pagado para «' + neg + '»: el usuario de POS solo se crea con el módulo contratado.';
+                    return '«' + neg + '» ya tiene su usuario de POS: es uno solo por negocio.';
+                }
+            }
+            return '';
+        }
         function saveUsuarios(u) {
+            const errLim = usuariosLimiteError59(u);
+            if (errLim) { alert('⚠️ ' + errLim); return Promise.resolve({ ok: false, error: errLim }); }
             USERS = u;
-            Q = Q.then(() => api('users_save', {users: u})).then(r => { if (!r.ok) alert('⚠️ ' + (r.error || 'No se pudo guardar')); Object.values(USERS).forEach(x => delete x.password); return r; });
+            Q = Q.then(() => api('users_save', {users: u})).then(r => { if (!r.ok) alert('⚠️ ' + (r.error || 'No se pudo guardar')); else USERS_SNAPSHOT = JSON.parse(JSON.stringify(u)); Object.values(USERS).forEach(x => delete x.password); return r; });
             return Q;
         }
         function getNegocios() { const o = {}; Object.values(USERS).forEach(u => { if (u.role !== 'admin' && u.negocio) o[u.negocio] = {tipo: u.entityType, socios: u.socios}; }); return o; }
@@ -19321,7 +19411,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-58';
+        var MANUAL_VERSION = 'v2026.10.29-59';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19352,16 +19442,16 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'instalacion-offline', modulo:'empezar', titulo:'Primera vez sin conexión: instalar tu copia', html:
             '<p>Solo en la <b>versión sin conexión</b>: la primera vez que abres el programa en una máquina, en vez de la pantalla de entrada sale el <b>formulario de instalación</b>. Se hace una sola vez:</p>' +
             '<ol><li>Primero lo primero: <b>¿qué vas a llevar con esta copia?</b> Si es <b>un negocio</b> (TCP, MIPYME o PDL), la copia queda fijada a ese único negocio y no podrás crear otros: para eso hace falta la licencia de tenedor. Si eres <b>tenedor de libros</b>, elige esa opción: la copia nace sin negocio y los creas dentro de la app; cada negocio paga su propia licencia y la tuya suma el 10 % de lo que declares cobrar a cada uno. <b>Todo negocio nace bloqueado</b>: se activa cuando su mes está pagado y tu proveedor lo valida en línea.</li>' +
-            '<li>Escribe el <b>nombre de tu negocio</b> y su <b>tipo</b> (TCP, MIPYME o PDL). El campo de <b>socios</b> solo se usa en la MIPYME y en el PDL (sus titulares): si eliges <b>TCP</b>, queda deshabilitado — un TCP no tiene socios. Si elegiste tenedor, este paso no aparece.</li>' +
+            '<li>Si es un negocio, elige aquí su <b>tipo</b> (TCP, MIPYME o PDL). El campo de <b>socios</b> solo se usa en la MIPYME y en el PDL (sus titulares): si eliges <b>TCP</b>, queda deshabilitado — un TCP no tiene socios. El <b>nombre</b> no se pide aquí: lo pondrás dentro, al crear el negocio, y la app <b>no te volverá a preguntar el tipo ni los socios</b> (quedan heredados de este paso). Si elegiste tenedor, este paso no aparece: el tenedor elige el tipo al crear cada negocio dentro, porque lleva negocios de varios tipos.</li>' +
             '<li><b>Elige la carpeta donde se guardarán tus datos</b>: ahí vivirá el archivo <b>finanzas.db</b> con todo tu negocio. Elige un sitio seguro y permanente de tu computadora (por ejemplo, dentro de Documentos). Si cambias la carpeta sugerida, la app se rearranca sola en su sitio: espera unos segundos.</li>' +
             '<li>Lee la advertencia amarilla y marca que la entiendes: <b>las copias de seguridad de tu base de datos son tu responsabilidad</b>. Sin una copia en otro lugar (memoria USB, otra carpeta, la nube), una pérdida del archivo no tiene recuperación posible.</li>' +
-            '<li>Deja el <b>usuario administrador</b> («admin» o el que prefieras): es la cuenta dueña de la copia, para gestionar usuarios y configuración.</li>' +
-            '<li>Mantén marcada la casilla de <b>crear tu usuario de trabajo</b> y escribe ese usuario: es con el que entrarás a diario a llevar el negocio. Los dos comparten la contraseña que escribas aquí; luego puedes cambiarlas por separado.</li>' +
-            '<li>Pulsa <b>«Instalar y empezar»</b>: la app vuelve a la pantalla de entrada y ya puedes entrar con tu usuario de trabajo.</li></ol>' +
+            '<li>Deja el <b>usuario administrador</b> («admin» o el que prefieras): es la ÚNICA cuenta que crea la instalación — la dueña de la copia, para crear el negocio, gestionar usuarios y configuración. El usuario de trabajo ya no se pide aquí: lo crearás después desde esta cuenta.</li>' +
+            '<li>Pulsa <b>«Instalar y empezar»</b>: la app vuelve a la pantalla de entrada; entra con tu administrador y en el Resumen te espera la tarjeta <b>«Crea tu negocio»</b>, que solo te pide el <b>nombre</b>. Después, en <b>Configuración → Usuarios</b>, crea tu usuario de trabajo y tu consultor (el modelo es <b>1 administrador + 1 trabajador + 1 consultor</b> por negocio).</li></ol>' +
             '<p>Si la pantalla de entrada sale normal, es que la copia ya está instalada. En <b>Configuración</b>, la tarjeta «Tu base de datos» te recuerda en qué carpeta quedó tu archivo.</p>'},
         {id:'negocios-usuarios', modulo:'empezar', titulo:'Negocios, usuarios y roles', html:
             '<p>Cada negocio (tu MIPYME, cada TCP al que le llevas los libros, cada cliente del Gestor) guarda sus datos por separado: cuentas, movimientos, nómina, DJ y contabilidad no se mezclan nunca.</p>' +
-            '<ul><li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
+            '<ul><li><b>El modelo de usuarios por negocio es cerrado:</b> <b>1 administrador + 1 trabajador (editor) + 1 consultor</b>. La instalación crea solo el administrador; el trabajador y el consultor se crean desde su cuenta en <b>Configuración → Usuarios</b>, y el servidor no deja crear un segundo de cada rol en el mismo negocio. Si el negocio tiene pagado el <b>módulo POS</b>, se suma <b>1 usuario vendedor</b> (también uno solo). Lo que ya existiera por encima del tope antes de esta regla se respeta: nadie pierde su usuario, pero no se puede añadir otro hasta bajar del tope.</li>' +
+            '<li><b>Cambiar de negocio:</b> usa el selector de negocio de la parte superior; todo lo que ves pasa a ser de ese negocio.</li>' +
             '<li><b>Usuarios y roles:</b> en <b>Configuración</b> se crean los usuarios. El rol <b>admin</b> lo ve todo, incluido el menú <b>Gestor</b>; los demás roles trabajan en el negocio sin ver el panel de clientes.</li>' +
             '<li><b>Tenedor de libros:</b> la administradora puede crear usuarios con el rol <b>tenedor</b>: es una cuenta de gestión que ve el <b>Gestor</b> y la <b>Configuración</b> SOLO de su cartera. Como el tenedor también es TCP, al crearlo la app le crea automáticamente <b>su negocio TCP propio</b> dentro de su cartera, con su usuario de trabajo «usuario_tcp», para que lleve su propio Registro, Vector Fiscal y DJ-08; ese negocio paga su licencia TCP normal, pero <b>no suma a su base del 10 %</b> ni a su tramo de negocios — los negocios que la administradora le asigna en el editor de cada negocio —. El tenedor crea negocios y usuarios dentro de su cartera, y a cada negocio entra con un usuario editor suyo, como hace la administradora. El servidor le esconde todo lo demás: ni ve ni puede tocar negocios ajenos. Y <b>no puede desactivar ni borrar negocios, ni marcar pagos de licencias</b>: activar, desactivar y cobrar las licencias (de los negocios y la suya) es solo de la administradora.</li>' +
             '<li><b>Crear el tenedor:</b> en el formulario «Nuevo Usuario» elige el rol <b>📚 Tenedor de libros</b> — está en la lista de <b>Rol</b>, junto a Consultor y Editor, no en la de Tipo —. Al elegirlo, el selector de negocio se desactiva solo: no hay que elegir ninguno. Los negocios que se crearon sin tipo guardado cuentan como <b>TCP</b> en los selectores de negocio.</li>' +
@@ -19797,6 +19887,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>El amarre:</b> si el programa se mueve a otra PC, la huella no coincide y la llave deja de servir. Sin llave del mes en curso, los usuarios del negocio no entran a los datos — pero la propia <b>pantalla de bloqueo</b> trae el código de pedido, el registro de la instalación y el cuadro para pegar la llave nueva, así que nadie queda fuera sin remedio.</li>' +
             '<li><b>La pantalla de bloqueo lo resuelve todo (ronda -58):</b> en una copia sin conexión bloqueada por llave, esa pantalla muestra el <b>código de pedido</b>, intenta <b>registrar la instalación sola</b> al mostrarse si hay conexión (con botón «Registrar esta instalación ahora» para reintentar) y trae el cuadro <b>«Llave del mes»</b> con su botón «Activar llave»: el cliente no necesita entrar a la app para desbloquearla.</li>' +
             '<li><b>Instalar exige conexión (servidor 0.14.2):</b> la instalación inicial en modo negocio o tenedor <b>no se completa sin internet</b>: la copia debe registrarse en el servidor al instalarse; sin conexión, el programa lo avisa y no crea nada.</li>' +
+            '<li><b>El código de la app no queda en claro en tu carpeta de datos (servidor 0.14.3):</b> la copia de fábrica vive <b>solo dentro del programa, cifrada</b>, y la versión actualizada por internet se guarda <b>sellada</b> en la carpeta: si abres esos archivos con un bloc de notas verás texto cifrado, no el código. En tu carpeta solo quedan legibles tu base de datos (con sus documentos cifrados) y los ajustes. Si tu copia es anterior, al actualizar el servidor la copia en claro que pudiera existir se retira sola al arrancar.</li>' +
             '<li><b>Revocar:</b> corta el acceso en la próxima verificación de esa copia (al arrancar con conexión o al cambiar de mes). <b>Desvincular PC:</b> libera la llave para que pueda activarse en otra computadora — solo para cambios legítimos de equipo.</li>' +
             '<li><b>Copia de un tenedor (F3):</b> si la instalación es de un tenedor, lleva varios negocios: la llave abre la copia y, además, <b>cada negocio se comprueba contra tu servidor con la misma doble puerta</b> (negocio desactivado o sin pagar, o el tenedor sin pagar → los usuarios de ese negocio no entran a sus datos). En su Configuración, la tarjeta «Negocios de esta copia de tenedor» muestra el estado de cada uno y el botón «Validar ahora». Los nombres de sus negocios deben coincidir con los de la versión en línea.</li>' +
             '<li><b>Registrar la instalación:</b> la copia puede anunciarse sola en tu servidor: en su tarjeta de llave, el botón <b>«Registrar esta instalación en el servidor»</b> manda su código de pedido, el nombre de su negocio, su tipo y la huella de su PC (y también lo intenta sola una vez, al abrir la tarjeta, si aún no tiene llave ni consta registrada). Registrarse <b>no crea el negocio en línea ni desbloquea nada</b>: solo te deja la petición visible.</li>' +

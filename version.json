@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-58",
-  "publicada": "2026-10-29 23:38",
-  "notas": "Pantalla de bloqueo: registrar la instalación y pegar la llave sin entrar a la app",
+  "version": "v2026.10.29-59",
+  "publicada": "2026-10-30 00:54",
+  "notas": "Ronda -59: instalación solo con administrador (tipo y socios se eligen fuera y se heredan); el negocio se crea dentro solo con el nombre; cupos por negocio 1 administrador + 1 trabajador + 1 consultor (+1 vendedor solo con el POS activo); el código de la app ya no queda en claro en el disco.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "9d5f9be3d3a971843397817ee738ac0d2c797a7a6d9fe92f55e9c1e6e62df882",
-      "bytes": 2058157
+      "sha256": "460dc9c2a69d048fc0bcab69ba9695bb0b14841275f87c0d35e1521eab0f2e1a",
+      "bytes": 2066714
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "/IRh1dSMjS5yGwLGu6fCSbfVlrBuvL+7K4whRnEA3Clu+bSkZyqsw2NePC1964WwEN3VUh5Db8/tJPSJIgHbAw=="
+  "firma": "sjBtf/TuzSEUCnNylCo1FhmVz60Z7SLcQAB4gqWQ+0ryQiQolGDYJLXWaK2tlI1PS8lK0J+pAsBYQZAbqQIXDQ=="
 }
