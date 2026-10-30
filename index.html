@@ -3592,6 +3592,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <option value="mipyme">MIPYME</option>
                         <option value="pdl">Proyecto de Desarrollo Local (PDL)</option>
                     </select>
+                    <div class="form-text d-none" id="negocioTipoNota">El tipo lo fijó la instalación y se hereda: en esta copia no se cambia.</div>
                 </div>
                 <div class="mb-3" id="negocioTenedorWrap">
                     <label class="form-label fw-semibold">Tenedor de libros asignado</label>
@@ -6964,6 +6965,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                negocios TCP)» aunque los hubiera) — la causa raíz de lo
                que vio Leonardo en sus capturas (ronda -23). */
             recargarSelectsNegocios();
+            try{ aplicarTipoFijoForm60(); }catch(e){}
             renderBloqueoMeses();
             renderSuscripciones();
             try{ renderLicenciasPrecios(); }catch(e){}
@@ -7038,12 +7040,48 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         // ===== NEGOCIO: crear / editar =====
-        function abrirEditorNegocio(nombre){
+        // ===== TIPO FIJADO POR LA INSTALACIÓN (ronda -60) =====
+        // En una copia local en modo «negocio», el tipo (TCP, MIPYME
+        // o PDL) lo eligió la instalación: dentro no se vuelve a
+        // preguntar. Los selectores de tipo —del negocio y de los
+        // usuarios— quedan fijados a ese tipo; los demás tipos no se
+        // ofrecen. Solo eligen tipo los tenedores (llevan negocios
+        // de varios tipos) y la administradora en línea.
+        let TIPO_FIJO60_PROM = null;
+        function tipoFijoLocal60() {
+            if (!window.FINANZAS_LOCAL) return Promise.resolve('');
+            if (!TIPO_FIJO60_PROM) {
+                TIPO_FIJO60_PROM = panelLocalEstado().then(st => {
+                    if (!st || st.modo !== 'negocio') return '';
+                    const u = (typeof USERS !== 'undefined' && USERS && USERS[getCurrentUser()]) || {};
+                    return u.entityType || '';
+                }).catch(() => '');
+            }
+            return TIPO_FIJO60_PROM;
+        }
+        async function aplicarTipoFijoForm60() {
+            const fijo = await tipoFijoLocal60();
+            if (!fijo) return '';
+            const ne = document.getElementById('newEntityType');
+            if (ne) {
+                if (ne.value !== fijo) ne.value = fijo;
+                ne.disabled = true;
+                try { toggleSocios(); } catch (e) {}
+            }
+            return fijo;
+        }
+        window.__negTipo60Test = { fijo: tipoFijoLocal60, aplicarForm: aplicarTipoFijoForm60, abrirNegocio: function(n){ return abrirEditorNegocio(n); }, abrirUsuario: function(u){ return abrirEditorUsuario(u); } };
+        async function abrirEditorNegocio(nombre){
             const meta=getNegociosMeta();
             document.getElementById('negocioModalTitle').textContent = nombre ? 'Editar negocio' : 'Nuevo negocio';
             document.getElementById('negocioAnterior').value = nombre || '';
             document.getElementById('negocioNombre').value = nombre || '';
             document.getElementById('negocioTipo').value = (nombre && meta[nombre] && meta[nombre].tipo) || 'tcp';
+            const selTipo60 = document.getElementById('negocioTipo');
+            const nota60 = document.getElementById('negocioTipoNota');
+            selTipo60.disabled = false; if (nota60) nota60.classList.add('d-none');
+            const fijoN60 = await tipoFijoLocal60();
+            if (fijoN60) { selTipo60.value = fijoN60; selTipo60.disabled = true; if (nota60) nota60.classList.remove('d-none'); }
             /* Tenedor asignado (licencias F2): solo la administradora
                asigna; el tenedor siempre se queda con los suyos (el
                servidor lo fuerza) y no ve este campo. */
@@ -7062,7 +7100,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         async function guardarNegocio(){
             const nombre=document.getElementById('negocioNombre').value.trim();
-            const tipo=document.getElementById('negocioTipo').value;
+            let tipo=document.getElementById('negocioTipo').value;
+            const fijoG60 = await tipoFijoLocal60(); if (fijoG60) tipo = fijoG60;
             const anterior=document.getElementById('negocioAnterior').value;
             if(!nombre){ alert('\u26A0\uFE0F Escribe el nombre del negocio.'); return; }
             const payload={nombre: nombre, tipo: tipo, anterior: anterior};
@@ -7089,7 +7128,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         // ===== ABRIR EDITOR DE USUARIO ===
-        function abrirEditorUsuario(username) {
+        async function abrirEditorUsuario(username) {
             const users = getUsuarios();
             const user = users[username];
             if (!user) {
@@ -7103,6 +7142,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             document.getElementById('editPassword').value = '';
             document.getElementById('editRole').value = user.role || 'consultor';
             document.getElementById('editEntityType').value = user.entityType || 'tcp';
+            const et60 = document.getElementById('editEntityType');
+            et60.disabled = false;
+            const fijoU60 = await tipoFijoLocal60();
+            if (fijoU60 && user.role !== 'tenedor') { et60.value = fijoU60; et60.disabled = true; }
             document.getElementById('editSocios').value = user.socios || 1;
             cargarSelectNegocios('editNegocioSel', user.entityType || 'tcp', user.negocio || '');
             rolEditarCambio();
@@ -7137,11 +7180,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         // ===== GUARDAR EDICIÓN DE USUARIO =====
-        function guardarEdicionUsuario() {
+        async function guardarEdicionUsuario() {
             const username = document.getElementById('editUsername').value;
             const password = document.getElementById('editPassword').value.trim();
             const role = document.getElementById('editRole').value;
-            const entityType = document.getElementById('editEntityType').value;
+            let entityType = document.getElementById('editEntityType').value;
+            if (role !== 'tenedor') { const fijoEd60 = await tipoFijoLocal60(); if (fijoEd60) entityType = fijoEd60; }
             const socios = parseInt(document.getElementById('editSocios').value) || 1;
             /* La cuenta del tenedor no lleva negocio propio. */
             const negocio = role === 'tenedor' ? '' : document.getElementById('editNegocioSel').value;
@@ -14539,7 +14583,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             }
             return true;
         }
-        function crearUsuario() {
+        async function crearUsuario() {
             if (!esGestor()) {
                 alert('Solo el administrador puede crear usuarios.');
                 return;
@@ -14553,7 +14597,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             if (!esTenedorNuevo && !negocio) { alert('\u26A0\uFE0F Selecciona el negocio del usuario.'); return; }
             const username = document.getElementById('newUser').value.trim();
             const password = document.getElementById('newPass').value.trim();
-            const entityType = document.getElementById('newEntityType').value;
+            let entityType = document.getElementById('newEntityType').value;
+            if (!esTenedorNuevo) { const fijoC60 = await tipoFijoLocal60(); if (fijoC60) entityType = fijoC60; }
             const socios = entityType === 'mipyme' ? (parseInt(document.getElementById('newSocios').value) || 1) : 0;
             
             if (!username) { alert('⚠️ El nombre de usuario es requerido.'); return; }
@@ -19411,7 +19456,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-59';
+        var MANUAL_VERSION = 'v2026.10.29-60';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19458,6 +19503,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Inhabilitar un usuario:</b> en la lista de usuarios, el botón de la persona tachada lo <b>inhabilita</b>: no podrá entrar (ni siquiera con una sesión abierta) y su rastro queda guardado. El mismo botón lo rehabilita. Es la forma de «quitar» a alguien sin borrar la historia.</li>' +
             '<li><b>Borrar un usuario está protegido:</b> solo se puede borrar a quien <b>no tenga actividad registrada</b> en los datos. Si ya escribió movimientos o configuró algo, el servidor se niega a borrarlo — su nombre es la prueba de quién hizo qué — y te manda a inhabilitarlo.</li>' +
             '<li><b>Un negocio por copia:</b> en una instalación de negocio no se pueden crear más negocios; llevar varios es cosa de la licencia de <b>tenedor de libros</b>.</li>' +
+            '<li><b>El tipo no se vuelve a elegir dentro:</b> en una copia de negocio, el tipo (TCP, MIPYME o PDL) quedó fijado en la instalación: al crear o editar el negocio y al crear o editar los usuarios, el selector de tipo aparece bloqueado en ese tipo y los demás no se ofrecen. Elegir el tipo por negocio es solo de los tenedores y de la administradora en línea.</li>' +
             '<li><b>La cuenta administradora tiene su propia vista:</b> su menú solo muestra <b>Gestor</b> y <b>Configuración</b>; los apartados de trabajo de cada negocio (DJ, Contabilidad, Gestión+) y los de consulta (Ayuda e Instrucciones) no aparecen en esa cuenta, porque viven dentro de cada negocio.</li>' +
             '<li>La ficha de cada negocio guarda su nombre, su NIT y su tipo (TCP, MIPYME o PDL); ese dato manda en la DJ y en las validaciones.</li>' +
             '<li><b>Proyectos de Desarrollo Local (PDL):</b> son el tercer tipo de cliente y se eligen como tipo al crear el negocio o el usuario: en el editor de negocios, en el alta rápida del Gestor y en la gestión de usuarios. El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la vigencia de 5 años desde su aprobación, la evaluación semestral y la ejecución por fuentes de financiamiento, todo en su ficha del Panel del Gestor.</li></ul>'},

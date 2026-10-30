@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-59",
-  "publicada": "2026-10-30 00:54",
-  "notas": "Ronda -59: instalación solo con administrador (tipo y socios se eligen fuera y se heredan); el negocio se crea dentro solo con el nombre; cupos por negocio 1 administrador + 1 trabajador + 1 consultor (+1 vendedor solo con el POS activo); el código de la app ya no queda en claro en el disco.",
+  "version": "v2026.10.29-60",
+  "publicada": "2026-10-30 02:28",
+  "notas": "Ronda -60: en las copias de negocio, el tipo (TCP/MIPYME/PDL) queda fijado al elegido en la instalación en todos los selectores (negocio y usuarios)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "460dc9c2a69d048fc0bcab69ba9695bb0b14841275f87c0d35e1521eab0f2e1a",
-      "bytes": 2066714
+      "sha256": "e4e47ed08e0e128b90b41b93f3558c85d73d08114a8bd68a3d162534e76c5e21",
+      "bytes": 2069964
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "sjBtf/TuzSEUCnNylCo1FhmVz60Z7SLcQAB4gqWQ+0ryQiQolGDYJLXWaK2tlI1PS8lK0J+pAsBYQZAbqQIXDQ=="
+  "firma": "jrFEjdDsS0Oq6xm8pWhLOKbcgG5JIxounl3lf6RjC+xuBwQS998OSpilfAgh0A6S9B/K0cZ3L0Qgm1QAQ9C/CQ=="
 }
