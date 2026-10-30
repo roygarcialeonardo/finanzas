@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-71",
-  "publicada": "2026-10-30 18:40",
-  "notas": "En un TCP: «Titulares» en vez de «Socios» en el resumen de licencia (ronda -71)",
+  "version": "v2026.10.30-72",
+  "publicada": "2026-10-30 21:00",
+  "notas": "Ronda -72: la Declaración Jurada sale de la app (cambia cada año); la pestaña DJ muestra el contacto del servicio adicional por WhatsApp.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "9d1de1d2f8bd9ab8ee7314c7242bceb431558733b4261137cf1fdfc7852c12c5",
-      "bytes": 2108925
+      "sha256": "14818b6bec16cd7d9da05d7f7a98879c2f2418f62a98df7e1285d5baf7c10a0b",
+      "bytes": 2058909
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "YrMUlrmOHQ5qIwPbNOjDBJjqpEOCldzHhMtKg3eLTXNTxJO+Q6QJEyaGjJ0pLe+xK3xjXMLfZ65bZnDvOpSuCw=="
+  "firma": "+kYwKo1MNkjO/1WEJyXxF5YMYL9BN2yIWBFuNs32ILFyYPr75LOXuDy4RWLQRAyQhZEYrCuQMk3cl5TwdlDJBg=="
 }

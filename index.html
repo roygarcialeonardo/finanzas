@@ -1671,130 +1671,21 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div id="registroPrintBox" style="display:none"></div>
         </div>
 
-        <!-- DECLARACIÓN JURADA (DJ automática) -->
+        <!-- DECLARACIÓN JURADA: servicio adicional por contacto (ronda -72) -->
         <div class="tab-pane fade" id="pane-dj">
             <div class="module-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="doc" style="color:#0f766e"></span>Declaración Jurada automática</h5><div class="small text-secondary">Borrador calculado desde tus movimientos, nómina y pagos ONAT clasificados. La firma y la presentación ante la ONAT siguen siendo tuyas.</div></div>
-                <div class="d-flex gap-2 flex-wrap align-items-center"><label class="small mb-0" for="djAnioSel">Año fiscal</label><select id="djAnioSel" class="form-select form-select-sm" style="width:auto"></select><button type="button" class="btn btn-sm btn-outline-secondary btn-print-pane" data-print-target="pane-dj"><span class="icono-anim me-1" data-icono="impresora"></span>PDF</button><label class="btn btn-sm btn-primary mb-0" for="djImportInput"><span class="icono-anim me-1" data-icono="subir"></span> Importar DJ</label><input id="djImportInput" type="file" accept=".pdf,.xlsx" hidden><span class="badge bg-soft-secondary px-3 py-2" id="djImportBadge">Sin DJ importada</span></div>
+                <div><h5 class="fw-bold mb-1"><span class="icono-anim me-2" data-icono="doc" style="color:#0f766e"></span>Declaración Jurada</h5><div class="small text-secondary">Servicio adicional por contacto: la DJ cambia cada año y no se calcula dentro de la aplicación.</div></div>
             </div>
             <div id="djPdlPanel" style="display:none"></div>
-            <div id="djAvisos" class="mb-3"></div>
-            <div id="djJustificacionBox" class="mb-3"></div>
-            <div class="card p-3 p-md-4 mb-3">
-                <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="tarjeta-id"></span>Ficha fiscal del negocio</h6>
-                <div class="row g-2">
-                    <div class="col-md-3"><label class="form-label small mb-1">Régimen</label><select id="djFichaRegimen" class="form-select form-select-sm"><option value="tcp_general">TCP · Régimen general</option><option value="tcp_gratificaciones">TCP · Gratificaciones</option><option value="mipyme">MIPYME</option></select></div>
-                    <div class="col-md-3"><label class="form-label small mb-1">NIT</label><input id="djFichaNIT" class="form-control form-control-sm" placeholder="NIT del contribuyente"></div>
-                    <div class="col-md-6"><label class="form-label small mb-1">Nombre / Razón social</label><input id="djFichaNombre" class="form-control form-control-sm" placeholder="Nombre del contribuyente o la MIPYME"></div>
-                    <div class="col-md-4"><label class="form-label small mb-1">Municipio de inscripción</label><input id="djFichaMunicipio" class="form-control form-control-sm"></div>
-                    <div class="col-md-5"><label class="form-label small mb-1">Actividad</label><input id="djFichaActividad" class="form-control form-control-sm"></div>
-                    <div class="col-md-3"><label class="form-label small mb-1">Fecha de inscripción</label><input id="djFichaFecha" type="date" class="form-control form-control-sm"></div>
-                    <div class="col-md-3"><label class="form-label small mb-1">Base de Seguridad Social del titular (CUP/mes)</label><select id="djFichaSsBase" class="form-select form-select-sm"><option value="0">Sin definir</option><option value="2000">2 000</option><option value="2500">2 500</option><option value="2700">2 700</option><option value="3000">3 000</option><option value="3500">3 500</option><option value="4000">4 000</option><option value="4500">4 500</option><option value="5000">5 000</option><option value="5500">5 500</option><option value="6000">6 000</option><option value="6500">6 500</option><option value="7000">7 000</option><option value="7500">7 500</option><option value="8000">8 000</option><option value="8500">8 500</option><option value="9000">9 000</option><option value="9500">9 500</option></select><div class="small text-secondary">Solo TCP: su cuota propia es el <b>20 % mensual</b> de esta base (DL 92/2024). Se elige en el modelo de afiliación.</div></div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"><span class="small text-secondary">Si ya importaste el Vector Fiscal (RC-04A), el NIT, el nombre y el municipio se toman de ahí.</span><button class="btn btn-sm btn-primary" id="btnDjGuardarFicha"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar ficha</button></div>
-            </div>
-            <div class="card p-3 p-md-4 mb-3">
-                <h6 class="fw-semibold mb-1"><span class="icono-anim me-2" data-icono="ajustes"></span>Parámetros del año fiscal <span id="djParAnio" class="text-secondary"></span></h6>
-                <div class="small text-secondary mb-3">La Ley Anual del Presupuesto puede cambiarlos: contrasta siempre contra el modelo oficial del año (DJ-08 / DJ-01) publicado por la ONAT.</div>
-                <div class="row g-2">
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Mínimo exento IIP (CUP)</label><input id="djParExento" type="number" min="0" step="1" class="form-control form-control-sm"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Bonif. pronto pago % (≤ 28 feb)</label><input id="djParBonifP" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Bonif. canales electrónicos %</label><input id="djParBonifE" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
-
-                    <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala IIP (tope:tasa% por tramo, último tramo con tope vacío)</label><input id="djParEscalaIIP" class="form-control form-control-sm" placeholder="10000:15, 20000:20, 30000:30, 50000:40, :50"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Impuesto sobre Utilidades % ⚠ sin verificar</label><input id="djParTipoUtil" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Exento dividendos socios (CUP)</label><input id="djParExentoDiv" type="number" min="0" step="1" class="form-control form-control-sm"></div>
-                    <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala dividendos de socios (tope:tasa%)</label><input id="djParEscalaDiv" class="form-control form-control-sm" placeholder="75000:3, 150000:5, 250000:10, 350000:15, :20"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Retención anticipos de dividendos %</label><input id="djParRetDiv" type="number" min="0" step="0.1" class="form-control form-control-sm"></div>
-                    <div class="col-12 col-md-6"><label class="form-label small mb-1">Escala gratificaciones (tope:tasa%, 10 tramos)</label><input id="djParEscalaGrat" class="form-control form-control-sm" placeholder="25000:5, 50000:10, 100000:15, 200000:20, 350000:25, 500000:30, 650000:35, 800000:40, 1000000:45, :50"></div>
-                    <div class="col-12"><div class="small text-secondary">Las bonificaciones son beneficios <b>distintos y condicionados</b>: la de pronto pago solo procede si pagas antes del 28 de febrero, y la de canales electrónicos solo si pagas por esa vía; los <b>pagos a cuenta (fila 22) no son bonificación</b>. El tipo del Impuesto sobre Utilidades queda <b>sin verificar — provisional</b> hasta contrastarlo con la norma específica del MFP.</div></div>
-                </div>
-                <div class="row g-2 mt-1">
-                    <div class="col-12 col-md-5"><label class="form-label small mb-1">Fuente de verificación (ficha normativa)</label><input id="djParFuenteVerif" class="form-control form-control-sm" placeholder="Ej.: Gaceta Oficial, consulta en ONAT…"></div>
-                    <div class="col-6 col-md-3"><label class="form-label small mb-1">Fecha de verificación</label><input id="djParFechaVerif" type="date" class="form-control form-control-sm"></div>
-                    <div class="col-6 col-md-4"><label class="form-label small mb-1">Vigencia comprobada / notas</label><input id="djParVigenciaVerif" class="form-control form-control-sm" placeholder="Ej.: Vigente, comprobado en fuente oficial"></div>
-                    <div class="col-12"><div id="djVerifResumen" class="small text-secondary mt-1"></div></div>
-                </div>
-                <div class="text-end mt-3"><button class="btn btn-sm btn-primary" id="btnDjGuardarParams"><span class="icono-anim me-1" data-icono="check-circulo"></span> Guardar parámetros del año</button></div>
-            </div>
-            <div id="djCalcTCP">
-                <div class="card p-3 p-md-4 mb-3">
-                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span><span id="djTituloTCP">DJ-08 · Impuesto sobre Ingresos Personales</span></h6>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Gastos con justificante (CUP, opcional)</label><input id="djGastosJust" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Vacío = todos"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Arrendamiento a entidades estatales (CUP)</label><input id="djArrend" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Otras deducciones autorizadas (CUP)</label><input id="djOtrasDed" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Fecha prevista de pago</label><input id="djFechaPago" type="date" class="form-control form-control-sm"></div>
-                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djCanalElec"><label class="form-check-label small" for="djCanalElec">Pago por canales electrónicos (bonificación adicional)</label></div></div>
-                    </div>
-                    <div id="djLineasTCP" class="aporte-box"></div>
-                </div>
-                <div class="card p-3 p-md-4 mb-3">
-                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="usuarios"></span>Sección I · Trabajadores contratados (desde la nómina)</h6>
-                    <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead><tr><th>Trabajador</th><th>NIT (CI)</th><th>Municipio</th><th>Período</th><th class="text-end">Remuneración anual</th></tr></thead><tbody id="djSeccionIBody"></tbody></table></div>
-                    <div id="djSeccionIVacio" class="text-muted small mt-2" style="display:none">Sin trabajadores registrados en la nómina de este año. Al dar de alta a tu primer trabajador en Nómina, su acumulado anual aparecerá aquí solo.</div>
-                </div>
-            </div>
-            <div id="djCalcGRAT" style="display:none">
-                <div class="card p-3 p-md-4 mb-3">
-                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>DJ-08 · Gratificaciones (régimen propio)</h6>
-                    <p class="small text-secondary">Personal que recibe gratificaciones (actividad 877): escala propia de 10 tramos, gastos deducibles solo del 10 % y mínimo exento condicionado. Los ingresos y gastos salen de los movimientos del año; si la gratificación se recibió en divisa, captura su importe y la tasa del BCC para convertirla a CUP.</p>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Gratificación en divisa (opcional)</label><input id="djGratDivisa" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Vacío = ingresos del año"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Tasa de cambio BCC (CUP por divisa)</label><input id="djGratTasa" type="number" min="0" step="0.0001" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Retenciones acreditadas · fila 24 (CUP)</label><input id="djGratRet" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Pagos a cuenta trimestrales 5 % · fila 22 (CUP)</label><input id="djGratPagos" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="Solo lo no importado en estados"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Fecha prevista de pago</label><input id="djGratFechaPago" type="date" class="form-control form-control-sm"></div>
-                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djGratSinOtra"><label class="form-check-label small" for="djGratSinOtra">No ejerzo otra actividad (el mínimo exento procede en esta DJ; si ejerces otra, el exento va en tu DJ-08 general y presentas 2 DJ)</label></div></div>
-                        <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="djGratCanalElec"><label class="form-check-label small" for="djGratCanalElec">Pago por canales electrónicos (bonificación 3 %, solo si pagas por esa vía)</label></div></div>
-                    </div>
-                    <div id="djLineasGRAT" class="aporte-box"></div>
-                </div>
-            </div>
-            <div id="djCalcMIPYME" style="display:none">
-                <div class="card p-3 p-md-4 mb-3">
-                    <h6 class="fw-semibold mb-3"><span class="icono-anim me-2" data-icono="calculadora"></span>DJ-01 · Impuesto sobre Utilidades</h6>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6 col-md-4"><label class="form-label small mb-1">Pérdidas fiscales de años anteriores (CUP)</label><input id="djPerdidas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-4"><label class="form-label small mb-1">Reservas autorizadas antes del impuesto (CUP)</label><input id="djReservas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-12 col-md-4"><label class="form-label small mb-1">Pagos a cuenta trimestrales (CUP)</label><div class="d-flex gap-1"><input id="djPC1" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="T1"><input id="djPC2" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="T2"><input id="djPC3" type="number" min="0" step="0.01" class="form-control form-control-sm" placeholder="T3"></div></div>
-                    </div>
-                    <div id="djLineas01" class="aporte-box"></div>
-                    <div class="small text-secondary mt-2">La DJ-01 se presenta solo en formato digital con firma electrónica (servicio de la ONAT); usa esta hoja como borrador de cálculo.</div>
-                    <hr>
-                    <h6 class="fw-semibold mb-2">DJ-01 en el modelo oficial (Anexos 4.1 y 4.2)</h6>
-                    <p class="small text-secondary">El documento con la estructura exacta del Excel oficial de la ONAT: las ventas, los costos y los gastos salen solos de tu contabilidad (los mismos de los estados EFE 5921), la reserva de contingencias de su dotación del año, las pérdidas y los pagos a cuenta de los datos de arriba. Lo que la contabilidad no puede saber se captura aquí (todo queda guardado por año):</p>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(-) Devoluciones (Ind 02)</label><input id="dj01Dev" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(-) Impuesto sobre las ventas devengado (Ind 03)</label><input id="dj01ImpVtas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(+o-) Ajuste por depreciación (Ind 14)</label><input id="dj01AjusteDep" type="number" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">(-) Bonificaciones autorizadas (Ind 19)</label><input id="dj01Bonif" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Adición de reservas no deducibles (Ind 22)</label><input id="dj01AdicRes" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Multas y recargos (Ind 28)</label><input id="dj01Multas" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Cancelación de cuentas por cobrar (Ind 29)</label><input id="dj01CancelCxC" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Penalizaciones de la OBE (Ind 30)</label><input id="dj01PenalOBE" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Otros gastos no deducibles (Ind 31)</label><input id="dj01OtrosNoDed" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Ingresos no imponibles (Ind 36)</label><input id="dj01IngNoImp" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Deducción por reinversión (Ind 44)</label><input id="dj01Reinversion" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                        <div class="col-6 col-md-3"><label class="form-label small mb-1">Ingresos financieros Res. 374/2025 (Ind 46)</label><input id="dj01IngFin374" type="number" min="0" step="0.01" class="form-control form-control-sm"></div>
-                    </div>
-                    <div class="d-flex gap-2 flex-wrap mb-2"><button type="button" class="btn btn-sm btn-primary" onclick="dj01DocGenerar()">📄 Generar la DJ-01 oficial</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="printPane('dj01DocBox','DJ-01 Impuesto sobre Utilidades')"><i class="bi bi-printer me-1"></i>PDF del documento</button></div>
-                    <div id="dj01DocBox" class="border rounded p-3"></div>
-                </div>
-                <div class="card p-3 p-md-4 mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="usuarios"></span>DJ de socios por dividendos</h6><button class="btn btn-sm btn-outline-primary" id="btnDjAddSocio"><span class="icono-anim me-1" data-icono="mas"></span> Socio</button></div>
-                    <div id="djSociosBox"></div>
-                </div>
-            </div>
-            <div class="card p-3 p-md-4 mb-3">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><h6 class="fw-semibold mb-0"><span class="icono-anim me-2" data-icono="doc-check"></span>Declaraciones presentadas (importadas)</h6><span class="badge bg-soft-secondary" id="djPresentadasCount">0</span></div>
-                <p class="small text-secondary">Las DJ oficiales ya presentadas que importaste con «Importar DJ» (PDF o Excel del modelo oficial). La importada manda como «presentada» en el expediente; el cálculo de la app queda como contraste visible. Se guardan los datos leídos y el nombre del archivo de referencia, no el archivo.</p>
-                <div id="djPresentadasBox"></div>
-                <div id="djPresentadasVacio" class="text-muted small">Sin declaraciones importadas todavía. Cuando presentes tu declaración, impórtala aquí: quedará de referencia junto al cálculo de la app.</div>
+            <div class="card p-4 mb-3" id="djContacto72">
+                <h5 class="fw-bold mb-2">📞 Tu Declaración Jurada, como servicio adicional</h5>
+                <p class="mb-2">Los modelos, las escalas y las bonificaciones de la Declaración Jurada cambian cada año con la Ley del Presupuesto y las resoluciones de la ONAT, por eso ya no se calcula dentro de la aplicación: una cifra fija quedaría vieja y podría hacerte declarar mal.</p>
+                <p class="mb-2">Si necesitas la tuya, <b>contáctame y te la preparo con los datos reales de tu negocio, por un precio adicional</b>.</p>
+                <p class="display-6 fw-bold mb-2">+53 53704722</p>
+                <div class="d-flex gap-2 flex-wrap"><a class="btn btn-success" href="https://wa.me/5353704722" target="_blank" rel="noopener">💬 Escribir por WhatsApp</a></div>
+                <p class="small text-secondary mt-3 mb-0">La obligación de presentarla en plazo sigue siendo del contribuyente (la DJ-08, antes del 30 de abril; la de utilidades, en el trimestre siguiente al cierre del año). En el menú <b>Cierre</b> la app te la sigue recordando como informe del año.</p>
             </div>
         </div>
-
-        <!-- IDEAS 💡 · OPTIMIZACIÓN FISCAL LEGAL POR NEGOCIO -->
         <div class="tab-pane fade" id="pane-ideas">
             <div class="card p-3 p-md-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
@@ -1892,7 +1783,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div class="row g-2 align-items-end mb-2">
                     <div class="col-auto"><label class="form-label small mb-0">Año para estados y DJ</label><input type="number" class="form-control form-control-sm" id="mjAnioEstados" style="width:110px"></div>
                     <div class="col-auto"><button type="button" class="btn btn-sm btn-primary" id="mjBtnEstados" onclick="mjEstadosUI()"><span class="icono-anim me-1" data-icono="doc"></span>Flujo de efectivo + Cambios en el patrimonio</button></div>
-                    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-primary" id="mjBtnDJUtil" onclick="mjDJUtilidadesUI()"><span class="icono-anim me-1" data-icono="lapiz"></span>DJ de Utilidades PJ (salida para firma)</button></div>
                     <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-success" id="mjBtnReserva" onclick="mjReservaUI()"><span class="icono-anim me-1" data-icono="monedas"></span>Dotar reserva de contingencias</button></div>
                     <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-secondary" onclick="mjExportarEstadosCSV()"><span class="icono-anim me-1" data-icono="tabla"></span>Exportar (CSV/Excel)</button></div>
                 </div>
@@ -2917,83 +2807,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
 
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-dj">
                 <h6 class="card-title fw-semibold mb-2"><span class="icono-anim me-2" data-icono="doc"></span>Declaración Jurada</h6>
-                <p class="small mb-0">La Declaración Jurada automática del negocio, calculada desde los datos reales del año.</p>
-                <div class="ayuda-sec" id="ayuda-dj-0" data-ayuda-titulo="Declaración Jurada automática">
-                    <div class="ayuda-sec-tit">Declaración Jurada automática</div>
-                    <p class="small mb-0">Presentación del módulo: según el régimen del negocio (TCP o MIPYME) se calculan la DJ-08 o la DJ-01 y la DJ de socios por dividendos.</p>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-1" data-ayuda-titulo="Ficha fiscal del negocio">
-                    <div class="ayuda-sec-tit">Ficha fiscal del negocio</div>
-                    <p class="small mb-1">Régimen, NIT, nombre, municipio, actividad y fecha de inscripción del negocio.</p>
+                <p class="small mb-0">La Declaración Jurada ya no se calcula dentro de la aplicación: es un servicio adicional por contacto.</p>
+                <div class="ayuda-sec" id="ayuda-dj-0" data-ayuda-titulo="La DJ es un servicio adicional">
+                    <div class="ayuda-sec-tit">La DJ es un servicio adicional</div>
+                    <p class="small mb-1">Los modelos, las escalas y las bonificaciones de la DJ cambian cada año con la Ley del Presupuesto y las resoluciones de la ONAT, así que no puede ser una función fija de la app.</p>
                     <ul class="small mb-0">
-                        <li><b>Guardar ficha</b>: guarda estos datos, que se usan en todas las declaraciones.</li>
-                    </ul>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-2" data-ayuda-titulo="Parámetros del año fiscal">
-                    <div class="ayuda-sec-tit">Parámetros del año fiscal</div>
-                    <p class="small mb-1">Exento, escalas, bonificaciones y topes del año; son editables por año y alimentan el cálculo.</p>
-                    <ul class="small mb-0">
-                        <li><b>Guardar</b>: guarda los parámetros del año fiscal.</li>
-                    </ul>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-3" data-ayuda-titulo="DJ-08 · Impuesto sobre Ingresos Personales">
-                    <div class="ayuda-sec-tit">DJ-08 · Impuesto sobre Ingresos Personales</div>
-                    <p class="small mb-1">Para TCP: calcula el impuesto sobre ingresos personales a partir de los movimientos del año, con las reglas verificadas contra el modelo oficial (ONAT, 2026-10-25):</p>
-                    <ul class="small mb-0">
-                        <li><b>Gastos</b>: se deducen los autorizados al <b>100 % si justificas el 80 %</b> de ellos; si no llegas, se deduce lo justificado + el 20 % de los gastos. El 80 % es de justificación documental, <b>no</b> un tope sobre los ingresos. Todos los gastos deben constar en el Registro de Gastos.</li>
-                        <li><b>Pagos a cuenta (fila 22)</b>: los anticipos mensuales (5 % de los ingresos que exceden 3 260 CUP) minoran el impuesto; <b>no son una bonificación</b>. El Impuesto sobre las Ventas (10 %) es un tributo distinto.</li>
-                        <li><b>Bonificaciones, separadas y con condición</b>: 5 % solo por pronto pago (antes del 28 de febrero) y 3 % solo por pagar por canales electrónicos; ninguna se aplica sin cumplir su condición.</li>
-                    </ul>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-4" data-ayuda-titulo="Sección I · Trabajadores contratados (desde la nómina)">
-                    <div class="ayuda-sec-tit">Sección I · Trabajadores contratados</div>
-                    <p class="small mb-0">Se llena sola desde la nómina: nombre, NIT, municipio y remuneración de cada trabajador contratado.</p>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-5" data-ayuda-titulo="DJ-01 · Impuesto sobre Utilidades">
-                    <div class="ayuda-sec-tit">DJ-01 · Impuesto sobre Utilidades</div>
-                    <p class="small mb-0">Para MIPYME: calcula el impuesto sobre utilidades (35 %) con pérdidas, reservas y pagos a cuenta. ⚠ Ese 35 % está <b>sin verificar — provisional</b>: ninguna norma oficial disponible lo fija para las MIPYME (las normas remiten a la legislación específica del MFP); contrástalo antes de presentar.</p>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-6" data-ayuda-titulo="DJ de socios por dividendos">
-                    <div class="ayuda-sec-tit">DJ de socios por dividendos</div>
-                    <p class="small mb-1">Registra los socios con sus dividendos y la retención del 5 %; esos datos alimentan la DJ individual de cada socio.</p>
-                    <ul class="small mb-0">
-                        <li><b>Añadir socio / quitar socio</b>: agrega o elimina un socio de la lista; se guarda en los datos manuales del año.</li>
-                    </ul>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-8" data-ayuda-titulo="DJ-08 · Gratificaciones (régimen propio)">
-                    <div class="ayuda-sec-tit">DJ-08 · Gratificaciones (régimen propio)</div>
-                    <p class="small mb-1">El personal que recibe gratificaciones (actividad 877) tiene régimen propio: NO se le aplica ni la escala del TCP ni la regla general de gastos.</p>
-                    <ul class="small mb-0">
-                        <li><b>Escala propia de 10 tramos</b>: 5 % hasta 25 000, subiendo por tramos hasta 50 % en el exceso de 1 000 000.</li>
-                        <li><b>Gastos deducibles: solo el 10 %</b> de los asociados a la actividad.</li>
-                        <li><b>Mínimo exento condicionado</b>: solo se descuenta en esta DJ si NO ejerces otra actividad; si la ejerces, el exento va en tu DJ-08 general y presentas 2 DJ.</li>
-                        <li><b>Divisa</b>: la gratificación recibida en otra moneda se convierte a la tasa de cambio publicada por el BCC.</li>
-                        <li>Se elige en la <b>ficha fiscal → Régimen → TCP · Gratificaciones</b>.</li>
-                    </ul>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-9" data-ayuda-titulo="Importar DJ (presentada)">
-                    <div class="ayuda-sec-tit">Importar DJ (presentada)</div>
-                    <p class="small mb-1">Además del borrador que la app calcula, puedes subir la DJ oficial ya presentada (el Excel del modelo de la ONAT o el PDF con texto) con el botón <b>Importar DJ</b> de la pestaña DJ:</p>
-                    <ul class="small mb-0">
-                        <li><b>Qué se lee</b>: identidad (NIT, nombre, municipio), año, actividades, secciones y el TOTAL A PAGAR. La lectura se guía por los conceptos del modelo, no por números de fila sueltos.</li>
-                        <li><b>Validación contra el negocio abierto</b>: el NIT y el nombre del documento se comparan con la ficha fiscal y el Vector de ESTE negocio. Si el NIT no coincide, no se guarda salvo que lo fuerces con confirmación, y el forzado queda registrado. La misma validación se aplica al importar el RC-04A.</li>
-                        <li><b>Si el PDF está escaneado</b> (foto o escáner, sin texto), la app no puede leerlo: ofrece registrar la DJ a mano dejando el archivo como referencia.</li>
-                        <li><b>La importada manda como «presentada»</b>: queda en la tarjeta «Declaraciones presentadas (importadas)» y el cálculo de la app se muestra al lado como contraste, con su diferencia. Una rectificada sustituye a la anterior del mismo año, que se conserva marcada.</li>
-                        <li>Se guarda el nombre del archivo de referencia, no el archivo; el expediente completo también viaja en el respaldo ZIP del negocio (<i>dj_presentadas.json</i>).</li>
-                    </ul>
-                </div>
-                <div class="ayuda-sec" id="ayuda-dj-7" data-ayuda-titulo="Verificación de los parámetros">
-                    <div class="ayuda-sec-tit">Verificación de los parámetros</div>
-                    <p class="small mb-1">La Parte IX del libro trabaja con una ficha de verificación por norma: qué se consultó, en qué fuente oficial, cuándo y con qué vigencia comprobada. La tarjeta «Parámetros del año fiscal» lleva esa misma ficha en miniatura, con tres campos que se guardan por año junto a los parámetros:</p>
-                    <ul class="small mb-0">
-                        <li><b>Fuente de verificación (ficha normativa)</b>: la fuente oficial donde contrastaste los parámetros del año (Gaceta Oficial, modelo oficial de la ONAT…).</li>
-                        <li><b>Fecha de verificación</b>: el día de esa comprobación; bajo los parámetros verás el resumen «Última verificación: … · Fuente: …».</li>
-                        <li><b>Vigencia comprobada / notas</b>: el resultado de la comprobación (vigente, modificada…) y cualquier nota útil.</li>
-                        <li><b>Si la fecha es antigua, vuelve a comprobar</b>: las normas cambian; una verificación de hace meses no garantiza la vigencia de hoy. Sin verificación registrada, la app te avisa: comprueba los parámetros en fuente oficial (Gaceta/ONAT) antes de aplicarlos.</li>
+                        <li>En la pestaña <b>DJ</b> verás la tarjeta de contacto: escribe por WhatsApp al <b>+53 53704722</b> y te preparamos la DJ de tu negocio por un precio adicional, con tus datos reales.</li>
+                        <li>La obligación de presentarla en su plazo sigue siendo tuya: la app te la recuerda en el menú <b>Cierre</b> como informe del año.</li>
+                        <li>Los Proyectos de Desarrollo Local (PDL) no presentan DJ: en su pestaña verás el Control del PDL.</li>
                     </ul>
                 </div>
             </div>
-
             <div class="card p-3 p-md-4 mb-4" id="ayuda-menu-registro">
                 <h6 class="fw-semibold mb-2"><span class="icono-anim me-2" data-icono="libro"></span>Registro de Control de Ingresos y Gastos (solo TCP)</h6>
                 <p class="small mb-1">Es el <b>único libro</b> que debe llevar el TCP con ingresos anuales de hasta 500 000 CUP (Res. 272/2024 del MFP): anotación <b>diaria</b> de sus ingresos y gastos, en español y en CUP, conservando los documentos justificantes. Tributariamente ya no existe un «régimen simplificado»: desde 2024 todo TCP tributa en <b>régimen general</b> (DL 93/2024); lo que cambia con el tamaño es solo su obligación contable.</p>
@@ -3216,7 +3040,6 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <li><b>Flujo de efectivo + Cambios en el patrimonio</b>: genera ambos estados en pantalla para el año elegido.</li>
                         <li><b>Exportar (CSV/Excel)</b>: exporta esos estados, también imprimibles.</li>
                         <li><b>Dotar reserva de contingencias</b>: calcula el techo/piso según la utilidad y crea el asiento Dr 510-000 / Cr 505-000, dejando el registro en gestión.</li>
-                        <li><b>DJ de Utilidades PJ (salida para firma)</b>: genera el documento de declaración de utilidades de la persona jurídica, listo para imprimir y firmar (no es el modelo oficial).</li>
                     </ul>
                 </div>
                 <div class="ayuda-sec" id="ayuda-gestion-3" data-ayuda-titulo="Conoce a tu cliente (Resolución 86/2026) · confidencial">
@@ -6549,10 +6372,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 else informes.push({id:'sin-sem', titulo:'Sin informes semestrales', estado:'na', detalle:'Este actor no presenta informes por semestre.'});
             }
             if(tipo==='anio'){
-                if(actor.tipo==='tcp') informes.push({id:'dj08', titulo:'Declaración Jurada DJ-08 del año', estado: inf['dj08']?'ok':'pend', marcar:'inf', detalle:'Se presenta antes del 30 de abril del año siguiente, con las bonificaciones que correspondan.', irTab:'tab-dj', irTxt:'Abrir la DJ'});
-                else if(actor.tipo==='mipyme'){ informes.push({id:'djutil', titulo:'DJ del Impuesto sobre Utilidades del año', estado: inf['djutil']?'ok':'pend', marcar:'inf', detalle:'Presentación digital obligatoria, dentro del trimestre siguiente al cierre del año fiscal.'});
+                if(actor.tipo==='tcp') informes.push({id:'dj08', titulo:'Declaración Jurada DJ-08 del año', estado: inf['dj08']?'ok':'pend', marcar:'inf', detalle:'Se presenta antes del 30 de abril del año siguiente. La DJ no se calcula en la app porque cambia cada año: es un servicio adicional — contacta por WhatsApp al +53 53704722 y te la preparamos.', irTab:'tab-dj', irTxt:'Ver el contacto'});
+                else if(actor.tipo==='mipyme'){ informes.push({id:'djutil', titulo:'DJ del Impuesto sobre Utilidades del año', estado: inf['djutil']?'ok':'pend', marcar:'inf', detalle:'Presentación digital obligatoria, dentro del trimestre siguiente al cierre del año fiscal. La DJ no se calcula en la app porque cambia cada año: es un servicio adicional — contacta por WhatsApp al +53 53704722 y te la preparamos.', irTab:'tab-dj', irTxt:'Ver el contacto'});
                     informes.push({id:'eeff', titulo:'Estados financieros anuales (NCIF)', estado: inf['eeff']?'ok':'pend', marcar:'inf', detalle:'Balance y estado de resultados del año, según las Normas Cubanas de Información Financiera.'});
-                    informes.push({id:'dj01', titulo:'DJ-01 de los socios por dividendos', estado: inf['dj01']?'ok':'pend', marcar:'inf', detalle:'Cada socio declara sus dividendos del año en su DJ-01.', irTab:'tab-dj', irTxt:'Abrir la DJ'}); }
+                    informes.push({id:'dj01', titulo:'DJ-01 de los socios por dividendos', estado: inf['dj01']?'ok':'pend', marcar:'inf', detalle:'Cada socio declara sus dividendos del año en su DJ. La DJ no se calcula en la app porque cambia cada año: es un servicio adicional — contacta por WhatsApp al +53 53704722 y te la preparamos.', irTab:'tab-dj', irTxt:'Ver el contacto'}); }
                 else { informes.push({id:'util', titulo:'Liquidación anual del Impuesto sobre Utilidades (040012)', estado: inf['util']?'ok':'pend', marcar:'inf', detalle:'El PDL es contribuyente propio: liquida sus utilidades una vez al año (Res. 202/2026).'});
                     informes.push({id:'eeff', titulo:'Estados financieros anuales del proyecto (NCIF)', estado: inf['eeff']?'ok':'pend', marcar:'inf', detalle:'La contabilidad del PDL es propia e independiente, bajo las normas empresariales (Decreto 174/2026, art. 16).'}); }
             }
@@ -13013,7 +12836,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const cuerpo = filas.length
                 ? filas.map(f=>`<div class="alert alert-${f.t} py-2 px-2 mb-2 d-flex flex-wrap align-items-center gap-2"><span class="flex-grow-1 small">${f.icono} ${f.txt}</span><button type="button" class="btn btn-sm btn-dark" onclick="irAPestana('${f.tab}')">${f.btn} →</button></div>`).join('')
                 : `<div class="alert alert-success py-2 px-2 mb-2 small">🎉 <b>Todo al día.</b> No tienes pendientes urgentes hoy.</div>
-                   <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-chequera')">📥 Importar estado de cuenta</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-chequera')">✏️ Nuevo movimiento</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-dj')">📊 Ver mi DJ</button></div>`;
+                   <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-chequera')">📥 Importar estado de cuenta</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-chequera')">✏️ Nuevo movimiento</button><button type="button" class="btn btn-sm btn-outline-primary" onclick="irAPestana('tab-dj')">📊 DJ: servicio adicional</button></div>`;
             box.innerHTML=`<div class="card border-primary"><div class="card-body py-3">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><h5 class="mb-0">🧭 Qué toca hoy</h5>
                 <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="modoSimpleSwitch" ${simple?'checked':''} onchange="toggleModoSimple(this.checked)"><label class="form-check-label small" for="modoSimpleSwitch">Modo simple <span class="text-secondary">(solo lo esencial; desactívalo para ver todo)</span></label></div></div>
@@ -13409,51 +13232,13 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const datos = ctx.datos || { ingresos: 0, gastos: 0, trib: {} }, P = ctx.P, man = ctx.man || {}, anio = ctx.anio;
             const trib = datos.trib || {};
             if (ctx.tipo === 'tcp' && !ctx.grat) {
-                const manBase = Object.assign({}, man, { fechaPago: '', canalElectronico: false });
-                const rHoy = djCore08(datos, P, manBase, anio);
-                if (rHoy.resultado > 0) {
-                    const rOpt = djCore08(datos, P, Object.assign({}, manBase, { fechaPago: (Number(anio) + 1) + '-02-15', canalElectronico: true }), anio);
-                    const ahorro = R(rHoy.resultado - rOpt.resultado);
-                    if (ahorro > 0) ideas.push({ id: 'bonif_dj08', titulo: 'Bonificaciones de la DJ-08: pronto pago + canal electrónico', texto: 'Si declaras y pagas la DJ-08 de ' + anio + ' antes del 28 de febrero de ' + (Number(anio) + 1) + ' y lo haces por un canal electrónico (Transfermóvil o EnZona), la cuota baja dos veces: ' + P.bonifPronto + ' % por pronto pago y ' + P.bonifElec + ' % por el canal, cada una sobre el importe a pagar.', hoy: R(rHoy.resultado), optimizado: R(rOpt.resultado), ahorro: ahorro, tipo: 'impuesto', fundamento: 'Planillas oficiales DJ-08 e Instructivo; Res. 271/2024, art. 7', destino: 'tab-dj' });
-                }
-                if (man.gastosJustificados != null && datos.gastos > 0) {
-                    const J = Number(man.gastosJustificados) || 0;
-                    if (J < 0.8 * datos.gastos) {
-                        const rH = djCore08(datos, P, man, anio), rO = djCore08(datos, P, Object.assign({}, man, { gastosJustificados: datos.gastos }), anio);
-                        const ahorro = R(rH.resultado - rO.resultado);
-                        if (ahorro > 0) ideas.push({ id: 'gastos_80', titulo: 'Justifica el 80 % de tus gastos y dedúcelos al 100 %', texto: 'Hoy constan justificados ' + moneda(J) + ' de ' + moneda(datos.gastos) + ' (el ' + Math.round(J / datos.gastos * 100) + ' %). Sin llegar al 80 % solo deduces lo justificado más el 20 %; justificando el 80 % o más, la norma te deja deducir el 100 % de los gastos autorizados.', hoy: R(rH.resultado), optimizado: R(rO.resultado), ahorro: ahorro, tipo: 'impuesto', fundamento: 'Instructivo DJ-08, Sección A (justificación del 80 %)', destino: 'tab-dj' });
-                    }
-                } else if (datos.gastos > 0) {
-                    const rSin = djCore08(datos, P, Object.assign({}, manBase, { gastosJustificados: 0 }), anio);
-                    const dif = R(rSin.resultado - rHoy.resultado);
-                    if (dif > 0) consulta.push({ titulo: 'Tus gastos, sin justificantes capturados', texto: 'La app aún no tiene capturado cuánto de tus ' + moneda(datos.gastos) + ' de gastos tiene justificante. Si no justificaras nada, la DJ-08 te costaría hasta ' + moneda(dif) + ' más: la norma exige justificar el 80 % para deducir el 100 %. Captura el monto justificado en la pestaña DJ.' });
-                }
                 let correcto = 0; (ctx.ingresosMes || []).forEach(x => { correcto += 0.05 * Math.max(0, (Number(x) || 0) - 3260); });
                 const pagado = Number(trib.anticipo_iip) || 0;
                 if (pagado > correcto + 1) ideas.push({ id: 'anticipo_exceso', titulo: 'Anticipos del 5 %: solo sobre lo que pase de 3 260 al mes', texto: 'Este año constan anticipos por ' + moneda(pagado) + ' y lo correcto era ' + moneda(correcto) + '. La diferencia no es un impuesto perdido — minora tu DJ-08 — pero es dinero adelantado que pudiste estar usando en el negocio.', hoy: R(pagado), optimizado: R(correcto), ahorro: R(pagado - correcto), tipo: 'flujo', fundamento: 'Res. 271/2024, art. 20', destino: 'tab-fiscal' });
                 const ssB = Number(ctx.ssBase) || 0;
-                if (ssB > 2000) { const hoySS = R(ssB * 0.20 * 12), optSS = R(2000 * 0.20 * 12); ideas.push({ id: 'ss_base', titulo: 'Tu base de Seguridad Social es tu elección', texto: 'Aportas sobre una base de ' + moneda(ssB) + ' al mes. La escala te deja elegir entre 2 000 y 9 500: con la base mínima liberarías este flujo cada año. Ojo: la base también fija tu pensión y tus subsidios futuros — bájala solo si el flujo te importa más que esa cobertura.', hoy: hoySS, optimizado: optSS, ahorro: R(hoySS - optSS), tipo: 'flujo', fundamento: 'DL 92/2024, art. 9.1 (base elegible 2 000–9 500)', destino: 'tab-dj' }); }
                 consulta.push({ titulo: 'Beneficios según tu caso (Res. 271/2024, arts. 14-15)', texto: 'Si eres recién graduado, el primer año de actividad puede estar exonerado; y las actividades en zonas rurales o de montaña aprobadas por el CAM pueden tener una reducción de hasta el 35 %. Dependen de tu caso concreto: confírmalos en tu ONAT antes de aplicarlos.' });
             }
-            if (ctx.tipo === 'mipyme') {
-                const rHoy01 = djCore01(datos, P, man);
-                const utilPrev = ctx.datosPrev ? (ctx.datosPrev.ingresos - ctx.datosPrev.gastos) : 0;
-                if (utilPrev < 0 && (Number(man.perdidas) || 0) < -utilPrev) {
-                    const rO = djCore01(datos, P, Object.assign({}, man, { perdidas: -utilPrev }));
-                    const ahorro = R(rHoy01.resultado - rO.resultado);
-                    if (ahorro > 0) ideas.push({ id: 'perdidas', titulo: 'Arrastra la pérdida del año pasado', texto: 'El año ' + (Number(anio) - 1) + ' cerró con pérdida de ' + moneda(-utilPrev) + ' según tus movimientos, y en la DJ-01 constan arrastrados ' + moneda(Number(man.perdidas) || 0) + '. Arrastrarla completa baja la base de utilidades de este año.', hoy: R(rHoy01.resultado), optimizado: R(rO.resultado), ahorro: ahorro, tipo: 'impuesto', fundamento: 'DJ-01: pérdidas fiscales de años anteriores', destino: 'tab-dj' });
-                }
-                const socios = Array.isArray(man.socios) ? man.socios : [];
-                let tHoy = 0, tOpt = 0, hayDiv = false;
-                socios.forEach(s => { const div = Number(s.dividendos) || 0; if (div > 0) { hayDiv = true; tHoy += djAplicarEscala(Math.max(0, div - P.exentoDiv), P.escalaDiv).total; tOpt += 2 * djAplicarEscala(Math.max(0, div / 2 - P.exentoDiv), P.escalaDiv).total; } });
-                if (hayDiv && R(tHoy - tOpt) > 100) ideas.push({ id: 'dividendos_split', titulo: 'Divide los dividendos entre dos ejercicios', texto: 'La escala de dividendos es progresiva (del 3 % al 20 %) y el mínimo exento se aplica CADA año: repartir lo mismo en dos ejercicios seguidos, en vez de todo en uno, baja el impuesto total de los socios. La distribución la acuerda la junta: es una decisión de momento, no de monto.', hoy: R(tHoy), optimizado: R(tOpt), ahorro: R(tHoy - tOpt), tipo: 'impuesto', fundamento: 'Escala de dividendos y mínimo exento anual (parámetros DJ)', destino: 'tab-dj' });
-                const utilidad = datos.ingresos - datos.gastos;
-                if (utilidad > 0 && (Number(man.reservas) || 0) < 0.10 * utilidad) {
-                    const rRes = djCore01(datos, P, Object.assign({}, man, { reservas: R(0.10 * utilidad) }));
-                    const dif = R(rHoy01.impuesto - rRes.impuesto);
-                    if (dif > 0) consulta.push({ titulo: 'Reserva de Contingencias en la DJ-01', texto: 'Dotar la Reserva (obligatoria: se nutre con el 10 % de las utilidades) podría además bajar el impuesto en unos ' + moneda(dif) + '. La deducibilidad está «por verificar en el Instructivo DJ-01»: confírmala en la ONAT antes de aplicarla.' });
-                }
-            }
+
             if (ctx.tipo === 'pdl') {
                 if (datos.ingresos > 0) { const hoyV = R(datos.ingresos * 0.10), optV = R(datos.ingresos * 0.05); ideas.push({ id: 'pdl_alimentos', titulo: 'Alimentos de minindustrias al detalle: 5 %, no 10 %', texto: 'El impuesto sobre ventas del proyecto es el 10 %, PERO las ventas al detalle de alimentos producidos por minindustrias tributan al 5 %. La comparativa supone que TODAS tus ventas del año (' + moneda(datos.ingresos) + ') fueran de ese tipo; tu ahorro real es la mitad del impuesto de la parte que sí lo sea: 500 por cada 10 000.', hoy: hoyV, optimizado: optV, ahorro: R(hoyV - optV), tipo: 'impuesto', condicional: true, fundamento: 'Res. 202/2026, párrafo 0114822', destino: 'tab-fiscal' }); }
                 consulta.push({ titulo: 'Tus trabajadores no presentan DJ por el proyecto', texto: 'Los ingresos que tus contratados reciben del proyecto están exonerados de su Declaración Jurada anual (Res. 202/2026, art. 12): un trámite menos para tu equipo, y un argumento para contratar.' });
@@ -13801,178 +13586,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             return [...s].sort((a,b) => b - a);
         }
         function renderDJ(){
-            const pane = document.getElementById('pane-dj');
-            if (!pane) return;
-            const anioDef = (() => { const h = new Date(); return h.getFullYear() - (h.getMonth() < 10 ? 1 : 0); })();
-            if (!djAnioSel) djAnioSel = anioDef;
-            const sel = document.getElementById('djAnioSel');
-            sel.innerHTML = djAniosOpciones().map(y => '<option value="' + y + '"' + (Number(y) === Number(djAnioSel) ? ' selected' : '') + '>' + y + '</option>').join('');
-            const d = getDJ();
-            const f = Object.assign({}, d.ficha);
-            const vf = (() => { try { return getFiscal(); } catch(e) { return null; } })();
-            if (vf && vf.meta) {
-                if (!f.nit && vf.meta.nit) f.nit = vf.meta.nit;
-                if (!f.nombre && vf.meta.razon) f.nombre = vf.meta.razon;
-                if (!f.municipio && vf.meta.dpa) f.municipio = vf.meta.dpa;
-            }
-            if (!f.regimen) f.regimen = getEntityType() === 'mipyme' ? 'mipyme' : 'tcp_general';
-            const focused = pane.contains(document.activeElement);
-            if (!focused) {
-                document.getElementById('djFichaRegimen').value = f.regimen;
-                document.getElementById('djFichaNIT').value = f.nit || '';
-                document.getElementById('djFichaNombre').value = f.nombre || '';
-                document.getElementById('djFichaMunicipio').value = f.municipio || '';
-                document.getElementById('djFichaActividad').value = f.actividad || '';
-                document.getElementById('djFichaFecha').value = f.fechaInscripcion || '';
-                document.getElementById('djFichaSsBase').value = f.ssBase || 0;
-                const P = djParamsAnio(djAnioSel);
-                document.getElementById('djParAnio').textContent = '· ' + djAnioSel;
-                document.getElementById('djParExento').value = P.exentoIIP;
-                document.getElementById('djParBonifP').value = P.bonifPronto;
-                document.getElementById('djParBonifE').value = P.bonifElec;
-                document.getElementById('djParEscalaIIP').value = djEscalaTexto(P.escalaIIP);
-                document.getElementById('djParTipoUtil').value = P.tipoUtilidades;
-                document.getElementById('djParExentoDiv').value = P.exentoDiv;
-                document.getElementById('djParEscalaDiv').value = djEscalaTexto(P.escalaDiv);
-                document.getElementById('djParRetDiv').value = P.retencionDiv;
-                document.getElementById('djParEscalaGrat').value = djEscalaTexto(P.escalaGrat);
-                document.getElementById('djParFuenteVerif').value = P.fuenteVerif || '';
-                document.getElementById('djParFechaVerif').value = P.fechaVerif || '';
-                document.getElementById('djParVigenciaVerif').value = P.vigenciaVerif || '';
-                const djVerRes = document.getElementById('djVerifResumen');
-                if (djVerRes) djVerRes.textContent = P.fechaVerif ? ('Última verificación: ' + P.fechaVerif + ' · Fuente: ' + (P.fuenteVerif || '—') + (P.vigenciaVerif ? ' · Vigencia comprobada / notas: ' + P.vigenciaVerif : '')) : 'Sin verificación registrada: comprueba los parámetros en fuente oficial (Gaceta/ONAT) antes de aplicarlos.';
-                const man = djManualAnio(djAnioSel);
-                document.getElementById('djGastosJust').value = man.gastosJustificados == null ? '' : man.gastosJustificados;
-                document.getElementById('djArrend').value = man.arrendEstatales || '';
-                document.getElementById('djOtrasDed').value = man.otrasDeducciones || '';
-                document.getElementById('djFechaPago').value = man.fechaPago || '';
-                document.getElementById('djCanalElec').checked = !!man.canalElectronico;
-                document.getElementById('djPerdidas').value = man.perdidas || '';
-                document.getElementById('djReservas').value = man.reservas || '';
-                const d01 = man.dj01 || {};
-                document.getElementById('dj01Dev').value = d01.devoluciones || '';
-                document.getElementById('dj01ImpVtas').value = d01.impVentas || '';
-                document.getElementById('dj01AjusteDep').value = d01.ajusteDep || '';
-                document.getElementById('dj01Bonif').value = d01.bonificaciones || '';
-                document.getElementById('dj01AdicRes').value = d01.adicReservas || '';
-                document.getElementById('dj01Multas').value = d01.multas || '';
-                document.getElementById('dj01CancelCxC').value = d01.cancelCxC || '';
-                document.getElementById('dj01PenalOBE').value = d01.penalOBE || '';
-                document.getElementById('dj01OtrosNoDed').value = d01.otrosNoDed || '';
-                document.getElementById('dj01IngNoImp').value = d01.ingNoImp || '';
-                document.getElementById('dj01Reinversion').value = d01.reinversion || '';
-                document.getElementById('dj01IngFin374').value = d01.ingFin374 || '';
-                document.getElementById('djPC1').value = man.pagosCuenta[0] || '';
-                document.getElementById('djPC2').value = man.pagosCuenta[1] || '';
-                document.getElementById('djPC3').value = man.pagosCuenta[2] || '';
-                document.getElementById('djGratDivisa').value = man.grat.divisa || '';
-                document.getElementById('djGratTasa').value = man.grat.tasaBCC || '';
-                document.getElementById('djGratRet').value = man.grat.retenciones || '';
-                document.getElementById('djGratPagos').value = man.grat.pagosCuenta || '';
-                document.getElementById('djGratFechaPago').value = man.grat.fechaPago || '';
-                document.getElementById('djGratSinOtra').checked = !!man.grat.sinOtraActividad;
-                document.getElementById('djGratCanalElec').checked = !!man.grat.canalElectronico;
-            }
-            renderDJCalculo();
-            try { wireDjImport(); renderDjPresentadas(); } catch(e) {}
-            if (!djWired) {
-                djWired = true;
-                sel.addEventListener('change', () => { djAnioSel = Number(sel.value); renderDJ(); });
-                document.getElementById('btnDjGuardarFicha').addEventListener('click', () => {
-                    const dd = getDJ();
-                    dd.ficha = { regimen: document.getElementById('djFichaRegimen').value, nit: document.getElementById('djFichaNIT').value.trim(), nombre: document.getElementById('djFichaNombre').value.trim(), municipio: document.getElementById('djFichaMunicipio').value.trim(), actividad: document.getElementById('djFichaActividad').value.trim(), fechaInscripcion: document.getElementById('djFichaFecha').value, ssBase: Number(document.getElementById('djFichaSsBase').value) || 0 };
-                    saveDJ(dd); renderDJ(); alert('✅ Ficha fiscal guardada.');
-                });
-                document.getElementById('btnDjGuardarParams').addEventListener('click', () => {
-                    const dd = getDJ(); if (!dd.params[djAnioSel]) dd.params[djAnioSel] = {};
-                    const P = dd.params[djAnioSel];
-                    P.exentoIIP = parseFloat(document.getElementById('djParExento').value);
-                    P.bonifPronto = parseFloat(document.getElementById('djParBonifP').value);
-                    P.bonifElec = parseFloat(document.getElementById('djParBonifE').value);
-                    P.escalaIIP = djParseEscala(document.getElementById('djParEscalaIIP').value, djEscalaIIPDefecto(djAnioSel));
-                    P.tipoUtilidades = parseFloat(document.getElementById('djParTipoUtil').value);
-                    P.exentoDiv = parseFloat(document.getElementById('djParExentoDiv').value);
-                    P.escalaDiv = djParseEscala(document.getElementById('djParEscalaDiv').value, DJ_PARAMS_DEF.escalaDiv);
-                    P.retencionDiv = parseFloat(document.getElementById('djParRetDiv').value);
-                    P.escalaGrat = djParseEscala(document.getElementById('djParEscalaGrat').value, DJ_PARAMS_DEF.escalaGrat);
-                    P.fuenteVerif = document.getElementById('djParFuenteVerif').value.trim();
-                    P.fechaVerif = document.getElementById('djParFechaVerif').value;
-                    P.vigenciaVerif = document.getElementById('djParVigenciaVerif').value.trim();
-                    saveDJ(dd); renderDJ(); alert('✅ Parámetros de ' + djAnioSel + ' guardados.');
-                });
-                const guardarManual = () => {
-                    const dd = getDJ(); if (!dd.manual[djAnioSel]) dd.manual[djAnioSel] = {};
-                    const m = dd.manual[djAnioSel];
-                    const gj = document.getElementById('djGastosJust').value;
-                    m.gastosJustificados = gj === '' ? '' : parseFloat(gj);
-                    m.arrendEstatales = parseFloat(document.getElementById('djArrend').value) || 0;
-                    m.otrasDeducciones = parseFloat(document.getElementById('djOtrasDed').value) || 0;
-                    m.fechaPago = document.getElementById('djFechaPago').value;
-                    m.canalElectronico = document.getElementById('djCanalElec').checked;
-                    m.perdidas = parseFloat(document.getElementById('djPerdidas').value) || 0;
-                    m.reservas = parseFloat(document.getElementById('djReservas').value) || 0;
-                    m.dj01 = {
-                        devoluciones: parseFloat(document.getElementById('dj01Dev').value) || 0,
-                        impVentas: parseFloat(document.getElementById('dj01ImpVtas').value) || 0,
-                        ajusteDep: parseFloat(document.getElementById('dj01AjusteDep').value) || 0,
-                        bonificaciones: parseFloat(document.getElementById('dj01Bonif').value) || 0,
-                        adicReservas: parseFloat(document.getElementById('dj01AdicRes').value) || 0,
-                        multas: parseFloat(document.getElementById('dj01Multas').value) || 0,
-                        cancelCxC: parseFloat(document.getElementById('dj01CancelCxC').value) || 0,
-                        penalOBE: parseFloat(document.getElementById('dj01PenalOBE').value) || 0,
-                        otrosNoDed: parseFloat(document.getElementById('dj01OtrosNoDed').value) || 0,
-                        ingNoImp: parseFloat(document.getElementById('dj01IngNoImp').value) || 0,
-                        reinversion: parseFloat(document.getElementById('dj01Reinversion').value) || 0,
-                        ingFin374: parseFloat(document.getElementById('dj01IngFin374').value) || 0
-                    };
-                    m.pagosCuenta = [parseFloat(document.getElementById('djPC1').value) || 0, parseFloat(document.getElementById('djPC2').value) || 0, parseFloat(document.getElementById('djPC3').value) || 0];
-                    saveDJ(dd); renderDJCalculo();
-                };
-                ['djGastosJust','djArrend','djOtrasDed','djFechaPago','djCanalElec','djPerdidas','djReservas','djPC1','djPC2','djPC3','dj01Dev','dj01ImpVtas','dj01AjusteDep','dj01Bonif','dj01AdicRes','dj01Multas','dj01CancelCxC','dj01PenalOBE','dj01OtrosNoDed','dj01IngNoImp','dj01Reinversion','dj01IngFin374'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.addEventListener('change', guardarManual);
-                });
-                document.getElementById('btnDjAddSocio').addEventListener('click', () => {
-                    const dd = getDJ(); if (!dd.manual[djAnioSel]) dd.manual[djAnioSel] = {};
-                    if (!Array.isArray(dd.manual[djAnioSel].socios)) dd.manual[djAnioSel].socios = [];
-                    dd.manual[djAnioSel].socios.push({ nombre: '', nit: '', dividendos: 0, retenciones: 0 });
-                    saveDJ(dd); renderDJCalculo();
-                });
-                document.getElementById('djSociosBox').addEventListener('change', e => {
-                    const inp = e.target.closest('[data-socio]');
-                    if (!inp) return;
-                    const dd = getDJ(); const m = (dd.manual[djAnioSel] || {}); const socios = m.socios || [];
-                    const s = socios[Number(inp.dataset.socio)];
-                    if (!s) return;
-                    const campo = inp.dataset.campo;
-                    s[campo] = (campo === 'dividendos' || campo === 'retenciones') ? (parseFloat(inp.value) || 0) : inp.value;
-                    saveDJ(dd); renderDJCalculo();
-                });
-                document.getElementById('djSociosBox').addEventListener('click', e => {
-                    const btn = e.target.closest('[data-socio-del]');
-                    if (!btn) return;
-                    const dd = getDJ(); const m = (dd.manual[djAnioSel] || {}); const socios = m.socios || [];
-                    socios.splice(Number(btn.dataset.socioDel), 1);
-                    saveDJ(dd); renderDJCalculo();
-                });
-                const guardarGrat = () => {
-                    const dd = getDJ(); if (!dd.manual[djAnioSel]) dd.manual[djAnioSel] = {};
-                    dd.manual[djAnioSel].grat = {
-                        divisa: parseFloat(document.getElementById('djGratDivisa').value) || 0,
-                        tasaBCC: parseFloat(document.getElementById('djGratTasa').value) || 0,
-                        retenciones: parseFloat(document.getElementById('djGratRet').value) || 0,
-                        pagosCuenta: parseFloat(document.getElementById('djGratPagos').value) || 0,
-                        fechaPago: document.getElementById('djGratFechaPago').value,
-                        sinOtraActividad: document.getElementById('djGratSinOtra').checked,
-                        canalElectronico: document.getElementById('djGratCanalElec').checked
-                    };
-                    saveDJ(dd); renderDJCalculo();
-                };
-                ['djGratDivisa','djGratTasa','djGratRet','djGratPagos','djGratFechaPago','djGratSinOtra','djGratCanalElec'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.addEventListener('change', guardarGrat);
-                });
-            }
+            /* Ronda -72: la DJ ya no se calcula dentro de la app (cambia cada año);
+               la pestaña muestra la tarjeta de contacto del servicio adicional.
+               El Control del PDL se sigue pintando con renderPanelPdl(). */
         }
         function renderDJCalculo(){
             const d = getDJ(), f = d.ficha || {};
@@ -17246,13 +16862,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             const vectorJson=JSON.stringify(doc.fiscal||{}, null, 2);
             const djPresentadasJson=JSON.stringify(((doc.dj||{}).presentadas||[]), null, 2);
             const contaJson=JSON.stringify(doc.conta||{}, null, 2);
-            const djHtml=gestorDjHTML(n, doc);
-            const leeme='Respaldo del negocio «'+n+'» generado desde Finanzas el '+new Date().toISOString()+'.\n\nContenido:\n- datos.json: copia completa de los datos del negocio (movimientos, mes abierto, historial, Vector Fiscal, nómina y DJ).\n- movimientos.csv: todos los movimientos registrados.\n- resumen_mensual.csv: totales por mes.\n- vector_fiscal.json: Vector Fiscal (RC-04A) y obligaciones.\n- dj_ultima.html: última Declaración Jurada CALCULADA por la app (borrador imprimible).\n- dj_presentadas.json: Declaraciones Juradas importadas como PRESENTADAS ante la ONAT (expediente), si las hay.\n- conta.json: contabilidad completa (plan de cuentas, asientos, submayores, inventario, reglas y bandeja).\n\nEste paquete sirve también como entrega al cliente si deja el servicio.';
+            const leeme='Respaldo del negocio «'+n+'» generado desde Finanzas el '+new Date().toISOString()+'.\n\nContenido:\n- datos.json: copia completa de los datos del negocio (movimientos, mes abierto, historial, Vector Fiscal, nómina y DJ).\n- movimientos.csv: todos los movimientos registrados.\n- resumen_mensual.csv: totales por mes.\n- vector_fiscal.json: Vector Fiscal (RC-04A) y obligaciones.\n- dj_presentadas.json: Declaraciones Juradas importadas como PRESENTADAS ante la ONAT (expediente), si las hay.\n- conta.json: contabilidad completa (plan de cuentas, asientos, submayores, inventario, reglas y bandeja).\n\nEste paquete sirve también como entrega al cliente si deja el servicio.';
             const base='respaldo_'+n.replace(/[^a-zA-Z0-9_-]+/g,'_');
             try{
                 const JSZip=await cargarJSZip();
                 const zip=new JSZip();
-                zip.file('datos.json', datosJson); zip.file('movimientos.csv', csvMov); zip.file('resumen_mensual.csv', csvRes); zip.file('vector_fiscal.json', vectorJson); zip.file('dj_ultima.html', djHtml); zip.file('dj_presentadas.json', djPresentadasJson); zip.file('conta.json', contaJson); zip.file('LEEME.txt', leeme);
+                zip.file('datos.json', datosJson); zip.file('movimientos.csv', csvMov); zip.file('resumen_mensual.csv', csvRes); zip.file('vector_fiscal.json', vectorJson); zip.file('dj_presentadas.json', djPresentadasJson); zip.file('conta.json', contaJson); zip.file('LEEME.txt', leeme);
                 const blob=await zip.generateAsync({type:'blob'});
                 descargarBlob(blob, base+'.zip');
             }catch(e){
@@ -19794,7 +19409,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-71';
+        var MANUAL_VERSION = 'v2026.10.30-72';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -20098,20 +19713,11 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>Además, el panel <b>«🧭 Qué toca hoy»</b> del Resumen te avisa solo cuando un cierre queda incompleto: el estado de cuenta del mes anterior sin importar, la nómina sin generar o un informe del período vencido sin presentar.</p>'},
         {id:'trimestres', modulo:'fiscal', titulo:'Trimestres y utilidades', html:
             '<p>El menú <b>Trimestres</b> resume las utilidades por trimestre y socio y prepara el pago de utilidades de la MIPYME (código 040072). Recuerda la regla: decretar utilidades crea la obligación en la <b>417 por socio</b> (ver «Dividendos a socios») y su pago baja esa cuenta, no la de resultados.</p>'},
-        {id:'parametros-dj', modulo:'dj', titulo:'Parámetros del año y su fuente de verificación', html:
-            '<p>La tarjeta <b>Parámetros del año fiscal</b> (menú DJ) guarda por año el mínimo exento (39 120 CUP), las escalas y las bonificaciones, junto a su <b>Fuente de verificación</b>, <b>Fecha de verificación</b> y <b>Vigencia comprobada</b>. Si un año no tiene verificación registrada, la app te avisa para que lo compruebes en la Gaceta o la ONAT antes de declarar.</p>' +
-            '<p>Los parámetros son <b>editables y versionados por año</b>: la campaña de cada año liquida el año anterior con SUS parámetros.</p>'},
-        {id:'dj08', modulo:'dj', titulo:'DJ-08 del TCP (y la regla del 80 % bien explicada)', html:
-            '<p>La <b>DJ-08</b> se calcula desde tus datos: ingresos, gastos autorizados y la Sección I desde la nómina. Plazo: <b>30 de abril</b>. Todo TCP liquida en <b>régimen general</b> (el régimen simplificado tributario fue derogado en 2024 por el DL 93/2024). La <b>escala depende del año que se liquida</b>: hasta 2023, 15/20/30/40/50 % por tramos; desde los ingresos de 2024, la escala de 10 tramos de la Ley 174/2024 (5 % hasta 25 000 … 50 % en exceso de 1 000 000), sobre el mínimo exento de 39 120 CUP. Si un año no tiene su escala verificada en fuente primaria, la app te lo advierte en rojo antes de que presentes.</p>' +
-            '<ul><li><b>La regla del 80 % NO es un tope sobre los ingresos:</b> se deducen los gastos autorizados al 100 % si justificas el 80 % de ellos; si no llegas a justificar ese 80 %, se deduce el 20 % de los gastos más los que sí estén documentados.</li>' +
-            '<li>La <b>Seguridad Social propia del titular</b> (20 % mensual de la base que eligió en su modelo de afiliación, entre 2 000 y 9 500 CUP, DL 92/2024) se captura en la ficha de la DJ y su importe aparece cada mes en los cálculos de la pestaña <b>Fiscal</b>; los pagos se clasifican por el código 082013 y deducen en esta DJ. El IUFT del TCP se paga <b>trimestralmente</b> (Res. 271/2024).</li>' +
-            '<li>Bonificaciones: 5 % por pronto pago (antes del 28 de febrero, sobre el importe a pagar) y 3 % por canales electrónicos; <b>no</b> son un paquete automático, cada una tiene su condición.</li>' +
-            '<li>El anticipo del 5 % grava solo los ingresos mensuales que excedan 3 260 CUP; el Impuesto sobre Ventas (10 %) es otro tributo.</li>' +
-            '<li>Las <b>gratificaciones</b> tienen régimen propio (su escala, gastos deducibles del 10 % y exento condicionado) y su propia variante de la DJ-08.</li></ul>'},
-        {id:'dj01', modulo:'dj', titulo:'DJ-01 de la MIPYME', html:
-            '<p>La <b>DJ-01</b> liquida el impuesto sobre utilidades de la MIPYME sobre el resultado contable de la app: por eso importa que la contabilidad esté cerrada y cuadrada antes de calcularla. Las pérdidas y reservas se registran en la propia DJ, y los pagos a cuenta se toman de los pagos con el código 040072 o se escriben a mano.</p>' +
-            '<p><b>En el modelo oficial:</b> el botón «Generar la DJ-01 oficial» compone el documento con la estructura de los <b>Anexos 4.1 y 4.2</b> del modelo de la ONAT, con sus indicadores (01 a 47) y sus fórmulas: la Sección A sale de tus estados financieros (EFE 5921), la reserva de contingencias de su dotación del año, y la deuda se calcula al tipo del año (35 %, Ley 113). Los datos que la contabilidad no puede saber —devoluciones, el impuesto sobre las ventas devengado, multas, bonificaciones y demás ajustes del modelo— se capturan en la propia tarjeta y quedan guardados por año. El documento es la transcripción fiel para la presentación digital con firma electrónica; conserva también el borrador de cálculo de arriba para contrastar.</p>'},
-        {id:'dividendos', modulo:'dj', titulo:'Dividendos a socios: la 417 por socio', html:
+        {id:'dj-contacto', modulo:'dj', titulo:'La Declaración Jurada es un servicio adicional', html:
+            '<p>La Declaración Jurada (la DJ-08 del TCP, la DJ de utilidades de la MIPYME y la de los socios por sus dividendos) <b>ya no se calcula dentro de la aplicación</b>: sus modelos, escalas y bonificaciones cambian cada año con la Ley del Presupuesto y las resoluciones de la ONAT, y una función fija quedaría vieja y podría hacerte declarar mal.</p>' +
+            '<p>Por eso la DJ se ofrece como <b>servicio adicional</b>: escribe por WhatsApp al <b>+53 53704722</b> y te la preparamos con los datos reales de tu negocio, por un precio adicional.</p>' +
+            '<p>La obligación de presentarla sigue siendo del contribuyente y en su plazo (la DJ-08, antes del 30 de abril; la de utilidades, en el trimestre siguiente al cierre del año fiscal): en el menú <b>Cierre</b> la app te la sigue recordando como informe del año, y allí puedes marcarla como presentada cuando la entregues.</p>'},
+        {id:'dividendos', modulo:'fiscal', titulo:'Dividendos a socios: la 417 por socio', html:
             '<p>Al decretar dividendos, la app genera el asiento <b>Dr Utilidades Retenidas / Cr 417 · Dividendos y Participaciones por Pagar</b>, con <b>análisis por socio</b>, y aplica la escala de dividendos (3/5/10/15/20 %). La MIPYME retiene el 5 % de las distribuciones anticipadas.</p>' +
             '<ul><li>La 417 es la cuenta oficial del Procedimiento Contable No. 28 del MFP porque los dividendos decretados son un <b>pasivo corriente exigible</b>: deuda aprobada por la Junta y pendiente de desembolso.</li>' +
             '<li>Al pagar, el asiento es Dr 417 / Cr banco, por socio. Lo pagado con el concepto «utilidades» se clasifica solo contra la 417.</li>' +
@@ -20129,7 +19735,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li>El botón <b>Imprimir</b> genera el libro del año con el contribuyente, su NIT y los totales. El diseño oficial del Registro lo fija el Jefe de la ONAT; la salida de la app sigue la letra de la norma mientras no se publique un modelo.</li></ul>'},
         {id:'ideas', modulo:'ideas', titulo:'Ideas 💡: optimización fiscal legal con tus números', html:
             '<p>La pestaña <b>Ideas 💡</b> estudia los datos reales de tu negocio y te propone vías <b>legales</b> de pagar menos, cada una con su comparativa: <b>hoy pagas X → con el consejo pagarías Y → te ahorras Z</b>, con sus barras y el botón que te lleva a donde se aplica.</p>' +
-            '<ul><li>Solo entran palancas <b>confirmadas en la norma</b> (bonificaciones de la DJ-08, la regla del 80 % de gastos justificados, el anticipo solo sobre el exceso de 3 260, la base elegible de tu Seguridad Social, el arrastre de pérdidas, el momento de los dividendos, el 5 % de los alimentos de minindustria del PDL…), calculadas con TUS movimientos y TU DJ.</li>' +
+            '<ul><li>Solo entran palancas <b>confirmadas en la norma</b> (el anticipo solo sobre el exceso de 3 260, el 5 % de los alimentos de minindustria del PDL…), calculadas con TUS movimientos. Las palancas de la Declaración Jurada ya no se calculan aquí: la DJ es un servicio adicional (ver el módulo de la DJ en este manual).</li>' +
             '<li>El resumen separa el <b>impuesto</b> que dejas de pagar del <b>flujo</b> que liberas: no es lo mismo ahorrar que dejar de adelantar, y aquí no se mezclan.</li>' +
             '<li>Lo que depende de tu caso o de una confirmación oficial va a la <b>zona de consulta</b>: existe, pero no se recomienda hasta verificarlo en tu ONAT o en la norma. Nada de atajos: un ahorro que una fiscalización deshace no es un ahorro.</li></ul>'},
         {id:'creditos-314', modulo:'creditos', titulo:'Créditos: alta, tabla y la cuenta 314-000', html:
