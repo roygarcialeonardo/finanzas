@@ -1,6 +1,6 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-66",
+  "version": "v2026.10.30-67",
   "publicada": "2026-10-30 04:55",
   "notas": "Ronda -66: las copias reportan también sus usuarios (resumen firmado v2, solo nombres y roles) y el vendedor ya ve su pantalla del POS",
   "requiereServidor": "0.11.0",
@@ -8,8 +8,8 @@
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "6a7f8c32c62a5e10215c5496eecb2f81bb63507760e28d94c660f9af77bc0b47",
-      "bytes": 2087657
+      "sha256": "d519d107543602fe3295072b6b95d92397e55f6d35c5a708b77dcf5915d517d7",
+      "bytes": 2096305
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "jux/u1TBjo690KK31HhvYlp5MCig1xoCZzZNi8udoPS+pvTiYHlRV4ZHPWDvHvB1drYe6IE/A5ozFu2EBL1xCQ=="
+  "firma": "kcUxrM9BHj21TP1qMgB8lMdkQ1V1/BGN48c7YgLY3yYGTLefVbupF51hh80baLc6Y3pi1BSdmzZFU0P7qc/4Cw=="
 }
