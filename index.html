@@ -2222,7 +2222,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         <div class="tab-pane fade" id="pane-panel">
             <div class="card shadow-sm"><div class="card-body">
                 <h5 class="mb-1">🎛️ Panel de control de licencias</h5>
-                <p class="text-muted small">Tu mando único de administradora: cuánto deberías cobrar este mes en licencias, cuánto ya cobraste y quién falta — negocio a negocio y tenedor a tenedor. Marcar pagos, activar, desactivar y dar cortesías se guarda al momento y manda en el acto (el bloqueo lo aplica el servidor). Los precios se editan en Configuración → «Licencias y tenedores».</p>
+                <p class="text-muted small" id="panelIntro">Tu mando único de administradora: cuánto deberías cobrar este mes en licencias, cuánto ya cobraste y quién falta — negocio a negocio y tenedor a tenedor. Marcar pagos, activar, desactivar y dar cortesías se guarda al momento y manda en el acto (el bloqueo lo aplica el servidor). Los precios se editan en Configuración → «Licencias y tenedores».</p>
                 <div class="btn-group mb-3" role="group" aria-label="Vistas del panel">
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="resumen">📊 Resumen</button>
                     <button type="button" class="btn btn-sm btn-outline-primary" data-panel-vista="negocios">🏢 Negocios</button>
@@ -2235,7 +2235,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 <div id="panelVistaTenedores" style="display:none"></div>
                 <div id="panelVistaLlaves" style="display:none"></div>
                 <div id="panelVistaRegistro" style="display:none"></div>
-                <p class="small text-muted mt-3 mb-0">Reglas del panel: la <b>cortesía</b> es una licencia regalada por ti — ese negocio nunca se bloquea por falta de pago ni cuenta como deuda, y tampoco suma a la base del 10 % de su tenedor. Cada tenedor paga su <b>base fija mensual</b> por el uso de la aplicación (2 000 si su cartera computable tiene menos de 5 negocios; 1 000 si tiene 5 o más) más su porcentaje, calculado sobre las tarifas de los negocios <b>activos y sin cortesía</b> de su cartera. El historial se calcula con las tarifas de hoy.</p>
+                <p class="small text-muted mt-3 mb-0" id="panelReglas">Reglas del panel: la <b>cortesía</b> es una licencia regalada por ti — ese negocio nunca se bloquea por falta de pago ni cuenta como deuda, y tampoco suma a la base del 10 % de su tenedor. Cada tenedor paga su <b>base fija mensual</b> por el uso de la aplicación (2 000 si su cartera computable tiene menos de 5 negocios; 1 000 si tiene 5 o más) más su porcentaje, calculado sobre las tarifas de los negocios <b>activos y sin cortesía</b> de su cartera. El historial se calcula con las tarifas de hoy.</p>
             </div></div>
         </div>
         <div class="tab-pane fade" id="pane-gestor">
@@ -8386,10 +8386,41 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <p class="small text-secondary">Quién entra en cada negocio, si ya tiene su red de seguridad (el código de recuperación) y qué servicios tiene contratados. Las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b>: cada copia guarda solo su huella, y la pérdida se resuelve con el código de recuperación, no con una lista de contraseñas.</p>
             <div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Negocio</th><th>Tipo</th><th>Usuarios</th><th>Código de recuperación</th><th>Servicios contratados</th></tr></thead><tbody>${cuerpo}</tbody></table></div>`;
         }
+        async function panelRegistroLocal69() {
+            const neg = (PANEL_LOCAL && PANEL_LOCAL.negocioRegistrado) || getNegocioNombre();
+            const tipo = String(getEntityType() || 'tcp').toUpperCase();
+            const usuarios = getUsuarios();
+            const roles = { admin: 'Administrador', editor: 'Trabajador', consultor: 'Consultor', viewer: 'Consultor', vendedor: 'Vendedor', tenedor: 'Tenedor' };
+            const us = Object.keys(usuarios).filter(u => String((usuarios[u] || {}).negocio || '') === neg).sort()
+                .map(u => '<span class="badge bg-light text-dark border me-1 mb-1">' + esc(u) + ' · ' + esc(roles[usuarios[u].role] || usuarios[u].role || '') + '</span>').join('') || '<span class="text-secondary">—</span>';
+            let rescate = '<span class="text-secondary">Sin leer</span>';
+            try {
+                const st = await recLocalFetch('/recuperacion/estado', null, true);
+                if (st && st.ok) rescate = st.tieneCodigo
+                    ? '<span class="badge bg-success">✅ Generado</span>'
+                    : '<span class="badge bg-warning text-dark">⚠ Sin generar</span><div class="small text-secondary">Genéralo en Configuración</div>';
+            } catch (e) {}
+            const licOk = !!(PANEL_LOCAL && PANEL_LOCAL.estado === 'vigente');
+            const pos = (PANEL_LOCAL && PANEL_LOCAL.modulos && PANEL_LOCAL.modulos.pos) || {};
+            const serv = '<div class="mb-1"><span class="small fw-semibold">Finanzas (licencia del mes):</span> ' + (licOk ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-warning text-dark">Por activar</span>') + '</div>'
+                + '<div class="mb-1"><span class="small fw-semibold">Punto de Venta (POS):</span> ' + (pos.vigente ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">No contratado</span>') + '</div>';
+            return '<h6 class="fw-semibold">📋 Registro de tu negocio</h6>'
+                + '<p class="small text-secondary">Quién entra en tu negocio, si ya tienes tu red de seguridad (el código de recuperación) y qué servicios tienes contratados. Las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b>: tu copia guarda solo su huella.</p>'
+                + '<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Negocio</th><th>Tipo</th><th>Usuarios</th><th>Código de recuperación</th><th>Servicios contratados</th></tr></thead><tbody>'
+                + '<tr><td><b>' + esc(neg) + '</b></td><td>' + esc(tipo) + '</td><td>' + us + '</td><td>' + rescate + '</td><td>' + serv + '</td></tr>'
+                + '</tbody></table></div>';
+        }
         function pintarRegistroVista() {
             const el = document.getElementById('panelVistaRegistro');
-            if (el && PANEL_VISTA === 'registro') el.innerHTML = panelHtmlRegistro(panelModelo());
+            if (!el || PANEL_VISTA !== 'registro') return;
+            if (esPanelLocalNegocio()) {
+                el.innerHTML = '<p class="text-secondary small mb-0">Cargando tu registro…</p>';
+                panelRegistroLocal69().then(x => { if (PANEL_VISTA === 'registro') el.innerHTML = x; }).catch(() => {});
+                return;
+            }
+            el.innerHTML = panelHtmlRegistro(panelModelo());
         }
+        window.__panel69Test = { recorte: aplicarRecortePanelLocal, registroLocal: panelRegistroLocal69, abrirPanel: () => renderPanelControl(), setLocal: v => { PANEL_LOCAL = v; }, vista: () => PANEL_VISTA };
         function llaveEstadoChip(rec) {
             if (rec.revocada) return '<span class="badge bg-danger">Revocada</span>';
             if (rec.huella) return '<span class="badge bg-success">Activada</span>';
@@ -8467,11 +8498,20 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         function esPanelLocalNegocio() { return !!(PANEL_LOCAL && PANEL_LOCAL.modo === 'negocio'); }
         function aplicarRecortePanelLocal() {
+            /* Ronda -69 (pedido de Leonardo): en la copia de un negocio
+               el Panel deja SOLO la vista Registro. Resumen, Negocios,
+               Llaves y Tenedores son el mando de la administradora (y de
+               los perfiles con cartera); un negocio normal no necesita
+               nada de eso: ve únicamente lo suyo. */
             if (!esPanelLocalNegocio()) return;
             const pane = document.getElementById('pane-panel'); if (!pane) return;
-            const bTen = pane.querySelector('[data-panel-vista="tenedores"]'); if (bTen) bTen.style.display = 'none';
-            const bNeg = pane.querySelector('[data-panel-vista="negocios"]'); if (bNeg) bNeg.textContent = '🏢 Negocio';
-            if (PANEL_VISTA === 'tenedores') PANEL_VISTA = 'resumen';
+            ['resumen', 'negocios', 'tenedores', 'llaves'].forEach(v => {
+                const b = pane.querySelector('[data-panel-vista="' + v + '"]'); if (b) b.style.display = 'none';
+            });
+            PANEL_VISTA = 'registro';
+            const intro = document.getElementById('panelIntro');
+            if (intro) intro.textContent = 'El registro de tu negocio: quién entra con su usuario, si ya tienes tu código de recuperación y qué servicios tienes contratados.';
+            const reglas = document.getElementById('panelReglas'); if (reglas) reglas.style.display = 'none';
         }
         function panelHtmlResumenLocalNegocio(m) {
             /* Solo lo que este negocio ha pagado a su tenedor de libros;
@@ -19752,7 +19792,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-68';
+        var MANUAL_VERSION = 'v2026.10.30-69';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -20260,7 +20300,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Tenedores:</b> cada tenedor con los negocios que atiende, el valor de su cartera, <b>lo que te aporta a ti</b> (su base fija por el uso de la aplicación más su porcentaje sobre las tarifas de sus negocios activos y sin cortesía), si pagó su mes y el historial de su licencia. Activarlo, desactivarlo y marcar sus pagos es <b>solo de la administradora</b>: un tenedor no puede inhabilitar ni borrar negocios ni marcar pagos, ni los suyos ni los de nadie.</li>' +
             '<li><b>Registro:</b> de un vistazo, negocio a negocio: sus <b>nombres de usuario</b> (las contraseñas no aparecen porque <b>no existen en claro en ningún sitio</b> — solo su huella — y por eso no hay ninguna lista de contraseñas que guardar ni que perder), si su copia sin conexión ya generó el <b>código de recuperación</b> (lo anuncia ella misma al registrarse, con la fecha de su último anuncio; «Sin anunciar» = su copia aún no lo ha comunicado) y los <b>servicios contratados</b> con su estado: hoy la licencia de <b>Finanzas</b> de este mes y el módulo de <b>Punto de Venta (POS)</b>; cuando lleguen módulos nuevos aparecerán aquí en la misma lista. Los negocios que solo existen como instalación registrada salen con su insignia «Copia sin conexión» y su código de pedido.</li>' +
             '<li>En la vista de <b>Administrador</b> ya no aparece el menú <b>Registro</b>: el Registro de Control es el libro de cada negocio y vive dentro de él; tu panel es Gestor, Panel de control y Configuración.</li>' +
-            '<li><b>En la copia sin conexión de un negocio</b> el Panel viene recortado a su medida: no sale la vista de <b>Tenedores</b>, la de Negocios se llama <b>Negocio</b> y muestra solo el negocio registrado en la instalación, el <b>Resumen</b> solo pone lo que ese negocio ha pagado a su tenedor de libros (queda en blanco si no tiene tenedor) y la vista de <b>Llaves</b> se rellena sola con el código de pedido y el negocio de la instalación. En esa copia tampoco aparece el menú <b>Gestor</b>: el Gestor es solo de los perfiles de tenedor (y de la administradora en línea).</li></ul>'},
+            '<li><b>En la copia sin conexión de un negocio</b> el Panel es solo su <b>Registro</b>: no salen Resumen, Negocios, Llaves ni Tenedores (eso es mando de la administradora). El negocio ve únicamente lo suyo: su nombre y tipo, los <b>usuarios</b> que entran, si ya generó su <b>código de recuperación</b> (leído de su propia copia) y sus <b>servicios contratados</b> con su estado. En esa copia tampoco aparece el menú <b>Gestor</b>: el Gestor es solo de los perfiles de tenedor (y de la administradora en línea).</li></ul>'},
         {id:'actualizacion-offline', modulo:'respaldo', titulo:'Actualización de la versión sin conexión', html:
             '<p>Solo en la <b>versión sin conexión</b>: en <b>Configuración</b> (cuenta administradora) la tarjeta <b>«Actualización de esta instalación»</b> mantiene al día la copia instalada en esta máquina, sin reinstalar nada a mano.</p>' +
             '<ul><li><b>Automática al abrir:</b> si el interruptor está activo (lo está por defecto), al arrancar el programa comprueba en segundo plano si hay una versión nueva y la instala sola; al entrar verás la insignia «Actualizada sola». Sin conexión no pasa nada: trabaja con la versión instalada y lo reintenta en el próximo arranque.</li>' +

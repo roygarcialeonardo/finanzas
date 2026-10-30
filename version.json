@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-68",
-  "publicada": "2026-10-30 05:45",
-  "notas": "Puente F4: importar el respaldo de la hoja y exportar el espejo XLSX (consola y tarjeta en Configuración)",
+  "version": "v2026.10.30-69",
+  "publicada": "2026-10-30 12:06",
+  "notas": "Panel de la copia de un negocio: solo su Registro (ronda -69)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "ef86f8bcfea05831d5cb04b6603a21ca7bca3e0374d2fa3ec41331fa2c6a275d",
-      "bytes": 2103441
+      "sha256": "1aa9bfdcb65d2cf3d26a18b2efba15dc9ee7cec63872307089e5ff8bb1b7fb6b",
+      "bytes": 2107311
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "xMCjJlqeNtvUmnbOI3FIGWPTz8b7KmT6ZBAKBjWNOVz9jEzh6WElInSjM4g6YKQcAnQf/gijXZgmxnibB+pMBA=="
+  "firma": "Kp9wm5u+5tTcsP+1QRx/sdCIZvBZ4+eqVcBHoZ+skggKqmlxb6DvaFTX6Df/V6AfbeHO6hw4Q4/yOdWaAWYPBg=="
 }
