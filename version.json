@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-65",
-  "publicada": "2026-10-30 03:42",
-  "notas": "Ronda -65: los negocios sin conexión se muestran en todas partes (Panel con su tarifa desde el resumen firmado, Gestor, Configuración) y cada negocio muestra sus usuarios",
+  "version": "v2026.10.30-66",
+  "publicada": "2026-10-30 04:55",
+  "notas": "Ronda -66: las copias reportan también sus usuarios (resumen firmado v2, solo nombres y roles) y el vendedor ya ve su pantalla del POS",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "7944bae97658bb7ea9bd502b8ccbd12a83ee667487527fcabca441320995330e",
-      "bytes": 2086819
+      "sha256": "6a7f8c32c62a5e10215c5496eecb2f81bb63507760e28d94c660f9af77bc0b47",
+      "bytes": 2087657
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "LnSv9a73IdtPCPB8lAzeWbwjsU/QxktdYX2ZwK07UCNif+xGaN7b6TsrDWg1hkPL/+TLsFEC64jDqX0IjDwvAA=="
+  "firma": "jux/u1TBjo690KK31HhvYlp5MCig1xoCZzZNi8udoPS+pvTiYHlRV4ZHPWDvHvB1drYe6IE/A5ozFu2EBL1xCQ=="
 }

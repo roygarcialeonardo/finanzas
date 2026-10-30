@@ -8948,16 +8948,18 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 return { v: 1, negocios: n };
             }
             let plantilla = 0, socios = 1, ingresos = 0;
+            const usuarios66 = [];
             try { const r = getRRHH(); plantilla = ((r && r.trabajadores) || []).length; } catch (e) {}
-            try { const us = getUsuarios(); Object.keys(us || {}).forEach(u => { socios = Math.max(socios, +us[u].socios || 1); }); } catch (e) {}
+            try { const us = getUsuarios(); Object.keys(us || {}).forEach(u => { socios = Math.max(socios, +us[u].socios || 1); usuarios66.push({ u: String(u).slice(0, 40), r: String((us[u] && us[u].role) || '') }); }); } catch (e) {}
             try { const dj = JSON.parse(Store.getItem('finanzas_dj_' + getCurrentUser()) || '{}'); const fs = (dj && dj.ficha && Array.isArray(dj.ficha.socios)) ? dj.ficha.socios.length : 0; if (fs > socios) socios = fs; } catch (e) {}
             try { ingresos = mjIngresosAnioDeMovs(allMovimientos(), new Date().getFullYear()); } catch (e) {}
-            return { v: 1, plantilla, socios, ingresosAnio: Math.round((+ingresos || 0) * 100) / 100 };
+            usuarios66.sort((a, b) => a.u < b.u ? -1 : a.u > b.u ? 1 : 0);
+            return { v: 2, plantilla, socios, ingresosAnio: Math.round((+ingresos || 0) * 100) / 100, usuarios: usuarios66 };
         }
         function llaveResumenTexto(st, res) {
             if (!res) return '';
             if (st && st.modo === 'tenedor') return `Negocios que lleva esta copia: <b>${Number(res.negocios) || 0}</b>`;
-            return `Trabajadores en la ficha: <b>${Number(res.plantilla) || 0}</b> · Socios: <b>${Number(res.socios) || 0}</b> · Ingresos de ${new Date().getFullYear()}: <b>$${docOficialNum(res.ingresosAnio || 0)}</b>`;
+            return `Trabajadores en la ficha: <b>${Number(res.plantilla) || 0}</b> · Socios: <b>${Number(res.socios) || 0}</b> · Ingresos de ${new Date().getFullYear()}: <b>$${docOficialNum(res.ingresosAnio || 0)}</b>` + (Array.isArray(res.usuarios) ? `<br>Usuarios de esta copia: <b>${res.usuarios.length}</b> (solo nombres y roles; las contraseñas jamás salen de aquí)` : '');
         }
         /* Cadena canónica de la firma del resumen: DEBE coincidir
            carácter a carácter con la del servidor local de la copia
@@ -8965,6 +8967,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function llaveFirmaCanon(i) {
             const r = (i && i.resumen) || {};
             const n = x => { const v = Number(x); return isFinite(v) ? Math.trunc(v) : 0; };
+            if (Number(r.v) === 2) {
+                const us66 = (Array.isArray(r.usuarios) ? r.usuarios : []).map(x => String((x && x.u) || '') + ':' + String((x && x.r) || '')).join(';');
+                return 'FZRES2|' + (i.pedido || '') + '|' + (i.modo || '') + '|' + (i.tipo || '') + '|' + n(r.plantilla) + '|' + n(r.socios) + '|' + (Number(r.ingresosAnio) || 0).toFixed(2) + '|' + n(r.negocios) + '|' + us66 + '|' + (i.huella || '');
+            }
             return 'FZRES1|' + (i.pedido || '') + '|' + (i.modo || '') + '|' + (i.tipo || '') + '|' + n(r.plantilla) + '|' + n(r.socios) + '|' + (Number(r.ingresosAnio) || 0).toFixed(2) + '|' + n(r.negocios) + '|' + (i.huella || '');
         }
         async function llaveFirmaHex(texto) {
@@ -19633,7 +19639,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-65';
+        var MANUAL_VERSION = 'v2026.10.30-66';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
