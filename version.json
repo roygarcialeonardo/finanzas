@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-70",
-  "publicada": "2026-10-30 13:41",
-  "notas": "Aviso del cierre de la versión en línea para los negocios (ronda -70)",
+  "version": "v2026.10.30-71",
+  "publicada": "2026-10-30 18:40",
+  "notas": "En un TCP: «Titulares» en vez de «Socios» en el resumen de licencia (ronda -71)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "c25171805db36e234aaf37021f4fc7b208d5bb2c0ed747c6fcd1f49683dab42a",
-      "bytes": 2108484
+      "sha256": "9d1de1d2f8bd9ab8ee7314c7242bceb431558733b4261137cf1fdfc7852c12c5",
+      "bytes": 2108925
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "8bBGV4Rsjygrf6rbcea3x6MShPvnsTp5p5XmAA9A1JqpbCMqkSnpP/yWeqhB5YQDx/TRmOx7B9iZ5Au5QC5EDw=="
+  "firma": "YrMUlrmOHQ5qIwPbNOjDBJjqpEOCldzHhMtKg3eLTXNTxJO+Q6QJEyaGjJ0pLe+xK3xjXMLfZ65bZnDvOpSuCw=="
 }
