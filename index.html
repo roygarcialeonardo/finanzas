@@ -6974,6 +6974,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                que vio Leonardo en sus capturas (ronda -23). */
             recargarSelectsNegocios();
             try{ aplicarTipoFijoForm60(); }catch(e){}
+            try{ aplicarModoLocal62(); }catch(e){}
             renderBloqueoMeses();
             renderSuscripciones();
             try{ renderLicenciasPrecios(); }catch(e){}
@@ -7078,7 +7079,22 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             }
             return fijo;
         }
-        window.__negTipo60Test = { fijo: tipoFijoLocal60, aplicarForm: aplicarTipoFijoForm60, abrirNegocio: function(n){ return abrirEditorNegocio(n); }, abrirUsuario: function(u){ return abrirEditorUsuario(u); } };
+        // ===== MODO DE INSTALACIÓN (ronda -62) =====
+        // Si la instalación NO fue de tenedor, la opción de rol
+        // «Tenedor de libros» ni aparece al crear o editar usuarios:
+        // el tenedor es otra forma de instalar la copia, no un
+        // usuario dentro de un negocio (observación de Leonardo
+        // sobre su copia en modo negocio, 2026-10-29).
+        async function aplicarModoLocal62() {
+            if (!window.FINANZAS_LOCAL) return;
+            const st = await panelLocalEstado().catch(() => null);
+            if (!st || st.modo !== 'negocio') return;
+            ['newRole', 'editRole'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel) { const op = sel.querySelector('option[value="tenedor"]'); if (op) op.remove(); }
+            });
+        }
+        window.__negTipo60Test = { fijo: tipoFijoLocal60, aplicarForm: aplicarTipoFijoForm60, aplicarModo: aplicarModoLocal62, abrirNegocio: function(n){ return abrirEditorNegocio(n); }, abrirUsuario: function(u){ return abrirEditorUsuario(u); } };
         async function abrirEditorNegocio(nombre){
             const meta=getNegociosMeta();
             document.getElementById('negocioModalTitle').textContent = nombre ? 'Editar negocio' : 'Nuevo negocio';
@@ -19464,7 +19480,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.29-61';
+        var MANUAL_VERSION = 'v2026.10.29-62';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19512,6 +19528,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Borrar un usuario está protegido:</b> solo se puede borrar a quien <b>no tenga actividad registrada</b> en los datos. Si ya escribió movimientos o configuró algo, el servidor se niega a borrarlo — su nombre es la prueba de quién hizo qué — y te manda a inhabilitarlo.</li>' +
             '<li><b>Un negocio por copia:</b> en una instalación de negocio no se pueden crear más negocios; llevar varios es cosa de la licencia de <b>tenedor de libros</b>.</li>' +
             '<li><b>El tipo no se vuelve a elegir dentro:</b> en una copia de negocio, el tipo (TCP, MIPYME o PDL) quedó fijado en la instalación: al crear o editar el negocio y al crear o editar los usuarios, el selector de tipo aparece bloqueado en ese tipo y los demás no se ofrecen. Elegir el tipo por negocio es solo de los tenedores y de la administradora en línea.</li>' +
+            '<li><b>El rol «Tenedor de libros» tampoco aparece en una copia de negocio:</b> el tenedor es otra forma de instalar la copia, no un usuario dentro de un negocio; por eso, si tu instalación no fue de tenedor, esa opción no sale al crear ni al editar usuarios.</li>' +
             '<li><b>La cuenta administradora tiene su propia vista:</b> su menú solo muestra <b>Gestor</b> y <b>Configuración</b>; los apartados de trabajo de cada negocio (DJ, Contabilidad, Gestión+) y los de consulta (Ayuda e Instrucciones) no aparecen en esa cuenta, porque viven dentro de cada negocio.</li>' +
             '<li>La ficha de cada negocio guarda su nombre, su NIT y su tipo (TCP, MIPYME o PDL); ese dato manda en la DJ y en las validaciones.</li>' +
             '<li><b>Proyectos de Desarrollo Local (PDL):</b> son el tercer tipo de cliente y se eligen como tipo al crear el negocio o el usuario: en el editor de negocios, en el alta rápida del Gestor y en la gestión de usuarios. El PDL no presenta DJ-08 ni DJ-01 propia en la app: su control es la vigencia de 5 años desde su aprobación, la evaluación semestral y la ejecución por fuentes de financiamiento, todo en su ficha del Panel del Gestor.</li></ul>'},

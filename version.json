@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.29-61",
-  "publicada": "2026-10-30 02:34",
-  "notas": "Ronda -61: el expediente laboral de la Nómina pasa a la relación de la Ley 189/2026 (art. 77): 12 documentos, papel y digital, plazo de 15 días tras el período de prueba",
+  "version": "v2026.10.29-62",
+  "publicada": "2026-10-30 02:45",
+  "notas": "Ronda -62: en las copias de negocio, el rol «Tenedor de libros» no aparece al crear ni editar usuarios (el tenedor es otra instalación)",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "ea4cbe7c6c4c114cb71b8e4c928fa689c3a684a5338d09f03d06754a30dec4b6",
-      "bytes": 2071560
+      "sha256": "83133454f123bdf558a5c99024be073e90f4734b049a9053cd1e3799c331c4c3",
+      "bytes": 2072766
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "LKddPn387F9h0MXr/HklWTwKMRqB8cDKDZalSruVFXqfKZ3uQgJKulYL/ker9yZvkP2xHol1T9Jb1dBQtKrOBA=="
+  "firma": "NTbGOunCo6A8eFj2anInyur6uhMjVt81+ItFelqHl/fVSlVC+wwGTVPZr7JD4k5QoFmhJRftcCjS6Obpi0pVAg=="
 }
