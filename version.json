@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-80",
-  "publicada": "2026-10-31 03:43",
-  "notas": "Ronda 80: mesas y cuentas abiertas en el Punto de Venta (POS-8) — el mapa de mesas muestra libres y ocupadas, la cuenta de cada mesa se carga, se guarda y se cobra al final; la mesa queda en la venta y en el ticket.",
+  "version": "v2026.10.30-81",
+  "publicada": "2026-10-31 03:54",
+  "notas": "Ronda 81: panel visual del Punto de Venta con gráfico de 7 días, pago en USD con conversión por la tasa del negocio y fechas de vencimiento con alertas (POS-9).",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "05cea44ab3017d621bcf94b550dd43a54ab8c80aaecd2eb5df6f161ec8bd63c1",
-      "bytes": 2134580
+      "sha256": "49862269fdbee24437ba0d637ac9c681f4b3a5330ebbdb48f73089130dc70e0b",
+      "bytes": 2143332
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "4eh++I2Z0t3Fnq2jDkOBOiNJ6LMAG6ZZR5vYpLScVQetN7iJ0yBxNdQelPAp9sA00wHBTp2uQz+ez/AVkcHtCQ=="
+  "firma": "VSWlxYIEkjcMt3lTIyFP+YCx2acDzE+2O5xMmRwVv0zB3tGsKtcCBAilIJLf7eHYfy6Igm2LEHsLVGXmuqJYDA=="
 }
