@@ -6398,7 +6398,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const tipoSel=document.getElementById('cierreTipoSel'), perSel=document.getElementById('cierrePeriodoSel');
             if(tipoSel&&!tipoSel.dataset.wired){ tipoSel.dataset.wired='1'; tipoSel.addEventListener('change',()=>{ CIERREP_SEL.tipo=tipoSel.value; CIERREP_SEL.valor=null; renderCierrePeriodo(); }); }
             if(perSel&&!perSel.dataset.wired){ perSel.dataset.wired='1'; perSel.addEventListener('change',()=>{ CIERREP_SEL.valor=perSel.value; renderCierrePeriodo(); }); }
-            if(tipoSel){ const permitidos73 = actor.tipo==='tcp' ? ['mes','anio'] : ['mes','trimestre','semestre','anio']; const etiquetas73 = {mes:'Mes', trimestre:'Trimestre', semestre:'Semestre', anio:'Año'}; tipoSel.innerHTML = permitidos73.map(v=>'<option value="'+v+'">'+etiquetas73[v]+'</option>').join(''); if(permitidos73.indexOf(CIERREP_SEL.tipo)<0){ CIERREP_SEL.tipo='mes'; CIERREP_SEL.valor=null; } tipoSel.value=CIERREP_SEL.tipo; }
+            if(tipoSel){ const permitidos73 = actor.tipo==='tcp' ? ['mes','anio'] : (actor.tipo==='pdl' ? ['mes','semestre','anio'] : ['mes','trimestre','semestre','anio']); const etiquetas73 = {mes:'Mes', trimestre:'Trimestre', semestre:'Semestre', anio:'Año'}; tipoSel.innerHTML = permitidos73.map(v=>'<option value="'+v+'">'+etiquetas73[v]+'</option>').join(''); if(permitidos73.indexOf(CIERREP_SEL.tipo)<0){ CIERREP_SEL.tipo='mes'; CIERREP_SEL.valor=null; } tipoSel.value=CIERREP_SEL.tipo; }
             const ops=cierreOpcionesPeriodo(CIERREP_SEL.tipo);
             if(!ops.length){ box.innerHTML='<div class="alert alert-secondary small">Sin períodos disponibles.</div>'; return; }
             if(!CIERREP_SEL.valor||!ops.some(o=>o.valor===CIERREP_SEL.valor)) CIERREP_SEL.valor=ops[0].valor;
@@ -19411,7 +19411,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-73';
+        var MANUAL_VERSION = 'v2026.10.30-74';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19707,6 +19707,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'cierre-periodo', modulo:'fiscal', titulo:'Cierre del período: documentos e informes según tu actor', html:
             '<p>El menú <b>🧾 Cierre</b> es la lista de cierre de tu negocio, armada según tu <b>actor económico</b> (TCP, MIPYME o PDL) y el <b>período</b> que elijas arriba: mes, trimestre, semestre o año. Tiene tres bloques:</p>' +
             '<p>Si eres <b>TCP</b>, el selector de período solo ofrece <b>Mes</b> y <b>Año</b>: tus obligaciones de trimestre (el IUFT y la Contribución Especial de tus contratados) se siguen y se pagan desde el <b>Vector Fiscal</b>.</p>' +
+            '<p>Si eres <b>PDL</b>, el selector ofrece <b>Mes, Semestre y Año</b>: tu evaluación ante el CAM es semestral y por trimestre no presentas nada.</p>' +
             '<ul><li><b>✅ Lo que la app ya tiene:</b> se detecta de tus datos reales — el estado de cuenta importado, los ingresos del mes, la nómina generada, la contabilidad y los impuestos pagados según tu Vector Fiscal. Nada se marca listo si el dato no está.</li>' +
             '<li><b>📥 Lo que debes entregar:</b> lo que la app no puede inventar — los estados de cuenta de todas tus cuentas, los justificantes de gastos en efectivo, los datos de asistencia para la nómina, las facturas emitidas fuera de la app y las novedades del mes. Márcalos «recibido» cuando los tengas; lo que falta queda en rojo.</li>' +
             '<li><b>🏛️ Informes y pagos del período:</b> en el mes manda tu <b>Vector Fiscal</b> (cada obligación con su vencimiento y su estado de pago). En los demás períodos salen solo los informes que le tocan a tu actor.</li></ul>' +

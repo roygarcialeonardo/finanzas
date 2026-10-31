@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-73",
-  "publicada": "2026-10-31 00:53",
-  "notas": "Saldo Inicial y Cierre del TCP según sus cuentas activas; el TCP cierra solo por mes y año",
+  "version": "v2026.10.30-74",
+  "publicada": "2026-10-31 01:22",
+  "notas": "Cierre del PDL: períodos Mes, Semestre y Año",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "e2c606e0bc497a2a853464d09225638a6e5135f7ce3ca36ba373555f3ad14533",
-      "bytes": 2060771
+      "sha256": "630339e88f06cc0687e316149f567338c753c1878e09926d5c919db33fb89b8e",
+      "bytes": 2060988
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "/4C8grO/OAMbCciDWW2Pdjt3t/+T3P7G8qs9n27igZnbqRg/Sr7ksxK7ATlpEgdtWFnDXRBb/qRGwEMb/ECMCQ=="
+  "firma": "llxaDgNa387ZIAgKinh9UYTRRNCQztSX0Z/Nn4MPq/+8GSHQN8M1Qxo5bmWVjYGdVn3axou7sj5etlCcpPwGBA=="
 }
