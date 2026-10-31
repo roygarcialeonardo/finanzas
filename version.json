@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-74",
-  "publicada": "2026-10-31 01:22",
-  "notas": "Cierre del PDL: períodos Mes, Semestre y Año",
+  "version": "v2026.10.30-75",
+  "publicada": "2026-10-31 01:43",
+  "notas": "La vista del vendedor es solo el Punto de Venta: sin Saldo Inicial ni cabecera de negocio",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "630339e88f06cc0687e316149f567338c753c1878e09926d5c919db33fb89b8e",
-      "bytes": 2060988
+      "sha256": "159ddac1ed52b26d91b41fb1eefab215ab2f980af7c665b19670d61a9816f073",
+      "bytes": 2061489
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "llxaDgNa387ZIAgKinh9UYTRRNCQztSX0Z/Nn4MPq/+8GSHQN8M1Qxo5bmWVjYGdVn3axou7sj5etlCcpPwGBA=="
+  "firma": "Rf7JNfO/GV4imAK5E3xGXND1dcxIpXDjEym1+BQmg8qbJAcsKWjryHMIZGouGPNL1lfIJCNqmmFajrYRSuI8Dw=="
 }

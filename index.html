@@ -16957,7 +16957,9 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
                 }
                 
                 const mesData = getMesActual();
-                if (!esGestorVista && (!mesData || !mesData.saldoInicial)) {
+                const esVendedor75 = (typeof getRolUsuario === 'function' && getRolUsuario() === 'vendedor');
+                if (esVendedor75) { ['btnCalcularONAT', 'btnCerrarMes', 'mesContableBar'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; }); }
+                if (!esGestorVista && !esVendedor75 && (!mesData || !mesData.saldoInicial)) {
                     document.getElementById('saldoInicialChequera').value = 0;
                     document.getElementById('saldoInicialCUP').value = 0;
                     document.getElementById('saldoInicialUSD').value = 0;
@@ -19411,7 +19413,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-74';
+        var MANUAL_VERSION = 'v2026.10.30-75';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19897,7 +19899,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
         {id:'pos-menu', modulo:'gestion', titulo:'Punto de Venta (POS): el módulo de mostrador', html:
             '<p>El <b>Punto de Venta</b> es un módulo que se paga <b>aparte de la licencia</b> de Finanzas (5 000 CUP/mes). Mientras no esté contratado y pagado el mes, <b>no aparece en ningún sitio</b>: ni su menú, ni su tarjeta de ajustes, ni su rol de usuario.</p>' +
             '<ul><li><b>Quién lo ve:</b> lo ve el negocio que lo tiene vigente. Su administrador lo ajusta en <b>Configuración → Punto de Venta (POS)</b>: si las ventas pasan o no a los ingresos de Finanzas y el precio de venta de cada producto del inventario.</li>' +
-            '<li><b>Los vendedores:</b> se crean en <b>Gestión de Usuarios</b> con el rol <b>🛒 Vendedor</b> (la opción solo sale con el módulo activo). Al entrar, el vendedor va <b>directo al Punto de Venta</b> y no ve ningún otro apartado del negocio.</li>' +
+            '<li><b>Los vendedores:</b> se crean en <b>Gestión de Usuarios</b> con el rol <b>🛒 Vendedor</b> (la opción solo sale con el módulo activo). Al entrar, el vendedor va <b>directo al Punto de Venta</b> y no ve ningún otro apartado del negocio. Tampoco le sale el aviso de <b>Saldo Inicial</b> al iniciar, ni los botones de <b>ONAT</b> y <b>Cerrar Mes</b>, ni la barra de <b>Mes Contable</b>: su pantalla es solo el Punto de Venta.</li>' +
             '<li><b>Los productos</b> son los del inventario de la Contabilidad, con el mismo stock: el precio de venta se pone en la tarjeta de ajustes del POS.</li>' +
             '<li><b>Turnos:</b> para vender hay que <b>abrir el turno</b> con el fondo de caja. Durante el turno puedes registrar <b>entradas y salidas de caja</b> con su motivo (un pago a un proveedor, una retirada), pedir el <b>Informe X</b> (el avance sin cerrar) y al final <b>cerrar el turno (Z)</b> contando el efectivo: si lo contado no coincide con lo esperado, la app exige la <b>nota que explica la diferencia</b> antes de cerrar.</li>' +
             '<li><b>Vender:</b> toca los productos de la parrilla (o busca por nombre o código), ajusta las cantidades — admiten decimales, para vender por peso o por metros —, añade una <b>línea manual</b> si es un concepto sin ficha, y cobra: <b>efectivo, tarjeta o transferencia</b>, también mezclados en una misma venta, con el vuelto calculado solo. Cada venta <b>rebaja el stock</b> del inventario en el acto y deja su <b>ticket</b>, que se imprime o se guarda en PDF.</li>' +
