@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-78",
-  "publicada": "2026-10-31 02:54",
-  "notas": "POS-6 Caja fina e informes: denominaciones, arqueo ciego, cajón sin venta, márgenes y stock mínimo",
+  "version": "v2026.10.30-79",
+  "publicada": "2026-10-31 03:13",
+  "notas": "POS-7 Variantes y modificadores: variantes con precio y stock propios, extras por línea",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "6565a795235a9f7925816ab615efedafde2115d345daedec3be53e4acfa9ca96",
-      "bytes": 2112167
+      "sha256": "2416877e3cd3d585d4e7371a46be2c98a5a3b4246bfb72deef6d50223e316bd2",
+      "bytes": 2125140
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "TtzvE47rMQJYxhsdjd++YaiXkrD21pVKLEYooWCh44iLeUCWPF3JHFbSIjVE9NHaLCNvJSNdrjFjAfRwCG+BDQ=="
+  "firma": "UM632DXEHdxwUCVJnJt+po0dI7QRgJE3BsjxCNd3+tOqfn2oJDpgyDXBp90fwCQ6xUmg0E8HIq9wHW0+MfKSDg=="
 }
