@@ -3305,9 +3305,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             <div class="modal-header"><h5 class="modal-title"><span class="icono-anim me-2" data-icono="billetera"></span>Saldo Inicial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <p class="text-muted small">Saldo inicial del mes <strong id="modalMesActual"></strong></p>
-                <div class="mb-3"><label class="form-label fw-semibold">🏦 Chequera (CUP)</label><input type="number" class="form-control" id="saldoInicialChequera" step="0.01" value="0"></div>
-                <div class="mb-3"><label class="form-label fw-semibold">💳 Tarjeta CUP</label><input type="number" class="form-control" id="saldoInicialCUP" step="0.01" value="0"></div>
-                <div class="mb-3"><label class="form-label fw-semibold">💵 Tarjeta USD</label><input type="number" class="form-control" id="saldoInicialUSD" step="0.01" value="0"></div>
+                <div class="mb-3" id="siFilaChequera"><label class="form-label fw-semibold">🏦 Chequera (CUP)</label><input type="number" class="form-control" id="saldoInicialChequera" step="0.01" value="0"></div>
+                <div class="mb-3" id="siFilaCUP"><label class="form-label fw-semibold">💳 Tarjeta CUP</label><input type="number" class="form-control" id="saldoInicialCUP" step="0.01" value="0"></div>
+                <div class="mb-3" id="siFilaUSD"><label class="form-label fw-semibold">💵 Tarjeta USD</label><input type="number" class="form-control" id="saldoInicialUSD" step="0.01" value="0"></div>
             </div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Omitir</button><button type="button" class="btn btn-primary-custom" id="btnGuardarSaldoInicial"><span class="icono-anim me-1" data-icono="check"></span> Guardar</button></div>
         </div>
@@ -4182,6 +4182,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         const onatModalBody = document.getElementById('onatModalBody');
         const clasificacionModal = new bootstrap.Modal(document.getElementById('clasificacionModal'));
         const saldoInicialModal = new bootstrap.Modal(document.getElementById('saldoInicialModal'));
+        document.getElementById('saldoInicialModal').addEventListener('show.bs.modal', () => { try { const a73 = cuentasActivasDelNegocio(); const pon73 = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; }; pon73('siFilaChequera', a73.chequera !== false); pon73('siFilaCUP', a73.tarjeta_cup !== false); pon73('siFilaUSD', a73.tarjeta_usd !== false); } catch (e) {} });
         const editarUsuarioModal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
         const passResetModal = new bootstrap.Modal(document.getElementById('passResetModal'));
         const negocioModal = new bootstrap.Modal(document.getElementById('negocioModal'));
@@ -6397,7 +6398,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const tipoSel=document.getElementById('cierreTipoSel'), perSel=document.getElementById('cierrePeriodoSel');
             if(tipoSel&&!tipoSel.dataset.wired){ tipoSel.dataset.wired='1'; tipoSel.addEventListener('change',()=>{ CIERREP_SEL.tipo=tipoSel.value; CIERREP_SEL.valor=null; renderCierrePeriodo(); }); }
             if(perSel&&!perSel.dataset.wired){ perSel.dataset.wired='1'; perSel.addEventListener('change',()=>{ CIERREP_SEL.valor=perSel.value; renderCierrePeriodo(); }); }
-            if(tipoSel) tipoSel.value=CIERREP_SEL.tipo;
+            if(tipoSel){ const permitidos73 = actor.tipo==='tcp' ? ['mes','anio'] : ['mes','trimestre','semestre','anio']; const etiquetas73 = {mes:'Mes', trimestre:'Trimestre', semestre:'Semestre', anio:'Año'}; tipoSel.innerHTML = permitidos73.map(v=>'<option value="'+v+'">'+etiquetas73[v]+'</option>').join(''); if(permitidos73.indexOf(CIERREP_SEL.tipo)<0){ CIERREP_SEL.tipo='mes'; CIERREP_SEL.valor=null; } tipoSel.value=CIERREP_SEL.tipo; }
             const ops=cierreOpcionesPeriodo(CIERREP_SEL.tipo);
             if(!ops.length){ box.innerHTML='<div class="alert alert-secondary small">Sin períodos disponibles.</div>'; return; }
             if(!CIERREP_SEL.valor||!ops.some(o=>o.valor===CIERREP_SEL.valor)) CIERREP_SEL.valor=ops[0].valor;
@@ -6429,7 +6430,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             try{ const now=new Date(), mes=now.getMonth()+1, anio=now.getFullYear(); const est=cierreEstado();
                 if(mes===1||mes===4||mes===7||mes===10){ const qP = mes===1 ? {y:anio-1,q:4} : {y:anio, q:(mes-1)/3};
                     if(actor.tipo==='mipyme'){ let pag=0; try{ pag=triPagadoUtilidadesQuarter(qP.y,qP.q-1)||0; }catch(e){} if(!(pag>0)) filas.push({t:'warning', icono:'🏛️', txt:'Falta el <b>anticipo de utilidades del '+qP.q+'.º trimestre de '+qP.y+'</b>.', tab:'tab-cierrep', btn:'Ver el cierre'}); }
-                    else if(actor.tipo==='tcp'){ const k='T:'+qP.y+'-T'+qP.q; if(!(est[k]&&est[k].inf&&est[k].inf['iuft'])) filas.push({t:'warning', icono:'🏛️', txt:'Toca el <b>IUFT del '+qP.q+'.º trimestre de '+qP.y+'</b> (primeros 20 días de este mes).', tab:'tab-cierrep', btn:'Ver el cierre'}); } }
+                    else if(actor.tipo==='tcp'){ const k='T:'+qP.y+'-T'+qP.q; let iuftOk73=!!(est[k]&&est[k].inf&&est[k].inf['iuft']); if(!iuftOk73){ try{ const mm73=String(mes).padStart(2,'0'), desde73=anio+'-'+mm73+'-01', hasta73=anio+'-'+mm73+'-20'; iuftOk73=allMovimientos().some(m=>{ const f=String(m.fecha||''); if(f<desde73||f>hasta73) return false; return /061032|IUFT/i.test(String((m.concepto||'')+' '+(m.codigo||''))); }); }catch(e){} } if(!iuftOk73) filas.push({t:'warning', icono:'🏛️', txt:'Toca el <b>IUFT del '+qP.q+'.º trimestre de '+qP.y+'</b> (primeros 20 días de este mes).', tab:'tab-cierrep', btn:'Ver el cierre'}); } }
                 if((mes===1||mes===7)&&actor.tipo==='pdl'){ const hP = mes===1 ? {y:anio-1,h:2} : {y:anio,h:1}; const k='S:'+hP.y+'-S'+hP.h; if(!(est[k]&&est[k].inf&&est[k].inf['evalcam'])) filas.push({t:'warning', icono:'🏛️', txt:'Toca la <b>evaluación semestral del CAM</b> del '+hP.h+'.º semestre de '+hP.y+'.', tab:'tab-cierrep', btn:'Ver el cierre'}); }
                 if(mes>=1&&mes<=4){ const k='A:'+(anio-1); const idInf = actor.tipo==='tcp'?'dj08':(actor.tipo==='mipyme'?'djutil':'util'); if(!(est[k]&&est[k].inf&&est[k].inf[idInf])) filas.push({t:'warning', icono:'📊', txt:'La <b>declaración anual de '+(anio-1)+'</b> sigue sin marcarse como presentada en el Cierre.', tab:'tab-cierrep', btn:'Ver el cierre'}); }
             }catch(e){}
@@ -9712,10 +9713,11 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const saldoInicialDiv = document.getElementById('saldoInicialDisplay');
             if (mesData && mesData.saldoInicial) {
                 const si = mesData.saldoInicial;
+                const act73 = cuentasActivasDelNegocio();
                 saldoInicialDiv.innerHTML = `
-                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">🏦 Chequera: $${(si.chequera || 0).toFixed(2)}</span>
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">💳 CUP: $${(si.tarjeta_cup || 0).toFixed(2)}</span>
-                    <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">💵 USD: $${(si.tarjeta_usd || 0).toFixed(2)}</span>
+                    ${act73.chequera !== false ? `<span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">🏦 Chequera: $${(si.chequera || 0).toFixed(2)}</span>` : ''}
+                    ${act73.tarjeta_cup !== false ? `<span class="badge bg-success bg-opacity-10 text-success px-3 py-2">💳 CUP: $${(si.tarjeta_cup || 0).toFixed(2)}</span>` : ''}
+                    ${act73.tarjeta_usd !== false ? `<span class="badge bg-info bg-opacity-10 text-info px-3 py-2">💵 USD: $${(si.tarjeta_usd || 0).toFixed(2)}</span>` : ''}
                     ${puedeEditar() ? `<span class="badge bg-soft-secondary px-3 py-2 badge-editar" onclick="editarSaldoInicial()" style="cursor:pointer;"><i class="bi bi-pencil"></i> Editar</span>` : ''}
                 `;
             } else {
@@ -19409,7 +19411,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-72';
+        var MANUAL_VERSION = 'v2026.10.30-73';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -19517,7 +19519,8 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<ul><li><b>Sin tocar nada</b>, cada tipo parte con lo suyo: TCP solo Tarjeta CUP (la chequera y la USD se activan cuando hagan falta); PDL chequera y Tarjeta CUP; MIPYME las tres.</li>' +
             '<li><b>En la versión sin conexión</b>, el administrador lo ajusta en Configuración, tarjeta «Cuentas que usa este negocio»: interruptores por cuenta, guardados al momento.</li>' +
             '<li><b>La cuenta fiscal no se puede desactivar</b> (en el TCP, su Tarjeta CUP; en la MIPYME y el PDL, su chequera): es la cuenta de sus obligaciones con la ONAT.</li>' +
-            '<li><b>Desactivar no borra nada:</b> los movimientos y saldos de una cuenta desactivada se conservan y reaparecen intactos al reactivarla; solo deja de verse.</li></ul>'},
+            '<li><b>Desactivar no borra nada:</b> los movimientos y saldos de una cuenta desactivada se conservan y reaparecen intactos al reactivarla; solo deja de verse.</li>' +
+            '<li>El aviso de <b>Saldo Inicial</b> al entrar o al cambiar de mes, y sus insignias en el Resumen, siguen la misma regla: solo piden y muestran las cuentas activas del negocio.</li></ul>'},
         {id:'movs-manuales', modulo:'cuentas', titulo:'Registrar ingresos, gastos y pagos ONAT a mano', html:
             '<ol><li>Entra a la cuenta y pulsa <b>Ingreso</b>, <b>Gasto</b> u <b>ONAT</b>.</li>' +
             '<li>Escribe fecha, concepto e importe. En pagos ONAT, si escribes el <b>código de tributo</b>, la app lo vincula con la obligación del Vector Fiscal y lo lleva a su cuenta contable (ver «Pagos a la ONAT por su código»).</li>' +
@@ -19703,11 +19706,12 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<p>También puedes crear <b>obligaciones manuales</b> para lo que no venga en el Vector.</p>'},
         {id:'cierre-periodo', modulo:'fiscal', titulo:'Cierre del período: documentos e informes según tu actor', html:
             '<p>El menú <b>🧾 Cierre</b> es la lista de cierre de tu negocio, armada según tu <b>actor económico</b> (TCP, MIPYME o PDL) y el <b>período</b> que elijas arriba: mes, trimestre, semestre o año. Tiene tres bloques:</p>' +
+            '<p>Si eres <b>TCP</b>, el selector de período solo ofrece <b>Mes</b> y <b>Año</b>: tus obligaciones de trimestre (el IUFT y la Contribución Especial de tus contratados) se siguen y se pagan desde el <b>Vector Fiscal</b>.</p>' +
             '<ul><li><b>✅ Lo que la app ya tiene:</b> se detecta de tus datos reales — el estado de cuenta importado, los ingresos del mes, la nómina generada, la contabilidad y los impuestos pagados según tu Vector Fiscal. Nada se marca listo si el dato no está.</li>' +
             '<li><b>📥 Lo que debes entregar:</b> lo que la app no puede inventar — los estados de cuenta de todas tus cuentas, los justificantes de gastos en efectivo, los datos de asistencia para la nómina, las facturas emitidas fuera de la app y las novedades del mes. Márcalos «recibido» cuando los tengas; lo que falta queda en rojo.</li>' +
             '<li><b>🏛️ Informes y pagos del período:</b> en el mes manda tu <b>Vector Fiscal</b> (cada obligación con su vencimiento y su estado de pago). En los demás períodos salen solo los informes que le tocan a tu actor.</li></ul>' +
             '<p><b>Quién presenta qué, y cuándo:</b></p>' +
-            '<ul><li><b>TCP:</b> mensual lo del Vector; por <b>trimestre</b>, el IUFT y la Contribución Especial de la Seguridad Social de sus contratados; al <b>año</b>, su DJ-08 (antes del 30 de abril).</li>' +
+            '<ul><li><b>TCP:</b> en el Cierre, mensual lo del Vector y al <b>año</b> su DJ-08 (antes del 30 de abril); el IUFT y la Contribución Especial de la Seguridad Social de sus contratados vencen por trimestre y se controlan en el Vector Fiscal.</li>' +
             '<li><b>MIPYME:</b> mensual lo del Vector; por <b>trimestre</b>, el anticipo del Impuesto sobre Utilidades (la app lo detecta pagado desde tus movimientos); al <b>año</b>, la DJ de Utilidades digital, los estados financieros y la DJ-01 de los socios.</li>' +
             '<li><b>PDL:</b> mensual lo suyo; por trimestre <b>no presenta nada</b>; por <b>semestre</b>, la evaluación ante el CAM; al <b>año</b>, su liquidación de utilidades y sus estados financieros.</li></ul>' +
             '<p>Además, el panel <b>«🧭 Qué toca hoy»</b> del Resumen te avisa solo cuando un cierre queda incompleto: el estado de cuenta del mes anterior sin importar, la nómina sin generar o un informe del período vencido sin presentar.</p>'},
