@@ -7654,6 +7654,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!Array.isArray(g.pos.turnos)) g.pos.turnos = [];
             if (!Array.isArray(g.pos.devoluciones)) g.pos.devoluciones = [];
             if (!Array.isArray(g.pos.esperas)) g.pos.esperas = [];
+            if (!Array.isArray(g.pos.clientes)) g.pos.clientes = [];
+            if (!Array.isArray(g.pos.abonos)) g.pos.abonos = [];
             return { conta: c, pos: g.pos };
         }
         /* Aplica la visibilidad del módulo: pestaña solo con el POS
@@ -7717,7 +7719,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             posPintarGrid(); posPintarTurno(); posPintarCarrito(); posPintarHistorial();
         }
         /* ===== POS-2 · Venta y turnos (tarea 38, ronda -54) ===== */
-        let POS_CARRITO = [], POS_BUSQ = '', POS_PAGOS = null, POS_DTO_T = { tipo: 'pct', valor: 0 }, POS_CAT = '', POS_CATS = [];
+        let POS_CARRITO = [], POS_BUSQ = '', POS_PAGOS = null, POS_DTO_T = { tipo: 'pct', valor: 0 }, POS_CAT = '', POS_CATS = [], POS_CLIENTE = '';
         function posR2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
         function posHora() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
         function posTurnoAbierto() { const { pos } = posDatos(); const un = getCurrentUser(); return pos.turnos.find(t => !t.cierre && t.vendedor === un) || null; }
@@ -7801,8 +7803,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const box = document.getElementById('posCart'); if (!box) return;
             const cob = document.getElementById('posCobro');
             posPintarEsperas();
-            if (!POS_CARRITO.length) { box.innerHTML = '<p class="small text-secondary mb-0">Toca un producto para empezar la venta.</p>'; if (cob) cob.innerHTML = ''; POS_PAGOS = null; return; }
-            box.innerHTML = POS_CARRITO.map((l, i) => { const dto = (Number(l.ofertaPct) || 0) + (Number(l.dtoPct) || 0); return `<div class="d-flex align-items-center gap-2 mb-1">
+            if (!POS_CARRITO.length) { box.innerHTML = posClienteSelectorHtml() + '<p class="small text-secondary mb-0">Toca un producto para empezar la venta.</p>'; if (cob) cob.innerHTML = ''; POS_PAGOS = null; return; }
+            box.innerHTML = posClienteSelectorHtml() + POS_CARRITO.map((l, i) => { const dto = (Number(l.ofertaPct) || 0) + (Number(l.dtoPct) || 0); return `<div class="d-flex align-items-center gap-2 mb-1">
                 <span class="flex-grow-1 small"><b>${esc(l.nombre)}</b><br><span class="text-muted">${moneda(l.precio)} × </span></span>
                 <input type="number" class="form-control form-control-sm" style="max-width:84px" min="0" step="0.01" value="${l.cantidad}" onchange="posCartQty(${i}, this.value)" title="Cantidad">
                 <input type="number" class="form-control form-control-sm" style="max-width:62px" min="0" max="100" step="1" value="${Number(l.dtoPct) || 0}" onchange="posCartDto(${i}, this.value)" title="Descuento de esta línea (%)">
@@ -7820,15 +7822,17 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                     <option value="efectivo" ${p.metodo === 'efectivo' ? 'selected' : ''}>💵 Efectivo</option>
                     <option value="tarjeta" ${p.metodo === 'tarjeta' ? 'selected' : ''}>💳 Tarjeta</option>
                     <option value="transferencia" ${p.metodo === 'transferencia' ? 'selected' : ''}>🏦 Transferencia</option>
+                    ${POS_CLIENTE ? `<option value="credito" ${p.metodo === 'credito' ? 'selected' : ''}>📒 Fiado</option>` : ''}
                 </select>
                 <input type="number" class="form-control form-control-sm" min="0" step="0.01" value="${p.monto}" onchange="posPagoSet(${i}, 'monto', this.value)">
                 ${POS_PAGOS.length > 1 ? `<button type="button" class="btn btn-sm btn-outline-danger" onclick="posPagoDel(${i})">✕</button>` : ''}
             </div>`).join('')
-                + `<div class="d-flex justify-content-between small"><span>Pagado: <b>${moneda(posPagado())}</b>${posVuelto() > 0 ? ' · Vuelto: <b>' + moneda(posVuelto()) + '</b>' : ''}${posPagado() < posTotal() ? ' · <span class="text-danger">Faltan ' + moneda(posTotal() - posPagado()) + '</span>' : ''}</span><button type="button" class="btn btn-sm btn-link" onclick="posPagoAdd()">+ Otro pago</button></div>`
+                + `<div class="d-flex justify-content-between small"><span>Pagado: <b>${moneda(posPagado())}</b>${posVuelto() > 0 ? ' · Vuelto: <b>' + moneda(posVuelto()) + '</b>' : ''}${posFiadoPagos() > 0 ? ' · 📒 Fiado: <b>' + moneda(posFiadoPagos()) + '</b>' : ''}${posPagado() < posTotal() ? ' · <span class="text-danger">Faltan ' + moneda(posTotal() - posPagado()) + '</span>' : ''}</span><button type="button" class="btn btn-sm btn-link" onclick="posPagoAdd()">+ Otro pago</button></div>`
                 + `<button type="button" class="btn btn-success w-100 mt-1" onclick="posCobrar()">💰 Cobrar ${moneda(posTotal())}</button></div>`;
         }
         function posPagado() { return posR2((POS_PAGOS || []).reduce((a, p) => a + (Number(p.monto) || 0), 0)); }
-        function posVuelto() { return posR2(Math.max(0, posPagado() - posTotal())); }
+        function posFiadoPagos() { return posR2((POS_PAGOS || []).filter(p => p.metodo === 'credito').reduce((a, p) => a + (Number(p.monto) || 0), 0)); }
+        function posVuelto() { if (posFiadoPagos() > 0) return 0; return posR2(Math.max(0, posPagado() - posTotal())); }
         function posPagoSet(i, campo, v) { if (!POS_PAGOS || !POS_PAGOS[i]) return; if (campo === 'metodo') POS_PAGOS[i].metodo = v; else POS_PAGOS[i].monto = Math.max(0, Number(v) || 0); posPintarCarrito(); }
         function posPagoAdd() { POS_PAGOS = POS_PAGOS || []; POS_PAGOS.push({ metodo: 'efectivo', monto: posR2(Math.max(0, posTotal() - posPagado())) }); posPintarCarrito(); }
         function posPagoDel(i) { POS_PAGOS.splice(i, 1); posPintarCarrito(); }
@@ -7842,9 +7846,19 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 const p = (conta.productos || []).find(x => x.id === l.productoId);
                 if (p && posControlaStock(conta, p) && l.cantidad > (Number(p.stock) || 0)) { alert('Sin existencia suficiente de «' + p.nombre + '».'); return; }
             }
+            const clienteSel = POS_CLIENTE ? (pos.clientes.find(c => c.id === POS_CLIENTE) || null) : null;
+            const fiadoCob = posFiadoPagos();
+            if (fiadoCob > 0) {
+                if (!clienteSel) { alert('El fiado necesita un cliente elegido en el ticket.'); return; }
+                if (posPagado() !== posTotal()) { alert('Con fiado, los pagos deben sumar exacto el total: el fiado no genera vuelto.'); return; }
+                const limCob = Number(clienteSel.limite) || 0;
+                if (limCob <= 0) { alert('«' + clienteSel.nombre + '» no tiene fiado permitido: su límite es 0.'); return; }
+                const saldoCob = posSaldoCliente(pos, clienteSel.id);
+                if (posR2(saldoCob + fiadoCob) > limCob) { alert('El fiado supera el límite de «' + clienteSel.nombre + '»: debe ' + moneda(saldoCob) + ' y su límite es ' + moneda(limCob) + '.'); return; }
+            }
             pos.seqVenta = (pos.seqVenta || 0) + 1;
             const vid = 'V' + pos.seqVenta;
-            const venta = { id: vid, fecha: hoy(), hora: posHora(), turnoId: turno.id, vendedor: getCurrentUser(), lineas: POS_CARRITO.map(l => ({ productoId: l.productoId, nombre: l.nombre, cantidad: l.cantidad, precio: l.precio, ofertaPct: Number(l.ofertaPct) || 0, dtoPct: Number(l.dtoPct) || 0, importe: posLineaImporte(l) })), subtotal: posBruto(), descuento: posR2(posBruto() - posTotal()), dtoTicket: { tipo: POS_DTO_T.tipo, valor: Number(POS_DTO_T.valor) || 0, monto: posDtoTicketMonto() }, total: posTotal(), pagos: (POS_PAGOS || []).map(p => ({ metodo: p.metodo, monto: Number(p.monto) || 0 })), vuelto: posVuelto(), anulada: false };
+            const venta = { id: vid, fecha: hoy(), hora: posHora(), turnoId: turno.id, vendedor: getCurrentUser(), lineas: POS_CARRITO.map(l => ({ productoId: l.productoId, nombre: l.nombre, cantidad: l.cantidad, precio: l.precio, ofertaPct: Number(l.ofertaPct) || 0, dtoPct: Number(l.dtoPct) || 0, importe: posLineaImporte(l) })), subtotal: posBruto(), descuento: posR2(posBruto() - posTotal()), dtoTicket: { tipo: POS_DTO_T.tipo, valor: Number(POS_DTO_T.valor) || 0, monto: posDtoTicketMonto() }, total: posTotal(), pagos: (POS_PAGOS || []).map(p => ({ metodo: p.metodo, monto: Number(p.monto) || 0 })), vuelto: posVuelto(), clienteId: clienteSel ? clienteSel.id : '', clienteNombre: clienteSel ? clienteSel.nombre : '', anulada: false };
             pos.ventas.push(venta);
             POS_DTO_T = { tipo: 'pct', valor: 0 };
             for (const l of venta.lineas) {
@@ -7858,6 +7872,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (pos.cfg.aIngresos) {
                 const cuentaDe = { efectivo: 'caja', tarjeta: 'tarjeta_cup', transferencia: 'chequera' };
                 for (const pg of venta.pagos) {
+                    if (pg.metodo === 'credito') continue;
                     const montoMov = posR2(Math.min(Number(pg.monto) || 0, venta.total));
                     if (montoMov <= 0) continue;
                     movimientos.push({ id: nextId++, concepto: 'Venta POS · ticket ' + vid, tipo: 'ingreso', clasificacion: 'operacional', cuenta: cuentaDe[pg.metodo] || 'caja', monto: montoMov, fecha: venta.fecha, cuentaContable: '801-000', origen: 'pos', posVentaId: vid });
@@ -7865,7 +7880,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 try { saveMovimientos(movimientos); } catch (e) {}
                 try { contaGenerarSilencioso(); } catch (e) {}
             }
-            POS_CARRITO = []; POS_PAGOS = null;
+            POS_CARRITO = []; POS_PAGOS = null; POS_CLIENTE = '';
             posPintarCarrito(); posPintarGrid(); posPintarTurno(); posPintarTicket(venta); posPintarHistorial();
         }
         function posPintarTicket(v, destinoId) {
@@ -7873,12 +7888,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const cardId = 'posTicketCard-' + (destinoId || 'posTicketBox');
             const neg = (typeof getNegocioNombre === 'function' && getNegocioNombre()) || 'Negocio';
             box.innerHTML = `<div class="card p-3 mb-3" id="${cardId}"><div class="text-center mb-2"><div class="fw-bold">${esc(neg)}</div><div class="small text-muted">Ticket ${esc(v.id)} · ${esc(v.fecha)} ${esc(v.hora)} · Vendedor: ${esc(v.vendedor)}</div></div>
+                ${v.clienteNombre ? `<div class="small text-muted text-center">Cliente: ${esc(v.clienteNombre)}</div>` : ''}
                 ${v.anulada ? `<div class="text-center fw-bold text-danger border rounded py-1 mb-2">*** VENTA ANULADA ***<div class="small fw-normal">${esc((v.anulacion && v.anulacion.motivo) || '')}</div></div>` : ''}
                 ${v.lineas.map(l => `<div class="d-flex justify-content-between small"><span>${esc(l.nombre)} × ${l.cantidad}</span><span>${moneda(l.importe)}</span></div>${(l.ofertaPct || l.dtoPct) ? `<div class="small text-danger">Dto en la línea: ${l.ofertaPct ? 'oferta −' + l.ofertaPct + '% ' : ''}${l.dtoPct ? '−' + l.dtoPct + '%' : ''}</div>` : ''}`).join('')}
                 ${(v.descuento || 0) > 0 ? `<div class="d-flex justify-content-between small"><span>Subtotal</span><span>${moneda(v.subtotal != null ? v.subtotal : v.total)}</span></div><div class="d-flex justify-content-between small text-danger"><span>Descuentos</span><span>−${moneda(v.descuento)}</span></div>` : ''}
                 <div class="d-flex justify-content-between border-top pt-1 mt-1"><b>Total</b><b>${moneda(v.total)}</b></div>
-                ${v.pagos.map(p => `<div class="d-flex justify-content-between small text-muted"><span>${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[p.metodo] || p.metodo)}</span><span>${moneda(p.monto)}</span></div>`).join('')}
+                ${v.pagos.map(p => `<div class="d-flex justify-content-between small text-muted"><span>${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', credito: 'Fiado' })[p.metodo] || p.metodo)}</span><span>${moneda(p.monto)}</span></div>`).join('')}
                 ${v.vuelto > 0 ? `<div class="d-flex justify-content-between small"><span>Vuelto</span><span>${moneda(v.vuelto)}</span></div>` : ''}
+                ${posFiadoDeVenta(v) > 0 ? `<div class="d-flex justify-content-between small"><span>📒 Fiado</span><span>${moneda(posFiadoDeVenta(v))} · queda debiendo ${moneda(posSaldoVenta(posDatos().pos, v))}</span></div>` : ''}
                 <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="posTicketImprimir('${cardId}')">🖨️ Imprimir / PDF</button>${window.FINANZAS_LOCAL ? `<button type="button" class="btn btn-sm btn-outline-primary" onclick="posTicketPos('${esc(v.id)}')">🖨️ POS</button>` : ''}<button type="button" class="btn btn-sm btn-outline-secondary" onclick="posTicketCerrar('${destinoId || 'posTicketBox'}')">Cerrar</button></div></div>`;
         }
         function posTicketImprimir(cardId) { printPane(cardId || 'posTicketCard-posTicketBox', 'Ticket de venta'); }
@@ -7888,11 +7905,13 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function posTicketTexto(v) {
             const neg = (typeof getNegocioNombre === 'function' && getNegocioNombre()) || 'Negocio';
             const L = [neg, 'Ticket ' + v.id + ' - ' + v.fecha + ' ' + v.hora, 'Vendedor: ' + v.vendedor, '--------------------------------'];
+            if (v.clienteNombre) L.push('Cliente: ' + v.clienteNombre);
             if (v.anulada) L.push('*** VENTA ANULADA ***', 'Motivo: ' + ((v.anulacion && v.anulacion.motivo) || ''), '--------------------------------');
             for (const l of v.lineas) L.push(l.nombre + ' x' + l.cantidad, '   ' + moneda(l.precio) + '  ->  ' + moneda(l.importe));
             if ((v.descuento || 0) > 0) L.push('Subtotal: ' + moneda(v.subtotal != null ? v.subtotal : v.total), 'Descuentos: -' + moneda(v.descuento));
             L.push('--------------------------------', 'TOTAL: ' + moneda(v.total));
-            for (const p of v.pagos) L.push(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[p.metodo] + ': ' + moneda(p.monto));
+            for (const p of v.pagos) L.push(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', credito: 'Fiado' })[p.metodo] + ': ' + moneda(p.monto));
+            if (posFiadoDeVenta(v) > 0) L.push('Fiado: ' + moneda(posFiadoDeVenta(v)) + ' - queda debiendo ' + moneda(posSaldoVenta(posDatos().pos, v)));
             if (v.vuelto > 0) L.push('Vuelto: ' + moneda(v.vuelto));
             L.push('', 'Gracias por su compra');
             return L.join('\n');
@@ -7909,7 +7928,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         function posPintarHistorial() {
             const root = document.getElementById('posRoot'); if (!root) return;
             let box = document.getElementById('posHistBox');
-            if (!box) { root.insertAdjacentHTML('beforeend', '<div id="posHistBox"></div><div id="posHistTicket"></div>'); box = document.getElementById('posHistBox'); }
+            if (!box) { root.insertAdjacentHTML('beforeend', '<div id="posHistBox"></div><div id="posHistTicket"></div><div id="posClientesBox"></div>'); box = document.getElementById('posHistBox'); }
             const { pos } = posDatos();
             const hoyS = hoy(), mesS = subsMesActual();
             const ventas = pos.ventas.filter(v => POS_HIST_MES ? String(v.fecha || '').slice(0, 7) === mesS : v.fecha === hoyS).slice(-50).reverse();
@@ -7917,11 +7936,12 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const cierres = pos.turnos.filter(t => t.cierre && (getRolUsuario() !== 'vendedor' || t.vendedor === yo)).slice(-10).reverse();
             box.innerHTML = `<div class="card p-3 mb-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><h6 class="fw-semibold mb-0">🗂️ Historial de ventas ${POS_HIST_MES ? 'del mes' : 'de hoy'}</h6>
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="posHistVer(${POS_HIST_MES ? 'false' : 'true'})">${POS_HIST_MES ? 'Ver solo hoy' : 'Ver todo el mes'}</button></div>
-                ${ventas.length ? ventas.map(v => { const t = pos.turnos.find(x => x.id === v.turnoId); const anulable = !v.anulada && t && !t.cierre && posDevueltoDe(pos, v.id) <= 0; return `<div class="border-bottom py-2"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><span class="small"><b>${esc(v.id)}</b> · ${esc(v.fecha)} ${esc(v.hora)} · ${esc(v.vendedor)} · <b>${moneda(v.total)}</b>${v.anulada ? ' · <span class="text-danger fw-semibold">ANULADA</span>' : ''}</span><span class="d-flex gap-1"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posReimprimir('${esc(v.id)}')">Ticket</button>${!v.anulada && posDevueltoDe(pos, v.id) < (Number(v.total) || 0) ? `<button type="button" class="btn btn-sm btn-outline-warning" onclick="posDevolverAbrir('${esc(v.id)}')">Devolver</button>` : ''}${anulable ? `<button type="button" class="btn btn-sm btn-outline-danger" onclick="posAnularAbrir('${esc(v.id)}')">Anular</button>` : ''}</span></div>${v.anulada && v.anulacion ? `<div class="small text-danger">Motivo: ${esc(v.anulacion.motivo)} — por ${esc(v.anulacion.por)}, ${esc(v.anulacion.fecha)} ${esc(v.anulacion.hora)}</div>` : ''}${posDevueltoDe(pos, v.id) > 0 ? `<div class="small text-warning">↩ Devuelto de esta venta: ${moneda(posDevueltoDe(pos, v.id))}</div>` : ''}<div id="posAnulBox-${esc(v.id)}"></div><div id="posDevBox-${esc(v.id)}"></div></div>`; }).join('') : '<p class="small text-secondary mb-0">Sin ventas en este período.</p>'}
+                ${ventas.length ? ventas.map(v => { const t = pos.turnos.find(x => x.id === v.turnoId); const anulable = !v.anulada && t && !t.cierre && posDevueltoDe(pos, v.id) <= 0 && posFiadoDeVenta(v) <= 0 && !(pos.abonos || []).some(a => a.ventaId === v.id); return `<div class="border-bottom py-2"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><span class="small"><b>${esc(v.id)}</b> · ${esc(v.fecha)} ${esc(v.hora)} · ${esc(v.vendedor)} · <b>${moneda(v.total)}</b>${v.anulada ? ' · <span class="text-danger fw-semibold">ANULADA</span>' : ''}${v.clienteNombre ? ' · 📒 ' + esc(v.clienteNombre) : ''}${posSaldoVenta(pos, v) > 0 ? ' · <span class="text-warning">debe ' + moneda(posSaldoVenta(pos, v)) + '</span>' : ''}</span><span class="d-flex gap-1"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posReimprimir('${esc(v.id)}')">Ticket</button>${!v.anulada && posDevueltoDe(pos, v.id) < (Number(v.total) || 0) ? `<button type="button" class="btn btn-sm btn-outline-warning" onclick="posDevolverAbrir('${esc(v.id)}')">Devolver</button>` : ''}${anulable ? `<button type="button" class="btn btn-sm btn-outline-danger" onclick="posAnularAbrir('${esc(v.id)}')">Anular</button>` : ''}</span></div>${v.anulada && v.anulacion ? `<div class="small text-danger">Motivo: ${esc(v.anulacion.motivo)} — por ${esc(v.anulacion.por)}, ${esc(v.anulacion.fecha)} ${esc(v.anulacion.hora)}</div>` : ''}${posDevueltoDe(pos, v.id) > 0 ? `<div class="small text-warning">↩ Devuelto de esta venta: ${moneda(posDevueltoDe(pos, v.id))}</div>` : ''}<div id="posAnulBox-${esc(v.id)}"></div><div id="posDevBox-${esc(v.id)}"></div></div>`; }).join('') : '<p class="small text-secondary mb-0">Sin ventas en este período.</p>'}
             </div>
             <div class="card p-3 mb-3"><h6 class="fw-semibold mb-2">🔒 Cierres de turno</h6>
                 ${cierres.length ? cierres.map(t => `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-2"><span class="small"><b>${esc(t.id)}</b> · ${esc(t.vendedor)} · cerró ${esc(t.cierre.fecha)} ${esc(t.cierre.hora)} · ${t.cierre.numVentas} ventas (${moneda(t.cierre.totalVentas)}) · diferencia <b class="${t.cierre.diferencia !== 0 ? 'text-danger' : ''}">${moneda(t.cierre.diferencia)}</b></span><button type="button" class="btn btn-sm btn-outline-primary" onclick="posInformeZ('${esc(t.id)}')">Informe Z</button></div>`).join('') : '<p class="small text-secondary mb-0">Todavía no hay cierres.</p>'}
             </div>`;
+            posPintarClientes();
         }
         function posHistVer(mes) { POS_HIST_MES = !!mes; posPintarHistorial(); }
         function posReimprimir(id) { const { pos } = posDatos(); const v = pos.ventas.find(x => x.id === id); if (v) posPintarTicket(v, 'posHistTicket'); }
@@ -7936,7 +7956,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             box.innerHTML = `<div class="card p-3 mb-3" id="posZCard"><h6 class="fw-semibold mb-2">🔒 Informe Z · Turno ${esc(t.id)} · ${esc(t.vendedor)}</h6>
                 <div class="small">Abierto: ${esc(t.fecha)} ${esc(t.apertura)} · Cerrado: ${esc(t.cierre.fecha)} ${esc(t.cierre.hora)} · Fondo: ${moneda(t.fondo)}</div>
                 <div class="small">Ventas: <b>${t.cierre.numVentas}</b> por <b>${moneda(t.cierre.totalVentas)}</b>${anuladas.length ? ' · Anuladas: <b>' + anuladas.length + '</b>' : ''}${devsZ.length ? ' · Devoluciones: <b>' + devsZ.length + '</b> (' + moneda(posR2(devsZ.reduce((a, d) => a + (Number(d.total) || 0), 0))) + ')' : ''}</div>
-                ${Object.keys(porMetodo).map(m => `<div class="small">· ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[m] || m)}: ${moneda(porMetodo[m])}</div>`).join('')}
+                ${Object.keys(porMetodo).map(m => `<div class="small">· ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', credito: '📒 Fiado' })[m] || m)}: ${moneda(porMetodo[m])}</div>`).join('')}
                 <div class="small">Efectivo esperado: ${moneda(t.cierre.esperado)} · Contado: ${moneda(t.cierre.contado)} · <b>Diferencia: ${moneda(t.cierre.diferencia)}</b></div>
                 ${t.cierre.nota ? `<div class="small">Nota del cierre: ${esc(t.cierre.nota)}</div>` : ''}
                 <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="printPane('posZCard', 'Informe Z')">🖨️ Imprimir / PDF</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="posTicketCerrar('posHistTicket')">Cerrar</button></div></div>`;
@@ -7953,6 +7973,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const t = pos.turnos.find(x => x.id === v.turnoId);
             if (!t || t.cierre) { alert('Esta venta ya no se puede anular: su turno está cerrado.'); return; }
             if (posDevueltoDe(pos, v.id) > 0) { alert('Esta venta ya tiene devoluciones registradas: no se anula entera. Si falta algo por devolver, usa el botón Devolver.'); return; }
+            if (posFiadoDeVenta(v) > 0 || (pos.abonos || []).some(a => a.ventaId === v.id)) { alert('Esta venta tiene fiado o abonos: no se anula entera. El fiado se salda con abonos o con devoluciones al fiado.'); return; }
             v.anulada = true;
             v.anulacion = { motivo: motivo, por: getCurrentUser(), fecha: hoy(), hora: posHora() };
             for (const l of v.lineas) {
@@ -7976,13 +7997,39 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         /* ===== POS-4 · Devoluciones parciales, ventas en espera y escaneo (tarea 38, ronda -76) ===== */
         function posDevueltoDe(pos, ventaId) { return posR2((pos.devoluciones || []).filter(d => d.ventaId === ventaId).reduce((a, d) => a + (Number(d.total) || 0), 0)); }
         function posDevueltoCant(pos, ventaId, productoId, nombre) { return (pos.devoluciones || []).filter(d => d.ventaId === ventaId).reduce((a, d) => a + (d.lineas || []).filter(l => (l.productoId || '') === (productoId || '') && l.nombre === nombre).reduce((x, l) => x + (Number(l.cantidad) || 0), 0), 0); }
+        /* ===== POS-5 · Clientes y crédito / fiado (tarea 38, ronda -77) ===== */
+        function posClienteDe(pos, id) { return (pos.clientes || []).find(c => c.id === id) || null; }
+        function posFiadoDeVenta(v) { return posR2(((v && v.pagos) || []).filter(p => p.metodo === 'credito').reduce((a, p) => a + (Number(p.monto) || 0), 0)); }
+        function posSaldoVenta(pos, v) { if (!v || v.anulada) return 0; const ab = (pos.abonos || []).filter(a => a.ventaId === v.id).reduce((x, a) => x + (Number(a.monto) || 0), 0); const devC = (pos.devoluciones || []).filter(d => d.ventaId === v.id && d.metodo === 'credito').reduce((x, d) => x + (Number(d.total) || 0), 0); return posR2(Math.max(0, posFiadoDeVenta(v) - ab - devC)); }
+        function posSaldoCliente(pos, clienteId) { return posR2(pos.ventas.filter(v => !v.anulada && v.clienteId === clienteId).reduce((a, v) => a + posSaldoVenta(pos, v), 0)); }
+        function posClienteSelectorHtml() { const { pos } = posDatos(); const c = POS_CLIENTE ? posClienteDe(pos, POS_CLIENTE) : null; const saldo = c ? posSaldoCliente(pos, c.id) : 0; return `<div class="mb-2"><select class="form-select form-select-sm" onchange="posSetCliente(this.value)"><option value="">🧍 Cliente casual</option>${(pos.clientes || []).map(x => `<option value="${esc(x.id)}" ${x.id === POS_CLIENTE ? 'selected' : ''}>📒 ${esc(x.nombre)}${posSaldoCliente(pos, x.id) > 0 ? ' · debe ' + moneda(posSaldoCliente(pos, x.id)) : ''}</option>`).join('')}</select>${c ? `<div class="small mt-1 ${saldo > 0 ? 'text-warning' : 'text-muted'}">📒 ${esc(c.nombre)} · Debe: <b>${moneda(saldo)}</b> · Límite de fiado: <b>${moneda(Number(c.limite) || 0)}</b>${(Number(c.limite) || 0) <= 0 ? ' · <span class="text-danger">sin fiado permitido</span>' : ''}</div>` : ''}</div>`; }
+        function posSetCliente(id) { POS_CLIENTE = id || ''; POS_PAGOS = null; posPintarCarrito(); }
+        function posClienteCrear(nombre, telefono, limite) { const { conta, pos } = posDatos(); pos.seqCliente = (pos.seqCliente || 0) + 1; const c = { id: 'C' + pos.seqCliente, nombre: String(nombre || '').trim(), telefono: String(telefono || '').trim(), direccion: '', nota: '', limite: Math.max(0, Number(limite) || 0) }; pos.clientes.push(c); saveConta(conta); return c; }
+        function posClienteAgregar() { const nom = ((document.getElementById('posCliNombre') || {}).value || '').trim(); if (!nom) { alert('Escribe el nombre del cliente.'); return; } const tel = ((document.getElementById('posCliTel') || {}).value || '').trim(); const lim = Number((document.getElementById('posCliLimite') || {}).value) || 0; posClienteCrear(nom, tel, lim); posPintarClientes(); posPintarCarrito(); }
+        function posPintarClientes() { const box = document.getElementById('posClientesBox'); if (!box) return; const { pos } = posDatos(); const clientes = pos.clientes || []; box.innerHTML = `<div class="card p-3 mb-3"><h6 class="fw-semibold mb-2">📒 Clientes y fiados</h6>
+            <div class="d-flex gap-2 flex-wrap mb-2"><input type="text" class="form-control form-control-sm" id="posCliNombre" placeholder="Nombre del cliente" style="max-width:200px"><input type="text" class="form-control form-control-sm" id="posCliTel" placeholder="Teléfono" style="max-width:130px"><input type="number" class="form-control form-control-sm" id="posCliLimite" placeholder="Límite fiado" min="0" step="0.01" style="max-width:120px"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posClienteAgregar()">+ Cliente</button></div>
+            ${clientes.length ? clientes.map(c => { const sc = posSaldoCliente(pos, c.id); return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-2"><span class="small"><b>${esc(c.nombre)}</b>${c.telefono ? ' · ' + esc(c.telefono) : ''} · Debe: <b class="${sc > 0 ? 'text-warning' : ''}">${moneda(sc)}</b> · Límite: ${moneda(Number(c.limite) || 0)}</span><span class="d-flex gap-1"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posClienteVer('${esc(c.id)}')">Ver</button>${sc > 0 ? `<button type="button" class="btn btn-sm btn-outline-success" onclick="posAbonoAbrir('${esc(c.id)}')">Abonar</button>` : ''}</span></div><div id="posAbonoBox-${esc(c.id)}"></div>`; }).join('') : '<p class="small text-secondary mb-0">Sin clientes registrados: el fiado necesita un cliente con su límite.</p>'}
+            </div>`; }
+        function posClienteVer(id) { const box = document.getElementById('posHistTicket'); if (!box) return; const { pos } = posDatos(); const c = posClienteDe(pos, id); if (!c) return; const ventas = pos.ventas.filter(v => v.clienteId === id).slice().reverse(); const abonos = (pos.abonos || []).filter(a => a.clienteId === id).slice().reverse(); const saldo = posSaldoCliente(pos, id); const neg = (typeof getNegocioNombre === 'function' && getNegocioNombre()) || 'Negocio';
+            box.innerHTML = `<div class="card p-3 mb-3" id="posCliCard"><div class="text-center mb-2"><div class="fw-bold">${esc(neg)}</div><div class="small text-muted">Cliente: ${esc(c.nombre)}${c.telefono ? ' · ' + esc(c.telefono) : ''}</div></div>
+            <div class="d-flex justify-content-between small"><span>Límite de fiado</span><span>${moneda(Number(c.limite) || 0)}</span></div>
+            <div class="d-flex justify-content-between border-bottom pb-1 mb-1"><b>Saldo pendiente</b><b>${moneda(saldo)}</b></div>
+            ${ventas.length ? ventas.map(v => `<div class="d-flex justify-content-between small"><span>${esc(v.fecha)} · ${esc(v.id)}${v.anulada ? ' · ANULADA' : ''}</span><span>${moneda(v.total)}${posFiadoDeVenta(v) > 0 ? ' · fiado ' + moneda(posFiadoDeVenta(v)) + (posSaldoVenta(pos, v) > 0 ? ' · <b>debe ' + moneda(posSaldoVenta(pos, v)) + '</b>' : ' · saldada') : ''}</span></div>`).join('') : '<p class="small text-secondary mb-0">Este cliente aún no tiene ventas.</p>'}
+            ${abonos.length ? '<div class="small fw-semibold mt-2 mb-1">Abonos</div>' + abonos.map(a => `<div class="d-flex justify-content-between small"><span>${esc(a.fecha)} · a la venta ${esc(a.ventaId)} · ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[a.metodo] || a.metodo)}</span><span>${moneda(a.monto)}</span></div>`).join('') : ''}
+            <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="printPane('posCliCard', 'Historial del cliente')">🖨️ Imprimir / PDF</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="posTicketCerrar('posHistTicket')">Cerrar</button></div></div>`; }
+        function posAbonoAbrir(id) { const cont = document.getElementById('posAbonoBox-' + id); if (!cont) return; const { pos } = posDatos(); const conSaldo = pos.ventas.filter(v => !v.anulada && v.clienteId === id && posSaldoVenta(pos, v) > 0); if (!conSaldo.length) { cont.innerHTML = ''; return; }
+            cont.innerHTML = `<div class="border rounded p-2 mt-1"><div class="d-flex gap-2 flex-wrap align-items-center"><select class="form-select form-select-sm" id="posAbonoVenta-${esc(id)}" style="max-width:230px">${conSaldo.map(v => `<option value="${esc(v.id)}">${esc(v.id)} · ${esc(v.fecha)} · debe ${moneda(posSaldoVenta(pos, v))}</option>`).join('')}</select><input type="number" class="form-control form-control-sm" id="posAbonoMonto-${esc(id)}" placeholder="Importe" min="0" step="0.01" style="max-width:110px"><select class="form-select form-select-sm" id="posAbonoMetodo-${esc(id)}" style="max-width:150px"><option value="efectivo">💵 Efectivo</option><option value="tarjeta">💳 Tarjeta</option><option value="transferencia">🏦 Transferencia</option></select><button type="button" class="btn btn-sm btn-success" onclick="posAbonoConfirmar('${esc(id)}')">Confirmar abono</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('posAbonoBox-${esc(id)}').innerHTML=''">Cancelar</button></div><div class="small text-muted mt-1">El abono se anota en la caja de tu turno abierto.</div></div>`; }
+        function posAbonoAplicar(clienteId, ventaId, metodo, monto) { const turno = posTurnoAbierto(); if (!turno) return 'Para abonar necesitas tu turno abierto: el abono se anota en su caja.'; const { conta, pos } = posDatos(); const v = pos.ventas.find(x => x.id === ventaId && x.clienteId === clienteId && !x.anulada); if (!v) return 'Esa venta no es de este cliente.'; const saldo = posSaldoVenta(pos, v); const m = posR2(Math.max(0, Number(monto) || 0)); if (m <= 0) return 'Escribe el importe del abono.'; if (m > saldo) return 'El abono (' + moneda(m) + ') supera lo que debe de esa venta (' + moneda(saldo) + ').'; pos.seqAbono = (pos.seqAbono || 0) + 1; const ab = { id: 'A' + pos.seqAbono, clienteId: clienteId, ventaId: ventaId, fecha: hoy(), hora: posHora(), vendedor: getCurrentUser(), turnoId: turno.id, metodo: metodo || 'efectivo', monto: m }; pos.abonos.push(ab); saveConta(conta);
+            if (pos.cfg.aIngresos) { const cuentaDe = { efectivo: 'caja', tarjeta: 'tarjeta_cup', transferencia: 'chequera' }; movimientos.push({ id: nextId++, concepto: 'Abono de fiado POS · venta ' + ventaId, tipo: 'ingreso', clasificacion: 'operacional', cuenta: cuentaDe[ab.metodo] || 'caja', monto: m, fecha: ab.fecha, cuentaContable: '801-000', origen: 'pos', posVentaId: ab.id }); try { saveMovimientos(movimientos); } catch (e) {} try { contaGenerarSilencioso(); } catch (e) {} }
+            return null; }
+        function posAbonoConfirmar(id) { const ventaId = (document.getElementById('posAbonoVenta-' + id) || {}).value || ''; const monto = Number((document.getElementById('posAbonoMonto-' + id) || {}).value) || 0; const metodo = (document.getElementById('posAbonoMetodo-' + id) || {}).value || 'efectivo'; const err = posAbonoAplicar(id, ventaId, metodo, monto); if (err) { alert(err); return; } posPintarClientes(); posPintarTurno(); posPintarCarrito(); }
         function posDevolverAbrir(id) {
             const cont = document.getElementById('posDevBox-' + id); if (!cont) return;
             const { pos } = posDatos();
             const v = pos.ventas.find(x => x.id === id); if (!v || v.anulada) return;
             cont.innerHTML = `<div class="border rounded p-2 mt-2"><div class="small fw-semibold mb-1">↩ Devolución de la venta ${esc(v.id)} — escribe cuánto vuelve de cada producto:</div>`
                 + v.lineas.map((l, i) => { const ya = posDevueltoCant(pos, v.id, l.productoId, l.nombre); const max = posR2((Number(l.cantidad) || 0) - ya); return `<div class="d-flex align-items-center gap-2 mb-1"><span class="flex-grow-1 small">${esc(l.nombre)} <span class="text-muted">(vendido ${l.cantidad}${ya ? ', ya devuelto ' + ya : ''})</span></span><input type="number" class="form-control form-control-sm" style="max-width:90px" min="0" max="${max}" step="0.01" value="0" data-dev-qty="${i}"></div>`; }).join('')
-                + `<div class="d-flex gap-2 flex-wrap mt-1"><select class="form-select form-select-sm" id="posDevMetodo-${esc(id)}" style="max-width:180px"><option value="efectivo">💵 Reembolso en efectivo</option><option value="tarjeta">💳 Reembolso a tarjeta</option><option value="transferencia">🏦 Reembolso por transferencia</option></select><input type="text" class="form-control form-control-sm" id="posDevMotivo-${esc(id)}" placeholder="Motivo (obligatorio)" style="max-width:260px"><button type="button" class="btn btn-sm btn-warning" onclick="posDevolverConfirmar('${esc(id)}')">Confirmar devolución</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('posDevBox-${esc(id)}').innerHTML=''">Cancelar</button></div></div>`;
+                + `<div class="d-flex gap-2 flex-wrap mt-1"><select class="form-select form-select-sm" id="posDevMetodo-${esc(id)}" style="max-width:180px"><option value="efectivo">💵 Reembolso en efectivo</option><option value="tarjeta">💳 Reembolso a tarjeta</option><option value="transferencia">🏦 Reembolso por transferencia</option>${posFiadoDeVenta(v) > 0 ? '<option value="credito">📒 Se descuenta del fiado</option>' : ''}</select><input type="text" class="form-control form-control-sm" id="posDevMotivo-${esc(id)}" placeholder="Motivo (obligatorio)" style="max-width:260px"><button type="button" class="btn btn-sm btn-warning" onclick="posDevolverConfirmar('${esc(id)}')">Confirmar devolución</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('posDevBox-${esc(id)}').innerHTML=''">Cancelar</button></div></div>`;
         }
         function posDevolverConfirmar(id) {
             const cont = document.getElementById('posDevBox-' + id);
@@ -8007,6 +8054,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 total = posR2(total + imp);
             });
             if (!lineas.length || total <= 0) { alert('Marca al menos un producto con cantidad a devolver.'); return; }
+            if (metodo === 'credito' && total > posSaldoVenta(pos, v)) { alert('La devolución al fiado (' + moneda(total) + ') supera lo que el cliente debe de esta venta (' + moneda(posSaldoVenta(pos, v)) + ').'); return; }
             pos.seqDev = (pos.seqDev || 0) + 1;
             const dev = { id: 'D' + pos.seqDev, ventaId: v.id, fecha: hoy(), hora: posHora(), vendedor: getCurrentUser(), turnoId: turno.id, lineas: lineas, total: total, motivo: motivo, metodo: metodo };
             pos.devoluciones.push(dev);
@@ -8018,7 +8066,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 conta.movInventario.push({ id: 'I' + conta.seqInv, productoId: p.id, tipo: 'entrada', cantidad: l.cantidad, costoUnit: Number(p.costoProm) || 0, fecha: dev.fecha, origenKey: 'pos-dev:' + dev.id });
             }
             saveConta(conta);
-            if (pos.cfg.aIngresos) {
+            if (pos.cfg.aIngresos && metodo !== 'credito') {
                 const cuentaDe = { efectivo: 'caja', tarjeta: 'tarjeta_cup', transferencia: 'chequera' };
                 movimientos.push({ id: nextId++, concepto: 'Devolución POS · ' + dev.id + ' (venta ' + v.id + ')', tipo: 'egreso', clasificacion: 'operacional', cuenta: cuentaDe[metodo] || 'caja', monto: total, fecha: dev.fecha, cuentaContable: '801-000', origen: 'pos', posVentaId: dev.id });
                 try { saveMovimientos(movimientos); } catch (e) {}
@@ -8033,7 +8081,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             box.innerHTML = `<div class="card p-3 mb-3" id="posDevCard"><div class="text-center mb-2"><div class="fw-bold">${esc(neg)}</div><div class="small text-muted">Devolución ${esc(d.id)} de la venta ${esc(d.ventaId)} · ${esc(d.fecha)} ${esc(d.hora)} · ${esc(d.vendedor)}</div></div>
                 ${d.lineas.map(l => `<div class="d-flex justify-content-between small"><span>${esc(l.nombre)} × ${l.cantidad}</span><span>${moneda(l.importe)}</span></div>`).join('')}
                 <div class="d-flex justify-content-between border-top pt-1 mt-1"><b>Total devuelto</b><b>${moneda(d.total)}</b></div>
-                <div class="small text-muted">Motivo: ${esc(d.motivo)} · Reembolso: ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[d.metodo] || d.metodo)}</div>
+                <div class="small text-muted">Motivo: ${esc(d.motivo)} · Reembolso: ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', credito: 'Se descuenta del fiado' })[d.metodo] || d.metodo)}</div>
                 <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="printPane('posDevCard', 'Nota de devolución')">🖨️ Imprimir / PDF</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="posTicketCerrar('posHistTicket')">Cerrar</button></div></div>`;
         }
         function posEsperaGuardar() {
@@ -8042,9 +8090,9 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (nombre === null) return;
             const { conta, pos } = posDatos();
             pos.seqEsp = (pos.seqEsp || 0) + 1;
-            pos.esperas.push({ id: 'E' + pos.seqEsp, fecha: hoy(), hora: posHora(), vendedor: getCurrentUser(), nombre: String(nombre || '').trim() || 'Sin nombre', lineas: POS_CARRITO.map(l => ({ ...l })), dtoTicket: { ...POS_DTO_T } });
+            pos.esperas.push({ id: 'E' + pos.seqEsp, fecha: hoy(), hora: posHora(), vendedor: getCurrentUser(), nombre: String(nombre || '').trim() || 'Sin nombre', lineas: POS_CARRITO.map(l => ({ ...l })), dtoTicket: { ...POS_DTO_T }, clienteId: POS_CLIENTE });
             saveConta(conta);
-            POS_CARRITO = []; POS_PAGOS = null; POS_DTO_T = { tipo: 'pct', valor: 0 };
+            POS_CARRITO = []; POS_PAGOS = null; POS_DTO_T = { tipo: 'pct', valor: 0 }; POS_CLIENTE = '';
             posPintarCarrito(); posPintarGrid();
         }
         function posEsperaRecuperar(id) {
@@ -8053,6 +8101,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (POS_CARRITO.length && !confirm('La venta actual se sustituye por la que está en espera. ¿Seguir?')) return;
             POS_CARRITO = (e.lineas || []).map(l => ({ ...l }));
             POS_DTO_T = e.dtoTicket ? { ...e.dtoTicket } : { tipo: 'pct', valor: 0 };
+            POS_CLIENTE = e.clienteId || '';
             POS_PAGOS = null;
             pos.esperas = pos.esperas.filter(x => x.id !== id);
             saveConta(conta);
@@ -8171,7 +8220,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const ent = (t.movimientos || []).filter(m => m.tipo === 'entrada').reduce((a, m) => a + (Number(m.monto) || 0), 0);
             const sal = (t.movimientos || []).filter(m => m.tipo === 'salida').reduce((a, m) => a + (Number(m.monto) || 0), 0);
             const dev = (pos.devoluciones || []).filter(d => d.turnoId === t.id && d.metodo === 'efectivo').reduce((a, d) => a + (Number(d.total) || 0), 0);
-            return { esperado: posR2((Number(t.fondo) || 0) + ef + ent - sal - dev), ventasEfectivo: posR2(ef), entradas: posR2(ent), salidas: posR2(sal), devoluciones: posR2(dev), numVentas: ventasT.length, totalVentas: posR2(ventasT.reduce((a, v) => a + (Number(v.total) || 0), 0)) };
+            const abEf = (pos.abonos || []).filter(a => a.turnoId === t.id && a.metodo === 'efectivo').reduce((a, x) => a + (Number(x.monto) || 0), 0);
+            return { esperado: posR2((Number(t.fondo) || 0) + ef + ent - sal - dev + abEf), ventasEfectivo: posR2(ef), entradas: posR2(ent), salidas: posR2(sal), devoluciones: posR2(dev), abonosEfectivo: posR2(abEf), numVentas: ventasT.length, totalVentas: posR2(ventasT.reduce((a, v) => a + (Number(v.total) || 0), 0)) };
         }
         function posPintarTurno() {
             const box = document.getElementById('posTurnoBox'); if (!box) return;
@@ -8203,9 +8253,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             for (const v of pos.ventas.filter(x => !x.anulada && x.turnoId === t.id)) for (const p of v.pagos) porMetodo[p.metodo] = posR2((porMetodo[p.metodo] || 0) + (Number(p.monto) || 0));
             box.innerHTML = `<div class="card p-3 mb-3" id="posInformeCard"><h6 class="fw-semibold mb-2">📊 Informe X · Turno ${esc(t.id)}</h6>
                 <div class="small">Ventas: <b>${e.numVentas}</b> por <b>${moneda(e.totalVentas)}</b></div>
-                ${Object.keys(porMetodo).map(m => `<div class="small">· ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia' })[m] || m)}: ${moneda(porMetodo[m])}</div>`).join('')}
+                ${Object.keys(porMetodo).map(m => `<div class="small">· ${esc(({ efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', credito: '📒 Fiado' })[m] || m)}: ${moneda(porMetodo[m])}</div>`).join('')}
                 <div class="small">Fondo: ${moneda(t.fondo)} · Entradas de caja: ${moneda(e.entradas)} · Salidas de caja: ${moneda(e.salidas)}</div>
                 ${e.devoluciones ? `<div class="small">Devoluciones en efectivo del turno: −${moneda(e.devoluciones)}</div>` : ''}
+                ${e.abonosEfectivo ? `<div class="small">Abonos de fiado en efectivo: +${moneda(e.abonosEfectivo)}</div>` : ''}
                 <div class="small fw-semibold">Efectivo esperado en caja: ${moneda(e.esperado)}</div>
                 <div class="d-flex gap-2 mt-2"><button type="button" class="btn btn-sm btn-primary" onclick="printPane('posInformeCard', 'Informe X')">🖨️ Imprimir / PDF</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('posInformeBox').innerHTML=''">Cerrar</button></div></div>`;
         }
@@ -8216,7 +8267,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const e = posEsperado(t, pos);
             box.innerHTML = `<div class="border rounded p-2"><div class="small mb-1 fw-semibold">Cierre Z — cuenta el efectivo de la caja:</div>
                 <div class="d-flex gap-2 flex-wrap"><input type="number" class="form-control form-control-sm" id="posCierreContado" placeholder="Efectivo contado" min="0" step="0.01" style="max-width:150px"><input type="text" class="form-control form-control-sm" id="posCierreNota" placeholder="Nota (obligatoria si hay diferencia)" style="max-width:260px"><button type="button" class="btn btn-sm btn-dark" onclick="posCerrarTurno()">Cerrar turno</button></div>
-                <div class="small text-muted mt-1">Esperado según el sistema: ${moneda(e.esperado)} (fondo + ventas en efectivo + entradas − salidas).</div></div>`;
+                <div class="small text-muted mt-1">Esperado según el sistema: ${moneda(e.esperado)} (fondo + ventas en efectivo + entradas + abonos de fiado − salidas − devoluciones).</div></div>`;
         }
         function posCerrarTurno() {
             const contado = Math.max(0, Number((document.getElementById('posCierreContado') || {}).value) || 0);
@@ -8263,7 +8314,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             saveConta(conta);
             const msg = document.getElementById('posCfgMsg'); if (msg) msg.textContent = '✅ Guardado.';
         }
-        window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual, turnoAbierto: posTurnoAbierto, addProd: posAddProd, cobrar: posCobrar, esperado: posEsperado, carrito: () => POS_CARRITO, setPagos: p => { POS_PAGOS = p; }, cerrarTurno: posCerrarTurno, abrirTurno: posAbrirTurno, anular: posAnularConfirmar, anularAbrir: posAnularAbrir, reimprimir: posReimprimir, informeZ: posInformeZ, ticketTexto: posTicketTexto, dtoLinea: (i, v) => posCartDto(i, v), dtoTicket: (t, v) => { POS_DTO_T = { tipo: t, valor: v }; posPintarCarrito(); }, devolverAbrir: posDevolverAbrir, devolver: posDevolverConfirmar, devueltoDe: v => posDevueltoDe(posDatos().pos, v), devoluciones: () => posDatos().pos.devoluciones, esperaGuardar: posEsperaGuardar, esperaRecuperar: posEsperaRecuperar, esperas: () => posDatos().pos.esperas, porCodigo: posCodigoBuscar, total: () => posTotal(), bruto: () => posBruto() };
+        window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual, turnoAbierto: posTurnoAbierto, addProd: posAddProd, cobrar: posCobrar, esperado: posEsperado, carrito: () => POS_CARRITO, setPagos: p => { POS_PAGOS = p; }, cerrarTurno: posCerrarTurno, abrirTurno: posAbrirTurno, anular: posAnularConfirmar, anularAbrir: posAnularAbrir, reimprimir: posReimprimir, informeZ: posInformeZ, ticketTexto: posTicketTexto, dtoLinea: (i, v) => posCartDto(i, v), dtoTicket: (t, v) => { POS_DTO_T = { tipo: t, valor: v }; posPintarCarrito(); }, devolverAbrir: posDevolverAbrir, devolver: posDevolverConfirmar, devueltoDe: v => posDevueltoDe(posDatos().pos, v), devoluciones: () => posDatos().pos.devoluciones, esperaGuardar: posEsperaGuardar, esperaRecuperar: posEsperaRecuperar, esperas: () => posDatos().pos.esperas, porCodigo: posCodigoBuscar, total: () => posTotal(), bruto: () => posBruto(), setCliente: id => posSetCliente(id), clienteCrear: posClienteCrear, saldoCliente: id => posSaldoCliente(posDatos().pos, id), saldoVenta: id => { const pp = posDatos().pos; const vv = pp.ventas.find(x => x.id === id); return vv ? posSaldoVenta(pp, vv) : 0; }, fiadoDe: id => { const pp = posDatos().pos; const vv = pp.ventas.find(x => x.id === id); return vv ? posFiadoDeVenta(vv) : 0; }, abonar: posAbonoAplicar, abonos: () => posDatos().pos.abonos, clientes: () => posDatos().pos.clientes };
         window.__efeTest = { s5920: ctaEfe5920, s5921: ctaEfe5921, generar: contaEfeGenerar };
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-pos') setTimeout(renderPos, 60); });
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-admin') setTimeout(() => { try { renderPosCfg(); } catch (err) {} }, 80); });
@@ -19587,7 +19638,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-76';
+        var MANUAL_VERSION = 'v2026.10.30-77';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -20081,6 +20132,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Descuentos y ofertas:</b> cada producto puede llevar una <b>oferta en %</b> (se pone en la misma tarjeta de ajustes, junto al precio: en la parrilla sale tachado y con el precio rebajado). Ya en la venta, cada línea admite su <b>descuento en %</b> y el ticket completo otro <b>descuento en % o en importe</b>: el ticket muestra el subtotal, los descuentos y el total, y todo queda guardado en la venta.</li>' +
             '<li><b>Devolver parte de una venta:</b> en el historial, el botón <b>Devolver</b> permite devolver <b>solo algunos productos o cantidades</b> de una venta ya cobrada, con <b>motivo obligatorio</b> y forma de reembolso (efectivo, tarjeta o transferencia). El stock vuelve solo, la devolución queda anotada en la caja del turno que la hace y, si las ventas pasan a ingresos, nace el egreso contrario en Finanzas. Una venta con devoluciones ya no se puede anular entera: se devuelve lo que falte.</li>' +
             '<li><b>Ventas en espera:</b> si un cliente se demora, el botón <b>⏸ Dejar esta venta en espera</b> aparta el ticket con un nombre y libera la pantalla para seguir vendiendo; las ventas apartadas se recuperan con un toque y siguen justo donde iban, con sus descuentos.</li>' +
+            '<li><b>Clientes y fiado:</b> en la venta eliges un <b>cliente</b> (o dejas «Cliente casual») y puedes cobrarle una parte <b>fiada</b>: el fiado exige un cliente con <b>límite</b>, los pagos deben sumar <b>exacto</b> el total (el fiado no genera vuelto) y la app no deja pasar del límite contando lo que ya debe. La tarjeta <b>📒 Clientes y fiados</b>, bajo el historial, guarda los clientes con su saldo: desde ahí das el alta (nombre, teléfono y límite), ves el <b>historial</b> de cada uno — sus ventas, sus fiados y sus abonos, imprimible — y anotas los <b>abonos</b>, que entran en la caja del turno que los cobra y salen en su Informe X. Si las ventas pasan a ingresos, el fiado <b>no</b> mueve dinero al vender: el ingreso nace cuando el cliente <b>abona</b>. Una venta con fiado o abonos <b>no se anula entera</b>; y devolver contra el fiado también se puede: la devolución ofrece <b>«Se descuenta del fiado»</b> y baja la deuda sin tocar la caja ni los ingresos.</li>' +
             '<li><b>Parrilla a tu manera:</b> los productos se agrupan por <b>categorías</b> (las pones en la tarjeta de ajustes), los marcados como <b>⭐ favoritos</b> salen primero y cada producto puede mostrar su <b>imagen</b> (una dirección de imagen). Con un <b>lector de códigos</b>, escanear en el buscador añade el producto solo; con el botón <b>📷</b> se escanea usando la <b>cámara</b> del teléfono o la tableta.</li>' +
             '<li><b>Anular una venta:</b> en el historial, mientras su turno siga abierto, el botón <b>Anular</b> pide el <b>motivo</b> y lo deja escrito en la traza: el stock vuelve solo, el ingreso en Finanzas se revierte y la venta queda marcada como anulada, sin borrarse nunca. Si el turno ya cerró, la venta ya no se puede anular.</li>' +
             '<li><b>Historial y cierres:</b> las ventas de hoy (o del mes) se reimprimen cuando haga falta, y de cada cierre queda su <b>Informe Z</b> imprimible con el desglose por forma de cobro.</li>' +
@@ -20246,7 +20298,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar','posSetCatI','posCartDto','posDtoTicketSet','posDevolverAbrir','posDevolverConfirmar','posEsperaGuardar','posEsperaRecuperar','posEsperaBorrar','posEscanear','posBusqEnter','contaEfeGenerar','dj01DocGenerar',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar','posSetCliente','posClienteAgregar','posClienteVer','posAbonoAbrir','posAbonoConfirmar','posSetCatI','posCartDto','posDtoTicketSet','posDevolverAbrir','posDevolverConfirmar','posEsperaGuardar','posEsperaRecuperar','posEsperaBorrar','posEscanear','posBusqEnter','contaEfeGenerar','dj01DocGenerar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',

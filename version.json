@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-76",
-  "publicada": "2026-10-31 02:16",
-  "notas": "POS-4 Venta completa: descuentos, devoluciones, esperas y escaneo",
+  "version": "v2026.10.30-77",
+  "publicada": "2026-10-31 02:37",
+  "notas": "POS-5 Clientes y crédito: fiado con límite, saldos y abonos",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "ee7b79a675ea1451a02d3760283899d6813c3f9695bd09e93b50d2f40faa0552",
-      "bytes": 2085398
+      "sha256": "1ce883b99836d4861e1a793335d2e8a02142a1c93dfc0886e1604fb4e4de08e5",
+      "bytes": 2100699
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "hz7UPr/gQSt1E4DMsO/2ss+rjLJvyttEeDqupnjk3f5mhjHFzf0LY6CUEO9yZw8XVoGpfHz4CKM7zsyC8MoyCg=="
+  "firma": "+ys4BvPMe2CrPLISwJ9r5RkPWjlVNDIpzvjAE5W6zPtGGArcFShFda5fCRbR0sd/cLqAhce6KFb+UOPj8qfnDg=="
 }
