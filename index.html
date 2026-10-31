@@ -7657,6 +7657,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             if (!Array.isArray(g.pos.clientes)) g.pos.clientes = [];
             if (!Array.isArray(g.pos.abonos)) g.pos.abonos = [];
             if (!Array.isArray(g.pos.cfg.extras)) g.pos.cfg.extras = [];
+            if (!Array.isArray(g.pos.mesas)) g.pos.mesas = [];
+            if (!Array.isArray(g.pos.cuentas)) g.pos.cuentas = [];
             return { conta: c, pos: g.pos };
         }
         /* Aplica la visibilidad del módulo: pestaña solo con el POS
@@ -7710,6 +7712,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                         <div id="posGrid"></div>
                         <div id="posVarBox" class="mt-2"></div>
                     </div>
+                    <div class="card p-3 mb-3"><h6 class="fw-semibold mb-2">🍽️ Mesas y cuentas abiertas</h6><div id="posMesasBox"></div></div>
                 </div>
                 <div class="col-lg-5">
                     <div id="posTurnoBox"></div>
@@ -7722,6 +7725,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
         /* ===== POS-2 · Venta y turnos (tarea 38, ronda -54) ===== */
         let POS_CARRITO = [], POS_BUSQ = '', POS_PAGOS = null, POS_DTO_T = { tipo: 'pct', valor: 0 }, POS_CAT = '', POS_CATS = [], POS_CLIENTE = '';
+        let POS_CUENTA = '';
         function posR2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
         function posHora() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
         function posTurnoAbierto() { const { pos } = posDatos(); const un = getCurrentUser(); return pos.turnos.find(t => !t.cierre && t.vendedor === un) || null; }
@@ -7828,8 +7832,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const box = document.getElementById('posCart'); if (!box) return;
             const cob = document.getElementById('posCobro');
             posPintarEsperas();
-            if (!POS_CARRITO.length) { box.innerHTML = posClienteSelectorHtml() + '<p class="small text-secondary mb-0">Toca un producto para empezar la venta.</p>'; if (cob) cob.innerHTML = ''; POS_PAGOS = null; return; }
-            box.innerHTML = posClienteSelectorHtml() + POS_CARRITO.map((l, i) => { const dto = (Number(l.ofertaPct) || 0) + (Number(l.dtoPct) || 0); return `<div class="d-flex align-items-center gap-2 mb-1">
+            if (!POS_CARRITO.length) { box.innerHTML = posCuentaBannerHtml() + posClienteSelectorHtml() + '<p class="small text-secondary mb-0">Toca un producto para empezar la venta.</p>'; if (cob) cob.innerHTML = ''; POS_PAGOS = null; return; }
+            box.innerHTML = posCuentaBannerHtml() + posClienteSelectorHtml() + POS_CARRITO.map((l, i) => { const dto = (Number(l.ofertaPct) || 0) + (Number(l.dtoPct) || 0); return `<div class="d-flex align-items-center gap-2 mb-1">
                 <span class="flex-grow-1 small"><b>${esc(l.nombre)}</b><br><span class="text-muted">${moneda(l.precio)} × </span></span>
                 <input type="number" class="form-control form-control-sm" style="max-width:84px" min="0" step="0.01" value="${l.cantidad}" onchange="posCartQty(${i}, this.value)" title="Cantidad">
                 <input type="number" class="form-control form-control-sm" style="max-width:62px" min="0" max="100" step="1" value="${Number(l.dtoPct) || 0}" onchange="posCartDto(${i}, this.value)" title="Descuento de esta línea (%)">
@@ -7886,6 +7890,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             pos.seqVenta = (pos.seqVenta || 0) + 1;
             const vid = 'V' + pos.seqVenta;
             const venta = { id: vid, fecha: hoy(), hora: posHora(), turnoId: turno.id, vendedor: getCurrentUser(), lineas: POS_CARRITO.map(l => ({ productoId: l.productoId, varianteId: l.varianteId || '', nombre: l.nombre, cantidad: l.cantidad, precio: l.precio, ofertaPct: Number(l.ofertaPct) || 0, dtoPct: Number(l.dtoPct) || 0, extras: (l.extras || []).map(e => ({ nombre: e.nombre, precio: Number(e.precio) || 0 })), importe: posLineaImporte(l) })), subtotal: posBruto(), descuento: posR2(posBruto() - posTotal()), dtoTicket: { tipo: POS_DTO_T.tipo, valor: Number(POS_DTO_T.valor) || 0, monto: posDtoTicketMonto() }, total: posTotal(), pagos: (POS_PAGOS || []).map(p => ({ metodo: p.metodo, monto: Number(p.monto) || 0 })), vuelto: posVuelto(), clienteId: clienteSel ? clienteSel.id : '', clienteNombre: clienteSel ? clienteSel.nombre : '', anulada: false };
+            if (POS_CUENTA) { const ctaC = (pos.cuentas || []).find(c => c.id === POS_CUENTA); if (ctaC) { venta.mesaId = ctaC.mesaId; venta.mesaNombre = ctaC.nombre; pos.cuentas = pos.cuentas.filter(c => c.id !== POS_CUENTA); } }
             pos.ventas.push(venta);
             POS_DTO_T = { tipo: 'pct', valor: 0 };
             for (const l of venta.lineas) {
@@ -7908,8 +7913,8 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 try { saveMovimientos(movimientos); } catch (e) {}
                 try { contaGenerarSilencioso(); } catch (e) {}
             }
-            POS_CARRITO = []; POS_PAGOS = null; POS_CLIENTE = '';
-            posPintarCarrito(); posPintarGrid(); posPintarTurno(); posPintarTicket(venta); posPintarHistorial();
+            POS_CARRITO = []; POS_PAGOS = null; POS_CLIENTE = ''; POS_CUENTA = '';
+            posPintarCarrito(); posPintarGrid(); posPintarTurno(); posPintarTicket(venta); posPintarHistorial(); posPintarMesas();
         }
         function posPintarTicket(v, destinoId) {
             const box = document.getElementById(destinoId || 'posTicketBox'); if (!box) return;
@@ -7917,6 +7922,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const neg = (typeof getNegocioNombre === 'function' && getNegocioNombre()) || 'Negocio';
             box.innerHTML = `<div class="card p-3 mb-3" id="${cardId}"><div class="text-center mb-2"><div class="fw-bold">${esc(neg)}</div><div class="small text-muted">Ticket ${esc(v.id)} · ${esc(v.fecha)} ${esc(v.hora)} · Vendedor: ${esc(v.vendedor)}</div></div>
                 ${v.clienteNombre ? `<div class="small text-muted text-center">Cliente: ${esc(v.clienteNombre)}</div>` : ''}
+                ${v.mesaNombre ? `<div class="small text-muted text-center">Mesa: ${esc(v.mesaNombre)}</div>` : ''}
                 ${v.anulada ? `<div class="text-center fw-bold text-danger border rounded py-1 mb-2">*** VENTA ANULADA ***<div class="small fw-normal">${esc((v.anulacion && v.anulacion.motivo) || '')}</div></div>` : ''}
                 ${v.lineas.map(l => `<div class="d-flex justify-content-between small"><span>${esc(l.nombre)} × ${l.cantidad}</span><span>${moneda(l.importe)}</span></div>${(l.ofertaPct || l.dtoPct) ? `<div class="small text-danger">Dto en la línea: ${l.ofertaPct ? 'oferta −' + l.ofertaPct + '% ' : ''}${l.dtoPct ? '−' + l.dtoPct + '%' : ''}</div>` : ''}${(l.extras || []).map(e => `<div class="small text-muted ps-2">+ ${esc(e.nombre)} ${moneda(e.precio)}</div>`).join('')}`).join('')}
                 ${(v.descuento || 0) > 0 ? `<div class="d-flex justify-content-between small"><span>Subtotal</span><span>${moneda(v.subtotal != null ? v.subtotal : v.total)}</span></div><div class="d-flex justify-content-between small text-danger"><span>Descuentos</span><span>−${moneda(v.descuento)}</span></div>` : ''}
@@ -7934,6 +7940,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const neg = (typeof getNegocioNombre === 'function' && getNegocioNombre()) || 'Negocio';
             const L = [neg, 'Ticket ' + v.id + ' - ' + v.fecha + ' ' + v.hora, 'Vendedor: ' + v.vendedor, '--------------------------------'];
             if (v.clienteNombre) L.push('Cliente: ' + v.clienteNombre);
+            if (v.mesaNombre) L.push('Mesa: ' + v.mesaNombre);
             if (v.anulada) L.push('*** VENTA ANULADA ***', 'Motivo: ' + ((v.anulacion && v.anulacion.motivo) || ''), '--------------------------------');
             for (const l of v.lineas) { L.push(l.nombre + ' x' + l.cantidad, '   ' + moneda(l.precio) + '  ->  ' + moneda(l.importe)); for (const e of (l.extras || [])) L.push('   + ' + e.nombre + ' ' + moneda(e.precio)); }
             if ((v.descuento || 0) > 0) L.push('Subtotal: ' + moneda(v.subtotal != null ? v.subtotal : v.total), 'Descuentos: -' + moneda(v.descuento));
@@ -7964,13 +7971,14 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const cierres = pos.turnos.filter(t => t.cierre && (getRolUsuario() !== 'vendedor' || t.vendedor === yo)).slice(-10).reverse();
             box.innerHTML = `<div class="card p-3 mb-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2"><h6 class="fw-semibold mb-0">🗂️ Historial de ventas ${POS_HIST_MES ? 'del mes' : 'de hoy'}</h6>
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="posHistVer(${POS_HIST_MES ? 'false' : 'true'})">${POS_HIST_MES ? 'Ver solo hoy' : 'Ver todo el mes'}</button></div>
-                ${ventas.length ? ventas.map(v => { const t = pos.turnos.find(x => x.id === v.turnoId); const anulable = !v.anulada && t && !t.cierre && posDevueltoDe(pos, v.id) <= 0 && posFiadoDeVenta(v) <= 0 && !(pos.abonos || []).some(a => a.ventaId === v.id); return `<div class="border-bottom py-2"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><span class="small"><b>${esc(v.id)}</b> · ${esc(v.fecha)} ${esc(v.hora)} · ${esc(v.vendedor)} · <b>${moneda(v.total)}</b>${v.anulada ? ' · <span class="text-danger fw-semibold">ANULADA</span>' : ''}${v.clienteNombre ? ' · 📒 ' + esc(v.clienteNombre) : ''}${posSaldoVenta(pos, v) > 0 ? ' · <span class="text-warning">debe ' + moneda(posSaldoVenta(pos, v)) + '</span>' : ''}</span><span class="d-flex gap-1"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posReimprimir('${esc(v.id)}')">Ticket</button>${!v.anulada && posDevueltoDe(pos, v.id) < (Number(v.total) || 0) ? `<button type="button" class="btn btn-sm btn-outline-warning" onclick="posDevolverAbrir('${esc(v.id)}')">Devolver</button>` : ''}${anulable ? `<button type="button" class="btn btn-sm btn-outline-danger" onclick="posAnularAbrir('${esc(v.id)}')">Anular</button>` : ''}</span></div>${v.anulada && v.anulacion ? `<div class="small text-danger">Motivo: ${esc(v.anulacion.motivo)} — por ${esc(v.anulacion.por)}, ${esc(v.anulacion.fecha)} ${esc(v.anulacion.hora)}</div>` : ''}${posDevueltoDe(pos, v.id) > 0 ? `<div class="small text-warning">↩ Devuelto de esta venta: ${moneda(posDevueltoDe(pos, v.id))}</div>` : ''}<div id="posAnulBox-${esc(v.id)}"></div><div id="posDevBox-${esc(v.id)}"></div></div>`; }).join('') : '<p class="small text-secondary mb-0">Sin ventas en este período.</p>'}
+                ${ventas.length ? ventas.map(v => { const t = pos.turnos.find(x => x.id === v.turnoId); const anulable = !v.anulada && t && !t.cierre && posDevueltoDe(pos, v.id) <= 0 && posFiadoDeVenta(v) <= 0 && !(pos.abonos || []).some(a => a.ventaId === v.id); return `<div class="border-bottom py-2"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><span class="small"><b>${esc(v.id)}</b> · ${esc(v.fecha)} ${esc(v.hora)} · ${esc(v.vendedor)} · <b>${moneda(v.total)}</b>${v.anulada ? ' · <span class="text-danger fw-semibold">ANULADA</span>' : ''}${v.clienteNombre ? ' · 📒 ' + esc(v.clienteNombre) : ''}${v.mesaNombre ? ' · 🍽️ ' + esc(v.mesaNombre) : ''}${posSaldoVenta(pos, v) > 0 ? ' · <span class="text-warning">debe ' + moneda(posSaldoVenta(pos, v)) + '</span>' : ''}</span><span class="d-flex gap-1"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posReimprimir('${esc(v.id)}')">Ticket</button>${!v.anulada && posDevueltoDe(pos, v.id) < (Number(v.total) || 0) ? `<button type="button" class="btn btn-sm btn-outline-warning" onclick="posDevolverAbrir('${esc(v.id)}')">Devolver</button>` : ''}${anulable ? `<button type="button" class="btn btn-sm btn-outline-danger" onclick="posAnularAbrir('${esc(v.id)}')">Anular</button>` : ''}</span></div>${v.anulada && v.anulacion ? `<div class="small text-danger">Motivo: ${esc(v.anulacion.motivo)} — por ${esc(v.anulacion.por)}, ${esc(v.anulacion.fecha)} ${esc(v.anulacion.hora)}</div>` : ''}${posDevueltoDe(pos, v.id) > 0 ? `<div class="small text-warning">↩ Devuelto de esta venta: ${moneda(posDevueltoDe(pos, v.id))}</div>` : ''}<div id="posAnulBox-${esc(v.id)}"></div><div id="posDevBox-${esc(v.id)}"></div></div>`; }).join('') : '<p class="small text-secondary mb-0">Sin ventas en este período.</p>'}
             </div>
             <div class="card p-3 mb-3"><h6 class="fw-semibold mb-2">🔒 Cierres de turno</h6>
                 ${cierres.length ? cierres.map(t => `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom py-2"><span class="small"><b>${esc(t.id)}</b> · ${esc(t.vendedor)} · cerró ${esc(t.cierre.fecha)} ${esc(t.cierre.hora)} · ${t.cierre.numVentas} ventas (${moneda(t.cierre.totalVentas)}) · diferencia <b class="${t.cierre.diferencia !== 0 ? 'text-danger' : ''}">${moneda(t.cierre.diferencia)}</b></span><button type="button" class="btn btn-sm btn-outline-primary" onclick="posInformeZ('${esc(t.id)}')">Informe Z</button></div>`).join('') : '<p class="small text-secondary mb-0">Todavía no hay cierres.</p>'}
             </div>`;
             posPintarClientes();
             posPintarInformes();
+            posPintarMesas();
         }
         function posHistVer(mes) { POS_HIST_MES = !!mes; posPintarHistorial(); }
         function posReimprimir(id) { const { pos } = posDatos(); const v = pos.ventas.find(x => x.id === id); if (v) posPintarTicket(v, 'posHistTicket'); }
@@ -8331,6 +8339,69 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             const root = document.getElementById('posRoot');
             if (root) root.insertAdjacentHTML('afterbegin', `<div class="alert alert-success py-2 px-3 small">🔒 Turno ${esc(t.id)} cerrado: esperado ${moneda(e.esperado)}, contado ${moneda(contado)}, diferencia ${moneda(dif)}.${nota ? ' Nota: ' + esc(nota) : ''}</div>`);
         }
+        /* ===== POS-8 (ronda -80): mesas y cuentas abiertas ===== */
+        function posMesaCrear(nombre) {
+            const { conta, pos } = posDatos();
+            pos.seqMesa = (pos.seqMesa || 0) + 1;
+            const m = { id: 'M' + pos.seqMesa, nombre: String(nombre || '').trim() || ('Mesa ' + pos.seqMesa) };
+            pos.mesas.push(m); saveConta(conta); return m;
+        }
+        function posCuentaTotal(cta) {
+            const sub = posR2((cta.lineas || []).reduce((sm, l) => sm + posLineaImporte(l), 0));
+            const d = cta.dtoTicket || { tipo: 'pct', valor: 0 };
+            const dtoM = d.tipo === 'pct' ? posR2(sub * (Number(d.valor) || 0) / 100) : posR2(Math.min(Number(d.valor) || 0, sub));
+            return posR2(sub - dtoM);
+        }
+        function posPintarMesas() {
+            const box = document.getElementById('posMesasBox'); if (!box) return;
+            const { pos } = posDatos();
+            const mesas = pos.mesas || [];
+            if (!mesas.length) { box.innerHTML = '<p class="small text-secondary mb-0">Este negocio no usa mesas. Puedes crearlas en Configuración → Punto de Venta (POS).</p>'; return; }
+            box.innerHTML = '<div class="d-flex flex-wrap gap-2">' + mesas.map(m => {
+                const cta = (pos.cuentas || []).find(c => c.mesaId === m.id);
+                const activa = cta && POS_CUENTA === cta.id;
+                return `<button type="button" class="btn ${cta ? 'btn-danger' : 'btn-outline-success'} text-start" style="min-width:118px" onclick="posMesaAbrir('${esc(m.id)}')"><span class="d-block fw-semibold small">${esc(m.nombre)}${activa ? ' · editando' : ''}</span><span class="d-block small">${cta ? 'Ocupada · ' + (cta.lineas || []).length + ' líneas · ' + moneda(posCuentaTotal(cta)) : 'Libre'}</span></button>`;
+            }).join('') + '</div>' + (POS_CUENTA ? '<p class="small text-muted mt-1 mb-0">Estás editando una cuenta: guárdala o cóbrala para liberar la mesa.</p>' : '');
+        }
+        function posMesaAbrir(mesaId) {
+            const { conta, pos } = posDatos();
+            const m = (pos.mesas || []).find(x => x.id === mesaId); if (!m) return;
+            let cta = (pos.cuentas || []).find(c => c.mesaId === mesaId);
+            if (cta && POS_CUENTA === cta.id) return;
+            if (POS_CARRITO.length && !POS_CUENTA) { alert('Primero cobra la venta actual o déjala en espera: la pantalla está ocupada.'); return; }
+            if (POS_CUENTA && (!cta || POS_CUENTA !== cta.id)) { alert('Estás editando otra cuenta: guárdala o cóbrala primero.'); return; }
+            if (!cta) { pos.seqCuenta = (pos.seqCuenta || 0) + 1; cta = { id: 'K' + pos.seqCuenta, mesaId: mesaId, nombre: m.nombre, fecha: hoy(), hora: posHora(), vendedor: getCurrentUser(), lineas: [], dtoTicket: { tipo: 'pct', valor: 0 }, clienteId: '' }; pos.cuentas.push(cta); saveConta(conta); }
+            POS_CUENTA = cta.id;
+            POS_CARRITO = JSON.parse(JSON.stringify(cta.lineas || []));
+            POS_DTO_T = { tipo: (cta.dtoTicket || {}).tipo || 'pct', valor: Number((cta.dtoTicket || {}).valor) || 0 };
+            POS_CLIENTE = cta.clienteId || '';
+            POS_PAGOS = null;
+            posPintarCarrito(); posPintarMesas();
+        }
+        function posCuentaGuardar() {
+            if (!POS_CUENTA) return;
+            const { conta, pos } = posDatos();
+            const cta = (pos.cuentas || []).find(c => c.id === POS_CUENTA);
+            if (cta) { cta.lineas = JSON.parse(JSON.stringify(POS_CARRITO)); cta.dtoTicket = { tipo: POS_DTO_T.tipo, valor: Number(POS_DTO_T.valor) || 0 }; cta.clienteId = POS_CLIENTE || ''; saveConta(conta); }
+            POS_CUENTA = ''; POS_CARRITO = []; POS_PAGOS = null; POS_CLIENTE = ''; POS_DTO_T = { tipo: 'pct', valor: 0 };
+            posPintarCarrito(); posPintarMesas();
+        }
+        function posCuentaVaciar() {
+            if (!POS_CUENTA) return;
+            if (!confirm('¿Vaciar esta cuenta y liberar la mesa? Se pierde lo cargado en ella (nada se cobró ni se movió del stock).')) return;
+            const { conta, pos } = posDatos();
+            pos.cuentas = (pos.cuentas || []).filter(c => c.id !== POS_CUENTA);
+            saveConta(conta);
+            POS_CUENTA = ''; POS_CARRITO = []; POS_PAGOS = null; POS_CLIENTE = ''; POS_DTO_T = { tipo: 'pct', valor: 0 };
+            posPintarCarrito(); posPintarMesas();
+        }
+        function posCuentaBannerHtml() {
+            if (!POS_CUENTA) return '';
+            const { pos } = posDatos();
+            const cta = (pos.cuentas || []).find(c => c.id === POS_CUENTA); if (!cta) return '';
+            return `<div class="alert alert-info py-2 px-2 small d-flex justify-content-between align-items-center flex-wrap gap-2"><span>🍽️ Cuenta abierta: <b>${esc(cta.nombre)}</b></span><span class="d-flex gap-1"><button type="button" class="btn btn-sm btn-primary" onclick="posCuentaGuardar()">💾 Guardar cuenta</button><button type="button" class="btn btn-sm btn-outline-danger" onclick="posCuentaVaciar()">Vaciar</button></span></div>`;
+        }
+
         /* ===== POS-6 (ronda -78): informes del negocio ===== */
         let POS_INF = { periodo: 'hoy', mes: '', vendedor: '' };
         function posInformeDatos(periodo, mesSel, vendedor) {
@@ -8373,6 +8444,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
         }
 
         /* Tarjeta de Configuración del negocio: ajustes del POS. */
+        function posMesaAdd() { const nom = ((document.getElementById('posMesaNom') || {}).value || '').trim(); if (!nom) { alert('Escribe el nombre de la mesa.'); return; } posMesaCrear(nom); renderPosCfg(); try { posPintarMesas(); } catch (e) {} }
+        function posMesaDel(id) { const { conta, pos } = posDatos(); if ((pos.cuentas || []).some(c => c.mesaId === id)) { alert('Esta mesa tiene una cuenta abierta: cóbrala o vacíala antes de borrar la mesa.'); return; } pos.mesas = (pos.mesas || []).filter(x => x.id !== id); saveConta(conta); renderPosCfg(); try { posPintarMesas(); } catch (e) {} }
+        function posMesaSet(id, nombre) { const { conta, pos } = posDatos(); const m = (pos.mesas || []).find(x => x.id === id); if (!m) return; m.nombre = String(nombre || '').trim() || m.nombre; const cta = (pos.cuentas || []).find(c => c.mesaId === id); if (cta) cta.nombre = m.nombre; saveConta(conta); try { posPintarMesas(); } catch (e) {} }
+        function posMesasSembrar() { const { pos } = posDatos(); if ((pos.mesas || []).length) { alert('Ya hay mesas creadas.'); return; } ['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4', 'Mesa 5', 'Mesa 6', 'Barra'].forEach(n => posMesaCrear(n)); renderPosCfg(); try { posPintarMesas(); } catch (e) {} }
         function posVarAdd(pid) {
             const nom = ((document.getElementById('posVarNom-' + pid) || {}).value || '').trim(); if (!nom) { alert('Escribe el nombre de la variante.'); return; }
             const cod = ((document.getElementById('posVarCod-' + pid) || {}).value || '').trim();
@@ -8402,8 +8477,10 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
                 + (prods.length ? prods.map(p => `<div class="d-flex align-items-center gap-2 mb-1 flex-wrap"><span style="min-width:170px">${esc(p.nombre)} <span class="text-muted">(${esc(p.codigo || '')} · stock ${p.stock != null ? p.stock : 0})</span></span><label class="small mb-0">Precio <input type="number" class="form-control form-control-sm d-inline-block" style="max-width:105px" min="0" step="0.01" data-pos-precio="${esc(p.id)}" value="${Number(p.precio) || 0}"></label><label class="small mb-0">Oferta % <input type="number" class="form-control form-control-sm d-inline-block" style="max-width:70px" min="0" max="90" step="1" data-pos-oferta="${esc(p.id)}" value="${Number(p.ofertaPct) || 0}"></label><label class="small mb-0">Mín. <input type="number" class="form-control form-control-sm d-inline-block" style="max-width:70px" min="0" step="1" data-pos-min="${esc(p.id)}" value="${Number(p.stockMin) || 0}"></label><label class="small mb-0"><input type="checkbox" class="form-check-input" data-pos-fav="${esc(p.id)}" ${p.favorito ? 'checked' : ''}> ⭐ Fav.</label><input type="text" class="form-control form-control-sm" style="max-width:130px" placeholder="Categoría" list="posCatsList" data-pos-cat="${esc(p.id)}" value="${esc(p.categoria || '')}"><input type="text" class="form-control form-control-sm" style="max-width:170px" placeholder="URL de imagen (opcional)" data-pos-img="${esc(p.id)}" value="${esc(p.imagen || '')}"></div>`).join('')
                 : '<p class="text-secondary mb-0">Aún no hay productos: créalos en Contabilidad → Inventario.</p>');
             let vx = document.getElementById('posVarCfgBox');
-            if (!vx) { box.insertAdjacentHTML('afterend', '<div id="posVarCfgBox" class="mt-3"></div><div id="posExtrasCfgBox" class="mt-3"></div>'); vx = document.getElementById('posVarCfgBox'); }
+            if (!vx) { box.insertAdjacentHTML('afterend', '<div id="posVarCfgBox" class="mt-3"></div><div id="posExtrasCfgBox" class="mt-3"></div><div id="posMesasCfgBox" class="mt-3"></div>'); vx = document.getElementById('posVarCfgBox'); }
             if (vx) vx.innerHTML = '<h6 class="small fw-semibold mb-1">🧬 Variantes por producto (precio y stock propios)</h6>' + (prods.length ? prods.map(p => `<div class="mb-2"><div class="small fw-semibold">${esc(p.nombre)}</div>${(p.variantes || []).map(vr => `<div class="d-flex gap-1 align-items-center mb-1 flex-wrap"><input type="text" class="form-control form-control-sm" style="max-width:140px" value="${esc(vr.nombre)}" onchange="posVarSet('${esc(p.id)}', '${esc(vr.id)}', 'nombre', this.value)"><input type="text" class="form-control form-control-sm" style="max-width:90px" placeholder="Código" value="${esc(vr.codigo || '')}" onchange="posVarSet('${esc(p.id)}', '${esc(vr.id)}', 'codigo', this.value)"><input type="number" class="form-control form-control-sm" style="max-width:96px" min="0" step="0.01" placeholder="Precio" value="${vr.precio != null ? vr.precio : ''}" onchange="posVarSet('${esc(p.id)}', '${esc(vr.id)}', 'precio', this.value)"><input type="number" class="form-control form-control-sm" style="max-width:80px" min="0" step="0.01" placeholder="Stock" value="${typeof vr.stock === 'number' ? vr.stock : ''}" onchange="posVarSet('${esc(p.id)}', '${esc(vr.id)}', 'stock', this.value)"><button type="button" class="btn btn-sm btn-outline-danger" onclick="posVarDel('${esc(p.id)}', '${esc(vr.id)}')">✕</button></div>`).join('')}<div class="d-flex gap-1 flex-wrap"><input type="text" class="form-control form-control-sm" style="max-width:140px" placeholder="Nueva variante" id="posVarNom-${esc(p.id)}"><input type="text" class="form-control form-control-sm" style="max-width:90px" placeholder="Código" id="posVarCod-${esc(p.id)}"><input type="number" class="form-control form-control-sm" style="max-width:96px" min="0" step="0.01" placeholder="Precio" id="posVarPre-${esc(p.id)}"><input type="number" class="form-control form-control-sm" style="max-width:80px" min="0" step="0.01" placeholder="Stock" id="posVarSto-${esc(p.id)}"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posVarAdd('${esc(p.id)}')">+ Variante</button></div></div>`).join('') : '<p class="text-secondary small mb-0">Sin productos.</p>');
+            const mx = document.getElementById('posMesasCfgBox');
+            if (mx) mx.innerHTML = '<h6 class="small fw-semibold mb-1">🍽️ Mesas (cuentas abiertas por mesa)</h6>' + ((pos.mesas || []).map(m => `<div class="d-flex gap-1 align-items-center mb-1"><input type="text" class="form-control form-control-sm" style="max-width:180px" value="${esc(m.nombre)}" onchange="posMesaSet('${esc(m.id)}', this.value)"><span class="small text-muted">${(pos.cuentas || []).some(c => c.mesaId === m.id) ? 'con cuenta abierta' : 'libre'}</span><button type="button" class="btn btn-sm btn-outline-danger" onclick="posMesaDel('${esc(m.id)}')">✕</button></div>`).join('')) + `<div class="d-flex gap-1 flex-wrap"><input type="text" class="form-control form-control-sm" style="max-width:180px" placeholder="Nueva mesa (ej.: Terraza 1)" id="posMesaNom"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posMesaAdd()">+ Mesa</button>${(pos.mesas || []).length ? '' : '<button type="button" class="btn btn-sm btn-outline-secondary" onclick="posMesasSembrar()">Crear las de ejemplo (6 mesas + barra)</button>'}</div>`;
             const ex = document.getElementById('posExtrasCfgBox');
             if (ex) ex.innerHTML = '<h6 class="small fw-semibold mb-1">➕ Extras / modificadores (se suman a cualquier línea)</h6>' + (pos.cfg.extras || []).map(e => `<div class="d-flex gap-1 align-items-center mb-1"><input type="text" class="form-control form-control-sm" style="max-width:180px" value="${esc(e.nombre)}" onchange="posExtraSet('${esc(e.id)}', 'nombre', this.value)"><input type="number" class="form-control form-control-sm" style="max-width:100px" min="0" step="0.01" value="${Number(e.precio) || 0}" onchange="posExtraSet('${esc(e.id)}', 'precio', this.value)"><button type="button" class="btn btn-sm btn-outline-danger" onclick="posExtraDel('${esc(e.id)}')">✕</button></div>`).join('') + `<div class="d-flex gap-1"><input type="text" class="form-control form-control-sm" style="max-width:180px" placeholder="Nuevo extra (ej.: Queso extra)" id="posExtraNom"><input type="number" class="form-control form-control-sm" style="max-width:100px" min="0" step="0.01" placeholder="Precio" id="posExtraPre"><button type="button" class="btn btn-sm btn-outline-primary" onclick="posExtraAdd()">+ Extra</button></div>`;
         }
@@ -8423,7 +8500,7 @@ html[data-theme="dark"] .conn-badge-login{background:rgba(255,255,255,.12);color
             saveConta(conta);
             const msg = document.getElementById('posCfgMsg'); if (msg) msg.textContent = '✅ Guardado.';
         }
-        window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual, turnoAbierto: posTurnoAbierto, addProd: posAddProd, cobrar: posCobrar, esperado: posEsperado, carrito: () => POS_CARRITO, setPagos: p => { POS_PAGOS = p; }, cerrarTurno: posCerrarTurno, abrirTurno: posAbrirTurno, anular: posAnularConfirmar, anularAbrir: posAnularAbrir, reimprimir: posReimprimir, informeZ: posInformeZ, ticketTexto: posTicketTexto, dtoLinea: (i, v) => posCartDto(i, v), dtoTicket: (t, v) => { POS_DTO_T = { tipo: t, valor: v }; posPintarCarrito(); }, devolverAbrir: posDevolverAbrir, devolver: posDevolverConfirmar, devueltoDe: v => posDevueltoDe(posDatos().pos, v), devoluciones: () => posDatos().pos.devoluciones, esperaGuardar: posEsperaGuardar, esperaRecuperar: posEsperaRecuperar, esperas: () => posDatos().pos.esperas, porCodigo: posCodigoBuscar, total: () => posTotal(), bruto: () => posBruto(), setCliente: id => posSetCliente(id), clienteCrear: posClienteCrear, saldoCliente: id => posSaldoCliente(posDatos().pos, id), saldoVenta: id => { const pp = posDatos().pos; const vv = pp.ventas.find(x => x.id === id); return vv ? posSaldoVenta(pp, vv) : 0; }, fiadoDe: id => { const pp = posDatos().pos; const vv = pp.ventas.find(x => x.id === id); return vv ? posFiadoDeVenta(vv) : 0; }, abonar: posAbonoAplicar, abonos: () => posDatos().pos.abonos, clientes: () => posDatos().pos.clientes, informes: () => posInformeDatos(POS_INF.periodo, POS_INF.mes, POS_INF.vendedor), infSet: posInfSet, cierreDenom: posCierreDenom, addVar: posAddVar, varAbrir: posVarAbrir, extraCrear: posExtraCrear, lineaExtra: posLineaExtra, variantesDe: pid => { const pp = posDatos().conta.productos.find(x => x.id === pid); return pp ? (pp.variantes || []) : []; }, extrasCfg: () => posDatos().pos.cfg.extras || [] };
+        window.__posTest = { vigenteEn: posVigenteEn, modulosDe: posModulosDe, aplicar: aplicarVisibilidadPos, datos: posDatos, subsDeNeg: subsDeNeg, mes: subsMesActual, turnoAbierto: posTurnoAbierto, addProd: posAddProd, cobrar: posCobrar, esperado: posEsperado, carrito: () => POS_CARRITO, setPagos: p => { POS_PAGOS = p; }, cerrarTurno: posCerrarTurno, abrirTurno: posAbrirTurno, anular: posAnularConfirmar, anularAbrir: posAnularAbrir, reimprimir: posReimprimir, informeZ: posInformeZ, ticketTexto: posTicketTexto, dtoLinea: (i, v) => posCartDto(i, v), dtoTicket: (t, v) => { POS_DTO_T = { tipo: t, valor: v }; posPintarCarrito(); }, devolverAbrir: posDevolverAbrir, devolver: posDevolverConfirmar, devueltoDe: v => posDevueltoDe(posDatos().pos, v), devoluciones: () => posDatos().pos.devoluciones, esperaGuardar: posEsperaGuardar, esperaRecuperar: posEsperaRecuperar, esperas: () => posDatos().pos.esperas, porCodigo: posCodigoBuscar, total: () => posTotal(), bruto: () => posBruto(), setCliente: id => posSetCliente(id), clienteCrear: posClienteCrear, saldoCliente: id => posSaldoCliente(posDatos().pos, id), saldoVenta: id => { const pp = posDatos().pos; const vv = pp.ventas.find(x => x.id === id); return vv ? posSaldoVenta(pp, vv) : 0; }, fiadoDe: id => { const pp = posDatos().pos; const vv = pp.ventas.find(x => x.id === id); return vv ? posFiadoDeVenta(vv) : 0; }, abonar: posAbonoAplicar, abonos: () => posDatos().pos.abonos, clientes: () => posDatos().pos.clientes, informes: () => posInformeDatos(POS_INF.periodo, POS_INF.mes, POS_INF.vendedor), infSet: posInfSet, cierreDenom: posCierreDenom, addVar: posAddVar, varAbrir: posVarAbrir, extraCrear: posExtraCrear, lineaExtra: posLineaExtra, variantesDe: pid => { const pp = posDatos().conta.productos.find(x => x.id === pid); return pp ? (pp.variantes || []) : []; }, extrasCfg: () => posDatos().pos.cfg.extras || [], mesaCrear: posMesaCrear, mesas: () => posDatos().pos.mesas, cuentas: () => posDatos().pos.cuentas, mesaAbrir: posMesaAbrir, cuentaGuardar: posCuentaGuardar, cuentaVaciar: () => { const { conta, pos } = posDatos(); pos.cuentas = (pos.cuentas || []).filter(c => c.id !== POS_CUENTA); saveConta(conta); POS_CUENTA = ''; POS_CARRITO = []; POS_PAGOS = null; POS_CLIENTE = ''; }, cuentaActiva: () => POS_CUENTA };
         window.__efeTest = { s5920: ctaEfe5920, s5921: ctaEfe5921, generar: contaEfeGenerar };
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-pos') setTimeout(renderPos, 60); });
         document.addEventListener('shown.bs.tab', e => { if (e.target && e.target.id === 'tab-admin') setTimeout(() => { try { renderPosCfg(); } catch (err) {} }, 80); });
@@ -19747,7 +19824,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
            MANUAL_VERSION en el mismo commit; el chequeo permanente
            audit/check_instrucciones.js falla si algún módulo de la lista
            vigente se queda sin sección. */
-        var MANUAL_VERSION = 'v2026.10.30-79';
+        var MANUAL_VERSION = 'v2026.10.30-80';
         var MANUAL_MODULOS = [
             {id:'empezar', titulo:'1 · Empezar: acceso, sesión y tus negocios'},
             {id:'regla-oro', titulo:'2 · Cómo decide la app por ti (la regla de oro)'},
@@ -20246,6 +20323,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
             '<li><b>Informes:</b> la tarjeta <b>📈 Informes</b> resume el período (hoy, el mes o un mes elegido) por <b>producto</b> — unidades, devuelto, neto, costo y <b>margen</b>, con los más vendidos primero —, por <b>vendedor</b>, los <b>clientes que deben</b> y los productos <b>bajo su stock mínimo</b> (el mínimo de cada producto se pone en la tarjeta de ajustes del POS en Configuración).</li>' +
             '<li><b>Variantes:</b> un producto puede tener <b>variantes</b> (tamaño, color…) con su <b>precio y su stock propios</b>: se crean en la tarjeta de ajustes del POS y al tocar el producto eliges la variante; el stock se rebaja de la variante vendida y las devoluciones lo reponen a la misma variante.</li>' +
             '<li><b>Extras:</b> los <b>modificadores</b> del negocio (queso extra, para llevar…) se crean una vez en los ajustes y se suman a cualquier línea del ticket con un toque; quedan escritos en el ticket.</li>' +
+            '<li><b>Mesas y cuentas abiertas:</b> si el negocio trabaja con <b>mesas</b> (se crean en los ajustes del POS, también la barra), el mapa de la pantalla de venta las muestra <b>libres u ocupadas</b> con el total de su cuenta. Tocas una mesa y su cuenta se carga en la pantalla: añades lo que pidan, la <b>guardas</b> y la mesa queda ocupada hasta que la cobres; al cobrar, la venta queda a nombre de la mesa y esta se libera. Una cuenta abierta <b>no mueve el stock</b> hasta que se cobra.</li>' +
             '<li><b>Parrilla a tu manera:</b> los productos se agrupan por <b>categorías</b> (las pones en la tarjeta de ajustes), los marcados como <b>⭐ favoritos</b> salen primero y cada producto puede mostrar su <b>imagen</b> (una dirección de imagen). Con un <b>lector de códigos</b>, escanear en el buscador añade el producto solo; con el botón <b>📷</b> se escanea usando la <b>cámara</b> del teléfono o la tableta.</li>' +
             '<li><b>Anular una venta:</b> en el historial, mientras su turno siga abierto, el botón <b>Anular</b> pide el <b>motivo</b> y lo deja escrito en la traza: el stock vuelve solo, el ingreso en Finanzas se revierte y la venta queda marcada como anulada, sin borrarse nunca. Si el turno ya cerró, la venta ya no se puede anular.</li>' +
             '<li><b>Historial y cierres:</b> las ventas de hoy (o del mes) se reimprimen cuando haga falta, y de cada cierre queda su <b>Informe Z</b> imprimible con el desglose por forma de cobro.</li>' +
@@ -20411,7 +20489,7 @@ function mjAplicarActor(){ const A=window.ACTOR_NEGOCIO; if(!A) return;
          'mjEstadosUI','mjDJUtilidadesUI','mjReservaUI','mjExportarEstadosCSV','mjFacturaCrearUI','mjDepreciacionAFUI',
          'mjFichaCostosUI','mjIPVUI','abrirEditorNegocio','eliminarNegocio','mjExpedienteToggle','mjRenderExpediente','mjKYCEditar',
          'mjROSAgregarUI','mjExclusionAgregarUI','mjFacturaConfirmarUI','mjFacturaCancelarUI','mjPatronAplicarUI',
-         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar','posSetCliente','posClienteAgregar','posClienteVer','posAbonoAbrir','posAbonoConfirmar','posCierreDenom','posInfSet','posVarAbrir','posVarCerrar','posAddVar','posAddLinea','posVarAdd','posVarDel','posVarSet','posExtraAdd','posExtraDel','posExtraSet','posLineaExtra','posLineaExtraDel','posSetCatI','posCartDto','posDtoTicketSet','posDevolverAbrir','posDevolverConfirmar','posEsperaGuardar','posEsperaRecuperar','posEsperaBorrar','posEscanear','posBusqEnter','contaEfeGenerar','dj01DocGenerar',
+         'facClienteGuardar','facClienteEditar','facClienteLimpiar','facLineaAdd','facLineaDel','facRecalc','facCrearUI','facConfirmarUI','facAnularUI','facImprimirUI','renderFacturas','facPagoToggleUI','facCobroQuitarUI','lluviaToggle','lluviaVolumen','renderContratos','ctorGuardarUI','ctorEditarUI','ctorLimpiarUI','ctorEstadoUI','ctorEliminarUI','ctorRenderLista','ctorAbrirMenu','facContratoRefrescar','ctorAdjAbrir','ctorAdjCerrar','ctorAdjArchivo','ctorAdjVer','ctorAdjDescargar','ctorAdjQuitar','ctorGenAbrir','ctorGenCerrar','ctorGenGenerar','ctorGenFilaAdd','ctorGenFilaDel','ctorAutAdd','ctorAutDel','ctorDocCerrar','ctorDocImprimir','ctrabAbrir','ctrabCerrar','ctrabGenerar','ctrabDocCerrar','ctrabDocImprimir','tarjAbrir','tarjCerrar','tarjPintar','tarjGuardar','tarjRestablecer','tarjImprimir','tarjCertImprimir','tarjDocCerrar','tarjDocImprimir','expdAbrir','expdCerrar','expdGuardar','expdImprimir','retRender','retAbrir','retCerrar','retGuardar','retTipoCambio','retDarBaja','retCertImprimir','retResumenImprimir','retDocCerrar','retDocImprimir','posCfgGuardar','posAbrirTurno','posBusca','posAddProd','posAddManual','posCartQty','posCartDel','posPagoSet','posPagoAdd','posPagoDel','posCobrar','posTicketImprimir','posTicketCerrar','posCajaMovGuardar','posInformeX','posCerrarAbrir','posCerrarTurno','posTicketPos','posHistVer','posReimprimir','posInformeZ','posAnularAbrir','posAnularConfirmar','posSetCliente','posClienteAgregar','posClienteVer','posAbonoAbrir','posAbonoConfirmar','posCierreDenom','posInfSet','posVarAbrir','posVarCerrar','posAddVar','posAddLinea','posVarAdd','posVarDel','posVarSet','posExtraAdd','posExtraDel','posExtraSet','posLineaExtra','posLineaExtraDel','posMesaAbrir','posCuentaGuardar','posCuentaVaciar','posMesaAdd','posMesaDel','posMesaSet','posMesasSembrar','posPintarMesas','posSetCatI','posCartDto','posDtoTicketSet','posDevolverAbrir','posDevolverConfirmar','posEsperaGuardar','posEsperaRecuperar','posEsperaBorrar','posEscanear','posBusqEnter','contaEfeGenerar','dj01DocGenerar',
          'mjPatronCrearUI','mjPresupuestoAgregarUI','mjInstrumentoUsarUI','mjInstrumentoAnularUI','mjInstrumentoCrearUI',
          'contaTesAdd','contaTesDel','contaTesToggle','contaTesTipoUI','contaCandadoAsumir','contaCandadoDesasumir',
          'contaCuarentenaLiberar','contaCuarentenaLiberarOp','contaCuarentenaDescartar','contaCuarentenaToggle',

@@ -1,15 +1,15 @@
 {
   "formato": "finanzas-version",
-  "version": "v2026.10.30-79",
-  "publicada": "2026-10-31 03:13",
-  "notas": "POS-7 Variantes y modificadores: variantes con precio y stock propios, extras por línea",
+  "version": "v2026.10.30-80",
+  "publicada": "2026-10-31 03:43",
+  "notas": "Ronda 80: mesas y cuentas abiertas en el Punto de Venta (POS-8) — el mapa de mesas muestra libres y ocupadas, la cuenta de cada mesa se carga, se guarda y se cobra al final; la mesa queda en la venta y en el ticket.",
   "requiereServidor": "0.11.0",
   "migracionDatos": 2,
   "archivos": [
     {
       "ruta": "index.html",
-      "sha256": "2416877e3cd3d585d4e7371a46be2c98a5a3b4246bfb72deef6d50223e316bd2",
-      "bytes": 2125140
+      "sha256": "05cea44ab3017d621bcf94b550dd43a54ab8c80aaecd2eb5df6f161ec8bd63c1",
+      "bytes": 2134580
     },
     {
       "ruta": "pdf-import.js",
@@ -22,5 +22,5 @@
       "bytes": 37434
     }
   ],
-  "firma": "UM632DXEHdxwUCVJnJt+po0dI7QRgJE3BsjxCNd3+tOqfn2oJDpgyDXBp90fwCQ6xUmg0E8HIq9wHW0+MfKSDg=="
+  "firma": "4eh++I2Z0t3Fnq2jDkOBOiNJ6LMAG6ZZR5vYpLScVQetN7iJ0yBxNdQelPAp9sA00wHBTp2uQz+ez/AVkcHtCQ=="
 }
